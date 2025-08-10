@@ -6,7 +6,7 @@
 <title>ネコロジア｜特設ページ</title>
 <style>
   :root{
-    --ink:#e8f0ff; --muted:#9ab0d4; --accent:#71ffd8; --bg:#070c18;
+    --ink:#fdf6e3; --muted:#9ab0d4; --accent:#71ffd8; --bg:#070c18;
     --neon:#00ffd0; --neon2:#83aaff;
   }
   html,body{height:100%}
@@ -28,7 +28,10 @@
   }
   .stage{
     position:relative; overflow:hidden; border-radius:16px; margin-top:18px;
-    min-height:320px; background:#0b1122 url('BG_IMAGE') center/cover no-repeat;
+    min-height:320px;.stage {
+  background: #0b1122 url('BG_IMAGE') center/cover no-repeat;
+  background-size: auto 240%; /* ← 縦方向を240%に拡大 */
+};
     box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 0 120px rgba(0,0,0,.45);
   }
   .veil{position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.65));}
