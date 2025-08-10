@@ -51,11 +51,6 @@
     mask: radial-gradient(60% 60% at 50% 55%, #000 70%, transparent 71%);
     border-radius:50%;
   }
-  .type{
-    position:relative; z-index:2; padding:28px 22px 24px; max-width:720px;
-    margin-left:calc(24px + min(24vw,120px)); /* 猫の右横に出す */
-    text-shadow:0 1px 0 #000, 0 0 18px rgba(0,255,208,.08);
-  }
   .line{opacity:.0; transform:translateY(6px); transition:opacity .3s ease, transform .3s ease}
   .line.show{opacity:1; transform:none}
   .line b{color:var(--accent)}
@@ -156,18 +151,6 @@
       <div class="veil"></div>
       <div class="cat" aria-hidden="true"></div>
 
-      <div class="type" id="typebox">
-        <!-- 表示されるテキスト（1行ずつ） -->
-        <div class="line">22世紀。大戦の傷跡が残る辺境都市で、</div>
-        <div class="line">記憶を失った戦争孤児の青年は、</div>
-         <div class="line">名前を持たずに生きる一匹の猫と出会う。</div>
-        <div class="line">失われた記憶と、与えられなかった</div>
-        <div class="line">呼び名を求めて旅立ったふたりは、</div>
-        <div class="line">名前がなければ存在すら許されない</div>
-        <div class="line">超監視型管理社会「ネコロジア」へと迷い込む。</div>
-        <div class="line">名もなき青年と猫に、</div>
-        <div class="line">この世界が“誰か”としての明日を許してくれる日は訪れるのだろうか。</div>
-        
         <div class="controls">
           <button class="btn" id="playBtn">▶ はじめる</button>
           <button class="btn" id="replayBtn" disabled>⟲ もう一度</button>
@@ -200,42 +183,6 @@ const BG_IMAGE  = 'images/city_neon.jpg';   // ← 背景画像（任意）
 document.getElementById('bgm').src = AUDIO_SRC;
 document.querySelector('.stage').style.backgroundImage =
   `linear-gradient(transparent,transparent), url('${BG_IMAGE}')`;
-
-/* ====== シネマティック文字表示 ====== */
-const lines = [...document.querySelectorAll('.line')];
-const playBtn = document.getElementById('playBtn');
-const replayBtn = document.getElementById('replayBtn');
-const audio = document.getElementById('bgm');
-let idx = 0, playing = false;
-
-async function showLines(){
-  playing = true;
-  playBtn.disabled = true;
-  replayBtn.disabled = true;
-  idx = 0;
-  // 行ごとに順に表示
-  for(const el of lines){
-    el.classList.remove('show');
-  }
-  for(const el of lines){
-    await wait(1200);
-    el.classList.add('show');
-    await wait(4000); // 表示間隔（調整OK）
-  }
-  replayBtn.disabled = false;
-  playing = false;
-}
-function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-playBtn.addEventListener('click', async ()=>{
-  // ユーザー操作での再生（自動再生対策）
-  try{ audio.currentTime = 0; await audio.play(); }catch(e){}
-  showLines();
-});
-replayBtn.addEventListener('click', async ()=>{
-  try{ audio.currentTime = 0; await audio.play(); }catch(e){}
-  showLines();
-});
 
 /* モーションを控えたい設定の場合、即座に全文表示 */
 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
@@ -367,7 +314,8 @@ playSubtitles([
   '見つかり次第ネコ型ロボットに“抹消”される、',
   '超監視型全体主義国家『ネコロジア』へと迷い込む。',
   '名もなき青年と猫に、',
-  'この世界が“誰か”としての明日を許してくれる未来は訪れるのだろうか。'
+  'この世界が“誰か”としての明日を',
+  '許してくれる未来は訪れるのだろうか。'
 ], 5, 900);
 });
 </script>
