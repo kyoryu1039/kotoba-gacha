@@ -103,10 +103,6 @@
       </div>
     </section>
 
-    <div class="hr"></div>
-    <p class="footer-note">このページは架空の作品「ネコロジア」のデモ用特設サイトです。</p>
-  </div>
-
   <!-- ▼ BGM（パスをあなたのmp3に変更） -->
   <audio id="bgm" preload="auto" loop src="AUDIO_SRC"></audio>
 
@@ -137,9 +133,9 @@ async function showLines(){
     el.classList.remove('show');
   }
   for(const el of lines){
-    await wait(350);
+    await wait(700);
     el.classList.add('show');
-    await wait(1400); // 表示間隔（調整OK）
+    await wait(2800); // 表示間隔（調整OK）
   }
   replayBtn.disabled = false;
   playing = false;
