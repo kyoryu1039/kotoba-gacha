@@ -44,32 +44,49 @@ main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg
 .footer{color:#aab3d6;font-size:12px;padding:10px 14px 18px;text-align:center}
 .bgmGrid{display:grid;gap:10px}.track{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--edge);border-radius:12px;padding:10px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.014))}
 .meta{display:flex;align-items:center;gap:10px}.tag{font-size:10px;color:#0b0f1c;background:#b5ffdf;border-radius:999px;padding:2px 6px;font-weight:900}.lock{color:#ffd36b}
-/* 比率固定＋画面幅にフィット */
-.ad-banner-fixed{
-  width:100%;
-  text-align:center;
-  margin:28px 0 40px;
+.ad-float {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  width: min(90vw, 320px); /* スマホは画面幅に合わせて縮む */
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  backdrop-filter: saturate(1.1);
+  animation: popIn 0.22s ease-out both;
 }
-
-.ad-banner-fixed a{
-  display:inline-block;
-  text-decoration:none;
+.ad-float img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
-
-.ad-banner-fixed img{
-  max-width:100%;         /* 画面幅に合わせて縮小 */
-  height:auto;            /* 高さは自動調整で比率維持 */
-  border-radius:12px;
-  box-shadow: 0 8px 22px rgba(0,0,0,.22);
+.ad-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
 }
-
-@media (hover:hover){
-  .ad-banner-fixed img{
-    transition: transform .15s ease, box-shadow .15s ease;
+@media (min-width: 1024px) {
+  .ad-float {
+    width: 300px; /* PCではコンパクトに */
   }
-  .ad-banner-fixed a:hover img{
-    transform: translateY(-1px);
-    box-shadow: 0 12px 28px rgba(0,0,0,.30);
+}
+@keyframes popIn {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
   }
 }
 </style></head><body>
@@ -104,14 +121,20 @@ main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg
     <div style="font-weight:900;margin-bottom:8px">BGM セレクター</div>
     <div class="bgmGrid" id="bgmGrid"></div>
   </section>
-  <!-- 広告風バナー -->
-<div class="ad-banner-fixed">
-  <a href="#" target="_blank" rel="noopener"
-     aria-label="『ネコロジア』特設サイトへ">
-    <img src="images/necologia_banner.jpg"
-         alt="FictitiousTVオリジナルアニメ『ネコロジア』｜9.31発売 DVD・ブルーレイ">
+ <!-- フローティング広告バナー -->
+<div class="ad-float" role="dialog" aria-label="広告バナー">
+  <a href="#" target="_blank" rel="noopener">
+    <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
   </a>
+  <button class="ad-close" aria-label="閉じる">×</button>
 </div>
+
+<script>
+  // 閉じるボタンの処理
+  document.querySelector('.ad-close')?.addEventListener('click', () => {
+    document.querySelector('.ad-float')?.remove();
+  });
+</script>
 </main>
 <div class="footer">あなたの好きな言葉は何ですか。</div>
 
