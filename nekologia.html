@@ -67,6 +67,46 @@
   @media (prefers-reduced-motion: reduce){
     .line{transition:none}
   }
+  /* === 猫ギャラリー（個別DLのみ） === */
+.cat-grid{
+  display:grid; gap:12px;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width:640px){ .cat-grid{ grid-template-columns: repeat(3, 1fr);} }
+@media (min-width:980px){ .cat-grid{ grid-template-columns: repeat(4, 1fr);} }
+
+.cat-card{
+  position:relative; overflow:hidden; border-radius:12px;
+  background:#0b1329; border:1px solid #233059;
+  box-shadow: 0 12px 28px rgba(0,0,0,.22) inset;
+}
+.cat-card img{
+  display:block; width:100%;
+  height:180px; object-fit:cover; object-position:center;
+  filter:saturate(1.03) contrast(1.02);
+}
+.cat-card.is-gif img{ height:220px; } /* GIFは少しだけ大きめに */
+@media (max-width:480px){
+  .cat-card img{ height:160px; }
+  .cat-card.is-gif img{ height:180px; }
+}
+
+/* 角のGIFバッジ（任意） */
+.cat-badge {
+  position:absolute; top:8px; right:8px;
+  padding:2px 6px; font-size:12px; font-weight:800;
+  border-radius:6px; letter-spacing:.04em;
+  color:#061627; background:linear-gradient(180deg,#71ffd8,#56e3c5);
+  box-shadow:0 2px 10px rgba(0,0,0,.25);
+}
+
+.cat-meta{
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+  padding:8px 10px; font-size:13px; color:var(--muted);
+}
+.cat-actions a{
+  text-decoration:none; border:1px solid #2a3b6e; border-radius:8px; padding:4px 8px; color:var(--ink);
+}
 </style>
 </head>
 <body>
@@ -106,7 +146,16 @@
         </div>
       </div>
     </section>
+<div class="hr"></div>
 
+<!-- ▼ 猫フォト・ギャラリー（個別DLのみ） -->
+<section class="wrap" id="cats">
+  <h2 style="margin:0 0 10px; letter-spacing:.06em;">ネコロジア 猫フォト・ギャラリー</h2>
+  <p style="margin:0 0 16px; color:#9ab0d4">
+    GIFはそのまま動きます。カード下の「DL」で保存できます。
+  </p>
+  <div class="cat-grid" id="catGrid" aria-live="polite"></div>
+</section>
   <!-- ▼ BGM（パスをあなたのmp3に変更） -->
   <audio id="bgm" preload="auto" loop src="AUDIO_SRC"></audio>
 
@@ -204,6 +253,65 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
   document.querySelectorAll('.line').forEach(el=>el.classList.add('show'));
   playBtn.disabled = false;
 }
+  /* === 猫ギャラリー：設定 === */
+// まずはダミー5枚。実ファイル名に置き換えてOK（cats/ フォルダ推奨）
+const CAT_IMAGES = [
+  'cats/loop01.gif',  // GIF1
+  'cats/loop02.gif',  // GIF2
+  'cats/cat01.jpg',   // 写真1
+  'cats/cat02.jpg',   // 写真2
+  'cats/cat03.jpg'    // 写真3
+];
+
+/* === 猫ギャラリー：描画 === */
+const grid = document.getElementById('catGrid');
+function fileNameFromPath(p){ return p.split('/').pop(); }
+function isGif(path){ return /\.gif$/i.test(path); }
+
+function renderCats(){
+  if(!grid) return;
+  grid.innerHTML = '';
+  CAT_IMAGES.forEach((src, i)=>{
+    const gif = isGif(src);
+
+    const card = document.createElement('div');
+    card.className = 'cat-card' + (gif ? ' is-gif' : '');
+
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.src = src;
+    img.alt = (gif ? 'GIF' : '画像') + ' 猫 ' + (i+1);
+    card.appendChild(img);
+
+    if(gif){
+      const badge = document.createElement('span');
+      badge.className = 'cat-badge';
+      badge.textContent = 'GIF';
+      card.appendChild(badge);
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'cat-meta';
+    const name = document.createElement('span');
+    name.textContent = fileNameFromPath(src);
+
+    const actions = document.createElement('div');
+    actions.className = 'cat-actions';
+    const a = document.createElement('a');
+    a.href = src;
+    a.download = fileNameFromPath(src);
+    a.textContent = 'DL';
+    actions.appendChild(a);
+
+    meta.appendChild(name);
+    meta.appendChild(actions);
+    card.appendChild(meta);
+
+    grid.appendChild(card);
+  });
+}
+renderCats();
 </script>
 </body>
 </html>
