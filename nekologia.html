@@ -26,12 +26,11 @@
     border-radius:999px; padding:6px 12px; font-weight:700; letter-spacing:.06em;
     background:#0b1430aa; backdrop-filter:saturate(1.1) blur(2px);
   }
-  .stage{
-    position:relative; overflow:hidden; border-radius:16px; margin-top:18px;
-    min-height:320px;.stage {
-  background: #0b1122 url('BG_IMAGE') center/cover no-repeat;
-  background-size: auto 240%; /* ← 縦方向を240%に拡大 */
-};
+  .stage {
+  min-height: 60vh; /* 画面の60%の高さにする */
+  background: #0b1122 url('BG_IMAGE') center/contain no-repeat;
+  background-size: auto 100%; /* 横は自動、縦を100%に */
+}
     box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 0 120px rgba(0,0,0,.45);
   }
   .veil{position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.65));}
