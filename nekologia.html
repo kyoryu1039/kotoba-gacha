@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ネコロジア｜特設ページ</title>
+<style>
+  :root{
+    --ink:#e8f0ff; --muted:#9ab0d4; --accent:#71ffd8; --bg:#070c18;
+    --neon:#00ffd0; --neon2:#83aaff;
+  }
+  html,body{height:100%}
+  body{
+    margin:0; background: radial-gradient(1200px 600px at 70% -10%, rgba(8,40,60,.35), transparent 60%),
+                       linear-gradient(180deg,#0a1225,#070c18 40%,#040811);
+    color:var(--ink); font-family: ui-sans-serif,system-ui,"Hiragino Kaku Gothic ProN","Meiryo",sans-serif;
+  }
+  .wrap{max-width:880px; margin:0 auto; padding:28px 16px 64px}
+  header{display:flex; align-items:center; justify-content:space-between; gap:12px}
+  .logo{
+    font-weight:900; letter-spacing:.12em; font-size:clamp(18px,3.8vw,26px);
+    text-shadow:0 0 16px rgba(113,255,216,.35);
+  }
+  .pill{
+    border:1px solid #233059; color:var(--muted);
+    border-radius:999px; padding:6px 12px; font-weight:700; letter-spacing:.06em;
+    background:#0b1430aa; backdrop-filter:saturate(1.1) blur(2px);
+  }
+  .stage{
+    position:relative; overflow:hidden; border-radius:16px; margin-top:18px;
+    min-height:320px; background:#0b1122 url('BG_IMAGE') center/cover no-repeat;
+    box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 0 120px rgba(0,0,0,.45);
+  }
+  .veil{position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.65));}
+  .cat{
+    position:absolute; left:24px; bottom:18px; width:min(24vw,120px); aspect-ratio:1;
+    background: radial-gradient(circle at 60% 40%, #111 0 52%, transparent 53%),
+                radial-gradient(circle at 40% 40%, #111 0 52%, transparent 53%),
+                radial-gradient(60% 18% at 50% 72%, #111 0 49%, transparent 50%);
+    filter: drop-shadow(0 0 10px rgba(0,0,0,.6));
+    mask: radial-gradient(60% 60% at 50% 55%, #000 70%, transparent 71%);
+    border-radius:50%;
+  }
+  .type{
+    position:relative; z-index:2; padding:28px 22px 24px; max-width:720px;
+    margin-left:calc(24px + min(24vw,120px)); /* 猫の右横に出す */
+    text-shadow:0 1px 0 #000, 0 0 18px rgba(0,255,208,.08);
+  }
+  .line{opacity:.0; transform:translateY(6px); transition:opacity .3s ease, transform .3s ease}
+  .line.show{opacity:1; transform:none}
+  .line b{color:var(--accent)}
+  .controls{display:flex; gap:8px; margin-top:10px}
+  .btn{
+    border:1px solid #2a3b6e; background:#0a1430; color:var(--ink);
+    padding:10px 14px; border-radius:12px; font-weight:800; letter-spacing:.08em; cursor:pointer;
+  }
+  .btn:disabled{opacity:.6; cursor:not-allowed}
+  .timer{
+    margin-top:22px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    color:var(--muted)
+  }
+  .timer .big{font-weight:900; color:var(--neon); text-shadow:0 0 12px rgba(0,255,208,.3)}
+  .subtitle{font-size:clamp(18px,3.6vw,26px); font-weight:900; letter-spacing:.08em; margin:8px 0 4px}
+  .fine{font-size:13px; color:var(--muted)}
+  .hr{height:1px; background:linear-gradient(90deg,transparent,#2b3f6e,transparent); margin:20px 0}
+  .footer-note{color:#8296c4; font-size:13px}
+  @media (prefers-reduced-motion: reduce){
+    .line{transition:none}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">FictitiousTV オリジナルアニメ「ネコロジア」</div>
+      <div class="pill">特設ページ</div>
+    </header>
+
+    <section class="stage" aria-label="あらすじ・シネマティック表示">
+      <div class="veil"></div>
+      <div class="cat" aria-hidden="true"></div>
+
+      <div class="type" id="typebox">
+        <!-- 表示されるテキスト（1行ずつ） -->
+        <div class="line">22世紀。大戦の傷跡が残る辺境都市で、記憶を失った戦争孤児の青年は、<b>名前</b>を持たずに生きる一匹の猫と出会う。</div>
+        <div class="line">失われた記憶と、与えられなかった呼び名を求めて旅立ったふたりは、</div>
+        <div class="line"><b>名前がなければ存在すら許されない</b>――超監視型の管理社会<b>「ネコロジア」</b>へと迷い込む。</div>
+        <div class="line">名もなき青年と猫に、この世界が“誰か”としての明日を許してくれる日は訪れるのだろうか。</div>
+
+        <div class="controls">
+          <button class="btn" id="playBtn">▶ BGM 再生</button>
+          <button class="btn" id="replayBtn" disabled>⟲ もう一度</button>
+        </div>
+
+        <div class="timer" id="timer">
+          <div class="subtitle">9.31 発売まで</div>
+          <div class="big"><span id="d">--</span>日</div>
+          <div class="big"><span id="h">--</span>時間</div>
+          <div class="big"><span id="m">--</span>分</div>
+          <div class="big"><span id="s">--</span>秒</div>
+          <div class="fine">※カウント終了時、真実が表示されます。</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="hr"></div>
+    <p class="footer-note">このページは架空の作品「ネコロジア」のデモ用特設サイトです。</p>
+  </div>
+
+  <!-- ▼ BGM（パスをあなたのmp3に変更） -->
+  <audio id="bgm" preload="auto" loop src="AUDIO_SRC"></audio>
+
+<script>
+/* ====== 設定：ここだけ変更 ====== */
+const AUDIO_SRC = 'audio/Nekologia.mp3';    // ← BGMファイルの相対パス
+const BG_IMAGE  = 'images/city_neon.jpg';   // ← 背景画像（任意）
+
+/* 反映 */
+document.getElementById('bgm').src = AUDIO_SRC;
+document.querySelector('.stage').style.backgroundImage =
+  `linear-gradient(transparent,transparent), url('${BG_IMAGE}')`;
+
+/* ====== シネマティック文字表示 ====== */
+const lines = [...document.querySelectorAll('.line')];
+const playBtn = document.getElementById('playBtn');
+const replayBtn = document.getElementById('replayBtn');
+const audio = document.getElementById('bgm');
+let idx = 0, playing = false;
+
+async function showLines(){
+  playing = true;
+  playBtn.disabled = true;
+  replayBtn.disabled = true;
+  idx = 0;
+  // 行ごとに順に表示
+  for(const el of lines){
+    el.classList.remove('show');
+  }
+  for(const el of lines){
+    await wait(350);
+    el.classList.add('show');
+    await wait(1400); // 表示間隔（調整OK）
+  }
+  replayBtn.disabled = false;
+  playing = false;
+}
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+playBtn.addEventListener('click', async ()=>{
+  // ユーザー操作での再生（自動再生対策）
+  try{ audio.currentTime = 0; await audio.play(); }catch(e){}
+  showLines();
+});
+replayBtn.addEventListener('click', async ()=>{
+  try{ audio.currentTime = 0; await audio.play(); }catch(e){}
+  showLines();
+});
+
+/* ====== 偽カウントダウン（9.31） ======
+   JSのDateでは 9/31 は 10/1 に丸め込まれます。
+   ここでは 9.31 と表記したまま、ゼロ到達で「発売はされません」を出す仕様。
+======================================== */
+(function(){
+  const y = new Date().getFullYear();
+  // 9月はmonth=8、31日は存在しないため -> 自動的に 10/1 になる
+  const target = new Date(y, 8, 31, 0, 0, 0);
+  const dEl = document.getElementById('d'),
+        hEl = document.getElementById('h'),
+        mEl = document.getElementById('m'),
+        sEl = document.getElementById('s');
+  const timerBox = document.getElementById('timer');
+
+  function tick(){
+    const now = new Date();
+    let diff = target - now;
+    if(diff <= 0){
+      dEl.textContent = hEl.textContent = mEl.textContent = sEl.textContent = '00';
+      timerBox.innerHTML = `
+        <div class="subtitle">9.31 発売</div>
+        <div style="margin-top:6px; font-weight:900; color:#ffb2b2; text-shadow:0 0 12px rgba(255,100,100,.35)">
+          ……は、<u>この世界には存在しません</u>。
+        </div>
+        <div class="fine" style="margin-top:6px">
+          それでも、わたしたちは明日の名前を探し続ける。
+        </div>`;
+      return;
+    }
+    const sec = Math.floor(diff/1000);
+    const d = Math.floor(sec/86400);
+    const h = Math.floor((sec%86400)/3600);
+    const m = Math.floor((sec%3600)/60);
+    const s = sec%60;
+    dEl.textContent = String(d).padStart(2,'0');
+    hEl.textContent = String(h).padStart(2,'0');
+    mEl.textContent = String(m).padStart(2,'0');
+    sEl.textContent = String(s).padStart(2,'0');
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* モーションを控えたい設定の場合、即座に全文表示 */
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  document.querySelectorAll('.line').forEach(el=>el.classList.add('show'));
+  playBtn.disabled = false;
+}
+</script>
+</body>
+</html>
