@@ -118,6 +118,32 @@
   height: auto;
   margin: 20px auto; /* 上下に余白を追加 */
 }
+  .subs{
+  position:absolute; left:50%; bottom:5%;
+  transform:translateX(-50%);
+  width:min(92vw,900px);
+  padding:10px 14px; text-align:center; pointer-events:none;
+}
+.subs-line{
+  display:inline-block;
+  font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
+  font-weight:700; font-size:clamp(18px,2.6vw,28px);
+  line-height:1.35; letter-spacing:.02em;
+  color:#f5f2e6; /* クリーム寄りの白 */
+  text-shadow:
+    -1px -1px 0 #000,  1px -1px 0 #000,
+    -1px  1px 0 #000,  1px  1px 0 #000,
+     0    0   8px rgba(0,0,0,.35);
+  min-height:2.4em;
+}
+.subs-audio{
+  position:absolute; right:6px; bottom:-6px; transform:translateY(100%);
+  pointer-events:auto; border:none; border-radius:10px;
+  padding:4px 8px; font-size:14px; cursor:pointer;
+  color:#061627; background:linear-gradient(180deg,#71ffd8,#55e3c4);
+  box-shadow:0 2px 10px rgba(0,0,0,.3);
+}
+.subs-audio[aria-pressed="false"]{ filter:grayscale(1) brightness(.75); }
 </style>
 </head>
 <body>
@@ -146,6 +172,11 @@
           <button class="btn" id="playBtn">▶ はじめる</button>
           <button class="btn" id="replayBtn" disabled>⟲ もう一度</button>
         </div>
+        <!-- ▼ 字幕エリア：背景の上に重ねる -->
+<div class="subs" id="subs">
+  <div class="subs-line" id="subsText"></div>
+  <button class="subs-audio" id="subsSoundBtn" aria-pressed="true" title="効果音 ON/OFF">🔊</button>
+</div>
       </div>
     </section>
 <div class="hr"></div>
@@ -274,6 +305,74 @@ function renderCats(){
   });
 }
 renderCats();
+  <script>
+// ---------- WebAudio クリック音 ----------
+let audioCtx = null;
+function playClick(){
+  if(!soundOn) return;
+  // 初回はユーザー操作後にContextを作成（自動再生対策）
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'square';
+  osc.frequency.value = 900;      // 音の高さ
+  gain.gain.value = 0.05;         // 音量
+  const t = audioCtx.currentTime;
+  gain.gain.setValueAtTime(0.05, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06); // 余韻を短く
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(t); osc.stop(t + 0.07);
+}
+
+// ---------- 字幕：タイプ表示 ----------
+const subsEl = document.getElementById('subsText');
+const soundBtn = document.getElementById('subsSoundBtn');
+let soundOn = true;
+soundBtn?.addEventListener('click', ()=>{
+  soundOn = !soundOn;
+  soundBtn.setAttribute('aria-pressed', String(soundOn));
+});
+
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+/** 1文字ずつ表示（句読点や空白は無音） */
+async function typeLine(text, cps=30){
+  subsEl.textContent = '';
+  if(!text){ await wait(200); return; }
+  const delay = 1000 / cps;
+  for(let i=0;i<text.length;i++){
+    const ch = text[i];
+    subsEl.textContent += ch;
+    if(!/[\s　、。・，．…]/.test(ch)) playClick();
+    await wait(delay);
+  }
+}
+
+/** 行の配列を順に表示 */
+async function playSubtitles(lines, cps=28, hold=800){
+  subsEl.parentElement.style.opacity = 1;
+  for(const line of lines){
+    await typeLine(line, cps);
+    await wait(hold);
+  }
+}
+
+// 例：既存の「▶ はじめる」押下で字幕スタート
+document.getElementById('playBtn')?.addEventListener('click', ()=>{
+playSubtitles([
+  '22世紀。大戦の傷跡が残る辺境都市で、',
+  '記憶を失った戦争孤児の青年は、',
+  '名前を持たずに生きる一匹の猫と出会う。',
+  '失われた記憶と、与えられなかった呼び名を求めて、',
+  '旅立ったふたりは、ある出来事をきっかけに、',
+  '名前がなければ存在すら許されず、',
+  '見つかり次第ネコ型ロボットに“抹消”される、',
+  '超監視型全体主義国家『ネコロジア』へと迷い込む。',
+  '名もなき青年と猫に、',
+  'この世界が“誰か”としての明日を許してくれる未来は訪れるのだろうか。'
+], 5, 900);
+});
+</script>
 </script>
     <section class="goods" style="padding:40px 16px; text-align:center;">
   <h2 style="font-size:clamp(20px,4vw,28px); margin-bottom:16px; color:#f5f0e8;">
