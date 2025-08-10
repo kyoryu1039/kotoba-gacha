@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ことばコレクションガチャ — Hypnagogia Edition v4.4</title>
+<title>ことばコレクションガチャ — Hypnagogia Edition v4.6</title>
 <style>
 :root{--bg:#0b0f1c;--ink:#eef2ff;--muted:#aab3d6;--panel:#12172b;--edge:#1d2a55;--gold:#f7d774;--amber:#ffbd63;--aqua:#63ead9;--blue:#8fb1ff;--gray:#94a3b8;--bad:#ff6b6b}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:
@@ -8,7 +8,8 @@ radial-gradient(1200px 800px at 80% -20%, rgba(255,255,255,.04), transparent 60%
 radial-gradient(1000px 800px at 10% 0%, #121a3b, #0b0f1c 60%);
 font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif}
 header{position:sticky;top:0;z-index:10;backdrop-filter:blur(6px);background:linear-gradient(180deg,rgba(10,14,28,.9),rgba(10,14,28,.65));border-bottom:1px solid var(--edge);padding:8px 10px 10px}
-.titleRow{display:flex;align-items:center;justify-content:center;gap:8px}.title{font-weight:900;letter-spacing:.3px;font-size:18px}
+.titleRow{display:flex;align-items:center;justify-content:center;gap:8px}
+.title{font-weight:900;letter-spacing:.3px;font-size:18px;white-space:nowrap;max-width:80vw;text-overflow:ellipsis;overflow:hidden}
 .ver{font-size:10px;color:#0b0f1c;background:linear-gradient(180deg,#b5ffdf,#63ead9);border-radius:999px;padding:3px 8px;font-weight:900}
 .ctrlRow{margin-top:8px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
 button.cta{appearance:none;border:none;cursor:pointer;color:#081224;font-weight:900;letter-spacing:.2px;padding:10px 12px;border-radius:12px;box-shadow:0 10px 20px rgba(0,0,0,.25);transition:transform .08s}
@@ -45,7 +46,7 @@ main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg
 .meta{display:flex;align-items:center;gap:10px}.tag{font-size:10px;color:#0b0f1c;background:#b5ffdf;border-radius:999px;padding:2px 6px;font-weight:900}.lock{color:#ffd36b}
 </style></head><body>
 <header>
-  <div class="titleRow"><div class="title">ことばコレクションガチャ</div><div class="ver">v4.4</div></div>
+  <div class="titleRow"><div class="title">ことばコレクションガチャ</div><div class="ver">v4.6</div></div>
   <div class="ctrlRow">
     <button class="cta b1" id="roll1">単発</button>
     <button class="cta b5" id="roll5">5連</button>
@@ -87,9 +88,9 @@ main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
 
-/* ====== 定数 ====== */
+/* ====== プール／確率 ====== */
 const pools={S:["パラボラアンテナ","ネスカフェアンバサダー"],
-A:["にんじんしりしり","そぼろごはん","西ローランドゴリラ","毛むくじゃら","九品仏","けんちん汁"],
+A:["にんじんしりしり","そぼろごはん","ニシローランドゴリラ","毛むくじゃら","九品仏","けんちん汁"],
 B:["カムチャッカ半島","タランチュラ","ハシビロコウ","バルサミコ酢","ピロリ菌","トリニダード・トバゴ","カラメル色素"],
 C:["バビロン捕囚","鳥取砂丘","プラシーボ効果","渡来人","さるびあ丸","ペペロンチーノ","ポリプロピレン","サラエボ事件"],
 D:["クマンバチ","県庁所在地","照り焼きチキン","ねるねるねるね","スルメイカ"],
@@ -97,20 +98,52 @@ X:["本質","見える化","自分ごと化","解像度"]};
 const probs={S:.02,A:.08,B:.20,C:.30,D:.30,X:.10};
 const icons={S:"🌟",A:"💎",B:"🔷",C:"🔹",D:"🔸",X:"❌"};
 const classes={S:"s",A:"a",B:"b",C:"c",D:"d",X:"x"};
+
+/* ====== コメント（最終確定版） ====== */
 const exp={
-"ネスカフェアンバサダー":"身近×肩書きのギャップ。言葉だけで絵が立つ。","パラボラアンテナ":"機械と宇宙が直結。p-r-lのリズムが快感。","そぼろごはん":"音の柔らかさと湯気の情景。","にんじんしりしり":"反復の可笑しさと具体性。","九品仏":"固有名詞の静かな重み。","西ローランドゴリラ":"濁音の重量感。存在の迫力。","毛むくじゃら":"触覚が湧く擬態語みたいな名。","けんちん汁":"地味旨の生活感。語尾の丸さ。",
-"カムチャッカ半島":"寒気と熱気が同居する地名の熱。","タランチュラ":"恐怖×リズム。音だけでざわつく。","ハシビロコウ":"姿の異様さと語感のユーモア。","バルサミコ酢":"甘さと化学の二重性。","ピロリ菌":"かわいい音に不穏な意味。","トリニダード・トバゴ":"跳ねるリズムの地名最強格。","カラメル色素":"おやつの記憶×ラボ感。",
-"バビロン捕囚":"歴史の凝縮名。凹凸の強い語感。","鳥取砂丘":"砂の広がりが一語で来る。","プラシーボ効果":"言葉が現実を動かす皮肉。","渡来人":"教科書のページがめくれる音。","さるびあ丸":"固有名詞＋船旅の匂い。","ペペロンチーノ":"口内で跳ねる律動。","ポリプロピレン":"日用品×化学の快感。","サラエボ事件":"歴史の急所を点で刺す名。"
+  // S
+  "パラボラアンテナ":"声に出して読みたい日本語ランキング第1位。",
+  "ネスカフェアンバサダー":"誰もが人生で一度は就任してみたい憧れの肩書き。",
+  // A
+  "にんじんしりしり":"沖縄のキッチンから届く、爽やかなくり返し言葉。",
+  "そぼろごはん":"口の中を体現したような語感。",
+  "ニシローランドゴリラ":"名前からビシビシと伝わってくる威厳。くれぐれもVIP待遇で。",
+  "毛むくじゃら":"毛は知ってるけど、むくじゃらって何なのさ。",
+  "九品仏":"難読地名が織りなすリズム。",
+  "けんちん汁":"響きだけで、もうあったかい。",
+  // B
+  "カムチャッカ半島":"寒気と熱気が同居する極東の地へようこそ。",
+  "タランチュラ":"猛毒にしては可愛すぎる名前。ファンシーなお菓子みたい。",
+  "ハシビロコウ":"間抜けの鳥には間抜けな語感。",
+  "バルサミコ酢":"まるで呪文。",
+  "ピロリ菌":"可愛いふりしてわりとやるもんだね。",
+  "トリニダード・トバゴ":"容赦ない濁音とトの応酬。",
+  "カラメル色素":"おやつの記憶にラボの匂い。",
+  // C
+  "バビロン捕囚":"いかにも捕まったぁって感じ。",
+  "鳥取砂丘":"荒野を子音が跳ね回る。",
+  "プラシーボ効果":"言葉に舐められている。",
+  "渡来人":"朝鮮半島からの挑戦。",
+  "さるびあ丸":"間の抜けた旅になりそう。",
+  "ペペロンチーノ":"唐辛子が躍動する口内。",
+  "ポリプロピレン":"半濁音の王様。",
+  "サラエボ事件":"さらっと始まったはずだったのに。",
+  // D
+  "クマンバチ":"「ん」の妙。",
+  "県庁所在地":"シャキシャキしてるね。",
+  "照り焼きチキン":"甘辛ビートに乗っちゃって。",
+  "ねるねるねるね":"オセロだったら気持ちいい。",
+  "スルメイカ":"噛めば噛むほど味が出る名前。"
 };
 
-/* ====== 状態 ====== */
-const storeSeen="kotoba_collection_seen_v4_4";
-const storeBGM="kotoba_bgm_selected_v4_4";
+/* ====== ストレージ ====== */
+const storeSeen="kotoba_collection_seen_v4_6";
+const storeBGM="kotoba_bgm_selected_v4_6";
 const seen=new Set(JSON.parse(localStorage.getItem(storeSeen)||"[]"));
 let selectedBGM=localStorage.getItem(storeBGM)||"default";
 const tiers=["S","A","B","C","D"];
 
-/* ====== 要素参照 ====== */
+/* ====== DOM参照 ====== */
 const cards=document.getElementById('cards');
 const progress=document.getElementById('progress');
 const counts=document.getElementById('counts');
@@ -123,7 +156,7 @@ const tabCollection=document.getElementById('tabCollection');
 const tabBGM=document.getElementById('tabBGM');
 const toastEl=document.getElementById('toast');
 
-/* ====== BGM関連 ====== */
+/* ====== BGM ====== */
 const bgmEl=document.getElementById('bgm');
 const bgmBtn=document.getElementById('bgmBtn');
 const vol=document.getElementById('vol');
@@ -181,18 +214,20 @@ function renderCollection(){
   }
 }
 
-/* ====== BGMタブ ====== */
+/* ====== BGMタブ（未解放は「？？？」） ====== */
 const bgmGrid=document.getElementById('bgmGrid');
+function bgmTracks(){
+  return [
+    {id:"default",name:"ヒプナゴジア音頭",tier:"FREE",unlocked:true,src:"audio/Hypnagogiaondo.mp3"},
+    {id:"kingyobachi",name: hasTier("S")?"金魚鉢":"？？？",tier:"S",unlocked:hasTier("S"),src:"audio/Kingyobachi.mp3"},
+    {id:"kuganebutsu",name: hasTier("A")?"九品仏奇譚":"？？？",tier:"A",unlocked:hasTier("A"),src:"audio/Kuhonbutsukitan.mp3"},
+    {id:"necology",name: hasTier("B")?"ネコロジア":"？？？",tier:"B",unlocked:hasTier("B"),src:"audio/Nekologia.mp3"},
+    {id:"kingyobachi_chorus",name: (tiers.every(t=>hasTier(t)))?"金魚鉢（合唱ver.）":"？？？",tier:"ALL",unlocked:tiers.every(t=>hasTier(t)),src:"audio/Kingyobachi_chorus.mp3"},
+  ];
+}
 function renderBGMTab(){
   bgmGrid.innerHTML="";
-  const tracks=[
-    {id:"default",name:"ヒプナゴジア音頭",tier:"FREE",unlocked:true,src:"audio/Hypnagogiaondo.mp3"},
-    {id:"kingyobachi",name:"金魚鉢",tier:"S",unlocked:hasTier("S"),src:"audio/Kingyobachi.mp3"},
-    {id:"kuganebutsu",name:"九品仏奇譚",tier:"A",unlocked:hasTier("A"),src:"audio/Kuhonbutsukitan.mp3"},
-    {id:"necology",name:"ネコロジア",tier:"B",unlocked:hasTier("B"),src:"audio/Nekologia.mp3"},
-    {id:"kingyobachi_chorus",name:"金魚鉢（合唱ver.）",tier:"ALL",unlocked:tiers.every(t=>hasTier(t)),src:"audio/Kingyobachi_chorus.mp3"},
-  ];
-  tracks.forEach(tr=>{
+  bgmTracks().forEach(tr=>{
     const wrap=document.createElement('div');wrap.className='track';
     const left=document.createElement('div');left.className='meta';
     const badge=document.createElement('span');badge.className='tag';badge.textContent=(tr.tier==='FREE'?'FREE解放':tr.tier+' 完了で解放');
@@ -254,7 +289,7 @@ function showSummary(items){
   summary.classList.add('show');setTimeout(()=>summary.classList.remove('show'),1600);
 }
 
-/* ====== コンプリート判定 ====== */
+/* ====== コンプリート判定（BGM名の公開付き） ====== */
 const completeAll=document.getElementById('completeAll');
 const unlock={FREE:true,S:false,A:false,B:false,ALL:false};
 function tryCompleteTier(tier,prev){
@@ -264,7 +299,9 @@ function tryCompleteTier(tier,prev){
     if(!unlock[tier]){
       unlock[tier]=true;
       const name=tier==="S"?"金魚鉢":tier==="A"?"九品仏奇譚":"ネコロジア";
-      toast(`新しいBGM「${name}」が開放されました！`);duck(chimeLong);renderBGMTab();
+      toast(`新しいBGM「${name}」が開放されました！`);
+      duck(chimeLong);
+      renderBGMTab(); // 未解放「？？？」→実名に切替
     }
     const ov=document.createElement('div');ov.className='summary show';
     ov.innerHTML=`<div class="sumCard"><div style="font-weight:900">${tier}ランク コンプリート！</div><div style="color:#aab3d6;font-size:13px;margin-top:4px">全${tot}枚を獲得しました。</div></div>`;
@@ -272,13 +309,14 @@ function tryCompleteTier(tier,prev){
   }
 }
 function checkCompleteAll(){
-  const all=tiers.every(t=>hasTier(t));
+  const all=tiers.every(t=>pools[t].every(w=>seen.has(w)));
   if(all){
     completeAll.classList.add('show');
     duck(()=>{chimeLong();setTimeout(chimeLong,700)});
     setTimeout(()=>completeAll.classList.remove('show'),2200);
     toast('新しいBGM「金魚鉢（合唱ver.）」が開放されました！');
     switchBGM('kingyobachi_chorus');
+    renderBGMTab();
   }
 }
 
@@ -298,8 +336,6 @@ document.getElementById('info').onclick=()=>alert("排出率：S2% A8% B20% C30%
   renderProgress();renderCollection();renderBGMTab();
   if(selectedBGM!=="default") switchBGM(selectedBGM);
 })();
-
 }); /* DOMContentLoaded */
 </script>
 </body></html>
-
