@@ -57,11 +57,6 @@
     padding:10px 14px; border-radius:12px; font-weight:800; letter-spacing:.08em; cursor:pointer;
   }
   .btn:disabled{opacity:.6; cursor:not-allowed}
-  .timer{
-    margin-top:22px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    color:var(--muted)
-  }
-  .timer .big{font-weight:900; color:var(--neon); text-shadow:0 0 12px rgba(0,255,208,.3)}
   .subtitle{font-size:clamp(18px,3.6vw,26px); font-weight:900; letter-spacing:.08em; margin:8px 0 4px}
   .fine{font-size:13px; color:var(--muted)}
   .hr{height:1px; background:linear-gradient(90deg,transparent,#2b3f6e,transparent); margin:20px 0}
@@ -138,14 +133,6 @@
           <button class="btn" id="playBtn">▶ はじめる</button>
           <button class="btn" id="replayBtn" disabled>⟲ もう一度</button>
         </div>
-
-        <div class="timer" id="timer">
-          <div class="subtitle">9.31 発売まで</div>
-          <div class="big"><span id="d">--</span>日</div>
-          <div class="big"><span id="h">--</span>時間</div>
-          <div class="big"><span id="m">--</span>分</div>
-          <div class="big"><span id="s">--</span>秒</div>
-        </div>
       </div>
     </section>
 <div class="hr"></div>
@@ -206,49 +193,6 @@ replayBtn.addEventListener('click', async ()=>{
   try{ audio.currentTime = 0; await audio.play(); }catch(e){}
   showLines();
 });
-
-/* ====== 偽カウントダウン（9.31） ======
-   JSのDateでは 9/31 は 10/1 に丸め込まれます。
-   ここでは 9.31 と表記したまま、ゼロ到達で「発売はされません」を出す仕様。
-======================================== */
-(function(){
-  const y = new Date().getFullYear();
-  // 9月はmonth=8、31日は存在しないため -> 自動的に 10/1 になる
-  const target = new Date(y, 8, 31, 0, 0, 0);
-  const dEl = document.getElementById('d'),
-        hEl = document.getElementById('h'),
-        mEl = document.getElementById('m'),
-        sEl = document.getElementById('s');
-  const timerBox = document.getElementById('timer');
-
-  function tick(){
-    const now = new Date();
-    let diff = target - now;
-    if(diff <= 0){
-      dEl.textContent = hEl.textContent = mEl.textContent = sEl.textContent = '00';
-      timerBox.innerHTML = `
-        <div class="subtitle">9.31 発売</div>
-        <div style="margin-top:6px; font-weight:900; color:#ffb2b2; text-shadow:0 0 12px rgba(255,100,100,.35)">
-          ……は、<u>この世界には存在しません</u>。
-        </div>
-        <div class="fine" style="margin-top:6px">
-          それでも、わたしたちは明日の名前を探し続ける。
-        </div>`;
-      return;
-    }
-    const sec = Math.floor(diff/1000);
-    const d = Math.floor(sec/86400);
-    const h = Math.floor((sec%86400)/3600);
-    const m = Math.floor((sec%3600)/60);
-    const s = sec%60;
-    dEl.textContent = String(d).padStart(2,'0');
-    hEl.textContent = String(h).padStart(2,'0');
-    mEl.textContent = String(m).padStart(2,'0');
-    sEl.textContent = String(s).padStart(2,'0');
-    requestAnimationFrame(tick);
-  }
-  tick();
-})();
 
 /* モーションを控えたい設定の場合、即座に全文表示 */
 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
