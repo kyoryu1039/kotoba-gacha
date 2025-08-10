@@ -184,11 +184,6 @@ document.getElementById('bgm').src = AUDIO_SRC;
 document.querySelector('.stage').style.backgroundImage =
   `linear-gradient(transparent,transparent), url('${BG_IMAGE}')`;
 
-/* モーションを控えたい設定の場合、即座に全文表示 */
-if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-  document.querySelectorAll('.line').forEach(el=>el.classList.add('show'));
-  playBtn.disabled = false;
-}
   /* === 猫ギャラリー：設定 === */
 // まずはダミー5枚。実ファイル名に置き換えてOK（cats/ フォルダ推奨）
 const CAT_IMAGES = [
