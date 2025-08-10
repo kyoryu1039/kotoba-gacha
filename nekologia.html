@@ -17,10 +17,18 @@
   }
   .wrap{max-width:880px; margin:0 auto; padding:28px 16px 64px}
   header{display:flex; align-items:center; justify-content:space-between; gap:12px}
-  .logo{
-    font-weight:900; letter-spacing:.12em; font-size:clamp(18px,3.8vw,26px);
-    text-shadow:0 0 16px rgba(113,255,216,.35);
-  }
+.logo{
+  font-weight:900;
+  letter-spacing:.12em;
+  font-size:clamp(24px,5vw,40px);
+  background: linear-gradient(90deg, #ffd98e, #fff8e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 6px rgba(255,220,150,.6),
+    0 0 18px rgba(255,200,120,.4),
+    0 0 32px rgba(255,180,90,.25);
+}
   .pill{
     border:1px solid #233059; color:var(--muted);
     border-radius:999px; padding:6px 12px; font-weight:700; letter-spacing:.06em;
@@ -110,7 +118,7 @@
   <div class="wrap">
     <header>
       <div class="logo">FictitiousTV オリジナルアニメ「ネコロジア」</div>
-      <div class="pill">特設ページ</div>
+  
     </header>
 
     <section class="stage" aria-label="あらすじ・シネマティック表示">
