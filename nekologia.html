@@ -255,18 +255,23 @@ renderCats();
 let audioCtx = null;
 function playClick(){
   if(!soundOn) return;
-  // 初回はユーザー操作後にContextを作成（自動再生対策）
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-  osc.type = 'square';
-  osc.frequency.value = 900;      // 音の高さ
-  gain.gain.value = 0.05;         // 音量
+
+  osc.type = 'sine';                  // 柔らかい波形
+  osc.frequency.value = 420;          // 低めで落ち着いた周波数
+  gain.gain.value = 0.02;              // 小さめの音量
+
   const t = audioCtx.currentTime;
-  gain.gain.setValueAtTime(0.05, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06); // 余韻を短く
-  osc.connect(gain); gain.connect(audioCtx.destination);
-  osc.start(t); osc.stop(t + 0.07);
+  gain.gain.setValueAtTime(0.02, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1); // 余韻少し長め
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start(t);
+  osc.stop(t + 0.12);                  // 少し長めに再生
 }
 
 // ---------- 字幕：タイプ表示 ----------
