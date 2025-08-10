@@ -44,58 +44,32 @@ main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg
 .footer{color:#aab3d6;font-size:12px;padding:10px 14px 18px;text-align:center}
 .bgmGrid{display:grid;gap:10px}.track{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--edge);border-radius:12px;padding:10px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.014))}
 .meta{display:flex;align-items:center;gap:10px}.tag{font-size:10px;color:#0b0f1c;background:#b5ffdf;border-radius:999px;padding:2px 6px;font-weight:900}.lock{color:#ffd36b}
-/* === 広告風バナー（下部に自然表示）=== */
-.ad-banner{
-  display:block;
-  max-width:980px;          /* PCの最大幅 */
-  margin:28px auto calc(40px + env(safe-area-inset-bottom, 0));
-  padding:0 16px;           /* スマホの左右余白 */
+/* 比率固定＋画面幅にフィット */
+.ad-banner-fixed{
+  width:100%;
+  text-align:center;
+  margin:28px 0 40px;
+}
+
+.ad-banner-fixed a{
+  display:inline-block;
   text-decoration:none;
 }
-.ad-banner picture,
-.ad-banner img{
-  display:block;
-  width:100%;
-  height:auto;
-  aspect-ratio: 8 / 1;      /* レイアウトシフト防止（画像読み込み前も比率を確保） */
+
+.ad-banner-fixed img{
+  max-width:100%;         /* 画面幅に合わせて縮小 */
+  height:auto;            /* 高さは自動調整で比率維持 */
   border-radius:12px;
   box-shadow: 0 8px 22px rgba(0,0,0,.22);
-  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
 }
 
-/* ホバー可能デバイスのみ立体感を強化 */
 @media (hover:hover){
-  .ad-banner:hover picture,
-  .ad-banner:hover img{
+  .ad-banner-fixed img{
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .ad-banner-fixed a:hover img{
     transform: translateY(-1px);
     box-shadow: 0 12px 28px rgba(0,0,0,.30);
-    filter: saturate(1.03) contrast(1.03);
-  }
-}
-
-/* 狭い画面（スマホ）での最適化 */
-@media (max-width: 480px){
-  .ad-banner{
-    margin:20px auto calc(28px + env(safe-area-inset-bottom, 0));
-    padding:0 12px;
-  }
-  .ad-banner picture,
-  .ad-banner img{
-    border-radius:10px;
-    box-shadow: 0 6px 18px rgba(0,0,0,.20);
-  }
-}
-
-/* 大きめ画面（タブレット〜PC）での余白調整 */
-@media (min-width: 981px){
-  .ad-banner{ padding:0; } /* サイトのmax幅と揃えて左右ピタッと */
-}
-
-/* モーションを控えたいユーザー配慮 */
-@media (prefers-reduced-motion: reduce){
-  .ad-banner picture,
-  .ad-banner img{
-    transition: none;
   }
 }
 </style></head><body>
@@ -130,17 +104,14 @@ main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg
     <div style="font-weight:900;margin-bottom:8px">BGM セレクター</div>
     <div class="bgmGrid" id="bgmGrid"></div>
   </section>
-  <!-- 広告風バナー（レスポンシブ対応） -->
-<a class="ad-banner" href="#" target="_blank" rel="noopener"
-   aria-label="『ネコロジア』特設サイトへ">
-  <picture>
-    <!-- 高解像度端末向け 2x（あれば） -->
-    <source srcset="images/necologia_banner_8x1@2x.jpg 2x, images/necologia_banner_8x1.jpg 1x" type="image/jpeg">
-    <img src="images/necologia_banner_8x1.jpg"
-         alt="FictitiousTVオリジナルアニメ『ネコロジア』｜9.31発売 DVD・ブルーレイ"
-         loading="lazy" decoding="async" width="1600" height="200">
-  </picture>
-</a>
+  <!-- 広告風バナー -->
+<div class="ad-banner-fixed">
+  <a href="#" target="_blank" rel="noopener"
+     aria-label="『ネコロジア』特設サイトへ">
+    <img src="images/necologia_banner.jpg"
+         alt="FictitiousTVオリジナルアニメ『ネコロジア』｜9.31発売 DVD・ブルーレイ">
+  </a>
+</div>
 </main>
 <div class="footer">あなたの好きな言葉は何ですか。</div>
 
