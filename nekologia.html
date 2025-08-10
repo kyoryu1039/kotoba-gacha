@@ -34,13 +34,13 @@
     border-radius:999px; padding:6px 12px; font-weight:700; letter-spacing:.06em;
     background:#0b1430aa; backdrop-filter:saturate(1.1) blur(2px);
   }
-  .stage {
-  min-height: 60vh; /* 画面の60%の高さにする */
-  background: #0b1122 url('BG_IMAGE') center/contain no-repeat;
-  background-size: auto 100%; /* 横は自動、縦を100%に */
+.stage{
+  position: relative;              /* ← 追加 */
+  min-height: 60vh;
+  background: #0b1122 center/contain no-repeat; /* 画像はJSで当てるのでここは色＋配置だけ */
+  background-size: auto 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 0 120px rgba(0,0,0,.45); /* ← 迷子救出 */
 }
-    box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 0 120px rgba(0,0,0,.45);
-  }
   .veil{position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.65));}
   .cat{
     position:absolute; left:24px; bottom:18px; width:min(24vw,120px); aspect-ratio:1;
@@ -304,7 +304,6 @@ function renderCats(){
   });
 }
 renderCats();
-  <script>
 // ---------- WebAudio クリック音 ----------
 let audioCtx = null;
 function playClick(){
