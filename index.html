@@ -1,3 +1,8 @@
+
+Kanta Mochida <kanta06110611m@gmail.com>
+10:26 (2 分前)
+To 自分
+
 <!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ことばコレクションガチャ — Hypnagogia Edition v4.7</title>
@@ -44,51 +49,23 @@ main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg
 .footer{color:#aab3d6;font-size:12px;padding:10px 14px 18px;text-align:center}
 .bgmGrid{display:grid;gap:10px}.track{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--edge);border-radius:12px;padding:10px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.014))}
 .meta{display:flex;align-items:center;gap:10px}.tag{font-size:10px;color:#0b0f1c;background:#b5ffdf;border-radius:999px;padding:2px 6px;font-weight:900}.lock{color:#ffd36b}
-.ad-float {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 9999;
-  width: min(90vw, 320px); /* スマホは画面幅に合わせて縮む */
-  border-radius: 12px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
-  overflow: hidden;
-  backdrop-filter: saturate(1.1);
-  animation: popIn 0.22s ease-out both;
-}
-.ad-float img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.ad-close {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-}
-@media (min-width: 1024px) {
-  .ad-float {
-    width: 300px; /* PCではコンパクトに */
-  }
-}
-@keyframes popIn {
-  from {
-    transform: translateY(8px);
-    opacity: 0;
-  }
-  to {
-    transform: none;
-    opacity: 1;
-  }
-}
+
+/* フローティング広告 */
+.ad-float{position:fixed;right:16px;bottom:16px;z-index:9999;width:min(90vw,320px);border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.35);overflow:hidden;backdrop-filter:saturate(1.1);animation:popIn .22s ease-out both}
+.ad-float img{display:block;width:100%;height:auto}
+.ad-close{position:absolute;top:6px;right:6px;width:28px;height:28px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-weight:700;cursor:pointer}
+@media (min-width:1024px){.ad-float{width:300px}}
+@keyframes popIn{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
+/* ▼ 追加：コメントモーダル */
+.cm-modal{position:fixed;inset:0;display:none;z-index:9998}
+.cm-modal.show{display:block}
+.cm-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px)}
+.cm-dialog{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,560px);background:#0b1329;color:#e8f0ff;border:1px solid var(--edge);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.45);padding:16px 18px 18px}
+.cm-title{font-weight:900;letter-spacing:.06em;margin:2px 32px 8px 2px}
+.cm-text{line-height:1.75;color:#b9c6ea;white-space:pre-wrap}
+.cm-close{position:absolute;right:10px;top:10px;width:32px;height:32px;border-radius:8px;border:1px solid var(--edge);background:#0a1430;color:#e8f0ff;cursor:pointer;font-size:18px}
+.cm-close:hover{filter:brightness(1.1)}
 </style></head><body>
 <header>
   <div class="titleRow"><div class="title">ことばコレクションガチャ</div><div class="ver">v4.7</div></div>
@@ -121,21 +98,16 @@ main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg
     <div style="font-weight:900;margin-bottom:8px">BGM セレクター</div>
     <div class="bgmGrid" id="bgmGrid"></div>
   </section>
- <!-- フローティング広告バナー -->
-<div class="ad-float" role="dialog" aria-label="広告バナー">
-  <a href="nekologia.html" target="_blank" rel="noopener">
-    <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
-  </a>
-  <button class="ad-close" aria-label="閉じる">×</button>
-</div>
 
-<script>
-  // 閉じるボタンの処理
-  document.querySelector('.ad-close')?.addEventListener('click', () => {
-    document.querySelector('.ad-float')?.remove();
-  });
-</script>
+  <!-- フローティング広告バナー -->
+  <div class="ad-float" role="dialog" aria-label="広告バナー">
+    <a href="nekologia.html" target="_blank" rel="noopener">
+      <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
+    </a>
+    <button class="ad-close" aria-label="閉じる">×</button>
+  </div>
 </main>
+
 <div class="footer">あなたの好きな言葉は何ですか。</div>
 
 <audio id="bgm" src="audio/Hypnagogiaondo.mp3" loop preload="auto"></audio>
@@ -144,8 +116,23 @@ main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg
 <div id="completeAll" class="summary" aria-hidden="true"><div class="sumCard"><div style="font-weight:900;font-size:18px">🎉 全コレクション制覇！</div><div style="color:#aab3d6;font-size:13px;margin-top:4px">S〜DとXまで、すべて集まりました。おめでとう！</div></div></div>
 <div id="toast" style="position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#111633;border:1px solid var(--edge);padding:10px 14px;border-radius:12px;display:none;z-index:40;box-shadow:0 10px 30px rgba(0,0,0,.35)"></div>
 
+<!-- ▼ 追加：コメントモーダル -->
+<div class="cm-modal" id="cmModal" aria-hidden="true">
+  <div class="cm-backdrop" id="cmBackdrop"></div>
+  <div class="cm-dialog" role="dialog" aria-modal="true" aria-labelledby="cmTitle">
+    <button class="cm-close" id="cmClose" aria-label="閉じる">×</button>
+    <div class="cm-title" id="cmTitle"></div>
+    <div class="cm-text" id="cmText"></div>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
+
+/* 広告バナー閉じる */
+document.querySelector('.ad-close')?.addEventListener('click', () => {
+  document.querySelector('.ad-float')?.remove();
+});
 
 /* ====== プール／確率 ====== */
 const pools={S:["パラボラアンテナ","ネスカフェアンバサダー"],
@@ -205,7 +192,6 @@ const storeSeen="kotoba_collection_seen_v4_7";
 const storeBGM="kotoba_bgm_selected_v4_7";
 const seen=new Set(JSON.parse(localStorage.getItem(storeSeen)||"[]"));
 let selectedBGM=localStorage.getItem(storeBGM)||"default";
-/* Xも含める */
 const tiers=["S","A","B","C","D","X"];
 
 /* ====== DOM参照 ====== */
@@ -273,8 +259,20 @@ function renderCollection(){
     const h=document.createElement('div');h.style.fontSize="13px";h.style.color="#aab3d6";h.style.margin="6px 0 4px";h.textContent=`${t}ランク`;sec.appendChild(h);
     const row=document.createElement('div');row.style.display="flex";row.style.flexWrap="wrap";row.style.gap="8px";sec.appendChild(row);
     const arr=by[t];
-    if(arr.length===0){const tag=document.createElement('div');tag.className='pill';tag.textContent="— 未入手 —";row.appendChild(tag);}
-    else{for(const w of arr){const tag=document.createElement('div');tag.className='pill';tag.innerHTML=`<span>${icons[t]}</span>${w}`;row.appendChild(tag);}}
+    if(arr.length===0){
+      const tag=document.createElement('div');tag.className='pill';tag.textContent="— 未入手 —";row.appendChild(tag);
+    }else{
+      for(const w of arr){
+        const tag=document.createElement('div');
+        tag.className='pill collection-item';        // ← クリックできる印
+        tag.dataset.word = w;                         // ← ワード名を埋める
+        tag.tabIndex = 0;
+        tag.setAttribute('role','button');
+        tag.setAttribute('aria-label', `${w} のコメントを開く`);
+        tag.innerHTML=`<span>${icons[t]}</span>${w}`;
+        row.appendChild(tag);
+      }
+    }
     collectionBox.appendChild(sec);
   }
 }
@@ -322,7 +320,7 @@ function saveSeen(w){seen.add(w);localStorage.setItem(storeSeen,JSON.stringify([
 function pickTier(){const r=Math.random();let a=0;for(const k of ["S","A","B","C","D","X"]){a+=probs[k];if(r<a)return k;}return "D";}
 function pickWord(t){const a=pools[t];return a[Math.floor(Math.random()*a.length)];}
 function addCard(t,w){
-  const prev=pools[t].filter(x=>seen.has(x)).length; // 追加前の保有数
+  const prev=pools[t].filter(x=>seen.has(x)).length;
   const c=document.createElement('div');c.className=`card ${classes[t]}`;
   const icon=document.createElement('div');icon.className=`rar ${classes[t]}`;icon.textContent=icons[t];
   const b=document.createElement('div');const wd=document.createElement('div');wd.className='word';wd.textContent=w;
@@ -331,7 +329,6 @@ function addCard(t,w){
   const e=document.createElement('div');e.className='exp '+classes[t];e.textContent=exp[w]||"語感に触れる喜び。";b.appendChild(e);
   if(!seen.has(w)){const nm=document.createElement('span');nm.className='new';nm.textContent="New";wd.appendChild(nm);}
   c.appendChild(icon);c.appendChild(b);cards.prepend(c);
-  /* Xも含めて保存 */
   saveSeen(w);
   if(t==='S')showSOverlay();
   tryCompleteTier(t,prev);
@@ -368,7 +365,7 @@ function tryCompleteTier(tier,prev){
         const name=tier==="S"?"金魚鉢":tier==="A"?"九品仏奇譚":"ネコロジア";
         toast(`新しいBGM「${name}」が開放されました！`);
         duck(chimeLong);
-        renderBGMTab(); // 未解放「？？？」→実名に切替
+        renderBGMTab();
       }
     }
     const ov=document.createElement('div');ov.className='summary show';
@@ -398,6 +395,43 @@ document.getElementById('roll1').onclick=async()=>{if(bgmOn){try{await bgmEl.pla
 document.getElementById('roll5').onclick=async()=>{if(bgmOn){try{await bgmEl.play()}catch(e){}} openMulti(5);};
 document.getElementById('clear').onclick=()=>{cards.innerHTML="";localStorage.setItem(storeSeen,JSON.stringify([]));seen.clear();renderProgress();renderBGMTab();renderCollection();toast('データをリセットしました');};
 document.getElementById('info').onclick=()=>alert("排出率：S2% A8% B20% C30% D30% X10%\n端末内にコレクションを保存します（localStorage）。\n音が出ない時は「♪ BGM ON」を押してね。");
+
+/* ====== 追加：コメントモーダルの制御 ====== */
+const cmModal=document.getElementById('cmModal');
+const cmTitle=document.getElementById('cmTitle');
+const cmText=document.getElementById('cmText');
+const cmClose=document.getElementById('cmClose');
+const cmBack =document.getElementById('cmBackdrop');
+
+function openComment(word){
+  cmTitle.textContent = word;
+  cmText.textContent  = exp[word] ?? "（コメント未登録）";
+  cmModal.classList.add('show');
+  cmModal.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+function closeComment(){
+  cmModal.classList.remove('show');
+  cmModal.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+cmClose?.addEventListener('click',closeComment);
+cmBack ?.addEventListener('click',closeComment);
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeComment();});
+
+/* コレクション欄のクリックでモーダルを開く（イベント委譲） */
+collectionBox.addEventListener('click',e=>{
+  const el=e.target.closest('.collection-item');
+  if(!el) return;
+  openComment(el.dataset.word);
+});
+collectionBox.addEventListener('keydown',e=>{
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const el=e.target.closest('.collection-item');
+  if(!el) return;
+  e.preventDefault();
+  openComment(el.dataset.word);
+});
 
 /* ====== 初期描画 ====== */
 (function init(){
