@@ -41,7 +41,17 @@
 @media (max-width:680px){
   .dir-photo{float:none;display:block;margin:0 auto 12px;width:min(64vw,320px)}
 }
-  
+/* 監督紹介のレイアウト */
+.director{max-width:880px;margin:0 auto;padding:0 16px 40px;}
+.director-title{margin:0 0 12px;font-weight:900;
+  letter-spacing:.06em;color:#cfd7ff;font-size:clamp(18px,3.6vw,24px);}
+.dir-photo{
+  float:left; width:min(38vw,220px); border-radius:10px;
+  margin:4px 16px 12px 0; box-shadow:0 6px 18px rgba(0,0,0,.3);
+}
+.director h2{margin:0 0 8px;font-size:clamp(16px,3.2vw,20px)}
+.director p{margin:0 0 10px;line-height:1.75;color:#d9e1ff}
+.director::after{content:"";display:block;clear:both;} /* これで背景の段差解消 */ 
   /* ===== ヒーロー（字幕表示） ===== */
   .stage{
     position:relative;
@@ -168,7 +178,8 @@
       </div>
     </section>
 
-    <div class="hr"></div>
+
+<div class="hr"></div>
 <!-- 監督紹介 -->
 <section class="director" id="director">
   <h1 class="director-title">監督紹介</h1>
@@ -179,6 +190,8 @@
   <p>2004年にはスタジオアペタイに籍を移し、人気アニメのスピンオフ映画『劇場版 Gottani Girls Neo』（07年）で初監督に抜擢。以降は『剣道部ならこれを食えっ！』（11年）、『生産者の顔が見えなくて、夏』（17年）などヒット作を連発。『今日もボルシチで乾杯―沖縄編―』（21年）では、アニメーション映画史上96番目となる31億円の興行収入を記録。</p>
   <p>トレードマークは現場に必ず着てくるアロハシャツ。実用英語技能検定準1級取得。</p>
 </section>
+
+<div class="hr"></div>
 <!-- グッズ（そのまま） -->
 <section class="wrap goods" style="padding:40px 16px; text-align:center;">
   <h2 style="font-size:clamp(20px,4vw,28px); margin-bottom:16px; color:#f5f0e8;">
@@ -195,7 +208,6 @@
       <p style="margin:0 0 16px; color:#9ab0d4">カード下の「DL」で保存できます。</p>
       <div class="cat-grid" id="catGrid" aria-live="polite"></div>
     </section>
-  </div>
 
   <!-- BGM -->
   <audio id="bgm" preload="auto" loop src="AUDIO_SRC"></audio>
