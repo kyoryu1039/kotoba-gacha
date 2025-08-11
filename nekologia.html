@@ -219,7 +219,7 @@ header{display:flex; align-items:center; justify-content:center}
       <!-- 字幕 -->
       <div class="subs" id="subs">
         <div class="subs-line" id="subsText"></div>
-        <button class="subs-audio" id="subsSoundBtn" aria-pressed="true" title="効果音 ON/OFF">🔊</button>
+     
       </div>
     </section>
 
@@ -335,11 +335,6 @@ function playClick(){
 
 /* ============ 字幕タイプ表示 ============ */
 const subsEl = document.getElementById('subsText');
-const soundBtn = document.getElementById('subsSoundBtn');
-soundBtn?.addEventListener('click', ()=>{
-  soundOn = !soundOn;
-  soundBtn.setAttribute('aria-pressed', String(soundOn));
-});
 function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
 async function typeLine(text, cps=26){
   subsEl.textContent = '';
