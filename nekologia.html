@@ -19,39 +19,67 @@
   header{display:flex; align-items:center; justify-content:center}
   .logo-img{display:block; max-width:100%; height:auto; margin:20px auto}
 
-  /* ===== 監督紹介 ===== */
-.director{max-width:880px;margin:28px auto 44px;padding:0 16px}
-.director-title{
-  font-weight:900;letter-spacing:.08em;
-  font-size:clamp(18px,3.6vw,24px);
-  color:#cfe7ff;margin:0 0 10px;
-  text-shadow:0 0 12px rgba(143,177,255,.25);
-  border-left:4px solid #63ead9;padding-left:10px;
+ /* ===== 監督紹介 ===== */
+.director {
+  max-width: 880px;
+  margin: 28px auto 44px;
+  padding: 0 16px 40px;
+  background: transparent; /* 段差防止のため背景は透明 */
 }
-.dir-photo{
-  float:left;width:min(220px,40%);aspect-ratio:3/4;object-fit:cover;
-  border-radius:12px;margin:4px 16px 8px 0;
-  box-shadow:0 12px 28px rgba(0,0,0,.28)
+.director::after {
+  content: "";
+  display: block;
+  clear: both; /* 回り込み解除で高さを確保 */
 }
-.director h2{
-  margin:0 0 8px;font-size:clamp(18px,3.4vw,22px);letter-spacing:.04em
+
+.director-title {
+  font-weight: 900;
+  letter-spacing: .08em;
+  font-size: clamp(18px, 3.6vw, 24px);
+  color: #cfe7ff;
+  margin: 0 0 10px;
+  text-shadow: 0 0 12px rgba(143, 177, 255, .25);
+  border-left: 4px solid #63ead9;
+  padding-left: 10px;
 }
-.director p{margin:.5em 0;line-height:1.75;color:#dbe3ff}
-.director p.last{margin-top:.8em;border-top:1px solid #1d2a55;padding-top:.8em}
-@media (max-width:680px){
-  .dir-photo{float:none;display:block;margin:0 auto 12px;width:min(64vw,320px)}
+
+.dir-photo {
+  float: left;
+  width: min(220px, 40%);
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  border-radius: 12px;
+  margin: 4px 16px 8px 0;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .28);
 }
-/* 監督紹介のレイアウト */
-.director{max-width:880px;margin:0 auto;padding:0 16px 40px;}
-.director-title{margin:0 0 12px;font-weight:900;
-  letter-spacing:.06em;color:#cfd7ff;font-size:clamp(18px,3.6vw,24px);}
-.dir-photo{
-  float:left; width:min(38vw,220px); border-radius:10px;
-  margin:4px 16px 12px 0; box-shadow:0 6px 18px rgba(0,0,0,.3);
+
+.director h2 {
+  margin: 0 0 8px;
+  font-size: clamp(18px, 3.4vw, 22px);
+  letter-spacing: .04em;
 }
-.director h2{margin:0 0 8px;font-size:clamp(16px,3.2vw,20px)}
-.director p{margin:0 0 10px;line-height:1.75;color:#d9e1ff}
-.director::after{content:"";display:block;clear:both;} /* これで背景の段差解消 */ 
+
+.director p {
+  margin: .5em 0;
+  line-height: 1.75;
+  color: #dbe3ff;
+}
+
+.director p.last {
+  margin-top: .8em;
+  border-top: 1px solid #1d2a55;
+  padding-top: .8em;
+}
+
+@media (max-width: 680px) {
+  .dir-photo {
+    float: none;
+    display: block;
+    margin: 0 auto 12px;
+    width: min(64vw, 320px);
+  }
+}
+
   /* ===== ヒーロー（字幕表示） ===== */
   .stage{
     position:relative;
