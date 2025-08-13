@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KOTOBA-BATTLE｜対戦 v7.4.3</title>
+<style>
+  :root{
+    --bg:#0b1020;--panel:#0f1633;--border:#1d2440;--muted:#96a7d6;--text:#eaf2ff;
+    --ally:#69d3ff;--ally2:#2fb1ff;--enemy:#ff9aa5;--enemy2:#ff6b7a;
+    --hp:#6bff8b;--hpBack:#12321f;--gauge:#ffe066;--gaugeBack:#342b0b;
+  }
+  *{box-sizing:border-box} body{margin:0;background:#0b1227;color:var(--text);font-family:system-ui,"Noto Sans JP",sans-serif}
+  header{position:sticky;top:0;z-index:5;background:rgba(11,18,39,.9);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--border)}
+  .container{max-width:1200px;margin:0 auto;padding:16px}
+  h1{margin:8px 0 0;font-size:28px}.sub{margin:4px 0 12px;color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .card h2{margin:0;padding:12px 16px;border-bottom:1px solid var(--border);font-size:18px}
+  .card .body{padding:16px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button{appearance:none;background:#0e1530;border:1px solid #243159;color:var(--text);padding:10px 12px;border-radius:10px;font-weight:800;cursor:pointer}
+  .ghost{background:transparent;border:1px dashed #2b3a70}
+  .hidden{display:none!important}
+  /* 編成 */
+  #setup{display:grid;grid-template-columns:1fr;gap:16px;margin-top:8px}
+  .team{display:grid;gap:8px}
+  .slot{display:flex;gap:8px;align-items:center}
+  .slot select{flex:1;background:#0b1430;border:1px solid #25366b;color:#eaf2ff;padding:10px;border-radius:10px}
+  /* 選択中ステータス：スマホは縦3×横2 */
+  #statsGrid{display:grid;gap:10px}
+  @media(min-width:720px){ #statsGrid{grid-template-columns:1fr 1fr} }
+  .statsCol{display:grid;grid-template-rows:repeat(3,auto);gap:10px}
+  .setupMini{background:#0b1227;border:1px solid #1a2b54;border-radius:10px;padding:8px}
+  .setupMini .head{display:flex;justify-content:space-between;font-weight:800}
+  .setupMini .nums{margin-top:6px;font-size:12px;color:#cfe2ff;display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
+  /* バトル全画面 */
+  body.battleMode{height:100vh;overflow:hidden}
+  body.battleMode header,.inSetup{display:none}
+  #battle{display:none}
+  body.battleMode #battle{display:block}
+  .arena{position:relative;min-height:100vh;display:grid;grid-template-rows:auto 1fr auto auto auto;gap:10px;background:#0d1326}
+  .vsrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+  .unit{border:1px solid #22325c;border-radius:12px;padding:10px;transition:transform .15s}
+  .ally{box-shadow:0 0 0 2px var(--ally) inset}.enemy{box-shadow:0 0 0 2px var(--enemy) inset}
+  .nameRow{display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .name{font-weight:900}.tag{font-size:12px;color:#c7d7ff}
+  .skillLine{margin-top:6px;padding:8px;border:1px solid #2c3a69;border-radius:10px;background:#0c1633}
+  .skillTitle{font-weight:900}.skillDesc{margin-top:4px;font-size:12px;color:#cfe2ff}
+  .bar{height:12px;background:#12321f;border-radius:8px;overflow:hidden;margin-top:6px}
+  .bar>span{display:block;height:100%;background:var(--hp);width:0%}
+  .hpAnim{transition:width .6s ease}
+  .gaugeWrap{display:flex;align-items:center;gap:8px;margin-top:6px}
+  .gLabel{font-size:12px;color:#ffeaa7}
+  .gauge{display:flex;gap:4px}.pip{width:14px;height:12px;background:#342b0b;border:1px solid #5a480c;border-radius:3px;opacity:.7}
+  .pip.on{background:#ffe066;opacity:1}.readyPulse{animation:pulse 1.2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,224,102,.5)}70%{box-shadow:0 0 0 14px rgba(255,224,102,0)}100%{box-shadow:0 0 0 0 rgba(255,224,102,0)}}
+  /* パッド */
+  .pad{border:1px solid #22335f;border-radius:14px;background:linear-gradient(180deg,#0d1530,#0b1428);padding:8px}
+  .padInner{position:relative;width:min(520px,92vw);height:220px;margin:0 auto}
+  .rps{position:absolute;display:grid;place-items:center;width:92px;height:92px;border-radius:999px;border:none;color:#061225}
+  .rps .emo{font-size:34px}.rps .lbl{font-size:12px;margin-top:2px;font-weight:800}
+  .rps.g{left:8%;top:8%;background:linear-gradient(180deg,#ffdfde,#ff8b8b)}
+  .rps.c{right:8%;top:8%;background:linear-gradient(180deg,#e0e8ff,#8bb1ff)}
+  .rps.p{left:50%;transform:translateX(-50%);bottom:26%;background:linear-gradient(180deg,#defae5,#8bffb5)}
+  .switchBtn{position:absolute;right:4%;bottom:6%;width:132px;height:56px;border-radius:14px;background:linear-gradient(90deg,#ffd89b,#fda085);border:none;color:#26110b;font-weight:900}
+  .spToggle{position:absolute;left:4%;bottom:6%;width:132px;height:56px;border-radius:14px;background:#0e1530;border:2px solid #f2c94c;color:#f2c94c;font-weight:900;transition:.2s}
+  .spToggle.on{background:linear-gradient(90deg,#ffe066,#ffcf33)!important;color:#2a1700!important;border-color:#ffcf33!important}
+  .spToggle:disabled{opacity:.5;filter:grayscale(.4);cursor:not-allowed}
+  /* ベンチ */
+  .benchBar{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-height:18vh;overflow:auto;padding:6px;border:1px dashed #2b3a70;border-radius:12px;background:#0a1733}
+  .benchChip{display:flex;gap:6px;align-items:center;padding:6px 10px;border:1px solid #2b3a70;background:#0b1833;border-radius:999px;font-size:12px;cursor:pointer}
+  /* 六枚ステータス */
+  #sixStats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .miniCard{border:1px solid #1a2b54;border-radius:10px;padding:8px;cursor:pointer}
+  .miniCard.ally{outline:2px solid var(--ally)} .miniCard.enemy{outline:2px solid var(--enemy)}
+  .miniHead{display:flex;justify-content:space-between;font-weight:800}
+  .miniBar{height:8px;background:#12321f;border-radius:6px;overflow:hidden;margin-top:4px}
+  .miniBar>span{display:block;height:100%;background:var(--hp);width:0%}
+  /* トースト */
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(12px);padding:10px 14px;border-radius:12px;background:rgba(12,22,50,.95);border:1px solid #2b3a70;color:#eaf3ff;opacity:0;pointer-events:none;z-index:50;max-width:min(92vw,720px);line-height:1.6}
+  body.battleMode .toast{bottom:28vh}.toast.show{opacity:1;transform:translateX(-50%) translateY(0);transition:.22s ease}
+  /* FX & shake */
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}} .shake{animation:shake .5s ease}
+  /* タイプで背景差別化 */
+  .t-ジオ{background:linear-gradient(180deg,#0f1730,#101f46)}
+  .t-アニマル{background:linear-gradient(180deg,#0f1c30,#132c4f)}
+  .t-フード{background:linear-gradient(180deg,#0f1a26,#1f2c46)}
+  .t-コンセプト{background:linear-gradient(180deg,#12182e,#1b2544)}
+  .t-サイエンス{background:linear-gradient(180deg,#0e1d2f,#0e2c48)}
+  .t-ヒストリー{background:linear-gradient(180deg,#12172a,#1b2142)}
+  .t-ヒューマン{background:linear-gradient(180deg,#121a28,#1e2941)}
+  /* エラー表示 */
+  #bootErr{position:fixed;inset:10px 10px auto 10px;background:#2b0e12;color:#ffdede;border:1px solid #ff8080;border-radius:10px;padding:10px;display:none;z-index:100}
+</style>
+</head>
+<body>
+<header class="inSetup"><div class="container">
+  <h1>対戦 v7.4.3</h1>
+  <div class="sub">確実初期化（readyState対応）／無反応対策</div>
+</div></header>
+
+<div id="bootErr"></div>
+
+<main class="container inSetup" id="setup">
+  <section class="card">
+    <h2>チーム編成（あなた / CPU）</h2>
+    <div class="body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div class="row" style="justify-content:space-between"><strong style="color:var(--ally)">あなた</strong></div>
+          <div class="team" id="teamA"></div>
+        </div>
+        <div>
+          <div class="row" style="justify-content:space-between"><strong style="color:var(--enemy)">CPU</strong></div>
+          <div class="team" id="teamB"></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button id="randBoth" class="ghost">ランダムでチームを編成</button>
+        <button id="toBattle" style="margin-left:auto;background:linear-gradient(90deg,var(--ally),var(--ally2));border:none;color:#061225">対戦開始</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>選択中のステータス</h2>
+    <div class="body">
+      <div id="statsGrid">
+        <div class="statsCol" id="statsA"></div>
+        <div class="statsCol" id="statsB"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section id="battle">
+  <section class="card"><h2 style="display:none">バトル</h2>
+    <div class="body">
+      <div class="arena">
+        <div class="vsrow">
+          <div id="leftWrap"></div>
+          <div id="rightWrap"></div>
+        </div>
+
+        <div class="pad">
+          <div class="padInner">
+            <button class="rps g" id="handG"><div class="emo">✊</div><div class="lbl">グー</div></button>
+            <button class="rps c" id="handC"><div class="emo">✌️</div><div class="lbl">チョキ</div></button>
+            <button class="rps p" id="handP"><div class="emo">🖐</div><div class="lbl">パー</div></button>
+            <button class="switchBtn" id="btnSwitch">🔁 交代</button>
+            <button class="spToggle" id="btnSP" disabled>✨ 必殺 OFF</button>
+          </div>
+          <div class="benchBar" id="benchBar"></div>
+        </div>
+
+        <div class="timer"><span class="label">選択まで</span><span class="num" id="countNum">15</span><span class="label">秒</span></div>
+        <div id="sixStats"></div>
+        <div class="toast" id="toast">...</div>
+      </div>
+
+      <div class="row" style="margin-top:10px;justify-content:space-between">
+        <div id="summary" class="small muted">バトル準備中</div>
+        <button id="backSetup">編成に戻る</button>
+      </div>
+    </div>
+  </section>
+</section>
+
+<script>
+/* ============================================================
+   安全初期化：readyState を見て必ず init を一度だけ実行
+============================================================ */
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const boot = $('bootErr');
+  const panic = msg => { boot.style.display='block'; boot.textContent = msg; };
+
+  window.addEventListener('error', e => panic('JSエラー: '+(e?.message||e)));
+  window.addEventListener('unhandledrejection', e => panic('Promiseエラー: '+(e?.reason?.message||e?.reason||e)));
+
+  function startOnce(){
+    if (document.body.dataset.kbInit === "done") return;
+    document.body.dataset.kbInit = "done";
+    init();
+  }
+  if (document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", startOnce, { once:true });
+  } else {
+    // すでに読み終えている場合は即時初期化
+    startOnce();
+  }
+
+  /* --------------------- ここからアプリ本体 --------------------- */
+  function init(){
+    // 目印（初期化が走ったか可視化）
+    const mark = document.createElement('div');
+    mark.textContent = 'READY';
+    mark.style.cssText = 'position:fixed;right:8px;top:8px;background:#163b16;color:#c7ffd0;border:1px solid #2a7a2a;border-radius:8px;padding:4px 8px;z-index:9999;font:12px/1.4 system-ui';
+    document.body.append(mark);
+
+    // --- 簡易データ（後で本番に置換OK） ---
+    const WORDS = [
+      ["そぼろごはん","A","フード",540,88,72,10.5,"そぼろ乱舞","3回攻撃（0.75→0.5→0.25）。途中で倒しても次へ続く。"],
+      ["ニシローランドゴリラ","A","アニマル",520,92,70,9.5,"マウンテンビート","初回1.5倍。以後2T 1.3倍が続く。"],
+      ["カムチャッカ半島","B","ジオ",520,80,74,10.0,"言論統制","4T 交代不可。"],
+      ["タランチュラ","B","アニマル",520,84,70,10.5,"言葉狩り","1T 行動不能。"],
+      ["ハシビロコウ","B","アニマル",520,83,71,10.0,"言論統制","4T 交代不可。"],
+      ["バルサミコ酢","B","フード",520,86,69,10.5,"言論統制","4T 交代不可。"],
+      ["ピロリ菌","B","サイエンス",520,82,73,10.5,"ゲシュタルト崩壊","4Tの間、攻撃時33%で自傷100。"],
+      ["鳥取砂丘","C","ジオ",500,78,72,11.0,"ゲシュタルト崩壊","4Tの間、攻撃時33%で自傷100。"],
+      ["ペペロンチーノ","C","フード",500,79,71,11.0,"ゲシュタルト崩壊","4Tの間、攻撃時33%で自傷100。"],
+      ["県庁所在地","D","ジオ",480,58,75,11.0,"文字化け","3T後に戦闘不能。交代で解除。"],
+      ["スルメイカ","D","アニマル",480,60,72,10.5,"ゲシュタルト崩壊","4Tの間、攻撃時33%で自傷100。"],
+      ["本質","X","コンセプト",500,75,72,10.0,"鏡文字","相手の誰かの必殺をコピーして2倍。"]
+    ];
+    const TYPE_CLASS = t => `t-${t}`;
+
+    // 編成UI
+    const teamA = $('teamA'), teamB = $('teamB');
+    const makeSlots = (root, side) => {
+      root.innerHTML = '';
+      for(let i=0;i<3;i++){
+        const div = document.createElement('div'); div.className='slot';
+        const sel = document.createElement('select'); sel.id = `${side}-sel-${i}`;
+        WORDS.forEach((w,idx)=>{
+          const opt=document.createElement('option');
+          opt.value=idx; opt.textContent=`${w[0]} [${w[1]}/${w[2]}]`; sel.append(opt);
+        });
+        const pill = document.createElement('span'); pill.className='pill'; pill.textContent = `#${i+1}`;
+        div.append(pill, sel); root.append(div);
+      }
+    };
+    makeSlots(teamA,'A'); makeSlots(teamB,'B');
+
+    // 選択中ステータス
+    const statsA = $('statsA'), statsB = $('statsB');
+    function renderMini(colRoot, arr){
+      colRoot.innerHTML = '';
+      arr.forEach(info=>{
+        const [n,rank,typ,hp,atk,def,eva] = info;
+        const wrap = document.createElement('div'); wrap.className = `setupMini ${TYPE_CLASS(typ)}`;
+        wrap.innerHTML = `
+          <div class="head"><div>${n}</div><div class="tag">[${typ}]</div></div>
+          <div class="nums">
+            <div>HP ${hp}</div><div>回避 ${eva.toFixed(1)}%</div>
+            <div>ATK ${atk}</div><div>DEF ${def}</div>
+          </div>
+        `;
+        colRoot.append(wrap);
+      });
+    }
+    function currentSelection(side){
+      const arr=[];
+      for(let i=0;i<3;i++){
+        const idx = Number($(side+'-sel-'+i).value)||0;
+        arr.push(WORDS[idx]);
+      }
+      return arr;
+    }
+    renderMini(statsA, currentSelection('A'));
+    renderMini(statsB, currentSelection('B'));
+    teamA.addEventListener('change',()=>renderMini(statsA,currentSelection('A')));
+    teamB.addEventListener('change',()=>renderMini(statsB,currentSelection('B')));
+
+    // ランダム編成
+    $('randBoth').addEventListener('click', ()=>{
+      const picks = ()=>{
+        const used=new Set(), res=[];
+        while(res.length<3){
+          const idx = Math.floor(Math.random()*WORDS.length);
+          if(!used.has(idx)){ used.add(idx); res.push(idx); }
+        }
+        return res;
+      };
+      const a=picks(), b=picks();
+      a.forEach((v,i)=> $('A-sel-'+i).value = v);
+      b.forEach((v,i)=> $('B-sel-'+i).value = v);
+      renderMini(statsA, currentSelection('A'));
+      renderMini(statsB, currentSelection('B'));
+      toast('ランダムでチームを編成しました');
+    });
+
+    // ===== 簡易バトル（初期化確認用） =====
+    const state = {
+      A: { team:[], idx:0, sp:0 }, B: { team:[], idx:0, sp:0 },
+      timer:null, tRemain:15
+    };
+
+    $('toBattle').addEventListener('click', ()=>{
+      state.A.team = currentSelection('A').map(x=>({...pack(x), side:'A'}));
+      state.B.team = currentSelection('B').map(x=>({...pack(x), side:'B'}));
+      state.A.idx=0; state.B.idx=0; state.A.sp=0; state.B.sp=0;
+      enterBattle();
+    });
+    $('backSetup').addEventListener('click', ()=>{
+      document.body.classList.remove('battleMode');
+      document.querySelectorAll('.inSetup').forEach(e=>e.style.display='block');
+      $('battle').style.display='none';
+      toast('編成に戻りました');
+    });
+
+    toast('READY: 初期化完了。編成→対戦開始で遷移します。');
+
+    function pack(w){
+      const [n,rank,typ,hp,atk,def,eva,sk,skd] = w;
+      return {name:n, rank, type:typ, maxhp:hp, hp:hp, atk, def, eva, skill:sk, skillDesc:skd};
+    }
+    const left = ()=> state.A.team[state.A.idx];
+    const right = ()=> state.B.team[state.B.idx];
+    const typeBadge = t => `<span class="tag">[${t}]</span>`;
+    const gaugeHtml = side => {
+      const sp = side==='A'?state.A.sp:state.B.sp;
+      const pips = [...Array(6)].map((_,i)=>`<span class="pip ${i<sp?'on':''}"></span>`).join('');
+      const pulse = sp>=6 ? 'readyPulse' : '';
+      return `<div class="gaugeWrap"><div class="gLabel">必殺ゲージ</div><div class="gauge ${pulse}" id="g${side}">${pips}</div></div>`;
+    };
+    function cardHtml(u, role){
+      return `<div class="unit ${role} ${TYPE_CLASS(u.type)}">
+        <div class="nameRow"><div class="name">${u.name}</div><div>${typeBadge(u.type)}</div></div>
+        <div class="bar"><span id="hpbar-${role}" class="hpAnim" style="width:${Math.max(0,100*u.hp/u.maxhp)}%"></span></div>
+        ${gaugeHtml(role==='ally'?'A':'B')}
+        <div class="skillLine">
+          <div class="skillTitle">必殺：${u.skill}</div>
+          <div class="skillDesc" id="skdesc-${role}">${u.skillDesc}</div>
+        </div>
+        <div class="meta"><div class="line"><span>HP ${u.hp}/${u.maxhp}</span><span>ATK ${u.atk} / DEF ${u.def} / 回避 ${u.eva}%</span></div></div>
+      </div>`;
+    }
+    function renderSides(){
+      $('leftWrap').innerHTML = cardHtml(left(),'ally');
+      $('rightWrap').innerHTML = cardHtml(right(),'enemy');
+      updateSPButton();
+    }
+    function updateSPButton(){
+      $('gA')?.classList.toggle('readyPulse', state.A.sp>=6);
+    }
+    function toast(msg){
+      const t=$('toast');
+      const base=1200; const perChar=35;
+      t.textContent=msg; t.classList.add('show');
+      clearTimeout(t._h);
+      t._h=setTimeout(()=>t.classList.remove('show'), Math.min(4500, base + perChar*msg.length/4));
+    }
+    let spOn=false; // 体験用
+
+    $('handG').onclick = ()=>pick('G');
+    $('handC').onclick = ()=>pick('C');
+    $('handP').onclick = ()=>pick('P');
+    $('btnSP').onclick = ()=>{
+      if(state.A.sp>=6){ spOn = !spOn; $('btnSP').classList.toggle('on', spOn); $('btnSP').textContent = spOn? '✨ 必殺 ON':'✨ 必殺 OFF'; }
+    };
+    $('btnSwitch').onclick = ()=>{
+      const bench = state.A.team.map((_,i)=>i).filter(i=>i!==state.A.idx);
+      if(!bench.length){ toast('控えがいません'); return; }
+      state.A.idx = bench[Math.floor(Math.random()*bench.length)];
+      toast(`いけ、${left().name}！`);
+      renderSides();
+    };
+
+    function enterBattle(){
+      document.querySelectorAll('.inSetup').forEach(e=>e.style.display='none');
+      document.body.classList.add('battleMode');
+      $('battle').style.display='block';
+      state.tRemain=15; $('countNum').textContent=state.tRemain;
+      renderSides();
+      startTimer();
+      toast(`いけ、${left().name}！ バトルスタート！`);
+    }
+    function startTimer(){
+      clearInterval(state.timer);
+      state.timer = setInterval(()=>{
+        state.tRemain--;
+        if(state.tRemain<=0){
+          const arr=['G','C','P']; pick(arr[Math.floor(Math.random()*3)]);
+          state.tRemain=15;
+        }
+        $('countNum').textContent = state.tRemain;
+      },1000);
+    }
+    function judge(a,b){ if(a===b) return 0; if((a==='G'&&b==='C')||(a==='C'&&b==='P')||(a==='P'&&b==='G')) return 1; return -1; }
+    function updateHP(role, amount){
+      const bar = $('hpbar-'+role); if(bar) bar.style.width = `${amount}%`;
+      const box = role==='ally' ? $('rightWrap').firstElementChild : $('leftWrap').firstElementChild;
+      if(box){ box.classList.add('shake'); setTimeout(()=>box.classList.remove('shake'),500); }
+    }
+    function doAttack(att, def, sp, role){
+      const base = 100 * (1 + att.atk/100) / (1 + def.def/120);
+      const luck = Math.random()<.2 ? 1.2 : (Math.random()<.25 ? 0.8 : 1.0);
+      let dmg = Math.round(base * luck * (sp?1.6:1.0));
+      if(!sp && Math.random() < (def.eva/100)) dmg = 0;
+      const before = def.hp; def.hp = Math.max(0, def.hp - dmg);
+      const percent = 100*def.hp/def.maxhp;
+      toast(`${att.name}の${sp?'必殺！':'攻撃！'} ${dmg}ダメージ！`);
+      updateHP(role==='ally'?'enemy':'ally', percent);
+      if(def.hp<=0){ setTimeout(()=>toast(`${def.name}は倒れた！`), 650); }
+    }
+    function pick(h){
+      const cpuH = ['G','C','P'][Math.floor(Math.random()*3)];
+      const res = judge(h,cpuH);
+      const you = {G:'グー',C:'チョキ',P:'パー'}[h];
+      const cpu = {G:'グー',C:'チョキ',P:'パー'}[cpuH];
+      toast(`あなたは ${you}。相手は ${cpu}。${res>0?'あなたの勝ち':res<0?'あなたの負け':'あいこ'}。`);
+      state.A.sp = Math.min(6, state.A.sp+1);
+      state.B.sp = Math.min(6, state.B.sp+1);
+      if(res>0){
+        const useSP = spOn && state.A.sp>=6;
+        if(useSP){ state.A.sp=0; spOn=false; $('btnSP').classList.remove('on'); $('btnSP').textContent='✨ 必殺 OFF'; }
+        doAttack(left(), right(), useSP, 'ally');
+      }else if(res<0){
+        doAttack(right(), left(), false, 'enemy');
+      }
+      state.tRemain=15; $('countNum').textContent=state.tRemain;
+      renderSides();
+    }
+  } // init
+})();
+</script>
+</body>
+</html>
