@@ -1,1 +1,764 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>KOTOBA-BATTLE｜対戦 v7.1.1</title>
+<style>
+  :root{
+    --bg:#0b1020;--panel:#101833;--panel2:#0c1530;--muted:#8fa2d1;--text:#e8f0ff;
+    --ally:#69d3ff;--ally2:#2fb1ff;--enemy:#ff9aa5;--enemy2:#ff6b7a;
+    --hp:#6bff8b;--hpBack:#12321f;--gauge:#ffe066;--gaugeBack:#342b0b;
+    --border:#1d2440;--accent:#9b8cff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Noto Sans JP",Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0b1020,#0b1227);color:var(--text)}
+  header{position:sticky;top:0;z-index:5;background:rgba(11,16,32,.85);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--border)}
+  .container{max-width:1200px;margin:0 auto;padding:16px}
+  h1{margin:8px 0 0;font-size:28px} .sub{margin:4px 0 12px;color:var(--muted)}
+  .grid{display:grid;gap:16px} .cols-2{grid-template-columns:1fr 1fr}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .card h2{margin:0;padding:12px 16px;border-bottom:1px solid var(--border);font-size:18px}
+  .card .body{padding:16px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button,select,input{appearance:none;background:#0e1530;border:1px solid #243159;color:var(--text);padding:10px 12px;border-radius:10px;outline:none}
+  button{cursor:pointer;font-weight:700}
+  .ghost{background:transparent;border:1px dashed #2b3a70}
+  .team{display:grid;gap:8px}.slot{display:flex;gap:8px;align-items:center}.slot select{flex:1}
+  .pill{border-radius:999px;padding:2px 8px;font-size:12px;border:1px solid #2b3a70;color:#bcd}
+  .muted{color:var(--muted)} .small{font-size:12px}
+  .divider{height:1px;background:#1d2440;margin:12px 0}
 
+  /* 対戦中フルスクリーン（編成は隠す） */
+  #battle.hidden{display:none}
+  body.battleMode{height:100vh;overflow:hidden}
+  body.battleMode header{display:none}
+  body.battleMode main.container{max-width:none;padding:0}
+  body.battleMode #battle .card{background:transparent;border:none;border-radius:0;box-shadow:none}
+  body.battleMode #battle .arena{min-height:100vh;border:none;border-radius:0}
+
+  /* アリーナ */
+  .arena{position:relative;background:#0d1326;border:1px solid var(--border);border-radius:14px;padding:12px;display:grid;grid-template-rows:auto 1fr auto auto auto;gap:10px}
+  .vsrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+  .unit{background:var(--panel2);border:1px solid #22325c;border-radius:12px;padding:10px}
+  .unit.ally{box-shadow:0 0 0 2px var(--ally) inset}
+  .unit.enemy{box-shadow:0 0 0 2px var(--enemy) inset}
+  .nameRow{display:flex;justify-content:space-between;gap:8px}
+  .name{font-weight:800}.tag{font-size:11px;color:#c7d7ff}
+  .bar{height:12px;background:var(--hpBack);border-radius:8px;overflow:hidden;position:relative;margin-top:4px}
+  .bar>span{display:block;height:100%;background:var(--hp);width:0%;transition:width .40s}
+  .gauge{display:flex;gap:4px;margin-top:6px}
+  .pip{width:14px;height:12px;background:var(--gaugeBack);border:1px solid #5a480c;border-radius:3px;opacity:.7}
+  .pip.on{background:var(--gauge);opacity:1}
+  .readyPulse{animation:pulse 1.2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,224,102,.5)}70%{box-shadow:0 0 0 14px rgba(255,224,102,0)}100%{box-shadow:0 0 0 0 rgba(255,224,102,0)}}
+  .meta{margin-top:6px;font-size:12px;color:#cfe2ff}
+  .meta .line{display:flex;justify-content:space-between;gap:6px}
+
+  /* コマンドパッド（下） */
+  .pad{position:relative;display:grid;place-items:center;margin-top:6px}
+  .padInner{position:relative;width:min(520px,90vw);height:220px}
+  .rps{position:absolute;display:grid;place-items:center;width:88px;height:88px;border-radius:999px;border:none;color:#061225;font-size:18px}
+  .rps.g{left:10%;top:8%;background:linear-gradient(180deg,#ffdfde,#ff8b8b)}  /* 赤 */
+  .rps.c{right:10%;top:8%;background:linear-gradient(180deg,#e0e8ff,#8bb1ff)} /* 青 */
+  .rps.p{left:50%;transform:translateX(-50%);bottom:26%;background:linear-gradient(180deg,#defae5,#8bffb5)} /* 緑 */
+  .switchBtn{position:absolute;right:4%;bottom:6%;width:128px;height:56px;border-radius:14px;background:linear-gradient(90deg,#ffd89b,#fda085);border:none;color:#26110b;font-weight:900}
+  .spToggle{position:absolute;left:4%;bottom:6%;width:128px;height:56px;border-radius:14px;background:#0e1530;border:2px solid #f2c94c;color:#f2c94c;font-weight:900}
+  .benchBar{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .benchChip{display:flex;gap:6px;align-items:center;padding:6px 10px;border:1px solid #2b3a70;background:#0b1833;border-radius:999px;font-size:12px}
+  .benchChip .type{color:#bcd}
+  .benchChip .ratio{color:#9fe3ff;font-variant-numeric:tabular-nums}
+
+  /* カウントダウン */
+  .timer{display:flex;gap:8px;justify-content:center;align-items:center;font-weight:800}
+  .timer .num{font-size:22px;padding:4px 10px;border-radius:10px;background:#0b1833;border:1px solid #243159}
+  .timer .label{font-size:12px;color:#bcd}
+
+  /* トースト */
+  .toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(8,14,32,.92);border:1px solid #2b3a70;border-radius:12px;padding:12px 16px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .2s;max-width:min(92vw,560px);text-align:center;line-height:1.7}
+  .toast.show{opacity:1}
+
+  /* 6体ステータス（下部 3×2） */
+  #sixStats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .miniCard{background:#0b1227;border:1px solid #1a2b54;border-radius:10px;padding:8px}
+  .miniCard.ally{outline:2px solid var(--ally)}
+  .miniCard.enemy{outline:2px solid var(--enemy)}
+  .miniHead{display:flex;justify-content:space-between;font-weight:700}
+  .miniBar{height:8px;background:var(--hpBack);border-radius:6px;overflow:hidden;margin-top:4px}
+  .miniBar>span{display:block;height:100%;background:var(--hp);width:0%;transition:width .4s}
+
+  /* モーダル（交代選択） */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;place-items:center;z-index:30}
+  .sheet{background:#0f1430;border:1px solid var(--border);border-radius:14px;min-width:320px;padding:12px}
+  .sheet h3{margin:0 0 8px;font-size:16px}
+  .opt{display:flex;gap:8px;align-items:center;justify-content:space-between;border:1px solid #213a6d;background:#0b1833;border-radius:10px;padding:8px;margin:6px 0}
+  .opt .right{display:flex;gap:10px;align-items:center}
+  .badge{font-size:10px;padding:2px 6px;border:1px solid #2b3a70;border-radius:999px;color:#bcd}
+  .badge.best{border-color:#ffd166;color:#ffd166}
+</style>
+</head>
+<body>
+<header><div class="container">
+  <h1>対戦 v7.1.1</h1>
+  <div class="sub">人間は交代先を選択／AIはタイプ有利に交代（2025-08-12仕様・修正版）</div>
+</div></header>
+
+<main class="container">
+  <!-- 編成 -->
+  <section id="setup" class="grid cols-2">
+    <section class="card">
+      <h2>チーム編成（あなた / CPU）</h2>
+      <div class="body">
+        <div class="grid cols-2">
+          <div>
+            <div class="row" style="justify-content:space-between"><strong style="color:var(--ally)">あなた</strong><button class="ghost" id="randA">ランダム</button></div>
+            <div class="team" id="teamA"></div>
+          </div>
+          <div>
+            <div class="row" style="justify-content:space-between"><strong style="color:var(--enemy)">CPU</strong><button class="ghost" id="randB">ランダム</button></div>
+            <div class="team" id="teamB"></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+          <label class="small">Seed</label><input type="number" id="seed" value="20250812" />
+          <button id="toBattle" style="margin-left:auto;background:linear-gradient(90deg,var(--ally),var(--ally2));border:none;color:#061225">対戦開始</button>
+          <button id="demo">デモ編成</button>
+        </div>
+        <div class="small muted">※ 同じ言葉は両チーム合計で1回まで（候補を自動グレーアウト）。</div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>選択中のステータス</h2>
+      <div class="body"><div id="stats" class="grid cols-2"></div></div>
+    </section>
+  </section>
+
+  <!-- バトル -->
+  <section id="battle" class="hidden">
+    <section class="card"><h2 style="display:none">バトル</h2>
+      <div class="body">
+        <div class="arena">
+          <!-- 対面 -->
+          <div class="vsrow">
+            <div id="leftWrap"></div>
+            <div id="rightWrap"></div>
+          </div>
+
+          <!-- コマンド -->
+          <div class="pad">
+            <div class="padInner">
+              <button class="rps g" id="handG">✊ グー</button>
+              <button class="rps c" id="handC">✌️ チョキ</button>
+              <button class="rps p" id="handP">🖐 パー</button>
+              <button class="switchBtn" id="btnSwitch">🔁 交代</button>
+              <button class="spToggle" id="btnSP">✨ 必殺 OFF</button>
+            </div>
+            <div class="benchBar" id="benchBar"></div>
+          </div>
+
+          <!-- カウントダウン -->
+          <div class="timer"><span class="label">選択まで</span><span class="num" id="countNum">10</span><span class="label">秒</span></div>
+
+          <!-- 6体ステータス -->
+          <div id="sixStats"></div>
+
+          <!-- トースト -->
+          <div class="toast" id="toast">...</div>
+        </div>
+
+        <div class="row" style="margin-top:10px;justify-content:space-between">
+          <div id="summary" class="small muted">バトル準備中</div>
+          <button id="backSetup">編成に戻る</button>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<!-- 交代モーダル -->
+<div class="modal" id="switchModal">
+  <div class="sheet">
+    <h3 id="switchTitle">交代先を選択</h3>
+    <div id="switchList"></div>
+    <div class="row" style="justify-content:flex-end;margin-top:8px">
+      <button id="cancelSwitch">キャンセル</button>
+      <button style="background:linear-gradient(90deg,var(--ally),var(--ally2));border:none;color:#061225" id="doSwitch">交代する</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+(()=>{'use strict';
+  if(window.__KB_V711__) return; window.__KB_V711__=true;
+
+  /********** データ **********/
+  const WORDS=[
+    ["パラボラアンテナ","S","サイエンス","ぱらぼらあんてな"],
+    ["ネスカフェアンバサダー","S","ヒューマン","ねすかふぇあんばさだー"],
+    ["にんじんしりしり","A","フード","にんじんしりしり"],
+    ["そぼろごはん","A","フード","そぼろごはん"],
+    ["ニシローランドゴリラ","A","アニマル","にしろーらんどごりら"],
+    ["毛むくじゃら","A","アニマル","けむくじゃら"],
+    ["九品仏","A","ジオ","くほんぶつ"],
+    ["けんちん汁","A","フード","けんちんじる"],
+    ["カムチャッカ半島","B","ジオ","かむちゃっかはんとう"],
+    ["タランチュラ","B","アニマル","たらんちゅら"],
+    ["ハシビロコウ","B","アニマル","はしびろこう"],
+    ["バルサミコ酢","B","フード","ばるさみこす"],
+    ["ピロリ菌","B","サイエンス","ぴろりきん"],
+    ["トリニダード・トバゴ","B","ジオ","とりにだーどとばご"],
+    ["カラメル色素","B","サイエンス","からめるしきそ"],
+    ["バビロン捕囚","C","ヒストリー","ばびろんほしゅう"],
+    ["鳥取砂丘","C","ジオ","とっとりさきゅう"],
+    ["プラシーボ効果","C","サイエンス","ぷらしーぼこうか"],
+    ["渡来人","C","ヒューマン","とらいじん"],
+    ["さるびあ丸","C","ジオ","さるびあまる"],
+    ["ペペロンチーノ","C","フード","ぺぺろんちーの"],
+    ["ポリプロピレン","C","サイエンス","ぽりぷろぴれん"],
+    ["サラエボ事件","C","ヒストリー","さらえぼじけん"],
+    ["クマンバチ","D","アニマル","くまんばち"],
+    ["県庁所在地","D","ジオ","けんちょうしょざいち"],
+    ["照り焼きチキン","D","フード","てりやきちきん"],
+    ["ねるねるねるね","D","フード","ねるねるねるね"],
+    ["スルメイカ","D","アニマル","するめいか"],
+    ["本質","X","コンセプト","ほんしつ"],
+    ["見える化","X","コンセプト","みえるか"],
+    ["自分ごと化","X","コンセプト","じぶんごとか"],
+    ["解像度","X","コンセプト","かいぞうど"],
+  ];
+
+  /* B/C/D 割り当て（平準化・最終版） */
+  const BD_ASSIGN={
+    B:{ "タランチュラ":"kotobagari","バルサミコ酢":"genron","トリニダード・トバゴ":"kotobagari","カムチャッカ半島":"genron","ハシビロコウ":"genron","ピロリ菌":"gestalt","カラメル色素":"gestalt" },
+    C:{ "さるびあ丸":"kotobagari","サラエボ事件":"kotobagari","バビロン捕囚":"genron","ポリプロピレン":"genron","プラシーボ効果":"gestalt","ペペロンチーノ":"gestalt","鳥取砂丘":"mojibake","渡来人":"mojibake" },
+    D:{ "クマンバチ":"genron","ねるねるねるね":"gestalt","スルメイカ":"gestalt","県庁所在地":"mojibake","照り焼きチキン":"mojibake" }
+  };
+
+  /* ランク係数など（実ステ算出ルール準拠） */
+  const P_RANK={S:170,A:165,B:160,C:150,D:145,X:150};
+  const HP_BASE={S:560,A:540,B:520,C:500,D:480,X:500};
+  const EV_RANK={S:-1,A:-0.5,B:0,C:0.5,D:1,X:0};
+  const BASE_POWER=100, GAUGE_NEEDED=6;
+
+  /* タイプ相性（リング：ヒストリー→ジオ→コンセプト→サイエンス→アニマル→ヒューマン→フード→…）
+     強み＝時計回りに2つ先／弱み＝反時計回りに2つ先（各2つでシンメトリー） */
+  const RING=["ヒストリー","ジオ","コンセプト","サイエンス","アニマル","ヒューマン","フード"];
+  const TYPE_ADV = Object.fromEntries(RING.map((t,i)=>{
+    const n=RING.length;
+    const strong=[RING[(i+1)%n], RING[(i+2)%n]];
+    const weak=[RING[(i-1+n)%n], RING[(i-2+n)%n]];
+    return [t,{strong,weak}];
+  }));
+
+  /* S/A/X 必殺（最新版） */
+  const SPECIALS={
+    "にんじんしりしり":{ id:"なんくるないさー", kind:"buff_endure", params:{atkMult:1.6} },          /* 攻1.6×＋根性1回 */
+    "そぼろごはん":    { id:"そぼろ乱舞",       kind:"multi",       params:{hits:[0.75,0.5,0.25]} },     /* 3連（合計1.5） */
+    "ニシローランドゴリラ":{ id:"マウンテンビート", kind:"gorilla", params:{first:1.5,next:1.3,turns:2} },/* 初1.5×→2T 1.3× */
+    "毛むくじゃら":    { id:"ムクジャララ",     kind:"evasion",     params:{atkMult:1.4,evade:0.60,turns:3} }, /* 回避60%×3T */
+    "九品仏":          { id:"仏の顔も三度まで", kind:"atk_def",     params:{atkMult:1.6,defMult:1.8,turns:3} },/* 攻1.6×＋防1.8×(3T) */
+    "けんちん汁":      { id:"長寿の秘訣",       kind:"atk_heal",    params:{atkMult:1.2,heal:150} },     /* 攻1.2×＋回復150 */
+    "パラボラアンテナ": { id:"妨害電波",         kind:"atk_drain",   params:{atkMult:2.5} },             /* 攻2.5×＋相手ゲージ0 */
+    "ネスカフェアンバサダー":{ id:"一杯いかが",  kind:"heal_attack_all", params:{self:60,allies:60} },   /* 通常＋自/味60回復 */
+  };
+  const AIL={ /* B/C/Dの状態異常 */
+    kotobagari:{name:"言葉狩り",icon:"🚫",apply:(st)=>{st.skipTurns=Math.max(st.skipTurns,1)}},
+    genron:{name:"言論統制",icon:"🔒",apply:(st)=>{st.genronTurns=Math.max(st.genronTurns,4)}},
+    gestalt:{name:"ゲシュタルト崩壊",icon:"🌀",apply:(st)=>{st.gestaltTurns=Math.max(st.gestaltTurns,4)}},
+    mojibake:{name:"文字化け",icon:"☠️",apply:(st)=>{st.doomTurns=Math.max(st.doomTurns,3)}}
+  };
+
+  /********** ユーティリティ **********/
+  const isHira=(ch)=>/[\u3041-\u3096]/.test(ch);
+  const isKataLetter=(ch)=>/[\u30a1-\u30fa\u30fd-\u30ff]/.test(ch);
+  const isKanji=(ch)=>{const c=ch.codePointAt(0);return(c>=0x4E00&&c<=0x9FFF)||(c>=0x3400&&c<=0x4DBF)};
+  const isKanaOrKanji=(ch)=>isHira(ch)||isKataLetter(ch)||isKanji(ch);
+  const hiraToKata=(s)=>s.replace(/[\u3041-\u3096]/g,m=>String.fromCharCode(m.charCodeAt(0)+0x60));
+  const visibleLength=(s)=>[...s].length;
+  const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
+  function hiraRatioForEvasion(name){ const letters=[...name].filter(isKanaOrKanji); if(!letters.length) return 0; const hira=letters.filter(isHira).length; return hira/letters.length; }
+  function rKataForStructure(name){ const kata=[...name].filter(isKataLetter).length; const kan=[...name].filter(isKanji).length; const den=kata+kan; if(!den) return null; return kata/den; }
+  function phoneticDensities(readingHira){
+    const kata=[...hiraToKata(readingHira)].filter(isKataLetter);
+    const L=kata.length||1;
+    const smalls=new Set("ァィゥェォャュョヮ".split(""));
+    const voiced=new Set("ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポヴ".split(""));
+    const last=kata[kata.length-1]||"";
+    const plos=new Set("カキクケコサシスセソタチツテトパピプペポバビブベボ".split(""));
+    const d=kata.filter(ch=>voiced.has(ch)).length/L;
+    const s=kata.filter(ch=>'ッ'===ch).length/L;
+    const m=kata.filter(ch=>smalls.has(ch)).length/L;
+    const e=plos.has(last)?1:0;
+    return {d,s,m,e};
+  }
+
+  /********** ステータス計算 **********/
+  function calcStats(name, rank, type, readingHira){
+    const T=visibleLength(name);
+    // 構成25%
+    let atk_struct,def_struct;{
+      const r=rKataForStructure(name);
+      if(r===null){ atk_struct=0.125; def_struct=0.125; } else { atk_struct=0.25*r; def_struct=0.25-atk_struct; }
+    }
+    // 音20%
+    let atk_phon,def_phon;{
+      const {d,s,m,e}=phoneticDensities(readingHira);
+      const Lw=0.05, Uw=0.45;
+      const s_raw=0.6*d+0.25*(s+m)+0.15*e;
+      const s_ph=clamp(((s_raw-Lw)/(Uw-Lw))*2-1,-1,1);
+      atk_phon=0.2*(0.5+0.5*s_ph); def_phon=0.2-atk_phon;
+    }
+    // 長さ20%
+    let atk_len,def_len;{
+      const s_len=clamp((6-T)/6,-1,1);
+      atk_len=0.2*(0.5+0.5*s_len); def_len=0.2-atk_len;
+    }
+    const atk_pct=0.175+atk_struct+atk_phon+atk_len;
+    const def_pct=0.175+def_struct+def_phon+def_len;
+    const P=P_RANK[rank];
+    const ATK=Math.round(P*atk_pct);
+    const DEF=Math.round(P*def_pct);
+    const HP=HP_BASE[rank]+20*(T-5);
+    let eva=10+8*hiraRatioForEvasion(name)-0.5*(T-5)+EV_RANK[rank];
+    eva=clamp(eva,5,35);
+    return {ATK,DEF,HP,Evasion:eva};
+  }
+
+  /********** バトル基盤 **********/
+  const typeMult=(atkT,defT)=>{const m=TYPE_ADV[atkT]; if(!m) return 1; if(m.strong.includes(defT)) return 1.5; if(m.weak.includes(defT)) return 0.67; return 1};
+  const sample=(arr,rng)=>arr[Math.floor(rng()*arr.length)];
+
+  function createFighter([name,rank,type,reading]){
+    const st=calcStats(name,rank,type,reading);
+    return {name,rank,type,reading,base:st,hp:st.HP,gauge:0,atkMult:1,defMult:1,atkTurns:0,defTurns:0,evadeOverride:null,endure:false,skipTurns:0,gestaltTurns:0,doomTurns:0,genronTurns:0,_gorillaActive:false,_manualForce:false,_gFull:false};
+  }
+
+  function computeDamageDetailed(att,def,isSpecial,rng){
+    if(!isSpecial){
+      const eva=(def.evadeOverride&&def.evadeOverride.turns>0&&def.evadeOverride.rate!=null)?def.evadeOverride.rate:(def.base.Evasion/100);
+      if(rng()<eva) return {dmg:0,miss:true,luck:'normal',matchup:'even'};
+    }
+    let dmg=BASE_POWER*(1+att.base.ATK/100)/(1+(def.base.DEF*def.defMult)/120);
+    dmg*=att.atkMult;
+    const tm=typeMult(att.type,def.type); dmg*=tm;
+    const r=rng(); let luck='normal';
+    if(r<0.2){ dmg*=1.2; luck='lucky'; } else if(r<0.4){ dmg*=0.8; luck='unlucky'; }
+    const matchup = tm>1.0?'good': tm<1.0?'bad':'even';
+    return {dmg,miss:false,luck,matchup};
+  }
+
+  function composeMsg(attacker, dmg, luck, matchup, hands){
+    const luckTxt = luck==='lucky'?'ラッキー！ ': luck==='unlucky'?'アンラッキー… ':'';
+    const muTxt   = matchup==='good'?' 相性抜群！': matchup==='bad'?' 相性はいまいち…':'';
+    const handTxt = hands?`（${hands}）`:'';
+    return `${luckTxt}${attacker}の攻撃${handTxt}。${Math.round(dmg)}ダメージ！${muTxt}`;
+  }
+
+  function dealAttack(actor,target,isSpecial,rng,handsTxt){
+    if(actor.gestaltTurns>0 && rng()<1/3){ actor.hp-=100; showToast(`${actor.name}は混乱！自傷100`, 2800); return {self:true, msg:`${actor.name}は混乱！自傷100`}; }
+    const sp=SPECIALS[actor.name];
+    if(isSpecial && sp && sp.kind==='multi'){
+      const keep=actor.atkMult; let total=0, anyLucky=false, anyUnlucky=false, matchup='even';
+      for(const s of sp.params.hits){
+        actor.atkMult=keep*s;
+        const info=computeDamageDetailed(actor,target,true,rng);
+        total+=info.dmg;
+        if(target.endure && target.hp-info.dmg<=0){ target.hp=1; target.endure=false; } else target.hp-=info.dmg;
+        if(info.luck==='lucky') anyLucky=true; if(info.luck==='unlucky') anyUnlucky=true;
+        if(info.matchup==='good') matchup='good'; else if(info.matchup==='bad' && matchup!=='good') matchup='bad';
+        if(target.hp<=0) break;
+      }
+      actor.atkMult=keep;
+      const luck = anyLucky? 'lucky': anyUnlucky? 'unlucky':'normal';
+      return { dmg:total, msg: composeMsg(actor.name, total, luck, matchup, handsTxt) };
+    } else {
+      const info=computeDamageDetailed(actor,target,isSpecial,rng);
+      if(info.miss) return {dmg:0, msg:`${actor.name}の攻撃は外れた！${handsTxt?`（${handsTxt}）`:''}`};
+      if(target.endure && target.hp-info.dmg<=0){ target.hp=1; target.endure=false; } else target.hp-=info.dmg;
+      return { dmg:info.dmg, msg: composeMsg(actor.name, info.dmg, info.luck, info.matchup, handsTxt) };
+    }
+  }
+
+  function endOfTick(f){
+    if(f.atkTurns>0 && --f.atkTurns===0) f.atkMult=1;
+    if(f.defTurns>0 && --f.defTurns===0) f.defMult=1;
+    if(f.evadeOverride && --f.evadeOverride.turns<=0) f.evadeOverride=null;
+    if(f.skipTurns>0) f.skipTurns--;
+    if(f.gestaltTurns>0) f.gestaltTurns--;
+    if(f.genronTurns>0) f.genronTurns--;
+    if(f.doomTurns>0 && --f.doomTurns===0) f.hp=0;
+  }
+  function endTurnAdjustments(f){ if(f._gorillaActive){ f.atkMult=1.3; f._gorillaActive=false; } }
+
+  function bdDesc(u){
+    const eff = BD_ASSIGN[u.rank]?.[u.name];
+    if(!eff) return '状態異常型';
+    return ({kotobagari:'言葉狩り（行動不可1T）',genron:'言論統制（交代不可4T）',gestalt:'ゲシュタルト崩壊（4T・1/3で自傷100）',mojibake:'文字化け（3T後即死）'})[eff];
+  }
+  function briefDesc(sp){
+    const k=sp.kind,p=sp.params;
+    return ({
+      buff_endure:`攻${p.atkMult}×＋根性1回`,
+      multi:`多段 ${p.hits.join(' / ')}×`,
+      gorilla:`初${p.first}×→${p.turns}T ${p.next}×`,
+      evasion:`攻${p.atkMult}×＋回避${Math.round(p.evade*100)}%×${p.turns}T`,
+      atk_def:`攻${p.atkMult}×＋防${p.defMult}×(${p.turns}T)`,
+      atk_heal:`攻${p.atkMult}×＋回復${p.heal}`,
+      atk_drain:`攻${p.atkMult}×＋相手ゲージ0`,
+      heal_attack_all:`通常＋自${p.self}/味${p.allies}回復`,
+    })[k] || '';
+  }
+
+  function applySpecialPre(actor,target,allies,enemies,rng){
+    if(actor.gauge<GAUGE_NEEDED||actor.skipTurns>0) return false;
+    if(target.genronTurns>0 && typeMult(actor.type,target.type)<1.0 && !actor._manualForce) return false;
+    let used=false;
+    if(actor.rank==='X'){
+      const cands=enemies.filter(e=>e.rank!=='X'&&e.hp>0);
+      if(cands.length){
+        const picked=sample(cands,rng);
+        actor.atkMult*=2.0; actor.atkTurns=Math.max(actor.atkTurns,1);
+        const bn=actor.name, br=actor.rank;
+        actor.name=picked.name; actor.rank=picked.rank;
+        const _=applySpecialPre(actor,target,allies,enemies,rng);
+        actor.name=bn; actor.rank=br;
+        used=true; showToast(`鏡文字→${picked.name}`, 2400);
+      }
+    } else if(actor.rank==='A'||actor.rank==='S'){
+      const sp=SPECIALS[actor.name];
+      if(sp){
+        const txt=`${sp.id}（${briefDesc(sp)}）`;
+        switch(sp.kind){
+          case 'buff_endure': actor.atkMult*=sp.params.atkMult; actor.atkTurns=Math.max(actor.atkTurns,1); actor.endure=true; used=true; break;
+          case 'multi': used=true; break;
+          case 'gorilla': actor.atkMult=sp.params.first; actor.atkTurns=Math.max(actor.atkTurns,1+sp.params.turns); actor._gorillaActive=true; used=true; break;
+          case 'evasion': actor.atkMult*=sp.params.atkMult; actor.atkTurns=Math.max(actor.atkTurns,1); actor.evadeOverride={rate:sp.params.evade,turns:sp.params.turns}; used=true; break;
+          case 'atk_def': actor.atkMult*=sp.params.atkMult; actor.atkTurns=Math.max(actor.atkTurns,1); actor.defMult*=sp.params.defMult; actor.defTurns=Math.max(actor.defTurns,sp.params.turns); used=true; break;
+          case 'atk_heal': actor.atkMult*=sp.params.atkMult; actor.atkTurns=Math.max(actor.atkTurns,1); actor.hp=Math.min(actor.base.HP, actor.hp+sp.params.heal); used=true; break;
+          case 'atk_drain': actor.atkMult*=sp.params.atkMult; actor.atkTurns=Math.max(actor.atkTurns,1); target.gauge=0; used=true; break;
+          case 'heal_attack_all': actor.hp=Math.min(actor.base.HP, actor.hp+sp.params.self); for(const al of allies){ if(al!==actor) al.hp=Math.min(al.base.HP, al.hp+sp.params.allies); } used=true; break;
+        }
+        if(used) showToast(txt, 2600);
+      }
+    } else {
+      const eff=BD_ASSIGN[actor.rank]?.[actor.name];
+      if(eff){ AIL[eff].apply(target); used=true; showToast(`${AIL[eff].icon}${AIL[eff].name}`, 2600); }
+    }
+    if(used){ actor.gauge=Math.max(0,actor.gauge-GAUGE_NEEDED); actor._gFull=false; }
+    return used;
+  }
+
+  /********** DOM **********/
+  const $=id=>document.getElementById(id);
+  function el(tag,attrs={},children=[]){ const e=document.createElement(tag); for(const k in attrs){ if(k==='class') e.className=attrs[k]; else if(k==='html') e.innerHTML=attrs[k]; else e.setAttribute(k,attrs[k]); } children.forEach(c=>e.append(c)); return e; }
+
+  /********** 編成UI **********/
+  const teamA=$('teamA'), teamB=$('teamB'), statsMount=$('stats');
+  function selectTpl(i){ return el('div',{class:'slot'},[ el('span',{class:'pill'},['#'+(i+1)]), buildSelect() ]); }
+  function buildSelect(){ const s=el('select'); for(const [n,r,t] of WORDS){ s.append( el('option',{value:n},[document.createTextNode(`${n} [${r}/${t}]`)]) ); } return s; }
+  function getSelections(box){ const sels=[...box.querySelectorAll('select')]; return sels.map(s=> WORDS.find(w=>w[0]===s.value)); }
+  function renderStats(list){
+    statsMount.innerHTML='';
+    for(const it of list){ if(!it) continue; const [n,r,t,read]=it; const st=calcStats(n,r,t,read);
+      const card=el('div',{class:'card'},[
+        el('h2',{},[document.createTextNode(n+' '), el('span',{class:'muted'},[`[${r}/${t}]`])]),
+        el('div',{class:'body'},[
+          el('div',{},[`HP ${st.HP}`]), el('div',{},[`ATK ${st.ATK}`]),
+          el('div',{},[`DEF ${st.DEF}`]), el('div',{},[`回避 ${st.Evasion.toFixed(1)}%`])
+        ])
+      ]);
+      statsMount.append(card);
+    }
+  }
+  for(let i=0;i<3;i++){ teamA.append(selectTpl(i)); teamB.append(selectTpl(i)); }
+  function updateStats(){ renderStats([ ...getSelections(teamA), ...getSelections(teamB) ]); updateOptionDisables(); }
+  teamA.addEventListener('change',updateStats); teamB.addEventListener('change',updateStats); updateStats();
+  $('randA').onclick=()=>randomize(teamA);
+  $('randB').onclick=()=>randomize(teamB);
+  function randomize(box){
+    const sels=[...box.querySelectorAll('select')];
+    const used = new Set([ ...getSelections(teamA), ...getSelections(teamB) ].filter(Boolean).map(v=>v[0]));
+    sels.forEach((s)=>{
+      const avail = WORDS.filter(w=> ![...sels].some(x=>x!==s && x.value===w[0]) && !used.has(w[0]) );
+      const pick = (avail.length?avail:WORDS)[Math.floor(Math.random()* (avail.length?avail.length:WORDS.length))];
+      s.value=pick[0]; used.add(pick[0]);
+    });
+    updateOptionDisables(); updateStats();
+  }
+  function updateOptionDisables(){
+    const selected = new Set([ ...getSelections(teamA), ...getSelections(teamB) ].filter(Boolean).map(v=>v[0]));
+    [teamA,teamB].forEach(box=>{
+      [...box.querySelectorAll('select')].forEach(sel=>{
+        [...sel.options].forEach(opt=>{
+          const isOwn = sel.value===opt.value;
+          opt.disabled = !isOwn && selected.has(opt.value);
+        });
+      });
+    });
+  }
+  $('demo').onclick=()=>{ const set=(box,arr)=>{ const sels=[...box.querySelectorAll('select')]; arr.forEach((nm,i)=>{ if(sels[i]) sels[i].value=nm; }); }; set(teamA,["ネスカフェアンバサダー","パラボラアンテナ","ニシローランドゴリラ"]); set(teamB,["鳥取砂丘","ポリプロピレン","タランチュラ"]); updateStats(); };
+
+  /********** 画面遷移 **********/
+  const setup=$('setup'), battle=$('battle');
+  $('toBattle').onclick=()=>{ if(!getSelections(teamA).every(Boolean)||!getSelections(teamB).every(Boolean)){ alert('3体ずつ選んでください'); return; } setup.classList.add('hidden'); battle.classList.remove('hidden'); document.body.classList.add('battleMode'); startNewSession(); window.scrollTo({top:0}); };
+  $('backSetup').onclick=()=>{ stopTimer(); setup.classList.remove('hidden'); battle.classList.add('hidden'); document.body.classList.remove('battleMode'); };
+
+  /********** バトルHUD **********/
+  const leftWrap=$('leftWrap'), rightWrap=$('rightWrap'), benchBar=$('benchBar'), toast=$('toast'), summary=$('summary'), sixStats=$('sixStats'), countNum=$('countNum');
+
+  function unitView(u, foe, side){
+    const wrap=el('div',{class:'unit '+(side==='ally'?'ally':'enemy')});
+    wrap.append( el('div',{class:'nameRow'},[ el('div',{class:'name'},[document.createTextNode(u.name)]), el('div',{class:'tag'},[`[${u.type}]`]) ]) );
+    const hpRow=el('div'); hpRow.append( el('div',{class:'small muted'},[`HP ${Math.max(0,Math.ceil(u.hp))}/${u.base.HP}`]) );
+    const bar=el('div',{class:'bar'},[ el('span',{style:`width:${Math.max(0,Math.min(100,u.hp/u.base.HP*100)).toFixed(1)}%`}) ]);
+    hpRow.append(bar); wrap.append(hpRow);
+    const g=el('div',{class:'gauge'});
+    const gShow = Math.min(6, Math.max(0, Math.floor(u.gauge)));
+    for(let i=0;i<6;i++){ const p=el('div',{class:'pip'+(i<gShow?' on':'')}); if(i===5 && gShow===6) p.classList.add('readyPulse'); g.append(p); }
+    wrap.append(g);
+    const mu = foe ? typeMult(u.type,foe.type).toFixed(2) : '1.00';
+    const meta=el('div',{class:'meta'},[
+      el('div',{class:'line'},[ el('span',{},['相性']), el('span',{},[`×${mu}`]) ]),
+      el('div',{class:'line'},[
+        el('span',{},['必殺']),
+        el('span',{},[ SPECIALS[u.name] ? `${SPECIALS[u.name].id}｜${briefDesc(SPECIALS[u.name])}` : bdDesc(u) ])
+      ])
+    ]);
+    wrap.append(meta);
+    return wrap;
+  }
+
+  function miniCard(u,side){
+    if(!u) return el('div');
+    const card=el('div',{class:'miniCard '+side});
+    card.append( el('div',{class:'miniHead'},[ el('div',{},[u.name]), el('div',{class:'small muted'},[`[${u.type}]`]) ]) );
+    card.append( el('div',{class:'small muted'},[`HP ${Math.max(0,Math.ceil(u.hp))}/${u.base.HP}`]) );
+    card.append( el('div',{class:'miniBar'},[ el('span',{style:`width:${Math.max(0,Math.min(100,u.hp/u.base.HP*100)).toFixed(1)}%`}) ]) );
+    return card;
+  }
+  function renderSixStats(A, B){
+    sixStats.innerHTML='';
+    for(let i=0;i<3;i++){ sixStats.append( miniCard(A[i],'ally') ); sixStats.append( miniCard(B[i],'enemy') ); }
+  }
+  function benchChips(A, ia, foe){
+    benchBar.innerHTML='';
+    A.slice(ia+1).filter(x=>x.hp>0).forEach(u=>{
+      const chip=el('div',{class:'benchChip'});
+      chip.innerHTML=`<span class="name">${u.name}</span><span class="type">[${u.type}]</span><span class="ratio">×${typeMult(u.type,foe.type).toFixed(2)}</span>`;
+      benchBar.append(chip);
+    });
+  }
+  function renderHUD(s){
+    leftWrap.innerHTML=''; rightWrap.innerHTML='';
+    const a=s.A[s.ia], b=s.B[s.ib];
+    if(a) leftWrap.append( unitView(a,b,'ally') );
+    if(b) rightWrap.append( unitView(b,a,'enemy') );
+    benchChips(s.A, s.ia, b);
+    renderSixStats(s.A, s.B);
+  }
+  function showToast(text, ms=2800){ toast.textContent=text; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),ms); }
+
+  /********** 手・必殺・交代 **********/
+  let SELECTED_HAND=null, USE_SP=false;
+  let REQUEST_SWITCH=false, SWITCH_TARGET_INDEX=null;
+  let WAITING_KO=false; // 撃破後の交代待ち（人間）
+  const rpsRes=(a,b)=> a===b?-1 : ((a==='g'&&b==='c')||(a==='c'&&b==='p')||(a==='p'&&b==='g')?0:1);
+  const handLabel=h=>h==='g'?'グー':(h==='c'?'チョキ':'パー');
+  $('handG').onclick=()=>{ if(WAITING_KO) return; SELECTED_HAND='g'; stepNow(); };
+  $('handC').onclick=()=>{ if(WAITING_KO) return; SELECTED_HAND='c'; stepNow(); };
+  $('handP').onclick=()=>{ if(WAITING_KO) return; SELECTED_HAND='p'; stepNow(); };
+  $('btnSP').onclick=()=>{ USE_SP=!USE_SP; $('btnSP').textContent=USE_SP?'✨ 必殺 ON':'✨ 必殺 OFF'; };
+
+  // 交代（人間：手動／撃破時ともにモーダル）
+  const switchModal=$('switchModal'), switchList=$('switchList'), switchTitle=$('switchTitle');
+  $('btnSwitch').onclick=()=>{ if(WAITING_KO) return; openSwitchModal('manual'); };
+  $('cancelSwitch').onclick=()=>{ switchModal.style.display='none'; SWITCH_TARGET_INDEX=null; if(WAITING_KO) openSwitchModal('ko'); };
+  $('doSwitch').onclick=()=>{
+    if(SWITCH_TARGET_INDEX==null) return;
+    if(WAITING_KO){
+      switchIn(SESSION.A, SESSION.ia, SWITCH_TARGET_INDEX, 'A');
+      const name=SESSION.A[SESSION.ia].name;
+      showToast(`いけ、${name}！`, 2800);
+      switchModal.style.display='none'; SWITCH_TARGET_INDEX=null; WAITING_KO=false;
+      renderHUD(SESSION); startTimer(); // 次ターンへ
+    }else{
+      REQUEST_SWITCH=true; switchModal.style.display='none'; stepNow();
+    }
+  };
+
+  function openSwitchModal(mode){
+    const s=SESSION; if(!s) return;
+    const foe = s.B[s.ib];
+    const benchIdxs = Array.from({length:s.A.length-s.ia-1},(_,k)=>k+s.ia+1).filter(k=>s.A[k].hp>0);
+    benchIdxs.sort((i,j)=> typeMult(s.A[i].type,foe.type)-typeMult(s.A[j].type,foe.type) || (s.A[j].hp-s.A[i].hp));
+    const bestIdx = benchIdxs[0];
+    switchList.innerHTML='';
+    switchTitle.textContent = mode==='ko' ? '交代先を選択（いけ！）' : '交代先を選択';
+    benchIdxs.forEach((idx)=>{ const u=s.A[idx]; const ratio=typeMult(u.type,foe.type).toFixed(2);
+      const row=el('div',{class:'opt'},[
+        el('div',{},[
+          el('div',{class:'name'},[u.name]),
+          el('div',{class:'small muted'},[`[${u.type}]  HP ${Math.ceil(u.hp)}/${u.base.HP}  相性 ×${ratio}`])
+        ]),
+        el('div',{class:'right'},[
+          el('span',{class:'badge'+(idx===bestIdx?' best':'' )},[idx===bestIdx?'おすすめ':'候補']),
+          el('button',{class:'ghost'},['選択'])
+        ])
+      ]);
+      row.querySelector('button').onclick=()=>{ [...switchList.children].forEach(x=>x.classList.remove('on')); row.classList.add('on'); SWITCH_TARGET_INDEX=idx; };
+      switchList.append(row);
+    });
+    if(!benchIdxs.length) switchList.innerHTML='<div class="small muted">控えがいません</div>';
+    switchModal.style.display='grid';
+  }
+
+  /********** 乱数 & セッション & タイマー **********/
+  function LCG(sd){ let s=sd>>>0; return ()=> (s=(1664525*s+1013904223)>>>0, (s>>>8)/16777216); }
+  let SESSION=null, TIMER=null, TLEFT=10;
+
+  function startNewSession(){
+    const A=getSelections(teamA), B=getSelections(teamB);
+    const rng=LCG(Number($('seed').value)||20250812);
+    SESSION={ rng, A:A.map(createFighter), B:B.map(createFighter), ia:0, ib:0, tick:0 };
+    summary.textContent='バトル中';
+    renderHUD(SESSION);
+    startTimer();
+  }
+
+  function startTimer(){
+    stopTimer(); if(WAITING_KO) return;
+    TLEFT=10; countNum.textContent=TLEFT;
+    TIMER=setInterval(()=>{ TLEFT--; countNum.textContent=TLEFT; if(TLEFT<=0){ stopTimer(); SELECTED_HAND=['g','c','p'][Math.floor(SESSION.rng()*3)]; stepOnce(); } },1000);
+  }
+  function stopTimer(){ if(TIMER){ clearInterval(TIMER); TIMER=null; } }
+  function stepNow(){ stopTimer(); if(!SELECTED_HAND && !REQUEST_SWITCH) return; stepOnce(); }
+
+  /********** AI交代（タイプ有利選択） **********/
+  function decideSwitchCPU(me,bench,opp,rng){
+    if(me.genronTurns>0) return -1;
+    const aliveIdx = bench.map((u,i)=>i).filter(i=>bench[i].hp>0);
+    if(!aliveIdx.length) return -1;
+    const mySP=me.gauge>=GAUGE_NEEDED && me.skipTurns<=0;
+    const oppSP=opp.gauge>=GAUGE_NEEDED && opp.skipTurns<=0;
+    const EVnow=computeDamageDetailed(me,opp,mySP,rng).dmg - computeDamageDetailed(opp,me,oppSP,rng).dmg;
+    let bestRel=null, bestScore=-1;
+    aliveIdx.forEach(rel=>{
+      const cand=bench[rel];
+      const score=typeMult(cand.type,opp.type);
+      if(score>bestScore){ bestScore=score; bestRel=rel; }
+    });
+    const gain = bestScore - typeMult(me.type,opp.type);
+    if(EVnow<-20 && gain>0.25) return bestRel;
+    return -1;
+  }
+  function chooseBestCPUAfterKO(team, startIndex, foe){
+    let bestIdx=null, bestScore=-1;
+    for(let i=startIndex;i<team.length;i++){
+      if(team[i].hp>0){
+        const score=typeMult(team[i].type,foe.type);
+        if(score>bestScore){ bestScore=score; bestIdx=i; }
+      }
+    }
+    return bestIdx;
+  }
+
+  /********** ゲージ & 交代共通 **********/
+  function incGauge(u){
+    const before=u.gauge; u.gauge=Math.min(GAUGE_NEEDED, u.gauge+1);
+    if(u.gauge>=GAUGE_NEEDED && !u._gFull){ showToast(`${u.name} のゲージが満タン！ 必殺OK`, 2600); u._gFull=true; }
+  }
+  function switchIn(team,iFrom,iTo, sideTag){
+    [team[iFrom],team[iTo]]=[team[iTo],team[iFrom]];
+    team[iFrom].gauge=0; team[iTo].gauge=0;
+    team[iTo].skipTurns=team[iTo].gestaltTurns=team[iTo].doomTurns=team[iTo].genronTurns=0;
+  }
+
+  /********** メインの1ターン **********/
+  function stepOnce(){
+    const s=SESSION; s.tick++;
+
+    // 撃破処理（人間側：選択を促す）
+    while(s.ia<3 && s.A[s.ia].hp<=0){
+      s.ia++;
+      if(s.ia<3){
+        WAITING_KO=true;
+        openSwitchModal('ko');
+        renderHUD(s);
+        stopTimer();
+        return;
+      }
+    }
+    // 撃破処理（CPU側）
+    while(s.ib<3 && s.B[s.ib].hp<=0){
+      s.ib++;
+      if(s.ib<3){
+        const bestIdx = chooseBestCPUAfterKO(s.B, s.ib, s.A[s.ia]);
+        if(bestIdx!=null && bestIdx!==s.ib){ switchIn(s.B, s.ib, bestIdx, 'B'); }
+        showToast(`相手は ${s.B[s.ib].name} をくりだした！`, 2800);
+      }
+    }
+    if(s.ia>=3||s.ib>=3){ summary.textContent=`結果：${s.ib>=3?'あなたの勝ち':'CPUの勝ち'}`; renderHUD(s); return; }
+
+    let a=s.A[s.ia], b=s.B[s.ib];
+
+    // 人間の通常交代：このターンはCPU攻撃のみ
+    if(REQUEST_SWITCH && SWITCH_TARGET_INDEX!=null){
+      switchIn(s.A, s.ia, SWITCH_TARGET_INDEX, 'A'); a=s.A[s.ia];
+      showToast(`いけ、${a.name}！`, 2800);
+      const used=applySpecialPre(b,a,s.B,s.A,s.rng);
+      const rr=dealAttack(b,a,used,s.rng,`あなた:交代 / CPU:攻撃`);
+      showToast(rr.msg, 2800);
+      endTurnAdjustments(b); endOfTick(a); endOfTick(b);
+      REQUEST_SWITCH=false; SWITCH_TARGET_INDEX=null; SELECTED_HAND=null;
+      incGauge(a); incGauge(b);
+      renderHUD(s); startTimer(); return;
+    }
+
+    // CPUだけ交代（タイプ有利）
+    const wantRel = decideSwitchCPU(b, s.B.slice(s.ib+1), a, s.rng);
+    if(wantRel>=0){
+      const absIdx = s.ib+1+wantRel;
+      switchIn(s.B, s.ib, absIdx, 'B'); b=s.B[s.ib];
+      showToast(`相手は ${b.name} をくりだした！`, 2800);
+      const used=applySpecialPre(a,b,s.A,s.B,s.rng);
+      const rr=dealAttack(a,b,used,s.rng,`あなた:攻撃 / CPU:交代`);
+      showToast(rr.msg, 2800);
+      endTurnAdjustments(a); endOfTick(a); endOfTick(b);
+      SELECTED_HAND=null;
+      incGauge(a); incGauge(b);
+      renderHUD(s); startTimer(); return;
+    }
+
+    // じゃんけん
+    const cpu=['g','c','p'][Math.floor(s.rng()*3)];
+    const res = rpsRes(SELECTED_HAND||'g', cpu);
+    if(res===-1){
+      showToast(`あいこ：あなた ${handLabel(SELECTED_HAND)} / CPU ${handLabel(cpu)}`, 2600);
+      endOfTick(a); endOfTick(b);
+      SELECTED_HAND=null;
+      incGauge(a); incGauge(b);
+      renderHUD(s); startTimer(); return;
+    }
+    const actor = res===0? a:b; const target = res===0? b:a;
+    if(actor.skipTurns<=0){
+      if(actor===a && USE_SP) a._manualForce=true;
+      const used=applySpecialPre(actor,target, res===0?s.A:s.B, res===0?s.B:s.A, s.rng);
+      a._manualForce=false;
+      const rr=dealAttack(actor,target,used,s.rng,`あなた ${handLabel(SELECTED_HAND)} / CPU ${handLabel(cpu)}`);
+      showToast(rr.msg, 2800);
+      endTurnAdjustments(actor);
+    } else {
+      showToast(`${actor.name} は言葉狩りで行動不能`, 2600);
+    }
+    endOfTick(a); endOfTick(b);
+    SELECTED_HAND=null;
+    incGauge(a); incGauge(b);
+    if(s.ia>=3||s.ib>=3){ summary.textContent=`結果：${s.ib>=3?'あなたの勝ち':'CPUの勝ち'}`; }
+    renderHUD(s); startTimer();
+  }
+
+})();
+</script>
+</body>
+</html>
