@@ -29,6 +29,11 @@
   .muted{color:var(--muted)} .small{font-size:12px}
   .divider{height:1px;background:#1d2440;margin:12px 0}
 
+/* 追加：共通の非表示クラス＆バトル時の強制切替 */
+.hidden { display: none !important; }
+body.battleMode #setup { display: none !important; }
+body.battleMode #battle { display: block !important; }
+
   /* 対戦中フルスクリーン（編成は隠す） */
   #battle.hidden{display:none}
   body.battleMode{height:100vh;overflow:hidden}
