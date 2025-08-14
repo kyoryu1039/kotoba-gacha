@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<title>Safe Layout Build (alt)</title>
+<style>
+  :root{
+    --bg:#0b1027; --panel:#0f1633; --ink:#eaf2ff; --muted:#9fb5ff;
+    --ally:#27b1ff; --enemy:#ff6b7a;
+    --hp:#63ff8c; --hpBack:#0f2a1c; --bar:#9fd4ff; --barBack:#1a2847;
+    --ring:#20335f; --shadow:0 14px 38px rgba(0,0,0,.22);
+    --gauge:#ffe066; --gaugeBack:#3a2d0e;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans JP",sans-serif}
+  .shell{max-width:1024px;width:100vw;margin:0 auto;padding:10px}
+
+  /* ----- 共通カード ----- */
+  .card{background:var(--panel);border:1px solid var(--ring);border-radius:16px;box-shadow:var(--shadow);margin-bottom:10px}
+  .card-h{padding:12px 16px;border-bottom:1px solid var(--ring);font-weight:900}
+  .card-b{padding:12px 16px}
+
+  /* ----- バトル2面（常に1カラム→モバイルでも拡大しない） ----- */
+  .arena{display:grid;gap:10px}
+  .vs{display:grid;gap:8px}
+  @media(min-width:680px){.vs{grid-template-columns:1fr 1fr}}
+
+  /* ----- ユニットカード ----- */
+  .unit{position:relative;border:1px solid #243567;border-radius:14px;padding:12px;display:grid;gap:8px}
+  .owner{position:absolute;top:8px;left:8px;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid #2d3a70;background:#0b1635d8}
+  .owner.ally{color:var(--ally)} .owner.enemy{color:var(--enemy)}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .badge{font-size:12px;background:#0d1630;border:1px solid #2b3a70;padding:2px 8px;border-radius:999px}
+  .hpRow{display:flex;align-items:center;gap:10px}
+  .hpBox{flex:1;height:22px;background:var(--hpBack);border-radius:11px;overflow:hidden}
+  .hpFill{height:100%;background:var(--hp);transition:width .9s cubic-bezier(.22,.61,.36,1)}
+  .hpNum{width:150px;text-align:right}
+  .gWrap{display:flex;align-items:center;gap:8px}
+  .gauge{display:flex;gap:4px}
+  .pip{width:16px;height:12px;background:var(--gaugeBack);border:1px solid #5a480c;border-radius:3px;opacity:.7}
+  .pip.on{background:var(--gauge);opacity:1}
+
+  /* ----- 画像（1:1固定でLCP最適化） ----- */
+  .art{width:86px;aspect-ratio:1/1;border-radius:10px;background:#0b1733;
+        border:1px solid #2b3a70;display:grid;place-items:center;overflow:hidden}
+  .art img{width:100%;height:100%;object-fit:contain;display:block}
+
+  /* ----- 相対バー（常にバー色＝水色） ----- */
+  .sBar{display:flex;align-items:center;gap:10px}
+  .sLab{width:58px;color:#cfe2ff;font-size:12px}
+  .sBox{flex:1;height:16px;background:var(--barBack);border-radius:8px;overflow:hidden}
+  .sFill{height:100%;background:var(--bar)}
+  .sVal{width:82px;text-align:right;font-size:12px;color:#cfe2ff}
+
+  /* ----- 操作パネル（左：三角RPS / 右：縦2ボタン） ----- */
+  .panel{display:grid;gap:12px}
+  @media(min-width:680px){.panel{grid-template-columns:1fr 240px}}
+  .rpsArea{background:linear-gradient(180deg,#0e1838,#0b1429);border:1px solid var(--ring);border-radius:14px;min-height:220px;position:relative}
+  .rpsGrid{
+      position:absolute;inset:0;display:grid;
+      grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr;
+      grid-template-areas:
+        "g . c"
+        ". p .";
+      place-items:center;
+  }
+  .rpsBtn{
+    width:96px;height:96px;border-radius:999px;border:none;cursor:pointer;
+    display:grid;place-items:center;gap:2px;font-weight:900;color:#061225;
+    box-shadow:0 6px 14px rgba(0,0,0,.22);
+  }
+  .rpsBtn .emo{font-size:36px}
+  .rpsBtn .txt{font-size:12px}
+  .g{grid-area:g;background:linear-gradient(180deg,#ffdfde,#ff8b8b)}
+  .c{grid-area:c;background:linear-gradient(180deg,#e0e8ff,#8bb1ff)}
+  .p{grid-area:p;background:linear-gradient(180deg,#defae5,#8bffb5)}
+  .sideBtns{display:grid;gap:10px}
+  .bigBtn{height:66px;border-radius:14px;border:none;cursor:pointer;font-weight:900}
+  .sp{background:#0e1530;border:2px solid #f2c94c;color:#f2c94c}
+  .sp.on{background:linear-gradient(90deg,#ffe066,#ffcf33);color:#2a1700;border-color:#ffcf33}
+  .sw{background:linear-gradient(90deg,#ffd89b,#fda085);color:#26110b}
+
+  /* ----- トースト（完全キュー＋入力ロック） ----- */
+  .toastHost{min-height:56px}
+  .toast{margin:6px auto 0;max-width:min(96vw,720px);padding:12px 16px;border-radius:14px;
+         background:rgba(12,22,50,.96);border:1px solid #2b3a70;color:#eaf3ff;
+         opacity:0;transform:translateY(8px);transition:.22s ease}
+  .toast.show{opacity:1;transform:translateY(0)}
+
+  /* ちょいFX */
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+  .shake{animation:shake .5s ease}
+  .burst{box-shadow:0 0 0 3px rgba(255,224,102,.7),0 0 22px 6px rgba(255,224,102,.25)}
+
+  /* デバッガ（必要ならdisplay:none） */
+  .dbg{position:fixed;right:6px;bottom:6px;background:#0008;color:#fff;padding:6px 8px;border-radius:8px;font:12px/1.2 monospace;z-index:50}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- 対戦（UI土台） -->
+  <section class="card">
+    <div class="card-h">バトル</div>
+    <div class="card-b arena">
+
+      <!-- 2面 -->
+      <div class="vs" id="vs">
+        <!-- 左 -->
+        <div class="unit" id="uL">
+          <div class="owner ally">あなた</div>
+          <div class="row">
+            <div style="font-weight:900" id="nameL">—</div>
+            <div class="badge" id="typeL">—</div>
+          </div>
+          <div class="row">
+            <div class="art"><img id="imgL" alt=""></div>
+            <div style="flex:1">
+              <div class="hpRow">
+                <div class="hpBox"><div class="hpFill" id="hpL" style="width:100%"></div></div>
+                <div class="hpNum" id="hpNumL">HP —/—</div>
+              </div>
+              <div class="gWrap">
+                <div style="font-size:12px;color:#ffeaa7">必殺ゲージ</div>
+                <div class="gauge" id="gL"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sBar"><div class="sLab">HP</div><div class="sBox"><div class="sFill" id="sL0" style="width:50%"></div></div><div class="sVal" id="svL0">—</div></div>
+          <div class="sBar"><div class="sLab">攻撃</div><div class="sBox"><div class="sFill" id="sL1" style="width:50%"></div></div><div class="sVal" id="svL1">—</div></div>
+          <div class="sBar"><div class="sLab">防御</div><div class="sBox"><div class="sFill" id="sL2" style="width:50%"></div></div><div class="sVal" id="svL2">—</div></div>
+          <div class="sBar"><div class="sLab">回避</div><div class="sBox"><div class="sFill" id="sL3" style="width:50%"></div></div><div class="sVal" id="svL3">—</div></div>
+        </div>
+
+        <!-- 右 -->
+        <div class="unit" id="uR">
+          <div class="owner enemy">CPU</div>
+          <div class="row">
+            <div style="font-weight:900" id="nameR">—</div>
+            <div class="badge" id="typeR">—</div>
+          </div>
+          <div class="row">
+            <div class="art"><img id="imgR" alt=""></div>
+            <div style="flex:1">
+              <div class="hpRow">
+                <div class="hpBox"><div class="hpFill" id="hpR" style="width:100%"></div></div>
+                <div class="hpNum" id="hpNumR">HP —/—</div>
+              </div>
+              <div class="gWrap">
+                <div style="font-size:12px;color:#ffeaa7">必殺ゲージ</div>
+                <div class="gauge" id="gR"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sBar"><div class="sLab">HP</div><div class="sBox"><div class="sFill" id="sR0" style="width:50%"></div></div><div class="sVal" id="svR0">—</div></div>
+          <div class="sBar"><div class="sLab">攻撃</div><div class="sBox"><div class="sFill" id="sR1" style="width:50%"></div></div><div class="sVal" id="svR1">—</div></div>
+          <div class="sBar"><div class="sLab">防御</div><div class="sBox"><div class="sFill" id="sR2" style="width:50%"></div></div><div class="sVal" id="svR2">—</div></div>
+          <div class="sBar"><div class="sLab">回避</div><div class="sBox"><div class="sFill" id="sR3" style="width:50%"></div></div><div class="sVal" id="svR3">—</div></div>
+        </div>
+      </div>
+
+      <!-- 操作パネル -->
+      <div class="panel">
+        <div class="card">
+          <div class="card-h">操作パネル</div>
+          <div class="card-b rpsArea">
+            <div class="rpsGrid">
+              <button class="rpsBtn g" id="btnG"><div class="emo">✊</div><div class="txt">グー</div></button>
+              <button class="rpsBtn c" id="btnC"><div class="emo">✌️</div><div class="txt">チョキ</div></button>
+              <button class="rpsBtn p" id="btnP"><div class="emo">🖐</div><div class="txt">パー</div></button>
+            </div>
+          </div>
+        </div>
+        <div class="sideBtns">
+          <button class="bigBtn sp" id="btnSP">✨ 必殺 OFF</button>
+          <button class="bigBtn sw" id="btnSW">🔁 交代</button>
+        </div>
+      </div>
+
+      <div class="toastHost"><div class="toast" id="toast"></div></div>
+      <div style="text-align:center;font-weight:900">選択まで <span id="sec">15</span> 秒</div>
+
+    </div>
+  </section>
+
+</div>
+
+<div class="dbg" id="dbg">init…</div>
+
+<script>
+/* ========= 画像ユーティリティ（decodeしてから表示） ========= */
+const slug = (jp)=>({
+  "パラボラアンテナ":"parabola_antenna",
+  "ネスカフェアンバサダー":"nescafe_ambassador",
+  "にんじんしりしり":"ninjin_shirishiri",
+  "そぼろごはん":"soboro_gohan",
+  "ニシローランドゴリラ":"western_lowland_gorilla",
+  "毛むくじゃら":"kemukujara",
+  "九品仏":"kuhonbutsu",
+  "けんちん汁":"kenchin_jiru",
+  "カムチャッカ半島":"kamchatka_peninsula",
+  "タランチュラ":"tarantula",
+  "ハシビロコウ":"shoebill",
+  "バルサミコ酢":"balsamic_vinegar",
+  "ピロリ菌":"helicobacter_pylori",
+  "トリニダード・トバゴ":"trinidad_and_tobago",
+  "カラメル色素":"caramel_color",
+  "バビロン捕囚":"babylonian_captivity",
+  "鳥取砂丘":"tottori_sand_dunes",
+  "プラシーボ効果":"placebo_effect",
+  "渡来人":"torai_jin",
+  "さるびあ丸":"sarubia_maru",
+  "ペペロンチーノ":"peperoncino",
+  "ポリプロピレン":"polypropylene",
+  "サラエボ事件":"sarajevo_incident",
+  "クマンバチ":"kumabachi",
+  "県庁所在地":"prefectural_capital",
+  "照り焼きチキン":"teriyaki_chicken",
+  "ねるねるねるね":"nerunerunerune",
+  "スルメイカ":"surume_ika",
+  "本質":"essence",
+  "見える化":"mieruka",
+  "自分ごと化":"jibungotoka",
+  "解像度":"resolution"
+})[jp] || "placeholder";
+
+async function decodeToURL(path){
+  try{
+    const res = await fetch(path,{cache:"reload"});
+    const blob = await res.blob();
+    // createImageBitmap は iOS16+ / modern chrome で高性能
+    if (window.createImageBitmap){
+      await createImageBitmap(blob);
+    }else{
+      // フォールバック decode
+      await new Promise((ok)=>{
+        const i=new Image(); i.onload=ok; i.src=URL.createObjectURL(blob);
+      });
+    }
+    return URL.createObjectURL(blob);
+  }catch(e){
+    console.warn("img decode fail", path, e);
+    return path; // 失敗時も表示は試みる
+  }
+}
+
+/* ========= トースト（完全キュー＆入力ロック） ========= */
+const toastQ=[]; let toastBusy=false; let inputLocked=false;
+function toast(msg){
+  toastQ.push(String(msg));
+  if(!toastBusy) runToast();
+}
+function tDur(s){return 1500 + String(s).length*60;}
+async function runToast(){
+  toastBusy=true; lockInputs(true);
+  const el=document.getElementById("toast");
+  while(toastQ.length){
+    const m=toastQ.shift(); el.textContent=m; el.classList.add("show");
+    await new Promise(r=>setTimeout(r, tDur(m)));
+    el.classList.remove("show");
+    await new Promise(r=>setTimeout(r,140));
+  }
+  lockInputs(false);
+  toastBusy=false;
+}
+function lockInputs(b){
+  inputLocked=b;
+  ["btnG","btnC","btnP","btnSP","btnSW"].forEach(id=>{
+    const el=document.getElementById(id);
+    el.disabled=b;
+    // 透過はしない（見た目はそのまま）
+    el.style.pointerEvents = b ? "none" : "";
+  });
+}
+
+/* ========= ダミーデータでまず“見た目だけ”確認 ========= */
+const L = { name:"九品仏", type:"ジオ", hp:500, maxhp:500, atk:87, def:82, eva:11, sp:4 };
+const R = { name:"トリニダード・トバゴ", type:"ジオ", hp:600, maxhp:600, atk:108, def:52, eva:8, sp:2 };
+const MAX={HP:800,ATK:120,DEF:120,EVA:20};
+function pct(v,m){return Math.max(0, Math.min(100, v/m*100));}
+function setGauge(dom, val){dom.innerHTML = [...Array(6)].map((_,i)=>`<span class="pip ${i<val?'on':''}"></span>`).join("")}
+
+async function paint(){
+  // 名前/タイプ
+  nameL.textContent=L.name; typeL.textContent=L.type;
+  nameR.textContent=R.name; typeR.textContent=R.type;
+
+  // 画像（先にdecode）
+  const lURL = await decodeToURL(`images/${slug(L.name)}.png`);
+  const rURL = await decodeToURL(`images/${slug(R.name)}.png`);
+  imgL.src = lURL; imgL.decoding="async"; imgL.loading="eager";
+  imgR.src = rURL; imgR.decoding="async"; imgR.loading="eager";
+
+  // HP
+  hpL.style.width = (L.hp/L.maxhp*100)+"%"; hpNumL.textContent=`HP ${L.hp}/${L.maxhp}`;
+  hpR.style.width = (R.hp/R.maxhp*100)+"%"; hpNumR.textContent=`HP ${R.hp}/${R.maxhp}`;
+
+  // 相対バー（常に水色）
+  sL0.style.width=pct(L.maxhp,MAX.HP)+"%"; svL0.textContent=L.maxhp;
+  sL1.style.width=pct(L.atk,MAX.ATK)+"%"; svL1.textContent=L.atk;
+  sL2.style.width=pct(L.def,MAX.DEF)+"%"; svL2.textContent=L.def;
+  sL3.style.width=pct(L.eva,MAX.EVA)+"%"; svL3.textContent=L.eva+"%";
+  sR0.style.width=pct(R.maxhp,MAX.HP)+"%"; svR0.textContent=R.maxhp;
+  sR1.style.width=pct(R.atk,MAX.ATK)+"%"; svR1.textContent=R.atk;
+  sR2.style.width=pct(R.def,MAX.DEF)+"%"; svR2.textContent=R.def;
+  sR3.style.width=pct(R.eva,MAX.EVA)+"%"; svR3.textContent=R.eva+"%";
+
+  // ゲージ
+  setGauge(gL,L.sp); setGauge(gR,R.sp);
+
+  // 例のトースト
+  toast("いけ、九品仏！ バトルスタート！");
+}
+
+function dbg(s){document.getElementById("dbg").textContent=s;}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  // クリックは今はダミー：ロックの挙動だけ体験
+  ["btnG","btnC","btnP"].forEach(id=>{
+    document.getElementById(id).addEventListener("click", ()=>{
+      if(inputLocked) return;
+      toast("あなたは出した。相手も出した。結果のトースト…");
+      // ダメージ表示 → シェイク（ミス時は揺らさない）
+      setTimeout(()=>{ document.getElementById("uR").classList.add("shake");
+        setTimeout(()=>document.getElementById("uR").classList.remove("shake"),520);
+      }, 400);
+    });
+  });
+  document.getElementById("btnSP").addEventListener("click", ()=>{
+    if(inputLocked) return;
+    if (document.getElementById("btnSP").classList.toggle("on")){
+      document.getElementById("btnSP").textContent="✨ 必殺 ON";
+    }else{
+      document.getElementById("btnSP").textContent="✨ 必殺 OFF";
+    }
+  });
+  document.getElementById("btnSW").addEventListener("click", ()=>{
+    if(inputLocked) return;
+    toast("交代モーダルをこの位置に出す想定…（ここではUIロックの体験のみ）");
+  });
+
+  paint();
+  dbg("layout:ready (alt build)");
+});
+</script>
+</body>
+</html>
