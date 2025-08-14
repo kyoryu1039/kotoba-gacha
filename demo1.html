@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<title>Safe Layout Build – compact</title>
+<style>
+  :root{
+    --bg:#0b1027; --panel:#0f1633; --ink:#eaf2ff; --muted:#9fb5ff;
+    --ally:#27b1ff; --enemy:#ff6b7a;
+    --hp:#63ff8c; --hpBack:#0f2a1c; --bar:#9fd4ff; --barBack:#1a2847;
+    --ring:#20335f; --shadow:0 12px 30px rgba(0,0,0,.2);
+    --gauge:#ffe066; --gaugeBack:#3a2d0e;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:system-ui,"Noto Sans JP",sans-serif}
+  .shell{max-width:1024px;width:100vw;margin:0 auto;padding:8px}
+
+  /* --- 共通カード（縦幅を圧縮） --- */
+  .card{background:var(--panel);border:1px solid var(--ring);border-radius:14px;box-shadow:var(--shadow);margin-bottom:8px}
+  .card-h{padding:10px 12px;border-bottom:1px solid var(--ring);font-weight:900}
+  .card-b{padding:10px 12px}
+
+  /* --- 2面 --- */
+  .arena{display:grid;gap:8px}
+  .vs{display:grid;gap:8px}
+  @media(min-width:680px){.vs{grid-template-columns:1fr 1fr}}
+
+  /* --- ユニットカード（モバイル圧縮） --- */
+  .unit{border:1px solid #243567;border-radius:12px;padding:8px;display:grid;gap:6px}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .owner{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid #2d3a70;background:#0b1635d8}
+  .owner.ally{color:var(--ally)} .owner.enemy{color:var(--enemy)}
+  .badge{font-size:11px;background:#0d1630;border:1px solid #2b3a70;padding:2px 8px;border-radius:999px}
+  .name{font-weight:900;font-size:16px}
+  .row{display:flex;gap:8px;align-items:center}
+
+  .hpRow{display:flex;align-items:center;gap:8px}
+  .hpBox{flex:1;height:18px;background:var(--hpBack);border-radius:9px;overflow:hidden}
+  .hpFill{height:100%;background:var(--hp);transition:width 1.2s cubic-bezier(.22,.61,.36,1)}
+  .hpNum{width:130px;text-align:right;font-size:12px}
+
+  .gWrap{display:flex;align-items:center;gap:6px}
+  .gauge{display:flex;gap:3px}
+  .pip{width:14px;height:10px;background:var(--gaugeBack);border:1px solid #5a480c;border-radius:3px;opacity:.7}
+  .pip.on{background:var(--gauge);opacity:1}
+
+  /* 画像（スケルトン付き） */
+  .art{width:76px;aspect-ratio:1/1;border-radius:10px;background:#0b1733;
+        border:1px solid #2b3a70;display:grid;place-items:center;overflow:hidden;position:relative}
+  .art::after{content:"";position:absolute;inset:0;background:
+    linear-gradient(90deg,#0c1640 0%,#14224f 50%,#0c1640 100%);
+    animation:skeleton 1.1s infinite;opacity:.35}
+  .art.ready::after{display:none}
+  @keyframes skeleton{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  .art img{width:100%;height:100%;object-fit:contain;display:block}
+
+  /* 相対バー（色は水色固定） */
+  .sBar{display:flex;align-items:center;gap:8px}
+  .sLab{width:52px;color:#cfe2ff;font-size:12px}
+  .sBox{flex:1;height:14px;background:var(--barBack);border-radius:7px;overflow:hidden}
+  .sFill{height:100%;background:var(--bar)}
+  .sVal{width:72px;text-align:right;font-size:12px;color:#cfe2ff}
+
+  /* 操作パネル（左：三角RPS / 右：縦2ボタン） */
+  .panel{display:grid;gap:10px}
+  @media(min-width:680px){.panel{grid-template-columns:1fr 220px}}
+  .rpsArea{background:linear-gradient(180deg,#0e1838,#0b1429);border:1px solid var(--ring);border-radius:12px;min-height:200px;position:relative}
+  .rpsGrid{
+      position:absolute;inset:0;display:grid;
+      grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr;
+      grid-template-areas:
+        "g . c"
+        ". p .";
+      place-items:center;
+  }
+  .rpsBtn{
+    width:90px;height:90px;border-radius:999px;border:none;cursor:pointer;
+    display:grid;place-items:center;gap:2px;font-weight:900;color:#061225;
+    box-shadow:0 6px 14px rgba(0,0,0,.22)
+  }
+  .rpsBtn .emo{font-size:34px}
+  .rpsBtn .txt{font-size:12px}
+  .g{grid-area:g;background:linear-gradient(180deg,#ffdfde,#ff8b8b)}
+  .c{grid-area:c;background:linear-gradient(180deg,#e0e8ff,#8bb1ff)}
+  .p{grid-area:p;background:linear-gradient(180deg,#defae5,#8bffb5)}
+  .sideBtns{display:grid;gap:8px}
+  .bigBtn{height:60px;border-radius:12px;border:none;cursor:pointer;font-weight:900}
+  .sp{background:#0e1530;border:2px solid #f2c94c;color:#f2c94c}
+  .sp.on{background:linear-gradient(90deg,#ffe066,#ffcf33);color:#2a1700;border-color:#ffcf33}
+  .sw{background:linear-gradient(90deg,#ffd89b,#fda085);color:#26110b}
+
+  /* トースト（完全キュー＋入力ロック） */
+  .toastHost{min-height:52px}
+  .toast{margin:6px auto 0;max-width:min(96vw,720px);padding:10px 14px;border-radius:12px;
+         background:rgba(12,22,50,.96);border:1px solid #2b3a70;color:#eaf3ff;
+         opacity:0;transform:translateY(8px);transition:.22s ease}
+  .toast.show{opacity:1;transform:translateY(0)}
+
+  /* ボックス（折りたたみ） */
+  details.box{background:var(--panel);border:1px solid var(--ring);border-radius:12px;padding:8px}
+  details.box>summary{cursor:pointer;font-weight:900;list-style:none}
+  details.box>summary::-webkit-details-marker{display:none}
+  .boxGrid{display:grid;gap:8px;margin-top:8px}
+  @media(min-width:680px){.boxGrid{grid-template-columns:1fr 1fr}}
+  .mini{border:1px solid #1a2b54;border-radius:10px;padding:6px}
+  .miniHead{display:flex;justify-content:space-between}
+  .miniBar{height:10px;background:#11321f;border-radius:5px;overflow:hidden;margin-top:6px}
+  .miniBar>span{display:block;height:100%;background:var(--hp)}
+
+  /* ちょいFX */
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+  .shake{animation:shake .5s ease}
+  .dbg{position:fixed;right:6px;bottom:6px;background:#0008;color:#fff;padding:6px 8px;border-radius:8px;font:12px/1.2 monospace;z-index:50;display:none}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <section class="card">
+    <div class="card-h">バトル</div>
+    <div class="card-b arena">
+
+      <!-- 2面 -->
+      <div class="vs">
+        <!-- 左 -->
+        <div class="unit" id="uL">
+          <div class="top">
+            <div class="owner ally">あなた</div>
+            <div class="name" id="nameL">—</div>
+            <div class="badge" id="typeL">—</div>
+          </div>
+          <div class="row">
+            <div class="art" id="artL"><img id="imgL" alt=""></div>
+            <div style="flex:1">
+              <div class="hpRow">
+                <div class="hpBox"><div class="hpFill" id="hpL" style="width:100%"></div></div>
+                <div class="hpNum" id="hpNumL">HP —/—</div>
+              </div>
+              <div class="gWrap">
+                <div style="font-size:11px;color:#ffeaa7">必殺ゲージ</div>
+                <div class="gauge" id="gL"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sBar"><div class="sLab">HP</div><div class="sBox"><div class="sFill" id="sL0"></div></div><div class="sVal" id="svL0">—</div></div>
+          <div class="sBar"><div class="sLab">攻撃</div><div class="sBox"><div class="sFill" id="sL1"></div></div><div class="sVal" id="svL1">—</div></div>
+          <div class="sBar"><div class="sLab">防御</div><div class="sBox"><div class="sFill" id="sL2"></div></div><div class="sVal" id="svL2">—</div></div>
+          <div class="sBar"><div class="sLab">回避</div><div class="sBox"><div class="sFill" id="sL3"></div></div><div class="sVal" id="svL3">—</div></div>
+        </div>
+
+        <!-- 右 -->
+        <div class="unit" id="uR">
+          <div class="top">
+            <div class="owner enemy">CPU</div>
+            <div class="name" id="nameR">—</div>
+            <div class="badge" id="typeR">—</div>
+          </div>
+          <div class="row">
+            <div class="art" id="artR"><img id="imgR" alt=""></div>
+            <div style="flex:1">
+              <div class="hpRow">
+                <div class="hpBox"><div class="hpFill" id="hpR" style="width:100%"></div></div>
+                <div class="hpNum" id="hpNumR">HP —/—</div>
+              </div>
+              <div class="gWrap">
+                <div style="font-size:11px;color:#ffeaa7">必殺ゲージ</div>
+                <div class="gauge" id="gR"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sBar"><div class="sLab">HP</div><div class="sBox"><div class="sFill" id="sR0"></div></div><div class="sVal" id="svR0">—</div></div>
+          <div class="sBar"><div class="sLab">攻撃</div><div class="sBox"><div class="sFill" id="sR1"></div></div><div class="sVal" id="svR1">—</div></div>
+          <div class="sBar"><div class="sLab">防御</div><div class="sBox"><div class="sFill" id="sR2"></div></div><div class="sVal" id="svR2">—</div></div>
+          <div class="sBar"><div class="sLab">回避</div><div class="sBox"><div class="sFill" id="sR3"></div></div><div class="sVal" id="svR3">—</div></div>
+        </div>
+      </div>
+
+      <!-- 操作パネル -->
+      <div class="panel">
+        <div class="card">
+          <div class="card-h">操作パネル</div>
+          <div class="card-b rpsArea">
+            <div class="rpsGrid">
+              <button class="rpsBtn g" id="btnG"><div class="emo">✊</div><div class="txt">グー</div></button>
+              <button class="rpsBtn c" id="btnC"><div class="emo">✌️</div><div class="txt">チョキ</div></button>
+              <button class="rpsBtn p" id="btnP"><div class="emo">🖐</div><div class="txt">パー</div></button>
+            </div>
+          </div>
+        </div>
+        <div class="sideBtns">
+          <button class="bigBtn sp" id="btnSP">✨ 必殺 OFF</button>
+          <button class="bigBtn sw" id="btnSW">🔁 交代</button>
+        </div>
+      </div>
+
+      <div class="toastHost"><div class="toast" id="toast"></div></div>
+      <div style="text-align:center;font-weight:900">選択まで <span id="sec">15</span> 秒</div>
+
+      <!-- 折りたたみボックス（初期は閉） -->
+      <details class="box">
+        <summary>ボックス</summary>
+        <div class="boxGrid">
+          <div>
+            <div style="color:var(--ally);font-weight:900;margin-bottom:4px">あなたのボックス</div>
+            <div id="boxA"></div>
+          </div>
+          <div>
+            <div style="color:var(--enemy);font-weight:900;margin-bottom:4px">CPUのボックス</div>
+            <div id="boxB"></div>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+</div>
+
+<div class="dbg" id="dbg">ready</div>
+
+<script>
+/* ===== 画像名マップ ===== */
+const slug = (jp)=>({
+  "パラボラアンテナ":"parabola_antenna",
+  "ネスカフェアンバサダー":"nescafe_ambassador",
+  "にんじんしりしり":"ninjin_shirishiri",
+  "そぼろごはん":"soboro_gohan",
+  "ニシローランドゴリラ":"western_lowland_gorilla",
+  "毛むくじゃら":"kemukujara",
+  "九品仏":"kuhonbutsu",
+  "けんちん汁":"kenchin_jiru",
+  "カムチャッカ半島":"kamchatka_peninsula",
+  "タランチュラ":"tarantula",
+  "ハシビロコウ":"shoebill",
+  "バルサミコ酢":"balsamic_vinegar",
+  "ピロリ菌":"helicobacter_pylori",
+  "トリニダード・トバゴ":"trinidad_and_tobago",
+  "カラメル色素":"caramel_color",
+  "バビロン捕囚":"babylonian_captivity",
+  "鳥取砂丘":"tottori_sand_dunes",
+  "プラシーボ効果":"placebo_effect",
+  "渡来人":"torai_jin",
+  "さるびあ丸":"sarubia_maru",
+  "ペペロンチーノ":"peperoncino",
+  "ポリプロピレン":"polypropylene",
+  "サラエボ事件":"sarajevo_incident",
+  "クマンバチ":"kumabachi",
+  "県庁所在地":"prefectural_capital",
+  "照り焼きチキン":"teriyaki_chicken",
+  "ねるねるねるね":"nerunerunerune",
+  "スルメイカ":"surume_ika",
+  "本質":"essence",
+  "見える化":"mieruka",
+  "自分ごと化":"jibungotoka",
+  "解像度":"resolution"
+})[jp] || "placeholder";
+
+/* ===== 画像を先読み（preload＋decode） ===== */
+function addPreload(path){
+  const l=document.createElement("link");
+  l.rel="preload"; l.as="image"; l.href=path; l.fetchPriority="high";
+  document.head.appendChild(l);
+}
+async function decodeToURL(path){
+  try{
+    const res = await fetch(path,{cache:"reload"});
+    const blob = await res.blob();
+    if (window.createImageBitmap){ await createImageBitmap(blob); }
+    return URL.createObjectURL(blob);
+  }catch(e){ return path; }
+}
+async function setArt(imgEl,wrapEl,path){
+  addPreload(path);
+  const url = await decodeToURL(path);
+  imgEl.src = url;
+  imgEl.loading = "eager";
+  imgEl.decoding = "async";
+  imgEl.setAttribute("fetchpriority","high");
+  wrapEl.classList.add("ready");
+}
+
+/* ===== トースト（完全ロック） ===== */
+const toastQ=[]; let toastBusy=false; let inputLocked=false;
+function tDur(s){return 1500 + String(s).length*60}
+function toast(m){toastQ.push(String(m)); if(!toastBusy) runToast();}
+async function runToast(){
+  toastBusy=true; lockInputs(true);
+  const el=document.getElementById("toast");
+  while(toastQ.length){
+    const msg = toastQ.shift();
+    el.textContent = msg; el.classList.add("show");
+    await new Promise(r=>setTimeout(r,tDur(msg)));
+    el.classList.remove("show"); await new Promise(r=>setTimeout(r,140));
+  }
+  lockInputs(false); toastBusy=false;
+}
+function lockInputs(b){
+  inputLocked=b;
+  ["btnG","btnC","btnP","btnSP","btnSW"].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.disabled=b; el.style.pointerEvents = b? "none" : "";
+  });
+}
+
+/* ===== ダミーデータで見た目チェック ===== */
+const L = { name:"九品仏", type:"ジオ", hp:500, maxhp:500, atk:87, def:82, eva:11, sp:4 };
+const R = { name:"トリニダード・トバゴ", type:"ジオ", hp:600, maxhp:600, atk:108, def:52, eva:8, sp:2 };
+const BOXA=[{name:"九品仏",hp:500,maxhp:500,type:"ジオ"},{name:"鳥取砂丘",hp:480,maxhp:480,type:"ジオ"},{name:"ニシローランドゴリラ",hp:640,maxhp:640,type:"アニマル"}];
+const BOXB=[{name:"トリニダード・トバゴ",hp:600,maxhp:600,type:"ジオ"},{name:"カラメル色素",hp:540,maxhp:540,type:"サイエンス"},{name:"タランチュラ",hp:540,maxhp:540,type:"アニマル"}];
+const MAX={HP:800,ATK:120,DEF:120,EVA:20};
+const pct=(v,m)=>Math.max(0,Math.min(100,v/m*100));
+const setGauge=(dom,val)=>dom.innerHTML=[...Array(6)].map((_,i)=>`<span class="pip ${i<val?'on':''}"></span>`).join("");
+
+function fillStats(prefix,u){
+  document.getElementById(prefix+"0").style.width = pct(u.maxhp,MAX.HP)+"%";
+  document.getElementById("sv"+prefix+"0").textContent = u.maxhp;
+  document.getElementById(prefix+"1").style.width = pct(u.atk,MAX.ATK)+"%";
+  document.getElementById("sv"+prefix+"1").textContent = u.atk;
+  document.getElementById(prefix+"2").style.width = pct(u.def,MAX.DEF)+"%";
+  document.getElementById("sv"+prefix+"2").textContent = u.def;
+  document.getElementById(prefix+"3").style.width = pct(u.eva,MAX.EVA)+"%";
+  document.getElementById("sv"+prefix+"3").textContent = u.eva+"%";
+}
+
+function renderBoxes(){
+  const mk = (o)=>`<div class="mini"><div class="miniHead"><div>${o.name}</div><div class="badge">${o.type}</div></div><div class="miniBar"><span style="width:${100*o.hp/o.maxhp}%"></span></div><div style="font-size:11px;margin-top:2px">HP ${o.hp}/${o.maxhp}</div></div>`;
+  document.getElementById("boxA").innerHTML = BOXA.map(mk).join("");
+  document.getElementById("boxB").innerHTML = BOXB.map(mk).join("");
+}
+
+async function paint(){
+  // 名前/タイプ
+  nameL.textContent=L.name; typeL.textContent=L.type;
+  nameR.textContent=R.name; typeR.textContent=R.type;
+
+  // 画像（先読み＋スケルトン解除）
+  await Promise.all([
+    setArt(imgL,artL,`images/${slug(L.name)}.png`),
+    setArt(imgR,artR,`images/${slug(R.name)}.png`)
+  ]);
+
+  // HP
+  hpL.style.width = (L.hp/L.maxhp*100)+"%"; hpNumL.textContent=`HP ${L.hp}/${L.maxhp}`;
+  hpR.style.width = (R.hp/R.maxhp*100)+"%"; hpNumR.textContent=`HP ${R.hp}/${R.maxhp}`;
+
+  // 相対バー（水色）
+  fillStats("sL",L); fillStats("sR",R);
+
+  // ゲージ
+  setGauge(gL,L.sp); setGauge(gR,R.sp);
+
+  // ボックス
+  renderBoxes();
+
+  // 開始トースト
+  toast(`いけ、${L.name}！バトルスタート！`);
+}
+
+/* デモ用クリック（ロックだけ体験） */
+["btnG","btnC","btnP"].forEach(id=>{
+  document.getElementById(id).addEventListener("click", ()=>{
+    if(inputLocked) return;
+    toast("あなたは手を出した。相手も手を出した。結果…");
+    setTimeout(()=>{
+      // ダメージトーストの直後だけ揺れる／外れたら揺れない…等は本実装で
+      document.getElementById("uR").classList.add("shake");
+      setTimeout(()=>document.getElementById("uR").classList.remove("shake"),520);
+    }, 450);
+  });
+});
+document.getElementById("btnSP").addEventListener("click", ()=>{
+  if(inputLocked) return;
+  const b=document.getElementById("btnSP"); b.classList.toggle("on");
+  b.textContent = b.classList.contains("on") ? "✨ 必殺 ON" : "✨ 必殺 OFF";
+});
+document.getElementById("btnSW").addEventListener("click", ()=>{
+  if(inputLocked) return;
+  toast("交代モーダル（ここでは省略）");
+});
+
+document.addEventListener("DOMContentLoaded", paint);
+</script>
+</body>
+</html>
