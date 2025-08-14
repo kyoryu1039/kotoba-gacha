@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>KOTOBA-BATTLE | 対戦 v7.30</title>
+<style>
+:root{
+  --bg:#0b1228; --text:#eaf2ff;
+  --panel:#0f1633; --panel2:#0e1530; --border:#20335f; --shadow:0 18px 44px rgba(0,0,0,.18);
+  --ally:#27b1ff; --enemy:#ff6b7a;
+  --hp:#63ff8c; --hpBack:#0f2a1c; --gauge:#ffe066; --gaugeBack:#31260a;
+  --rel:#8bd3ff;
+  --padGrad:linear-gradient(180deg,#102047,#0b1428);
+  --t-ジオ:#7aa0ff;       --tbg-ジオ:linear-gradient(180deg,#0f1837 0%, rgba(122,160,255,.7) 100%);
+  --t-アニマル:#34d790;   --tbg-アニマル:linear-gradient(180deg,#0a2725 0%, rgba(52,215,144,.7) 100%);
+  --t-フード:#ffbf4d;     --tbg-フード:linear-gradient(180deg,#261a07 0%, rgba(255,191,77,.7) 100%);
+  --t-コンセプト:#b68cff; --tbg-コンセプト:linear-gradient(180deg,#221742 0%, rgba(182,140,255,.7) 100%);
+  --t-サイエンス:#2dd6ff; --tbg-サイエンス:linear-gradient(180deg,#0c2638 0%, rgba(45,214,255,.7) 100%);
+  --t-ヒストリー:#ff7a9a;--tbg-ヒストリー:linear-gradient(180deg,#2b1522 0%, rgba(255,122,154,.7) 100%);
+  --t-ヒューマン:#5ff3d3; --tbg-ヒューマン:linear-gradient(180deg,#123235 0%, rgba(95,243,211,.7) 100%);
+}
+*{box-sizing:border-box;-webkit-text-size-adjust:100%}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,"Noto Sans JP",sans-serif;overflow-x:hidden}
+.container{max-width:1024px;width:100%;margin:0 auto;padding:10px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+.card h2{margin:0;padding:12px 16px;border-bottom:1px solid var(--border);font-size:18px}
+.card .body{padding:12px}
+.note{color:#c9d7ff;font-size:12px}
+
+/* 編成（そのまま） */
+#setup{display:grid;gap:12px}
+#teamGrid{display:grid;gap:10px}
+@media(min-width:720px){#teamGrid{grid-template-columns:1fr 1fr}}
+.slot{display:flex;gap:8px;align-items:center}
+.pill{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#0b1430;border:1px solid #2b3a70;color:#cfe2ff;font-weight:800}
+.slot select{flex:1;background:#0b1430;border:1px solid #25366b;color:#eaf2ff;padding:10px;border-radius:12px}
+.statsHead{font-weight:900;margin:2px 0 6px}
+#statsGrid{display:grid;gap:12px}
+@media(min-width:720px){#statsGrid{grid-template-columns:1fr 1fr}}
+.statsCol{display:grid;grid-template-rows:repeat(3,auto);gap:10px}
+.setupMini{border:2px solid #203060;border-radius:12px;padding:10px;position:relative}
+.setupMini[data-type="ジオ"]{background:var(--tbg-ジオ);box-shadow:0 0 0 3px var(--t-ジオ) inset}
+.setupMini[data-type="アニマル"]{background:var(--tbg-アニマル);box-shadow:0 0 0 3px var(--t-アニマル) inset}
+.setupMini[data-type="フード"]{background:var(--tbg-フード);box-shadow:0 0 0 3px var(--t-フード) inset}
+.setupMini[data-type="コンセプト"]{background:var(--tbg-コンセプト);box-shadow:0 0 0 3px var(--t-コンセプト) inset}
+.setupMini[data-type="サイエンス"]{background:var(--tbg-サイエンス);box-shadow:0 0 0 3px var(--t-サイエンス) inset}
+.setupMini[data-type="ヒストリー"]{background:var(--tbg-ヒストリー);box-shadow:0 0 0 3px var(--t-ヒストリー) inset}
+.setupMini[data-type="ヒューマン"]{background:var(--tbg-ヒューマン);box-shadow:0 0 0 3px var(--t-ヒューマン) inset}
+.setupMini .head{display:flex;justify-content:space-between;font-weight:800}
+
+/* 相対バー（HP800/攻120/防120/回避20を基準） */
+.barLine{display:flex;align-items:center;gap:10px;margin-top:6px}
+.barBox{flex:1;min-width:140px;height:16px;background:#0e1b31;border:1px solid #2a3a6b;border-radius:8px;overflow:hidden}
+.barFill{height:100%;background:var(--hp)}
+.statBars .barFill{background:var(--rel)}
+.val{font-size:12px;color:#cfe2ff;width:96px;text-align:right}
+
+/* 画面切替 */
+.inSetup{display:block}.inBattle{display:none}
+.battleMode .inSetup{display:none}.battleMode .inBattle{display:block}
+
+/* ===== バトル全体グリッド（2列固定） ===== */
+.arena{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:10px;
+  align-items:start;
+}
+.vsCard{min-width:0}   /* 子要素を縮められるように */
+.fullRow{grid-column:1 / -1} /* 操作パネル／ボックスは2列ぶち抜き */
+
+/* ユニットカード */
+.unit{
+  border:1px solid #243567;border-radius:14px;
+  padding:44px 132px 12px 12px; /* 右側はイラストのため余白を確保 */
+  position:relative;min-height:232px;overflow:hidden
+}
+.unit[data-type="ジオ"]{background:var(--tbg-ジオ)} .unit[data-type="アニマル"]{background:var(--tbg-アニマル)}
+.unit[data-type="フード"]{background:var(--tbg-フード)} .unit[data-type="コンセプト"]{background:var(--tbg-コンセプト)}
+.unit[data-type="サイエンス"]{background:var(--tbg-サイエンス)} .unit[data-type="ヒストリー"]{background:var(--tbg-ヒストリー)}
+.unit[data-type="ヒューマン"]{background:var(--tbg-ヒューマン)}
+.owner{position:absolute;top:8px;left:8px;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid #2d3a70;background:#0b1635d8}
+.owner.ally{color:var(--ally)} .owner.enemy{color:var(--enemy)}
+.nameRow{display:flex;justify-content:space-between;align-items:center;margin-top:2px}
+.badge{font-size:12px;background:#0d1630;border:1px solid #2b3a70;padding:2px 8px;border-radius:999px}
+.meta{font-size:12px;color:#cfe2ff;margin-top:6px}
+
+/* イラスト（右上固定／HPやゲージと干渉しない高さ） */
+.illust{position:absolute;top:44px;right:10px;width:104px;height:104px;object-fit:contain;opacity:.95;filter:drop-shadow(0 6px 12px rgba(0,0,0,.35));z-index:0}
+@media(max-width:600px){.illust{width:96px;height:96px;top:42px;right:8px}}
+
+/* HPゲージ（上段） */
+.hpRow{display:flex;align-items:center;gap:10px;margin-top:6px;position:relative;z-index:1}
+.hpBox{flex:1;height:22px;background:var(--hpBack);border-radius:11px;overflow:hidden}
+.hpFill{height:100%;background:var(--hp);transition:width 1.6s cubic-bezier(.22,1,.36,1)}
+.hpNum{font-size:13px;width:160px;text-align:right}
+
+/* 必殺ゲージ */
+.gaugeWrap{display:flex;align-items:center;gap:8px;margin-top:6px;position:relative;z-index:1}
+.gLabel{font-size:12px;color:#ffeaa7}
+.gauge{display:flex;gap:4px}
+.pip{width:16px;height:12px;background:var(--gaugeBack);border:1px solid #5a480c;border-radius:3px;opacity:.7}
+.pip.on{background:var(--gauge);opacity:1}
+.readyPulse{animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,224,102,.55)}70%{box-shadow:0 0 0 14px rgba(255,224,102,0)}100%{box-shadow:0 0 0 0 rgba(255,224,102,0)}}
+.btnReady{animation:pulse 1.2s infinite}
+
+/* 技と相性 */
+.skillWrap{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px;position:relative;z-index:1}
+.skillBox{border:1px solid #2c3a69;border-radius:12px;background:#0c1633;padding:10px}
+.skillTitle{font-weight:900;display:flex;align-items:center;gap:6px}
+.skillDesc{margin-top:4px;font-size:12px;color:#cfe2ff}
+.affinityBox{border:1px solid #2c3a69;border-radius:12px;background:#0b1530;padding:8px;font-size:12px}
+
+/* 相対ステータス */
+.statBars{margin-top:8px;position:relative;z-index:1}
+.statBars .barBox{height:16px}
+.statBars .barLine .val{width:110px}
+
+/* ===== 操作パネル（囲いなし・カード2枚分と幅合わせ） ===== */
+.pad{background:var(--padGrad);border:1px solid #233562;border-radius:14px;padding:10px}
+.pad h3{margin:0 0 8px;font-size:14px;color:#ffeaa7}
+.padInner{display:grid;grid-template-rows:auto auto;gap:10px;align-items:center}
+.rpsArea{position:relative;height:220px}
+.rps{position:absolute;display:grid;place-items:center;width:92px;height:92px;border-radius:999px;border:none;color:#061225;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.rps .emo{font-size:34px}.rps .lbl{font-size:12px;margin-top:2px;font-weight:800}
+.rps[disabled]{pointer-events:none;opacity:1;filter:none}
+.rps.g{background:linear-gradient(180deg,#ffdfde,#ff8b8b)}
+.rps.p{background:linear-gradient(180deg,#defae5,#8bffb5)}
+.rps.c{background:linear-gradient(180deg,#e0e8ff,#8bb1ff)}
+
+.btnRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.switchBtn{width:100%;border-radius:14px;background:linear-gradient(90deg,#ffd89b,#fda085);border:none;color:#26110b;font-weight:900;height:56px;cursor:pointer}
+.spToggle{width:100%;border-radius:14px;background:#0e1530;border:2px solid #f2c94c;color:#f2c94c;font-weight:900;height:56px;transition:.2s;cursor:pointer}
+.spToggle.on{background:linear-gradient(90deg,#ffe066,#ffcf33)!important;color:#2a1700!important;border-color:#ffcf33!important}
+.spToggle[disabled]{pointer-events:none;opacity:1;filter:none}
+
+/* ===== ボックス（囲いは側の小カードのみ。外側の大枠ナシ） ===== */
+.benchWrap .benchTitle{font-weight:900;margin:10px 4px 6px}
+#boxGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.boxCol{background:var(--panel2);border:1px solid #233562;border-radius:12px;padding:8px}
+#sixA,#sixB{display:grid;grid-template-columns:1fr;gap:10px}
+.mini{border:1px solid #1a2b54;border-radius:12px;padding:8px;cursor:pointer;position:relative}
+.mini[data-type="ジオ"]{background:var(--tbg-ジオ)} .mini[data-type="アニマル"]{background:var(--tbg-アニマル)}
+.mini[data-type="フード"]{background:var(--tbg-フード)} .mini[data-type="コンセプト"]{background:var(--tbg-コンセプト)}
+.mini[data-type="サイエンス"]{background:var(--tbg-サイエンス)} .mini[data-type="ヒストリー"]{background:var(--tbg-ヒストリー)}
+.mini[data-type="ヒューマン"]{background:var(--tbg-ヒューマン)}
+.mini .head{display:flex;justify-content:space-between}
+.mini .miniBar{height:11px;background:#11321f;border-radius:6px;overflow:hidden;margin-top:6px}
+.mini .miniBar>span{display:block;height:100%;background:var(--hp)}
+
+/* タイマー＆トースト */
+.timer{display:flex;justify-content:center;gap:8px;align-items:center;font-weight:900}
+.timer .num{font-size:28px}
+.toastArea{min-height:56px}
+.toast{margin:6px auto 0;max-width:min(96vw,720px);padding:12px 16px;border-radius:14px;background:rgba(12,22,50,.96);border:1px solid #2b3a70;color:#eaf3ff;opacity:0;transform:translateY(8px);transition:.22s ease}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* FX */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+.shake{animation:shake .5s ease}
+.fx-burst{box-shadow:0 0 0 3px rgba(255,224,102,.7),0 0 22px 6px rgba(255,224,102,.25);transition:.2s}
+
+/* 勝敗 */
+#result{position:fixed;inset:0;background:rgba(6,10,26,.82);display:none;place-items:center;z-index:60}
+#result .box{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:26px 28px;text-align:center;box-shadow:var(--shadow)}
+#result h1{margin:0 0 8px;font-size:40px}
+#result p{margin:4px 0 0;color:#cfe2ff}
+
+/* モーダル */
+#switchModal,#infoModal,#loading{position:fixed;inset:0;display:none;place-items:center;z-index:55}
+#switchModal,#infoModal{background:rgba(0,0,0,.55)}
+.selCard{cursor:pointer} .selCard.selected{outline:3px solid #ffe066}
+
+/* Loading スピナー */
+#loading{background:rgba(0,0,0,.55)}
+.spinner{display:flex;flex-direction:column;align-items:center;gap:10px}
+.spinner::before{
+  content:"";width:44px;height:44px;border:4px solid #fff3;border-top-color:#ffe066;border-radius:999px;animation:spin 1s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner .cap{color:#ffeaa7}
+
+/* モバイル調整（2列維持のまま内部を圧縮） */
+@media(max-width:600px){
+  html{font-size:13.5px}
+  .container{padding:8px}
+  .unit{padding:40px 116px 10px 10px;min-height:210px}
+  .hpNum{width:120px}
+  .rps{width:82px;height:82px}.rps .emo{font-size:30px}
+  .rpsArea{height:210px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 編成 ===== -->
+<div class="container inSetup" id="setup">
+  <section class="card">
+    <h2>チーム編成（あなた / CPU）</h2>
+    <div class="body">
+      <div id="teamGrid">
+        <div>
+          <div class="statsHead" style="color:#27b1ff">あなた</div>
+          <div id="teamA"></div>
+        </div>
+        <div>
+          <div class="statsHead" style="color:#ff6b7a">CPU</div>
+          <div id="teamB"></div>
+        </div>
+      </div>
+      <div class="row" style="display:flex;gap:10px;align-items:center;margin-top:12px">
+        <button id="btnRand" class="ghost">ランダムでチームを編成</button>
+        <button id="btnStart" class="primary" style="margin-left:auto">対戦開始</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>選択中のステータス</h2>
+    <div class="body">
+      <div id="statsGrid">
+        <div>
+          <div class="statsHead" style="color:#27b1ff">あなた</div>
+          <div class="statsCol" id="statsA"></div>
+        </div>
+        <div>
+          <div class="statsHead" style="color:#ff6b7a">CPU</div>
+          <div class="statsCol" id="statsB"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== バトル ===== -->
+<div id="battle" class="container inBattle">
+  <!-- 2列固定グリッド -->
+  <div class="arena">
+    <div class="vsCard" id="leftWrap"></div>
+    <div class="vsCard" id="rightWrap"></div>
+
+    <!-- 操作パネル（2列ぶち抜き・囲いの外枠は撤去） -->
+    <section class="fullRow pad">
+      <h3>操作パネル</h3>
+      <div class="padInner">
+        <div class="rpsArea">
+          <button class="rps g" id="btnG"><div class="emo">✊</div><div class="lbl">グー</div></button>
+          <button class="rps p" id="btnP"><div class="emo">🖐</div><div class="lbl">パー</div></button>
+          <button class="rps c" id="btnC"><div class="emo">✌️</div><div class="lbl">チョキ</div></button>
+        </div>
+        <div class="btnRow">
+          <button class="spToggle" id="btnSP" disabled>✨ 必殺 OFF</button>
+          <button class="switchBtn" id="btnSwitch">🔁 交代</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- トースト／タイマー -->
+    <div class="fullRow">
+      <div class="toastArea"><div class="toast" id="toast"></div></div>
+      <div class="timer">選択まで <span class="num" id="countNum">15</span> 秒</div>
+    </div>
+
+    <!-- ボックス（2列ぶち抜き・大枠なし） -->
+    <section class="fullRow benchWrap" id="benchWrap">
+      <div class="benchTitle">ボックス</div>
+      <div id="boxGrid">
+        <div class="boxCol">
+          <div class="statsHead" style="color:#27b1ff">あなたのボックス</div>
+          <div id="sixA"></div>
+        </div>
+        <div class="boxCol">
+          <div class="statsHead" style="color:#ff6b7a">CPUのボックス</div>
+          <div id="sixB"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- 交代モーダル -->
+<div id="switchModal">
+  <div class="card" style="min-width:min(92vw,560px)">
+    <h2>交代先を選択</h2>
+    <div class="body">
+      <div id="switchGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+      <div class="row" style="display:flex;justify-content:space-between;margin-top:10px">
+        <div id="swTimer" class="note">自動交代まで 15 秒</div>
+        <div>
+          <button id="swCancel" class="ghost">キャンセル</button>
+          <button id="swDo" class="primary" disabled>交代する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 情報モーダル -->
+<div id="infoModal"><div class="card" style="min-width:min(92vw,520px)"><h2 id="infoTitle">情報</h2><div class="body" id="infoBody">...</div></div></div>
+
+<!-- Loading -->
+<div id="loading"><div class="spinner"><div></div><div class="cap">Loading...</div></div></div>
+
+<!-- 勝敗 -->
+<div id="result"><div class="box"><h1 id="resTitle">YOU WIN!</h1><p id="resSub">3秒後に編成へ戻る…</p></div></div>
+
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ==== 画像マップ（images/ 以下） ==== */
+const IMG = {
+ "パラボラアンテナ":"parabola_antenna.png","ネスカフェアンバサダー":"nescafe_ambassador.png","にんじんしりしり":"ninjin_shirishiri.png","そぼろごはん":"soboro_gohan.png","ニシローランドゴリラ":"western_lowland_gorilla.png","毛むくじゃら":"kemukujara.png","九品仏":"kuhonbutsu.png","けんちん汁":"kenchin_jiru.png","カムチャッカ半島":"kamchatka_peninsula.png","タランチュラ":"tarantula.png","ハシビロコウ":"shoebill.png","バルサミコ酢":"balsamic_vinegar.png","ピロリ菌":"helicobacter_pylori.png","トリニダード・トバゴ":"trinidad_and_tobago.png","カラメル色素":"caramel_color.png","バビロン捕囚":"babylonian_captivity.png","鳥取砂丘":"tottori_sand_dunes.png","プラシーボ効果":"placebo_effect.png","渡来人":"torai_jin.png","さるびあ丸":"sarubia_maru.png","ペペロンチーノ":"peperoncino.png","ポリプロピレン":"polypropylene.png","サラエボ事件":"sarajevo_incident.png","クマンバチ":"kumabachi.png","県庁所在地":"prefectural_capital.png","照り焼きチキン":"teriyaki_chicken.png","ねるねるねるね":"nerunerunerune.png","スルメイカ":"surume_ika.png","本質":"essence.png","見える化":"mieruka.png","自分ごと化":"jibungotoka.png","解像度":"resolution.png"
+};
+function preloadImgs(names){
+  const jobs=[];
+  names.forEach(n=>{
+    const f=IMG[n]; if(!f) return;
+    const link=document.createElement('link'); link.rel='preload'; link.as='image'; link.href=`images/${f}`;
+    document.head.appendChild(link);
+    jobs.push(new Promise(res=>{ const im=new Image(); im.onload=im.onerror=()=>res(); im.decoding="async"; im.loading="eager"; im.src=`images/${f}`; }));
+  });
+  return Promise.all(jobs);
+}
+
+/* ==== トースト（1.5s+0.06s*文字。出ている間は完全ロック＆タイマー停止） ==== */
+const toastQueue=[]; let toastBusy=false; let inputLocked=false;
+const baseToast=1500, perChar=60;
+function toastDuration(msg){return Math.min(9000, baseToast + String(msg).length*perChar)+120;}
+function lockInputs(on){inputLocked=on; disableRPS(on); const sp=$('btnSP'); if(sp) sp.disabled= on || state.A.sp<6; const sw=$('btnSwitch'); if(sw) sw.disabled=on;}
+function toast(msg){toastQueue.push(String(msg)); if(!toastBusy) runToast();}
+async function runToast(){toastBusy=true; lockInputs(true); while(toastQueue.length){const t=$('toast'), m=toastQueue.shift(), stay=toastDuration(m); t.textContent=m; t.classList.add('show'); await delay(stay); t.classList.remove('show'); await delay(120);} toastBusy=false; lockInputs(false);}
+async function waitToasts(){while(toastBusy || toastQueue.length){await delay(40);}}
+
+/* ==== 相対バー基準 ==== */
+const MAX={HP:800,ATK:120,DEF:120,EVA:20};
+
+/* ==== 相性リング ==== */
+const TYPES_RING=['ヒストリー','ジオ','コンセプト','サイエンス','アニマル','ヒューマン','フード'];
+const typeMult=(atk,def)=>{const n=TYPES_RING.length,i=TYPES_RING.indexOf(atk),j=TYPES_RING.indexOf(def);if(i<0||j<0)return 1;const st=[(i+1)%n,(i+2)%n], wk=[(i-1+n)%n,(i-2+n)%n];if(st.includes(j))return 1.5;if(wk.includes(j))return 0.67;return 1;};
+
+/* ==== ランク・HP基準 ==== */
+const PRANK={S:170,A:165,B:160,C:150,D:145,X:150};
+const HP_BASE={S:560,A:540,B:520,C:500,D:480,X:500};
+
+/* ==== ステータス算出（確定式） ==== */
+const visualLen=s=>(s||"").replace(/[・\s]/g,"").length;
+const toKatakana=s=>(s||"").replace(/[ぁ-ん]/g,ch=>String.fromCharCode(ch.charCodeAt(0)+0x60));
+const reKanaH=/[ぁ-ゟ]/g, reKanaK=/[゠-ヿー]/g, reKanji=/[一-龥々〆ヵヶ]/g;
+function countClass(name){const H=(name.match(reKanaH)||[]).length,K=(name.match(reKanaK)||[]).length,J=(name.match(reKanji)||[]).length;return{H,K,J,total:H+K+J};}
+const reSmallK=/[ァィゥェォャュョヮㇰ-ㇿ]/g, reSokuon=/ッ/g, reVoiced=/[ガ-ポヴ]/g, rePlosiveEnd=/[ツックキチテトプピペポカタ]$/;
+function calcAttackDefense(name,yomiKatakana){
+  let atkP=17.5, defP=17.5;
+  const cls=countClass(name);
+  if(cls.J+cls.K===0){atkP+=12.5;defP+=12.5;}
+  else{const r=cls.K/(cls.J+cls.K);atkP+=25*r;defP+=25*(1-r);}
+  const Lph=yomiKatakana.length||1;
+  const d=(yomiKatakana.match(reVoiced)||[]).length/Lph;
+  const s=(yomiKatakana.match(reSokuon)||[]).length/Lph;
+  const m=(yomiKatakana.match(reSmallK)||[]).length/Lph;
+  const e=rePlosiveEnd.test(yomiKatakana)?1:0;
+  const raw=0.6*d+0.25*(s+m)+0.15*e, L=0.05, U=0.45;
+  const ph=Math.max(-1,Math.min(1,((raw-L)/(U-L))*2-1));
+  const atk_ph=20*(0.5+0.5*ph); atkP+=atk_ph; defP+=20-atk_ph;
+  const T=visualLen(name);
+  const s_len=Math.max(-1,Math.min(1,(6-T)/6));
+  const atk_len=20*(0.5+0.5*s_len); atkP+=atk_len; defP+=20-atk_len;
+  return {atkP,defP,T};
+}
+function calcEvasion(name,T,rank){
+  const cls=countClass(name);const hiraRatio=cls.total?(cls.H/cls.total):0;
+  const adj=({S:-1,A:-0.5,B:0,C:0.5,D:1,X:0})[rank]??0;
+  let eva=10+8*hiraRatio-0.5*(T-5)+adj; eva=Math.round(eva*10)/10;
+  return Math.max(5,Math.min(35,eva));
+}
+function makeWordObject([name,rank,type,yomiH]){
+  const y=toKatakana(yomiH||name);
+  const {atkP,defP,T}=calcAttackDefense(name,y);
+  const ATK=Math.round(PRANK[rank]*(atkP/100));
+  const DEF=Math.round(PRANK[rank]*(defP/100));
+  const HP=Math.round(HP_BASE[rank]+20*(T-5));
+  const EVA=calcEvasion(name,T,rank);
+  return {name,rank,type,yomi:y,maxhp:HP,hp:HP,atk:ATK,def:DEF,eva:EVA,
+    shield:0,eva60:0,atk13:0,lock:0,doom:0,selfHurt:0,stun:false,endure:false};
+}
+
+/* ==== 必殺テキスト（だ・である調／最新仕様） ==== */
+const SKILLS={
+ "パラボラアンテナ":["妨害電波","この一撃は2.2倍である。さらに相手の必殺ゲージを0にする。"],
+ "ネスカフェアンバサダー":["一杯いかが","通常攻撃のあと、味方全員のHPを60回復する（自分も60）。"],
+ "にんじんしりしり":["なんくるないさー","この一撃は1.6倍である。次に受ける致命傷を1回だけHP1で耐える。"],
+ "そぼろごはん":["そぼろ乱舞","3回連続で攻撃する（0.75→0.5→0.25倍）。相手を倒したら次の相手にも続く。"],
+ "ニシローランドゴリラ":["マウンテンビート","この一撃は1.5倍である。さらに次の2回の自分の攻撃は1.3倍になる。"],
+ "毛むくじゃら":["ムクジャララ","この一撃は1.4倍である。さらに次の2回の自分の攻撃のあいだ回避率が60%になる。"],
+ "九品仏":["仏の顔も三度まで","この一撃は1.6倍である。さらに次の2回の相手からのダメージを半分にする。"],
+ "けんちん汁":["長寿の秘訣","この一撃は1.2倍である。さらに自分のHPを150回復する。"],
+ "カムチャッカ半島":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "タランチュラ":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
+ "ハシビロコウ":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "バルサミコ酢":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "ピロリ菌":["ゲシュタルト崩壊","次の3回のそのキャラの攻撃のたび、33%の確率で自傷100ダメージを受ける。"],
+ "トリニダード・トバゴ":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
+ "カラメル色素":["ゲシュタルト崩壊","次の3回のそのキャラの攻撃のたび、33%の確率で自傷100ダメージを受ける。"],
+ "バビロン捕囚":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "鳥取砂丘":["ゲシュタルト崩壊","次の3回のそのキャラの攻撃のたび、33%の確率で自傷100ダメージを受ける。"],
+ "プラシーボ効果":["ゲシュタルト崩壊","次の3回のそのキャラの攻撃のたび、33%の確率で自傷100ダメージを受ける。"],
+ "渡来人":["文字化け","3ターン後にそのキャラは戦闘不能になる（交代で解除）。"],
+ "さるびあ丸":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
+ "ペペロンチーノ":["ゲシュタルト崩壊","次の3回のそのキャラの攻撃のたび、33%の確率で自傷100ダメージを受ける。"],
+ "ポリプロピレン":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "サラエボ事件":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
+ "クマンバチ":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "県庁所在地":["文字化け","3ターン後にそのキャラは戦闘不能になる（交代で解除）。"],
+ "照り焼きチキン":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "ねるねるねるね":["ゲシュタルト崩壊","次の3回のそのキャラの攻撃のたび、33%の確率で自傷100ダメージを受ける。"],
+ "スルメイカ":["ゲシュタルト崩壊","次の3回のそのキャラの攻撃のたび、33%の確率で自傷100ダメージを受ける。"],
+ "本質":["鏡文字","相手チームの必殺をコピーして使う（威力2倍）。"],
+ "見える化":["鏡文字","相手チームの必殺をコピーして使う（威力2倍）。"],
+ "自分ごと化":["鏡文字","相手チームの必殺をコピーして使う（威力2倍）。"],
+ "解像度":["鏡文字","相手チームの必殺をコピーして使う（威力2倍）。"]
+};
+
+/* ワード配列 */
+const WORDS_BASE=[["パラボラアンテナ","S","サイエンス","ぱらぼらあんてな"],["ネスカフェアンバサダー","S","ヒューマン","ねすかふぇあんばさだー"],["にんじんしりしり","A","フード","にんじんしりしり"],["そぼろごはん","A","フード","そぼろごはん"],["ニシローランドゴリラ","A","アニマル","にしろーらんどごりら"],["毛むくじゃら","A","アニマル","けむくじゃら"],["九品仏","A","ジオ","くほんぶつ"],["けんちん汁","A","フード","けんちんじる"],["カムチャッカ半島","B","ジオ","かむちゃっかはんとう"],["タランチュラ","B","アニマル","たらんちゅら"],["ハシビロコウ","B","アニマル","はしびろこう"],["バルサミコ酢","B","フード","ばるさみこす"],["ピロリ菌","B","サイエンス","ぴろりきん"],["トリニダード・トバゴ","B","ジオ","とりにだーどとばご"],["カラメル色素","B","サイエンス","からめるしきそ"],["バビロン捕囚","C","ヒストリー","ばびろんほしゅう"],["鳥取砂丘","C","ジオ","とっとりさきゅう"],["プラシーボ効果","C","サイエンス","ぷらしーぼこうか"],["渡来人","C","ヒューマン","とらいじん"],["さるびあ丸","C","ジオ","さるびあまる"],["ペペロンチーノ","C","フード","ぺぺろんちーの"],["ポリプロピレン","C","サイエンス","ぽりぷろぴれん"],["サラエボ事件","C","ヒストリー","さらえぼじけん"],["クマンバチ","D","アニマル","くまんばち"],["県庁所在地","D","ジオ","けんちょうしょざいち"],["照り焼きチキン","D","フード","てりやきちきん"],["ねるねるねるね","D","フード","ねるねるねるね"],["スルメイカ","D","アニマル","するめいか"],["本質","X","コンセプト","ほんしつ"],["見える化","X","コンセプト","みえるか"],["自分ごと化","X","コンセプト","じぶんごとか"],["解像度","X","コンセプト","かいぞうど"]];
+const makeW=i=>makeWordObject(WORDS_BASE[i]);
+
+/* ====== 状態 ====== */
+const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false,spAnnA:false,spAnnB:false};
+const left =()=>state.A.team[state.A.i], right=()=>state.B.team[state.B.i];
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+
+/* 小UI */
+function barRow(label,val,max){const pct=label==='回避'?clamp((val/MAX.EVA)*100,0,100):clamp((val/max)*100,0,100);return `<div class="barLine"><div style="width:76px;font-size:12px;color:#cfe2ff">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="val">${label==='回避'?val+'%':val}</div></div>`;}
+function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" data-type="${w.type}"><div class="head"><div>${w.name}</div><div class="badge">${w.type}</div></div>${barRow('HP',w.maxhp,MAX.HP)}${barRow('攻撃',w.atk,MAX.ATK)}${barRow('防御',w.def,MAX.DEF)}${barRow('回避',w.eva,MAX.EVA)}</div>`;}
+function renderMini(side){const root=side==='A'?$('statsA'):$('statsB');root.innerHTML='';for(let i=0;i<3;i++){const idx=Number($(`${side}-${i}`).value)||0;root.innerHTML+=miniCard(idx);}}
+
+/* 編成UI */
+function makeTeam(root,side){
+  root.innerHTML='';
+  for(let i=0;i<3;i++){
+    const div=document.createElement('div');div.className='slot';
+    const pill=document.createElement('span');pill.className='pill';pill.textContent='#'+(i+1);
+    const sel=document.createElement('select');sel.id=`${side}-${i}`;
+    WORDS_BASE.forEach((w,idx)=>{const o=document.createElement('option');o.value=idx;o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;sel.append(o);});
+    sel.addEventListener('change',()=>{enforceUnique(side);renderMini(side);});
+    div.append(pill,sel);root.append(div);
+  }
+  const picks=uniqueRandom(3,WORDS_BASE.length);picks.forEach((v,i)=>$(`${side}-${i}`).value=v);
+  enforceUnique(side);renderMini(side);
+}
+function uniqueRandom(n,lim){const used=new Set(),arr=[];while(arr.length<n){const i=Math.floor(Math.random()*lim);if(!used.has(i)){used.add(i);arr.push(i)}}return arr;}
+function enforceUnique(side){const selected=[0,1,2].map(i=>Number($(`${side}-${i}`).value));for(let i=0;i<3;i++){const sel=$(`${side}-${i}`);[...sel.options].forEach(opt=>{const v=Number(opt.value);opt.disabled=selected.includes(v)&&v!==Number(sel.value);});}}
+const collect=side=>[0,1,2].map(i=>{const idx=Number($(`${side}-${i}`).value)||0;return {...makeW(idx),side};});
+
+/* ===== 画像とバトル遷移 ===== */
+function ensureBattleMode(){document.body.classList.add('battleMode');$('setup').style.display='none';$('battle').style.display='block';}
+function showLoading(on){$('loading').style.display=on?'grid':'none';}
+
+/* ===== じゃんけんの正三角形レイアウト ===== */
+function layoutRPS(){
+  const area=document.querySelector('.rpsArea'); if(!area) return;
+  const g=$('btnG'), c=$('btnC'), p=$('btnP');
+  const W=area.clientWidth, H=area.clientHeight;
+  const sideLen=Math.min(W*0.78, H*0.88);
+  const R=sideLen/Math.sqrt(3);
+  const cx=W*0.35, cy=H*0.52;   // 少し左寄せ
+  const half=(el)=>[el.offsetWidth/2, el.offsetHeight/2];
+  const place=(el,x,y)=>{const [hw,hh]=half(el); el.style.left=(x-hw)+'px'; el.style.top=(y-hh)+'px';};
+  place(g, cx, cy-R);            // 上
+  place(c, cx-sideLen/2, cy+R/2);// 左下
+  place(p, cx+sideLen/2, cy+R/2);// 右下
+}
+window.addEventListener('resize', layoutRPS);
+
+/* ===== 必殺UI・満タン通知（攻撃後に判定） ===== */
+function updateSPBtn(){
+  const readyA=state.A.sp>=6, readyB=state.B.sp>=6, btn=$('btnSP');
+  if(btn){btn.disabled=inputLocked || !readyA; btn.classList.toggle('on',state.spOn); btn.textContent=state.spOn?'✨ 必殺 ON':'✨ 必殺 OFF'; btn.classList.toggle('btnReady',readyA&&!state.spOn);}
+  $('gA')?.classList.toggle('readyPulse',readyA); $('gB')?.classList.toggle('readyPulse',readyB);
+  if(readyA && !state.spAnnA){toast('あなたの必殺ゲージが満タンになった。'); state.spAnnA=true;}
+  if(readyB && !state.spAnnB){toast('相手の必殺ゲージが満タンになった。'); state.spAnnB=true;}
+}
+
+/* タイマー */
+function startRound(){
+  state.remain=15; $('countNum').textContent=state.remain; clearInterval(state.timer);
+  disableRPS(false);
+  state.timer=setInterval(()=>{ if(toastBusy) return; state.remain--; $('countNum').textContent=state.remain; if(state.remain<=0){const r=['G','C','P'][Math.floor(Math.random()*3)]; pick(r);} },1000);
+}
+async function restartRoundAfterToasts(){clearInterval(state.timer); await waitToasts(); startRound();}
+
+/* ===== RPS判定 ===== */
+function judge(a,b){if(a===b)return 0;if((a==='G'&&b==='C')||(a==='C'&&b==='P')||(a==='P'&&b==='G'))return 1;return -1;}
+
+/* ===== 与ダメ基礎 ===== */
+function baseDamage(att,def){
+  let mult=typeMult(att.type,def.type);
+  if(att.atk13>0) mult*=1.3;
+  let dmg=100*(1+att.atk/100)/(1+def.def/120)*mult;
+  if(def.shield>0) dmg*=0.5;
+  return dmg;
+}
+
+/* 状態文言 */
+function phrases(u){
+  const arr=[];
+  if(u.shield>0)arr.push(`被ダメージ半減（残り${u.shield}回）`);
+  if(u.eva60>0)arr.push(`回避率60%（残り${u.eva60}回）`);
+  if(u.atk13>0)arr.push(`与ダメージ1.3倍（残り${u.atk13}回）`);
+  if(u.lock>0)arr.push(`交代できない（残り${u.lock}回）`);
+  if(u.doom>0)arr.push(`文字化けの呪い（残り${u.doom}ターンで戦闘不能）`);
+  if(u.selfHurt>0)arr.push(`攻撃のたび33%で自傷100（残り${u.selfHurt}回）`);
+  if(u.endure)arr.push(`一度だけHP1で耐える（未使用）`);
+  return arr;
+}
+async function announceEndStatuses(){
+  const a=phrases(left()); const b=phrases(right());
+  if(a.length) toast(`あなた：${a.join(' / ')}`);
+  if(b.length) toast(`相手：${b.join(' / ')}`);
+  await waitToasts();
+}
+
+/* 行動開始（残回数を先に減らす→文字化け→スタン） */
+async function startOfAction(side){
+  const me = side==='ally'?left():right();
+  if(me.shield>0)me.shield--;
+  if(me.eva60>0)me.eva60--;
+  if(me.atk13>0)me.atk13--;
+  if(me.lock>0)me.lock--;
+  if(me.selfHurt>0)me.selfHurt--;
+
+  if(me.doom>0){me.doom--; if(me.doom<=0){me.hp=0; renderSides(); buildBoxes(); toast(`${me.name}は文字化けの効果で倒れた！`); await waitToasts(); await handleKO(side==='ally'?'ally':'enemy'); return false;}}
+  if(me.stun){me.stun=false; toast(`${me.name}は言葉狩りの効果で、この攻撃ターンは行動できない。`); await waitToasts(); return false;}
+  return true;
+}
+
+/* ===== 必殺：前処理（倍率/連撃）＋後処理（回復/ロック等）
+   ※ ゲシュタルト崩壊は「防御側」に付与へ修正 ===== */
+function spEffectPre(att,def,role){
+  let mult=1, multiSeq=null, showName=(SKILLS[att.name]||['—'])[0], desc=(SKILLS[att.name]||['—','—'])[1], trueName=att.name;
+
+  switch(att.name){
+    case 'パラボラアンテナ': mult=2.2; break;
+    case 'ネスカフェアンバサダー': mult=1; break;
+    case 'にんじんしりしり': mult=1.6; att.endure=true; break;
+    case 'そぼろごはん': multiSeq=[0.75,0.5,0.25]; break;
+    case 'ニシローランドゴリラ': mult=1.5; att.atk13=2; break;
+    case '毛むくじゃら': mult=1.4; att.eva60=2; break;
+    case '九品仏': mult=1.6; att.shield=2; break;
+    case 'けんちん汁': mult=1.2; break;
+    case 'カムチャッカ半島': case 'ハシビロコウ': case 'バルサミコ酢':
+    case 'バビロン捕囚': case 'ポリプロピレン': case 'クマンバチ': case '照り焼きチキン':
+      def.lock=3; break;
+    case 'タランチュラ': case 'トリニダード・トバゴ': case 'サラエボ事件': case 'さるびあ丸':
+      def.stun=true; break;
+    case 'ピロリ菌': case 'カラメル色素': case '鳥取砂丘': case 'プラシーボ効果': case 'ペペロンチーノ': case 'スルメイカ':
+      def.selfHurt=3; break; /* ← 防御側に付与 */
+    case '渡来人': case '県庁所在地':
+      def.doom=3; break;
+    case '本質': case '見える化': case '自分ごと化': case '解像度': {
+      const foe=(role==='ally'?state.B.team:state.A.team).filter(u=>u.rank!=='X' && u.hp>0);
+      if(foe.length){
+        const pick=foe[Math.floor(Math.random()*foe.length)];
+        const tmp=spEffectPre({...att,name:pick.name},def,role); // 副作用も反映
+        mult=2.0*(tmp.mult||1);
+        multiSeq=tmp.multiSeq? tmp.multiSeq.map(x=>x*2.0) : null;
+        showName='鏡文字'; desc=`${pick.name}の「${(SKILLS[pick.name]||['—'])[0]}」をコピーして放つ。`; trueName=pick.name;
+      }else{ mult=2.0; showName='鏡文字'; desc='コピーできる必殺がいないため、威力2倍の一撃のみ。'; trueName=''; }
+      break;
+    }
+  }
+  return {mult,multiSeq,showName,desc,trueName};
+}
+function spEffectPost(att,def,role,usedTrueName){
+  switch(usedTrueName){
+    case 'パラボラアンテナ': if(role==='ally'){state.B.sp=0;state.spAnnB=false;} else {state.A.sp=0;state.spAnnA=false;} break;
+    case 'ネスカフェアンバサダー': {
+      const t = role==='ally'?state.A.team:state.B.team;
+      t.forEach(u=>u.hp=Math.min(u.maxhp,u.hp+60));
+      break;
+    }
+    case 'けんちん汁': att.hp=Math.min(att.maxhp,att.hp+150); break;
+  }
+}
+
+/* HP/ゲージ更新 */
+function updateHpBars(role,unit){$('hp-'+role).style.width=`${100*unit.hp/unit.maxhp}%`; $('hpnum-'+role).textContent=`HP ${unit.hp}/${unit.maxhp}`;}
+function addGaugeAfterAttack(){const a0=state.A.sp,b0=state.B.sp;state.A.sp=Math.min(6,a0+1);state.B.sp=Math.min(6,b0+1);if(state.A.sp>=6 && a0<6)state.spAnnA=false;if(state.B.sp>=6 && b0<6)state.spAnnB=false;}
+
+/* ===== 攻撃本体 ===== */
+async function doAttack(att,def,useSP,role){
+  if(att.hp<=0) return;
+
+  let mult=1, multi=null, spName='', spDesc='', usedTrueName=att.name;
+  if(useSP){
+    const pre=spEffectPre(att,def,role);
+    mult=pre.mult; multi=pre.multiSeq; spName=pre.showName; spDesc=pre.desc; usedTrueName=pre.trueName||att.name;
+    toast(`${role==='ally'?'あなた':'相手'}の必殺、「${spName}」！`); await waitToasts();
+    const el=role==='ally'?$('card-ally'):$('card-enemy'); el?.classList.add('fx-burst'); setTimeout(()=>el?.classList.remove('fx-burst'),300);
+  }
+
+  // 命中（通常のみ／相手の回避60%は上書き）
+  const eva = def.eva60>0 ? 60 : def.eva;
+  const miss = (!useSP && Math.random() < (eva/100));
+  if(miss){ toast(`${att.name}の攻撃は外れた！`); await waitToasts(); return; }
+
+  const victimRole = (role==='ally'?'enemy':'ally');
+  let defeated=false;
+
+  if(useSP && Array.isArray(multi)){
+    for(let i=0;i<multi.length;i++){
+      const m = multi[i];
+      const d = Math.max(1, Math.round(baseDamage(att,def)*m));
+      toast(`${i+1}撃目：${def.name}に ${d} ダメージ！`);
+      setTimeout(()=>{$('card-'+victimRole)?.classList.add('shake');setTimeout(()=>$('card-'+victimRole)?.classList.remove('shake'),500);},120);
+      await waitToasts();
+      def.hp = Math.max(0, def.hp - d); updateHpBars(victimRole,def);
+      if(def.hp<=0 && def.endure){ def.endure=false; def.hp=1; updateHpBars(victimRole,def); toast(`${def.name}は根性で1だけ残して耐えた！`); await waitToasts();}
+      else if(def.hp<=0){ toast(`${def.name}は倒れた！`); await waitToasts(); defeated=true; break; }
+    }
+  }else{
+    const d = Math.max(1, Math.round(baseDamage(att,def)*mult));
+    toast(`${def.name}に ${d} ダメージ！`);
+    setTimeout(()=>{$('card-'+victimRole)?.classList.add('shake');setTimeout(()=>$('card-'+victimRole)?.classList.remove('shake'),500);},120);
+    await waitToasts();
+    def.hp = Math.max(0, def.hp - d); updateHpBars(victimRole,def);
+    if(def.hp<=0 && def.endure){ def.endure=false; def.hp=1; updateHpBars(victimRole,def); toast(`${def.name}は根性で1だけ残して耐えた！`); await waitToasts();}
+    else if(def.hp<=0){ toast(`${def.name}は倒れた！`); await waitToasts(); defeated=true; }
+  }
+
+  // 自傷（“そのキャラが攻撃した時”にのみ発動）
+  if(att.selfHurt>0 && Math.random()<0.33){
+    toast(`${att.name}はゲシュタルト崩壊で自分に100ダメージ！`); await waitToasts();
+    att.hp=Math.max(0,att.hp-100); updateHpBars(role==='ally'?'ally':'enemy',att);
+    if(att.hp<=0){toast(`${att.name}は倒れた！`); await waitToasts(); await handleKO(role==='ally'?'ally':'enemy'); return;}
+  }
+
+  // 必殺の事後効果（コピー時は“元の技名”を適用）
+  if(useSP){ spEffectPost(att,def,role,usedTrueName); if(spDesc){ toast(spDesc); await waitToasts(); } }
+  if(defeated){ await handleKO(victimRole); return; }
+}
+
+/* KO→交代 or 勝敗 */
+async function handleKO(side){
+  if(side==='ally'){
+    const can=[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0);
+    if(can.length){
+      const i=await openSwitchAuto(15,can,false);
+      state.A.i=i; state.A.sp=0; state.spOn=false; updateSPBtn();
+      toast(`いけ、${left().name}！`); await waitToasts(); renderSides(); buildBoxes(); await announceEndStatuses(); restartRoundAfterToasts();
+    } else { return showResult(false); }
+  }else{
+    const can=[0,1,2].filter(i=>i!==state.B.i && state.B.team[i].hp>0);
+    if(can.length){
+      let best=can[0],m0=typeMult(state.B.team[best].type,left().type);
+      for(const k of can){const m=typeMult(state.B.team[k].type,left().type); if(m>m0){best=k;m0=m;}}
+      state.B.i=best; state.B.sp=0; updateSPBtn();
+      toast(`相手は ${right().name} をくりだした！`); await waitToasts(); renderSides(); buildBoxes(); await announceEndStatuses(); restartRoundAfterToasts();
+    } else { return showResult(true); }
+  }
+}
+
+/* 交代UI */
+const modal=$('switchModal'),grid=$('switchGrid'),doBtn=$('swDo'),cancelBtn=$('swCancel'),swTimer=$('swTimer');let selectIdx=null,swInterval=null;
+function openSwitch(){ if(left().lock>0){toast('今は交代できない（言論統制の効果）。'); return Promise.resolve(null);} return openSwitchAuto(15,null,true); }
+function openSwitchAuto(sec=15,canList=null,allowCancel=false){
+  return new Promise(resolve=>{
+    grid.innerHTML='';selectIdx=null;doBtn.disabled=true;modal.style.display='grid';
+    const idxs=(canList??[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0));
+    if(!idxs.length){ swTimer.textContent='交代できる控えがいない。'; doBtn.disabled=true; }
+    idxs.forEach(i=>{
+      const u=state.A.team[i], mul=typeMult(u.type,right().type);
+      const div=document.createElement('div');div.className='setupMini selCard';div.setAttribute('data-type',u.type);
+      div.innerHTML=`<div class="head"><div>${u.name}</div><div class="badge">${u.type}</div></div>${barRow('HP',u.hp,u.maxhp)}<div class="meta">相性：${mul===1.5?'x1.5（抜群）':mul===0.67?'x0.67（いまいち）':'x1.0（等倍）'}</div>`;
+      div.addEventListener('click',()=>{document.querySelectorAll('.selCard').forEach(x=>x.classList.remove('selected'));div.classList.add('selected');selectIdx=i;doBtn.disabled=false;});
+      grid.append(div);
+    });
+    let remain=sec; swTimer.textContent=`自動交代まで ${remain} 秒`; clearInterval(swInterval);
+    swInterval=setInterval(()=>{ if(toastBusy) return; remain--; swTimer.textContent=`自動交代まで ${remain} 秒`; if(remain<=0){clearInterval(swInterval); auto();}},1000);
+    const close=i=>{modal.style.display='none';clearInterval(swInterval);resolve(i);};
+    const auto=()=>{const r=idxs[Math.floor(Math.random()*idxs.length)];close(r);};
+    doBtn.onclick=()=>{if(selectIdx==null)return;close(selectIdx);};
+    cancelBtn.onclick=()=>{ if(allowCancel){ close(null); } else { auto(); } };
+  });
+}
+
+/* 勝敗 */
+function showResult(win){$('resTitle').textContent=win?'YOU WIN!':'YOU LOSE...';$('result').style.display='grid';setTimeout(()=>{$('result').style.display='none';document.body.classList.remove('battleMode');$('battle').style.display='none';$('setup').style.display='block';},3000);}
+
+/* RPS enable/disable */
+function disableRPS(dis){['btnG','btnC','btnP'].forEach(id=>{const b=$(id); if(b) b.disabled=dis;});}
+
+/* ラウンド進行 */
+async function pick(h){
+  if(state.busy || inputLocked) return; state.busy=true; clearInterval(state.timer); disableRPS(true);
+  const cpuH=['G','C','P'][Math.floor(Math.random()*3)]; const map={G:'グー',C:'チョキ',P:'パー'};
+  const res=judge(h,cpuH);
+  toast(`あなたは ${map[h]}、相手は ${map[cpuH]}。${res>0?'あなたの攻撃だ。':res<0?'相手の攻撃だ。':'あいこだ。'}`); await waitToasts();
+
+  if(res>0){
+    if(await startOfAction('ally')){await doAttack(left(),right(), state.spOn && state.A.sp>=6,'ally'); if(state.spOn && state.A.sp>=6){state.A.sp=0; state.spOn=false; state.spAnnA=false;}}
+  }else if(res<0){
+    if(await startOfAction('enemy')){await doAttack(right(),left(), state.B.sp>=6,'enemy'); if(state.B.sp>=6){state.B.sp=0; state.spAnnB=false;}}
+  }
+
+  addGaugeAfterAttack(); renderSides(); buildBoxes(); updateSPBtn();
+  await announceEndStatuses();
+  state.busy=false; await restartRoundAfterToasts();
+}
+
+/* ===== カードHTML ===== */
+function gaugeHtml(sp,tag){const pips=[...Array(6)].map((_,i)=>`<span class="pip ${i<sp?'on':''}"></span>`).join('');const pulse=sp>=6?'readyPulse':'';return `<div class="gaugeWrap"><div class="gLabel">必殺ゲージ</div><div class="gauge ${pulse}" id="g${tag}">${pips}</div></div>`;}
+function statBarsHtml(u){return `<div class="statBars">${barRow('HP',u.maxhp,MAX.HP)}${barRow('攻撃',u.atk,MAX.ATK)}${barRow('防御',u.def,MAX.DEF)}${barRow('回避',u.eva,MAX.EVA)}</div>`;}
+function imgTag(name){const f=IMG[name]; return f? `<img class="illust" alt="" width="104" height="104" loading="lazy" decoding="async" fetchpriority="high" src="images/${f}">` : '';}
+function cardHtml(u,role,opp){
+  const aff=typeMult(u.type,opp.type), affText=aff===1.5?'相性 x1.5（抜群）':aff===0.67?'相性 x0.67（いまいち）':'相性 x1.0（等倍）';
+  const sp=role==='ally'?state.A.sp:state.B.sp, tag=role==='ally'?'A':'B';
+  const owner=role==='ally'?'あなた':'CPU';
+  return `<div class="unit" data-type="${u.type}">
+    <div class="owner ${role==='ally'?'ally':'enemy'}">${owner}</div>
+    <div class="nameRow"><div style="font-weight:900">${u.name}</div><div class="badge">${u.type}</div></div>
+    <div class="hpRow"><div class="hpBox"><div class="hpFill" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div><div class="hpNum" id="hpnum-${role}">HP ${u.hp}/${u.maxhp}</div></div>
+    ${gaugeHtml(sp,tag)}
+    <div class="skillWrap">
+      <div class="skillBox"><div class="skillTitle">✨ 必殺：${(SKILLS[u.name]||['—'])[0]}</div><div class="skillDesc">${(SKILLS[u.name]||['—','—'])[1]}</div></div>
+      <div class="affinityBox">${affText}</div>
+    </div>
+    ${imgTag(u.name)}
+    ${statBarsHtml(u)}
+  </div>`;
+}
+function renderSides(){
+  $('leftWrap').innerHTML=`<div id="card-ally">${cardHtml(left(),'ally',right())}</div>`;
+  $('rightWrap').innerHTML=`<div id="card-enemy">${cardHtml(right(),'enemy',left())}</div>`;
+  updateSPBtn();
+  setTimeout(layoutRPS,0); // 初回レイアウト
+}
+
+/* ボックス */
+function buildBoxes(){
+  const mk=u=>`<div class="mini" data-type="${u.type}" data-name="${u.name}">
+    <div class="head"><div>${u.name}</div><div class="badge">${u.type}</div></div>
+    <div class="miniBar"><span style="width:${100*u.hp/u.maxhp}%"></span></div>
+    <div class="meta">HP ${u.hp}/${u.maxhp}</div></div>`;
+  $('sixA').innerHTML=state.A.team.map(mk).join('');
+  $('sixB').innerHTML=state.B.team.map(mk).join('');
+  document.querySelectorAll('#sixA .mini, #sixB .mini').forEach(div=>{
+    div.onclick=()=>{const n=div.dataset.name;const u=[...state.A.team,...state.B.team].find(x=>x.name===n);if(!u)return;
+      $('infoTitle').textContent=u.name;
+      $('infoBody').innerHTML=`<div style="margin:6px 0"><span class="badge">${u.type}</span></div>${statBarsHtml(u)}<div class="skillBox" style="margin-top:8px"><div class="skillTitle">✨ 必殺：${(SKILLS[u.name]||['—'])[0]}</div><div class="skillDesc">${(SKILLS[u.name]||['—','—'])[1]}</div></div>`;
+      $('infoModal').style.display='grid'; $('infoModal').onclick=()=>($('infoModal').style.display='none');
+    };
+  });
+}
+
+/* 初期化＆イベント */
+function buildSetup(){makeTeam($('teamA'),'A');makeTeam($('teamB'),'B');}
+function bindClicks(){
+  $('btnRand').onclick=()=>{const a=uniqueRandom(3,WORDS_BASE.length),b=uniqueRandom(3,WORDS_BASE.length);a.forEach((v,i)=>$(`A-${i}`).value=v);b.forEach((v,i)=>$(`B-${i}`).value=v);enforceUnique('A');enforceUnique('B');renderMini('A');renderMini('B');toast('ランダムでチームを編成した。');};
+  $('btnStart').onclick=async()=>{
+    state.A.team=collect('A');state.B.team=collect('B');state.A.i=0;state.B.i=0;state.A.sp=0;state.B.sp=0;state.spOn=false;state.spAnnA=false;state.spAnnB=false;
+    showLoading(true);
+    await preloadImgs([left().name,right().name, ...state.A.team.map(x=>x.name), ...state.B.team.map(x=>x.name)]);
+    showLoading(false);
+    ensureBattleMode(); renderSides(); buildBoxes();
+    toast(`いけ、${left().name}！バトルスタート！`); await waitToasts(); startRound();
+  };
+  $('btnG').onclick=()=>pick('G'); $('btnC').onclick=()=>pick('C'); $('btnP').onclick=()=>pick('P');
+  $('btnSwitch').onclick=async()=>{ if(inputLocked) return; const i=await openSwitch(); if(i!=null){state.A.i=i; state.A.sp=0; state.spOn=false; updateSPBtn(); toast(`いけ、${left().name}！`); await waitToasts(); renderSides(); buildBoxes(); await doAttack(right(), left(), state.B.sp>=6, 'enemy'); if(state.B.sp>=6){state.B.sp=0;state.spAnnB=false;} renderSides(); buildBoxes(); updateSPBtn(); await announceEndStatuses(); await restartRoundAfterToasts();}};
+  $('btnSP').onclick=()=>{if(state.A.sp>=6 && !inputLocked){state.spOn=!state.spOn;updateSPBtn();}};
+}
+document.addEventListener('DOMContentLoaded',()=>{buildSetup();bindClicks();toast('READY: v7.30');});
+})();
+</script>
+</body>
+</html>
