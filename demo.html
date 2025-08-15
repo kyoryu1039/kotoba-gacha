@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>KOTOBA-BATTLE | 対戦 v7.42</title>
+<style>
+/* ===== THEME ===== */
+:root{
+  --bg:#0b1228; --text:#eaf2ff; --muted:#cfe2ff;
+  --panel:#0f1633; --panel2:#0e1530; --border:#20335f; --shadow:0 18px 44px rgba(0,0,0,.18);
+  --ally:#27b1ff; --enemy:#ff6b7a;
+  --hp:#63ff8c; --hpBack:#0f2a1c; --gauge:#ffe066; --gaugeBack:#31260a;
+  --rel:#8bd3ff; --padGrad:linear-gradient(180deg,#102047,#0b1428);
+
+  --t-ジオ:#7aa0ff;       --tbg-ジオ:linear-gradient(180deg,#0f1837 0%, rgba(122,160,255,.6) 100%);
+  --t-アニマル:#34d790;   --tbg-アニマル:linear-gradient(180deg,#0a2725 0%, rgba(52,215,144,.6) 100%);
+  --t-フード:#ffbf4d;     --tbg-フード:linear-gradient(180deg,#261a07 0%, rgba(255,191,77,.6) 100%);
+  --t-コンセプト:#b68cff; --tbg-コンセプト:linear-gradient(180deg,#221742 0%, rgba(182,140,255,.6) 100%);
+  --t-サイエンス:#2dd6ff; --tbg-サイエンス:linear-gradient(180deg,#0c2638 0%, rgba(45,214,255,.6) 100%);
+  --t-ヒストリー:#ff7a9a;--tbg-ヒストリー:linear-gradient(180deg,#2b1522 0%, rgba(255,122,154,.6) 100%);
+  --t-ヒューマン:#5ff3d3; --tbg-ヒューマン:linear-gradient(180deg,#123235 0%, rgba(95,243,211,.6) 100%);
+}
+*{box-sizing:border-box;-webkit-text-size-adjust:100%}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,"Noto Sans JP",sans-serif;overflow-x:hidden}
+.container{max-width:1024px;width:100%;margin:0 auto;padding:10px}
+.note{color:#c9d7ff;font-size:12px}
+
+/* ===== LAYOUT ===== */
+.inSetup{display:block}.inBattle{display:none}
+.battleMode .inSetup{display:none}.battleMode .inBattle{display:block}
+
+.arena{display:grid;grid-template-rows:auto auto auto auto;gap:10px}
+.vsrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+@media(max-width:600px){.vsrow{gap:6px}}
+
+/* ===== CARD ===== */
+.cardwrap{position:relative}
+.unit{
+  position:relative;border-radius:18px;overflow:hidden;padding:14px;
+  background:
+    linear-gradient(#0f1833,#0f1833) padding-box,
+    var(--rank-grad,linear-gradient(180deg,#c9aa71,#8a6a2a)) border-box;
+  border:3px solid transparent;
+  box-shadow:0 8px 28px rgba(0,0,0,.25);
+}
+.unit[data-type="ジオ"]{--type-grad:var(--tbg-ジオ)} .unit[data-type="アニマル"]{--type-grad:var(--tbg-アニマル)}
+.unit[data-type="フード"]{--type-grad:var(--tbg-フード)} .unit[data-type="コンセプト"]{--type-grad:var(--tbg-コンセプト)}
+.unit[data-type="サイエンス"]{--type-grad:var(--tbg-サイエンス)} .unit[data-type="ヒストリー"]{--type-grad:var(--tbg-ヒストリー)}
+.unit[data-type="ヒューマン"]{--type-grad:var(--tbg-ヒューマン)}
+.unit::before{
+  content:"";position:absolute;inset:0;background:var(--type-grad);opacity:.85;z-index:0;
+}
+/* rank border grad */
+.unit[data-rank="S"]{--rank-grad:linear-gradient(135deg,#ff7ab5,#ffd86b,#7bff9f,#79e6ff,#b28bff,#ff7ab5)}
+.unit[data-rank="A"]{--rank-grad:linear-gradient(135deg,#ffe49a,#d7a22f)}
+.unit[data-rank="B"]{--rank-grad:linear-gradient(135deg,#e9edf2,#9aa4b2)}
+.unit[data-rank="C"]{--rank-grad:linear-gradient(135deg,#f1c08a,#9b6a39)}
+.unit[data-rank="D"]{--rank-grad:linear-gradient(135deg,#bfc6d2,#6b7484)}
+.unit[data-rank="X"]{--rank-grad:linear-gradient(135deg,#2b2b2b,#0e0e0e)}
+
+.headRow{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.owner{font-size:12px;padding:4px 10px;border-radius:999px;background:#0a1230;border:1px solid #2b3a70}
+.owner.ally{color:var(--ally)} .owner.enemy{color:var(--enemy)}
+.typeTag{font-size:12px;padding:4px 10px;border-radius:999px;color:#061225;border:none;background:rgba(255,255,255,.7)}
+
+.titleWrap{position:relative;z-index:1;margin:2px 0 8px;height:28px;display:flex;align-items:center;justify-content:center}
+.title{font-weight:900;white-space:nowrap;max-width:100%;transform-origin:left center;text-shadow:0 2px 4px rgba(0,0,0,.35)}
+/* auto-fit base size; scriptで縮小 */
+.title{font-size:22px}
+@media(max-width:600px){.title{font-size:20px}}
+
+.illustWrap{position:relative;z-index:1;display:flex;justify-content:center;margin:6px 0 10px}
+.illustBox{
+  width:66%;aspect-ratio:1;border-radius:12px;display:grid;place-items:center;
+  background:var(--illu-bg,#f7f3e5);
+  box-shadow:0 12px 30px rgba(0,0,0,.25), inset 0 0 0 2px rgba(255,255,255,.15);
+  border:2px solid transparent;
+  background-image:linear-gradient(var(--illu-bg,#f7f3e5),var(--illu-bg,#f7f3e5)), var(--illu-border,linear-gradient(135deg,#ffe49a,#d7a22f));
+  background-clip:padding-box,border-box;
+}
+.unit[data-rank="S"] .illustBox{--illu-border:linear-gradient(135deg,#ff7ab5,#ffd86b,#7bff9f,#79e6ff,#b28bff,#ff7ab5)}
+.unit[data-rank="A"] .illustBox{--illu-border:linear-gradient(135deg,#ffe49a,#d7a22f)}
+.unit[data-rank="B"] .illustBox{--illu-border:linear-gradient(135deg,#e9edf2,#9aa4b2)}
+.unit[data-rank="C"] .illustBox{--illu-border:linear-gradient(135deg,#f1c08a,#9b6a39)}
+.unit[data-rank="D"] .illustBox{--illu-border:linear-gradient(135deg,#bfc6d2,#6b7484)}
+.unit[data-rank="X"] .illustBox{--illu-border:linear-gradient(135deg,#2b2b2b,#0e0e0e)}
+.illust{width:66%;height:66%;object-fit:contain;filter:drop-shadow(0 8px 12px rgba(0,0,0,.35))}
+
+/* HP & gauge */
+.hpRow{display:flex;align-items:center;gap:10px;margin-top:2px;z-index:1;position:relative}
+.hpBox{flex:1;height:14px;background:var(--hpBack);border-radius:8px;overflow:hidden}
+.hpFill{height:100%;background:var(--hp)}
+.hpNum{font-size:12px;width:120px;text-align:right}
+
+.gRow{display:flex;align-items:center;gap:10px;margin:4px 0 8px;z-index:1}
+.gBox{flex:1;height:12px;background:#132031;border:1px solid #2a3a6b;border-radius:7px;display:flex;align-items:center;padding:0 6px;gap:6px}
+.pip{width:14px;height:8px;background:var(--gaugeBack);border:1px solid #5a480c;border-radius:3px;opacity:.7}
+.pip.on{background:var(--gauge);opacity:1}
+
+/* skill & affinity */
+.skill{z-index:1;border-radius:12px;background:#0c1938;color:#eaf2ff;border:1px solid #2b3a70;padding:10px;margin-top:6px}
+.skillTitle{font-weight:900;margin-bottom:4px}
+.skillDesc{font-size:12px;line-height:1.35}
+.affRow{display:flex;align-items:center;gap:10px;justify-content:flex-start;margin-top:6px}
+.affTxt{font-size:12px;white-space:nowrap}
+.statBtn{margin-left:auto;background:#0e1530;border:1px solid #2b3a70;border-radius:8px;padding:6px 10px;font-size:12px;display:flex;align-items:center;gap:6px}
+
+/* 操作パッド */
+.pad{border:1px solid #233562;border-radius:18px;background:linear-gradient(180deg,#122755,#0b1428);padding:12px;box-shadow:0 16px 36px rgba(0,0,0,.35)}
+.pad.disabled{opacity:.55;filter:saturate(.8)}
+.padInner{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center}
+.rpsArea{position:relative;height:170px}
+.rps{position:absolute;display:grid;place-items:center;width:90px;height:90px;border-radius:999px;border:none;color:#061225;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.rps .emo{font-size:34px}.rps .lbl{font-size:12px;margin-top:2px;font-weight:800}
+.rps.g{left:50%;transform:translateX(-50%);top:8px;background:linear-gradient(180deg,#ffdfde,#ff8b8b)}
+.rps.c{left:12%;bottom:6%;background:linear-gradient(180deg,#e0e8ff,#8bb1ff)}
+.rps.p{right:12%;bottom:6%;background:linear-gradient(180deg,#defae5,#8bffb5)}
+.ctrls{display:flex;gap:10px}
+.btnSP,.btnSW{flex:1;border-radius:12px;padding:10px 14px;border:2px solid #f2c94c;background:#0e1530;color:#f2c94c;font-weight:900}
+.btnSW{background:linear-gradient(90deg,#ffd89b,#fda085);border:none;color:#26110b}
+.btnSP.small,.btnSW.small{transform:scale(.9);transform-origin:left center}
+.btnReady{animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,224,102,.55)}70%{box-shadow:0 0 0 14px rgba(255,224,102,0)}100%{box-shadow:0 0 0 0 rgba(255,224,102,0)}}
+.rps[disabled]{pointer-events:none;opacity:1;filter:none}
+
+/* Box list */
+.boxGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.boxCol{background:var(--panel2);border:1px solid #233562;border-radius:12px;padding:8px}
+.mini{border:1px solid #1a2b54;border-radius:12px;padding:8px;cursor:pointer;position:relative;display:grid;gap:4px}
+.mini .bar{height:11px;background:#11321f;border-radius:6px;overflow:hidden}
+.mini .bar>span{display:block;height:100%;background:var(--hp)}
+.mini .tag{position:absolute;right:8px;top:8px;font-size:11px;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.18);backdrop-filter:blur(2px)}
+
+/* timer & toast */
+.timer{display:flex;justify-content:center;gap:8px;align-items:center;font-weight:900}
+.timer .num{font-size:28px}
+.toastArea{min-height:60px}
+.toast{margin:8px auto 0;max-width:min(96vw,720px);padding:12px 16px;border-radius:14px;background:rgba(12,22,50,.96);border:1px solid #2b3a70;color:#eaf3ff;opacity:0;transform:translateY(8px);transition:.22s ease}
+.toast.show{opacity:1;transform:translateY(0);cursor:pointer}
+
+/* SHAKES */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+.shake{animation:shake .5s ease}
+
+/* SWITCH MODAL */
+#switchModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:60}
+.modalCard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;width:min(84vw,540px)}
+.selCard{cursor:pointer} .selCard.selected{outline:3px solid #ffe066}
+
+/* loading */
+#loading{position:fixed;inset:0;background:rgba(6,10,26,.85);display:none;place-items:center;z-index:80;color:#eaf2ff}
+.spinner{width:48px;height:48px;border:5px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* mobile */
+@media(max-width:600px){
+  html{font-size:13.5px}
+  .rps{width:78px;height:78px}.rps .emo{font-size:30px}
+  .btnSP,.btnSW{padding:8px 12px}
+}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div><div style="margin-top:12px">対戦準備中…</div></div>
+
+<!-- セットアップ（簡略） -->
+<div class="container inSetup" id="setup">
+  <section style="background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px;box-shadow:var(--shadow)">
+    <h2 style="margin:0 0 8px">チーム編成（あなた / CPU）</h2>
+    <div id="teamGrid" style="display:grid;gap:8px;grid-template-columns:1fr 1fr">
+      <div>
+        <div style="font-weight:900;color:#27b1ff">あなた</div>
+        <div id="teamA"></div>
+      </div>
+      <div>
+        <div style="font-weight:900;color:#ff6b7a">CPU</div>
+        <div id="teamB"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:10px">
+      <button id="btnRand" style="padding:8px 12px;border-radius:10px;border:1px solid #2b3a70;background:#0b1430;color:#eaf2ff">ランダムでチームを編成</button>
+      <button id="btnStart" style="margin-left:auto;padding:8px 12px;border-radius:10px;border:none;background:#2dd6ff;color:#061225;font-weight:900">対戦開始</button>
+    </div>
+  </section>
+</div>
+
+<!-- バトル -->
+<div id="battle" class="container inBattle">
+  <section style="background:transparent;border:none;padding:0">
+    <div class="arena">
+      <div class="vsrow">
+        <div id="leftWrap" class="cardwrap"></div>
+        <div id="rightWrap" class="cardwrap"></div>
+      </div>
+
+      <!-- 操作パッド -->
+      <div class="pad" id="pad">
+        <div class="padInner">
+          <div class="rpsArea">
+            <button class="rps g" id="btnG"><div class="emo">✊</div><div class="lbl">グー</div></button>
+            <button class="rps c" id="btnC"><div class="emo">✌️</div><div class="lbl">チョキ</div></button>
+            <button class="rps p" id="btnP"><div class="emo">🖐</div><div class="lbl">パー</div></button>
+          </div>
+          <div class="ctrls">
+            <button class="btnSP small" id="btnSP" disabled>✨ 必殺 OFF</button>
+            <button class="btnSW small" id="btnSwitch">🔁 交代</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="toastArea"><div class="toast" id="toast" title="タップで早送り"></div></div>
+      <div class="timer">選択まで <span class="num" id="countNum">15</span> 秒</div>
+
+      <!-- ボックス -->
+      <div class="boxGrid">
+        <div class="boxCol">
+          <div style="font-weight:900;color:#27b1ff">あなたのボックス</div>
+          <div id="sixA"></div>
+        </div>
+        <div class="boxCol">
+          <div style="font-weight:900;color:#ff6b7a">CPUのボックス</div>
+          <div id="sixB"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- 交代モーダル -->
+<div id="switchModal">
+  <div class="modalCard">
+    <div style="font-weight:900;margin-bottom:8px">交代先を選択</div>
+    <div id="switchGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px">
+      <div id="swTimer" class="note">自動交代まで 15 秒</div>
+      <div>
+        <button id="swCancel" style="padding:6px 10px;border-radius:8px;border:1px solid #2b3a70;background:#0b1430;color:#eaf2ff">キャンセル</button>
+        <button id="swDo" style="padding:6px 10px;border-radius:8px;border:none;background:#ffe066;color:#2a1700;font-weight:900" disabled>交代する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<audio id="bgm" src="audio/Hypnagogiaondo.mp3" loop preload="auto" style="display:none"></audio>
+
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+const qs=(s,el=document)=>el.querySelector(s);
+
+/* ===== assets ===== */
+const IMG = {
+ "パラボラアンテナ":"parabola_antenna.png","ネスカフェアンバサダー":"nescafe_ambassador.png","にんじんしりしり":"ninjin_shirishiri.png","そぼろごはん":"soboro_gohan.png","ニシローランドゴリラ":"western_lowland_gorilla.png","毛むくじゃら":"kemukujara.png","九品仏":"kuhonbutsu.png","けんちん汁":"kenchin_jiru.png","カムチャッカ半島":"kamchatka_peninsula.png","タランチュラ":"tarantula.png","ハシビロコウ":"shoebill.png","バルサミコ酢":"balsamic_vinegar.png","ピロリ菌":"helicobacter_pylori.png","トリニダード・トバゴ":"trinidad_and_tobago.png","カラメル色素":"caramel_color.png","バビロン捕囚":"babylonian_captivity.png","鳥取砂丘":"tottori_sand_dunes.png","プラシーボ効果":"placebo_effect.png","渡来人":"torai_jin.png","さるびあ丸":"sarubia_maru.png","ペペロンチーノ":"peperoncino.png","ポリプロピレン":"polypropylene.png","サラエボ事件":"sarajevo_incident.png","クマンバチ":"kumabachi.png","県庁所在地":"prefectural_capital.png","照り焼きチキン":"teriyaki_chicken.png","ねるねるねるね":"nerunerunerune.png","スルメイカ":"surume_ika.png","本質":"essence.png","見える化":"mieruka.png","自分ごと化":"jibungotoka.png","解像度":"resolution.png"
+};
+function preloadImgs(names){
+  names.forEach(n=>{
+    const f=IMG[n]; if(!f) return;
+    const link=document.createElement('link'); link.rel='preload'; link.as='image'; link.href=`images/${f}`; document.head.appendChild(link);
+    const im=new Image(); im.decoding="async"; im.loading="eager"; im.src=`images/${f}`;
+  });
+}
+
+/* ===== helper ===== */
+const MAX={HP:800,ATK:120,DEF:120,EVA:20};
+const TYPES_RING=['ヒストリー','ジオ','コンセプト','サイエンス','アニマル','ヒューマン','フード'];
+const typeMult=(atk,def)=>{const n=TYPES_RING.length,i=TYPES_RING.indexOf(atk),j=TYPES_RING.indexOf(def);if(i<0||j<0)return 1;const st=[(i+1)%n,(i+2)%n], wk=[(i-1+n)%n,(i-2+n)%n];if(st.includes(j))return 1.5;if(wk.includes(j))return 0.67;return 1;};
+const PRANK={S:170,A:165,B:160,C:150,D:145,X:150};
+const HP_BASE={S:560,A:540,B:520,C:500,D:480,X:500};
+
+/* === status calc (v7.4) === */
+const toKatakana = (s)=> (s||"").replace(/[ぁ-ん]/g, ch => String.fromCharCode(ch.charCodeAt(0)+0x60));
+const reKanaH = /[ぁ-ゟ]/g, reKanaK = /[゠-ヿー]/g, reKanji = /[一-龥々〆ヵヶ]/g;
+function countClass(name){const H=(name.match(reKanaH)||[]).length,K=(name.match(reKanaK)||[]).length,J=(name.match(reKanji)||[]).length;return{H,K,J,total:H+K+J};}
+const reSmallK = /[ァィゥェォャュョヮㇰ-ㇿ]/g, reSokuon=/ッ/g, reVoiced=/[ガ-ポヴ]/g, rePlosiveEnd=/[ツックキチテトプピペポカタ]$/;
+const visualLen = (s)=> (s||"").replace(/[・\s]/g,"").length;
+
+function calcAttackDefense(name,yomiKatakana){
+  let atkP=17.5, defP=17.5;
+  const cls=countClass(name);
+  if(cls.J+cls.K===0){atkP+=12.5;defP+=12.5;}
+  else{const r=cls.K/(cls.J+cls.K);atkP+=25*r;defP+=25*(1-r);}
+  const Lph=yomiKatakana.length||1;
+  const d=(yomiKatakana.match(reVoiced)||[]).length/Lph;
+  const s=(yomiKatakana.match(reSokuon)||[]).length/Lph;
+  const m=(yomiKatakana.match(reSmallK)||[]).length/Lph;
+  const e=rePlosiveEnd.test(yomiKatakana)?1:0;
+  const s_raw=0.6*d+0.25*(s+m)+0.15*e, L=0.05, U=0.45;
+  const s_ph=Math.max(-1,Math.min(1,((s_raw-L)/(U-L))*2-1));
+  const atk_ph=20*(0.5+0.5*s_ph);
+  atkP+=atk_ph; defP+=20-atk_ph;
+  const T=visualLen(name);
+  const s_len=Math.max(-1,Math.min(1,(6-T)/6));
+  const atk_len=20*(0.5+0.5*s_len);
+  atkP+=atk_len; defP+=20-atk_len;
+  return {atkP,defP,T};
+}
+function calcEvasion(name,T,rank){
+  const cls=countClass(name);const hiraRatio=cls.total?(cls.H/cls.total):0;
+  const rankAdj=({S:-1,A:-0.5,B:0,C:0.5,D:1,X:0})[rank]??0;
+  let eva=10+8*hiraRatio-0.5*(T-5)+rankAdj; eva=Math.round(eva*10)/10;
+  return Math.max(5,Math.min(35,eva));
+}
+function makeWordObject([name,rank,type,yomiH]){
+  const y=toKatakana(yomiH||name);
+  const {atkP,defP,T}=calcAttackDefense(name,y);
+  const ATK=Math.round(PRANK[rank]*(atkP/100));
+  const DEF=Math.round(PRANK[rank]*(defP/100));
+  const HP=Math.round(HP_BASE[rank]+20*(T-5));
+  const EVA=calcEvasion(name,T,rank);
+  return {name,rank,type,yomi:y,maxhp:HP,hp:HP,atk:ATK,def:DEF,eva:EVA,
+    shield:0,eva60:0,atk13:0,lock:0,doom:0,selfHurt:0,stun:false,endure:false};
+}
+
+/* skill defs (妨害電波 2.2倍) */
+const SKILLS={
+ "パラボラアンテナ":["妨害電波","この一撃は2.2倍である。さらに相手の必殺ゲージを0にする。"],
+ "ネスカフェアンバサダー":["一杯いかが","通常攻撃のあと、味方全員のHPを60回復する（自分も60）。"],
+ "にんじんしりしり":["なんくるないさー","この一撃は1.6倍である。次に受ける致命傷を1回だけHP1で耐える。"],
+ "そぼろごはん":["そぼろ乱舞","3回連続で攻撃する（0.75→0.5→0.25倍）。相手を倒したら次の相手にも続く。"],
+ "ニシローランドゴリラ":["マウンテンビート","この一撃は1.5倍である。さらに次の2回の自分の攻撃は1.3倍になる。"],
+ "毛むくじゃら":["ムクジャララ","この一撃は1.4倍である。さらに次の2回の自分の攻撃のあいだ回避率が60%になる。"],
+ "九品仏":["仏の顔も三度まで","この一撃は1.6倍である。さらに次の2回の相手からのダメージを半分にする。"],
+ "けんちん汁":["長寿の秘訣","この一撃は1.2倍である。さらに自分のHPを150回復する。"],
+ "カムチャッカ半島":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "タランチュラ":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
+ "ハシビロコウ":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "バルサミコ酢":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "ピロリ菌":["ゲシュタルト崩壊","相手は次の3回の攻撃ターンのたび、33%の確率で自分に100ダメージ。"],
+ "トリニダード・トバゴ":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
+ "カラメル色素":["ゲシュタルト崩壊","相手は次の3回の攻撃ターンのたび、33%の確率で自分に100ダメージ。"],
+ "バビロン捕囚":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "鳥取砂丘":["ゲシュタルト崩壊","相手は次の3回の攻撃ターンのたび、33%の確率で自分に100ダメージ。"],
+ "プラシーボ効果":["ゲシュタルト崩壊","相手は次の3回の攻撃ターンのたび、33%の確率で自分に100ダメージ。"],
+ "渡来人":["文字化け","3ターン後に自分が戦闘不能になる（交代で解除）。"],
+ "さるびあ丸":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
+ "ペペロンチーノ":["ゲシュタルト崩壊","相手は次の3回の攻撃ターンのたび、33%の確率で自分に100ダメージ。"],
+ "ポリプロピレン":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "サラエボ事件":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
+ "クマンバチ":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "県庁所在地":["文字化け","3ターン後に自分が戦闘不能になる（交代で解除）。"],
+ "照り焼きチキン":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
+ "ねるねるねるね":["ゲシュタルト崩壊","相手は次の3回の攻撃ターンのたび、33%の確率で自分に100ダメージ。"],
+ "スルメイカ":["ゲシュタルト崩壊","相手は次の3回の攻撃ターンのたび、33%の確率で自分に100ダメージ。"],
+ "本質":["鏡文字","ランダムな相手の必殺をコピーし、効果も含めて放つ（威力2倍）。"],
+ "見える化":["鏡文字","ランダムな相手の必殺をコピーし、効果も含めて放つ（威力2倍）。"],
+ "自分ごと化":["鏡文字","ランダムな相手の必殺をコピーし、効果も含めて放つ（威力2倍）。"],
+ "解像度":["鏡文字","ランダムな相手の必殺をコピーし、効果も含めて放つ（威力2倍）。"]
+};
+
+/* words */
+const WORDS_BASE=[["パラボラアンテナ","S","サイエンス","ぱらぼらあんてな"],["ネスカフェアンバサダー","S","ヒューマン","ねすかふぇあんばさだー"],["にんじんしりしり","A","フード","にんじんしりしり"],["そぼろごはん","A","フード","そぼろごはん"],["ニシローランドゴリラ","A","アニマル","にしろーらんどごりら"],["毛むくじゃら","A","アニマル","けむくじゃら"],["九品仏","A","ジオ","くほんぶつ"],["けんちん汁","A","フード","けんちんじる"],["カムチャッカ半島","B","ジオ","かむちゃっかはんとう"],["タランチュラ","B","アニマル","たらんちゅら"],["ハシビロコウ","B","アニマル","はしびろこう"],["バルサミコ酢","B","フード","ばるさみこす"],["ピロリ菌","B","サイエンス","ぴろりきん"],["トリニダード・トバゴ","B","ジオ","とりにだーどとばご"],["カラメル色素","B","サイエンス","からめるしきそ"],["バビロン捕囚","C","ヒストリー","ばびろんほしゅう"],["鳥取砂丘","C","ジオ","とっとりさきゅう"],["プラシーボ効果","C","サイエンス","ぷらしーぼこうか"],["渡来人","C","ヒューマン","とらいじん"],["さるびあ丸","C","ジオ","さるびあまる"],["ペペロンチーノ","C","フード","ぺぺろんちーの"],["ポリプロピレン","C","サイエンス","ぽりぷろぴれん"],["サラエボ事件","C","ヒストリー","さらえぼじけん"],["クマンバチ","D","アニマル","くまんばち"],["県庁所在地","D","ジオ","けんちょうしょざいち"],["照り焼きチキン","D","フード","てりやきちきん"],["ねるねるねるね","D","フード","ねるねるねるね"],["スルメイカ","D","アニマル","するめいか"],["本質","X","コンセプト","ほんしつ"],["見える化","X","コンセプト","みえるか"],["自分ごと化","X","コンセプト","じぶんごとか"],["解像度","X","コンセプト","かいぞうど"]];
+const makeW=i=>makeWordObject(WORDS_BASE[i]);
+
+/* ===== state ===== */
+const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false,spAnnA:false,spAnnB:false};
+const left =()=>state.A.team[state.A.i], right=()=>state.B.team[state.B.i];
+
+/* ===== toast (tap to fast-forward) ===== */
+const toastQueue=[]; let toastBusy=false; let inputLocked=false; let toastSkip=false;
+const baseToast=1500, perChar=60;
+function toastDuration(msg){return Math.min(9000, baseToast + String(msg).length*perChar) + 120;}
+function lockInputs(on){inputLocked=on; disableRPS(on); $('btnSwitch').disabled=on; $('btnSP').disabled= on || state.A.sp<6; $('pad').classList.toggle('disabled',on);}
+$('toast').onclick=()=>{toastSkip=true;};
+function toast(msg){toastQueue.push(String(msg)); if(!toastBusy) runToast();}
+async function runToast(){toastBusy=true; lockInputs(true);
+  while(toastQueue.length){
+    const t=$('toast'), m=toastQueue.shift(), base=toastDuration(m);
+    t.textContent=m; t.classList.add('show'); toastSkip=false;
+    const start=performance.now();
+    while(true){
+      if(toastSkip) break;
+      const elapsed=performance.now()-start;
+      if(elapsed>=base) break;
+      await delay(60);
+    }
+    t.classList.remove('show'); await delay(120);
+  }
+  toastBusy=false; lockInputs(false);
+}
+async function waitToasts(){while(toastBusy || toastQueue.length){await delay(40);}}
+
+/* ===== audio ===== */
+let bgmArmed=false;
+function armBGM(){ if(bgmArmed) return; bgmArmed=true; const a=$('bgm'); a.volume=.2; a.play().catch(()=>{}); }
+document.addEventListener('click',armBGM,{once:true});
+
+/* ===== UI bits ===== */
+function titleAutoFit(el){
+  // 単一行で必ず収まるよう縮小
+  const max= parseFloat(getComputedStyle(el).getPropertyValue('font-size')) || 22;
+  let size=max;
+  el.style.fontSize=size+'px';
+  const parent = el.parentElement;
+  while((el.scrollWidth > parent.clientWidth) && size>12){ size-=0.5; el.style.fontSize=size+'px'; }
+}
+function hpTween(bar,from,to,dur=1600){
+  return new Promise(res=>{
+    const start=performance.now();
+    function step(now){
+      const p=Math.min(1,(now-start)/dur);
+      const v=from+(to-from)*p;
+      bar.style.width=v+'%';
+      if(p<1) requestAnimationFrame(step); else res();
+    }
+    requestAnimationFrame(step);
+  });
+}
+function barRow(label,val,max){const pct=label==='回避'?Math.max(0,Math.min(100,(val/MAX.EVA)*100)):Math.max(0,Math.min(100,(val/max)*100));return `<div style="display:flex;align-items:center;gap:8px;margin-top:6px"><div style="width:76px;font-size:12px;color:${'var(--muted)'}">${label}</div><div style="flex:1;height:16px;background:#0e1b31;border:1px solid #2a3a6b;border-radius:8px;overflow:hidden"><div style="height:100%;background:${'var(--rel)'};width:${pct}%"></div></div><div style="font-size:12px;width:90px;text-align:right">${label==='回避'?val+'%':val}</div></div>`;}
+function miniCard(u){
+  return `<div class="mini" data-name="${u.name}" data-type="${u.type}">
+    <div style="font-weight:900">${u.name}</div>
+    <span class="tag">${u.type}</span>
+    <div class="bar"><span style="width:${100*u.hp/u.maxhp}%"></span></div>
+    <div style="font-size:12px">HP ${u.hp}/${u.maxhp}</div>
+  </div>`;
+}
+
+/* ===== SP gauge button ===== */
+function updateSPBtn(){
+  const readyA=state.A.sp>=6, readyB=state.B.sp>=6, btn=$('btnSP');
+  if(btn){btn.disabled=inputLocked || !readyA;btn.classList.toggle('btnReady',readyA&&!state.spOn);btn.textContent=state.spOn?'✨ 必殺 ON':'✨ 必殺 OFF';}
+  $('gA')?.classList.toggle('btnReady',readyA); $('gB')?.classList.toggle('btnReady',readyB);
+  if(readyA && !state.spAnnA){toast('あなたの必殺ゲージが満タンになった。'); state.spAnnA=true;}
+  if(readyB && !state.spAnnB){toast('相手の必殺ゲージが満タンになった。'); state.spAnnB=true;}
+}
+
+/* ===== timer ===== */
+function startRound(){
+  state.remain=15; $('countNum').textContent=state.remain; clearInterval(state.timer);
+  disableRPS(false);
+  state.timer=setInterval(()=>{ if(toastBusy) return; state.remain--; $('countNum').textContent=state.remain; if(state.remain<=0){const r=['G','C','P'][Math.floor(Math.random()*3)]; pick(r);} },1000);
+}
+async function restartRoundAfterToasts(){clearInterval(state.timer); await waitToasts(); startRound();}
+
+/* ===== damage/defense calc ===== */
+function baseDamage(att,def){
+  let mult=typeMult(att.type,def.type);
+  if(att.atk13>0) mult*=1.3;
+  let dmg=100*(1+att.atk/100)/(1+def.def/120)*mult;
+  if(def.shield>0) dmg*=0.5;
+  return dmg;
+}
+
+/* ===== persistent statuses ===== */
+function phrases(u){
+  const arr=[];
+  if(u.shield>0)arr.push(`被ダメ半減（残り${u.shield}回）`);
+  if(u.eva60>0)arr.push(`回避60%（残り${u.eva60}回）`);
+  if(u.atk13>0)arr.push(`与ダメ1.3倍（残り${u.atk13}回）`);
+  if(u.lock>0)arr.push(`交代不可（残り${u.lock}回）`);
+  if(u.doom>0)arr.push(`文字化け（${u.doom}T後に戦闘不能）`);
+  if(u.selfHurt>0)arr.push(`ゲシュタルト崩壊（残り${u.selfHurt}回）`);
+  if(u.endure)arr.push(`根性1（未使用）`);
+  return arr;
+}
+async function announceEndStatuses(){
+  const a=phrases(left()); const b=phrases(right());
+  if(a.length) toast(`あなた：${a.join(' / ')}`);
+  if(b.length) toast(`相手：${b.join(' / ')}`);
+  await waitToasts();
+}
+
+/* ===== action gates ===== */
+async function startOfAction(side){
+  const me = side==='ally'?left():right();
+  if(me.shield>0)me.shield--;
+  if(me.eva60>0)me.eva60--;
+  if(me.atk13>0)me.atk13--;
+  if(me.lock>0)me.lock--;
+  if(me.selfHurt>0)me.selfHurt--;
+
+  if(me.doom>0){me.doom--; if(me.doom<=0){me.hp=0; renderSides(); buildBoxes(); toast(`${me.name}は文字化けの効果で倒れた！`); await waitToasts(); await handleKO(side==='ally'?'ally':'enemy'); return false;}}
+  if(me.stun){me.stun=false; toast(`${me.name}は言葉狩りの効果で、この攻撃ターンは行動できない。`); await waitToasts(); return false;}
+  return true;
+}
+
+/* ===== SP pre/post ===== */
+function spEffectPre(att,def,role){
+  let mult=1, multiSeq=null, name=(SKILLS[att.name]||['—'])[0], desc=(SKILLS[att.name]||['—','—'])[1], usedReal=att.name;
+  switch(att.name){
+    case 'パラボラアンテナ': mult=2.2; break;
+    case 'ネスカフェアンバサダー': mult=1; break;
+    case 'にんじんしりしり': mult=1.6; att.endure=true; break;
+    case 'そぼろごはん': multiSeq=[0.75,0.5,0.25]; break;
+    case 'ニシローランドゴリラ': mult=1.5; att.atk13=2; break;
+    case '毛むくじゃら': mult=1.4; att.eva60=2; break;
+    case '九品仏': mult=1.6; att.shield=2; break;
+    case 'けんちん汁': mult=1.2; break;
+    case 'カムチャッカ半島': case 'ハシビロコウ': case 'バルサミコ酢':
+    case 'バビロン捕囚': case 'ポリプロピレン': case 'クマンバチ': case '照り焼きチキン':
+      def.lock=3; break;
+    case 'タランチュラ': case 'トリニダード・トバゴ': case 'サラエボ事件': case 'さるびあ丸':
+      def.stun=true; break;
+    case 'ピロリ菌': case 'カラメル色素': case '鳥取砂丘': case 'プラシーボ効果': case 'ペペロンチーノ': case 'スルメイカ':
+      def.selfHurt=3; break; // ← 受けた側
+    case '渡来人': case '県庁所在地':
+      def.doom=3; break;
+    case '本質': case '見える化': case '自分ごと化': case '解像度': {
+      // 鏡文字：相手の必殺を効果ごとコピー、威力2倍
+      const foe=(role==='ally'?state.B.team:state.A.team).filter(u=>u.rank!=='X' && u.hp>0);
+      if(foe.length){
+        const pick=foe[Math.floor(Math.random()*foe.length)];
+        const p=spEffectPre({...att,name:pick.name},def,role);
+        mult=2.0*(p.mult||1); multiSeq=p.multiSeq? p.multiSeq.map(x=>x*2.0) : null;
+        name='鏡文字'; desc=`${pick.name}の「${(SKILLS[pick.name]||['—'])[0]}」をコピーして放つ。`; usedReal=pick.name;
+      }else{ mult=2.0; name='鏡文字'; desc='コピーできる必殺がいないため、威力2倍の一撃のみ。'; }
+      break;
+    }
+  }
+  return {mult,multiSeq,name,desc,usedReal};
+}
+function spEffectPost(att,def,role,used){
+  switch(used){
+    case 'パラボラアンテナ': if(role==='ally'){state.B.sp=0;state.spAnnB=false;} else {state.A.sp=0;state.spAnnA=false;} break;
+    case 'ネスカフェアンバサダー': {
+      const t = role==='ally'?state.A.team:state.B.team;
+      t.forEach(u=>u.hp=Math.min(u.maxhp,u.hp+60));
+      break;
+    }
+    case 'けんちん汁': att.hp=Math.min(att.maxhp,att.hp+150); break;
+  }
+}
+
+/* ===== render cards ===== */
+function gaugeHtml(sp,tag){const pips=[...Array(6)].map((_,i)=>`<span class="pip ${i<sp?'on':''}"></span>`).join('');return `<div class="gRow"><div style="width:44px">必殺ゲージ</div><div class="gBox" id="g${tag}">${pips}</div><div style="width:30px;text-align:right">${sp}/6</div></div>`;}
+function statBarsHtml(u){return `<div style="margin-top:6px">${barRow('HP',u.maxhp,MAX.HP)}${barRow('攻撃',u.atk,MAX.ATK)}${barRow('防御',u.def,MAX.DEF)}${barRow('回避',u.eva,MAX.EVA)}</div>`;}
+function cardHtml(u,role,opp){
+  const illuBG = {'ジオ':'#e8f0ff','アニマル':'#eaf9f1','フード':'#fff6e6','コンセプト':'#efe8ff','サイエンス':'#e8f7ff','ヒストリー':'#ffe9ef','ヒューマン':'#e9fbf6'}[u.type]||'#f7f3e5';
+  const aff=typeMult(u.type,opp.type), affText=aff===1.5?'x1.5（抜群）':aff===0.67?'x0.67（いまいち）':'x1.0（等倍）';
+  const sp=role==='ally'?state.A.sp:state.B.sp, tag=role==='ally'?'A':'B';
+  const owner=role==='ally'?'あなた':'CPU';
+  return `<div class="unit" data-type="${u.type}" data-rank="${u.rank}">
+    <div class="headRow"><span class="owner ${role==='ally'?'ally':'enemy'}">${owner}</span><span class="typeTag">${u.type}</span></div>
+    <div class="titleWrap"><div class="title">${u.name}</div></div>
+    <div class="illustWrap"><div class="illustBox" style="--illu-bg:${illuBG}"><img class="illust" alt="" src="images/${IMG[u.name]||''}"></div></div>
+    <div class="hpRow"><div>HP</div><div class="hpBox"><div class="hpFill" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div><div class="hpNum" id="hpnum-${role}">${u.hp}/${u.maxhp}</div></div>
+    ${gaugeHtml(sp,tag)}
+    <div class="skill"><div class="skillTitle">✨ 必殺：${(SKILLS[u.name]||['—'])[0]}</div><div class="skillDesc">${(SKILLS[u.name]||['—','—'])[1]}</div></div>
+    <div class="affRow"><div class="affTxt">相性 ${affText}</div><button class="statBtn" data-open-stat="${u.name}">▶ ステータス確認</button></div>
+  </div>`;
+}
+function renderSides(){
+  $('leftWrap').innerHTML=`<div id="card-ally">${cardHtml(left(),'ally',right())}</div>`;
+  $('rightWrap').innerHTML=`<div id="card-enemy">${cardHtml(right(),'enemy',left())}</div>`;
+  // fit titles
+  document.querySelectorAll('.title').forEach(titleAutoFit);
+  // bind stat buttons
+  document.querySelectorAll('[data-open-stat]').forEach(btn=>{
+    btn.onclick=()=>{const n=btn.dataset.openStat; const u=[...state.A.team,...state.B.team].find(x=>x.name===n); if(!u) return;
+      showStat(u);
+    };
+  });
+  updateSPBtn();
+}
+function showStat(u){
+  const body = `<div style="margin-bottom:6px"><span class="typeTag">${u.type}</span></div>
+  ${statBarsHtml(u)}
+  <div class="skill" style="margin-top:8px"><div class="skillTitle">✨ 必殺：${(SKILLS[u.name]||['—'])[0]}</div><div class="skillDesc">${(SKILLS[u.name]||['—','—'])[1]}</div></div>`;
+  const m=document.createElement('div'); m.id='infoModal'; m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:70';
+  m.innerHTML=`<div class="modalCard" style="width:min(92vw,560px)"><div style="font-weight:900;margin-bottom:8px">${u.name}</div>${body}<div style="text-align:right;margin-top:8px"><button id="infoClose" style="padding:6px 10px;border-radius:8px;border:1px solid #2b3a70;background:#0b1430;color:#eaf2ff">閉じる</button></div></div>`;
+  document.body.appendChild(m); $('infoClose').onclick=()=>m.remove(); m.onclick=(e)=>{if(e.target.id==='infoModal') m.remove();};
+}
+
+/* build boxes */
+function buildBoxes(){
+  $('sixA').innerHTML=state.A.team.map(miniCard).join('');
+  $('sixB').innerHTML=state.B.team.map(miniCard).join('');
+  document.querySelectorAll('#sixA .mini, #sixB .mini').forEach(div=>{
+    div.onclick=()=>{const n=div.dataset.name;const u=[...state.A.team,...state.B.team].find(x=>x.name===n);if(!u)return; showStat(u); };
+  });
+}
+
+/* ===== RPS enable/disable ===== */
+function disableRPS(dis){['btnG','btnC','btnP'].forEach(id=>{const b=$(id); if(b) b.disabled=dis;});}
+
+/* ===== ATTACK CORE ===== */
+async function doAttack(att,def,useSP,role){
+  if(att.hp<=0) return {ko:false};
+  let mult=1, multi=null, spName='', spDesc='', usedReal=att.name;
+  if(useSP){
+    const pre=spEffectPre(att,def,role);
+    mult=pre.mult; multi=pre.multiSeq; spName=pre.name; spDesc=pre.desc; usedReal=pre.usedReal;
+    toast(`${role==='ally'?'あなた':'相手'}の必殺、「${spName}」！`); await waitToasts();
+    (role==='ally'?$('card-ally'):$('card-enemy'))?.classList.add('shake'); setTimeout(()=> (role==='ally'?$('card-ally'):$('card-enemy'))?.classList.remove('shake'),500);
+  }
+
+  const eva = def.eva60>0 ? 60 : def.eva;
+  const miss = (!useSP && Math.random() < (eva/100));
+  if(miss){ toast(`${att.name}の攻撃は外れた！`); await waitToasts(); return {ko:false}; }
+
+  const victimRole = (role==='ally'?'enemy':'ally');
+  async function applyDamage(dmg){
+    const bar=$('hp-'+victimRole);
+    const from = parseFloat(bar.style.width)||0;
+    const to = Math.max(0, (def.hp - dmg)/def.maxhp*100);
+    toast(`${def.name}に ${dmg} ダメージ！`);
+    setTimeout(()=>{$('card-'+victimRole)?.classList.add('shake');setTimeout(()=>$('card-'+victimRole)?.classList.remove('shake'),500);},120);
+    await waitToasts();
+    def.hp = Math.max(0, def.hp - dmg);
+    await hpTween(bar,from,to,1800); // 統一の遅さ
+    $('hpnum-'+victimRole).textContent=`${def.hp}/${def.maxhp}`;
+  }
+
+  let defeated=false;
+  if(useSP && Array.isArray(multi)){
+    for(let i=0;i<multi.length;i++){
+      const d = Math.max(1, Math.round(baseDamage(att,def)*multi[i]));
+      await applyDamage(d);
+      if(def.hp<=0){
+        if(def.endure){
+          def.endure=false; def.hp=1; $('hpnum-'+victimRole).textContent=`${def.hp}/${def.maxhp}`; $('hp-'+victimRole).style.width=(100*def.hp/def.maxhp)+'%';
+          toast(`${def.name}は根性で1だけ残して耐えた！`); await waitToasts();
+        }else{
+          toast(`${def.name}は倒れた！`); await waitToasts(); defeated=true;
+          // まだ連撃が残っていれば交代させて継続
+          if(i < multi.length-1){
+            const ok = await forceSwitch(victimRole); // auto pick
+            if(!ok) break;
+            // 新しいdefに差し替え
+            def = (victimRole==='enemy')? right() : left();
+          }else break;
+        }
+      }
+    }
+  }else{
+    const d = Math.max(1, Math.round(baseDamage(att,def)*mult));
+    await applyDamage(d);
+    if(def.hp<=0){
+      if(def.endure){
+        def.endure=false; def.hp=1; $('hpnum-'+victimRole).textContent=`${def.hp}/${def.maxhp}`; $('hp-'+victimRole).style.width=(100*def.hp/def.maxhp)+'%';
+        toast(`${def.name}は根性で1だけ残して耐えた！`); await waitToasts();
+      }else{
+        toast(`${def.name}は倒れた！`); await waitToasts(); defeated=true;
+      }
+    }
+  }
+
+  // 自傷（ゲシュタルト崩壊：対象の“攻撃ターン”ごとに判定）
+  if(att.selfHurt>0 && Math.random()<0.33){
+    const myRole = role==='ally'?'ally':'enemy';
+    const bar=$('hp-'+myRole);
+    const from=parseFloat(bar.style.width)||0;
+    const to=Math.max(0,(att.hp-100)/att.maxhp*100);
+    toast(`${att.name}（${role==='ally'?'あなた':'相手'}）はゲシュタルト崩壊で自傷100！`);
+    await waitToasts();
+    att.hp=Math.max(0,att.hp-100);
+    await hpTween(bar,from,to,1800);
+    $('hpnum-'+myRole).textContent=`${att.hp}/${att.maxhp}`;
+    if(att.hp<=0){toast(`${att.name}は倒れた！`); await waitToasts(); await handleKO(myRole); return {ko:true};}
+  }
+
+  if(useSP){ spEffectPost(att,def,role,usedReal); if(spDesc){ toast(spDesc); await waitToasts(); } }
+  return {ko:defeated};
+}
+
+/* KO handling & forced switch */
+async function forceSwitch(sideTag){
+  if(sideTag==='ally'){
+    const can=[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0);
+    if(!can.length){ showResult(false); return false;}
+    const i=can[0]; state.A.i=i; state.A.sp=0; state.spOn=false; updateSPBtn(); renderSides(); buildBoxes(); toast(`いけ、${left().name}！`); await waitToasts(); return true;
+  }else{
+    const can=[0,1,2].filter(i=>i!==state.B.i && state.B.team[i].hp>0);
+    if(!can.length){ showResult(true); return false; }
+    let best=can[0],m0=typeMult(state.B.team[best].type,left().type);
+    for(const k of can){const m=typeMult(state.B.team[k].type,left().type); if(m>m0){best=k;m0=m;}}
+    state.B.i=best; state.B.sp=0; updateSPBtn(); renderSides(); buildBoxes(); toast(`相手は ${right().name} をくりだした！`); await waitToasts(); return true;
+  }
+}
+async function handleKO(side){ await forceSwitch(side); }
+
+/* ===== flow ===== */
+function addGaugeAfterAttack(skip=false){
+  if(skip) return;
+  const a0=state.A.sp,b0=state.B.sp;
+  state.A.sp=Math.min(6,a0+1);
+  state.B.sp=Math.min(6,b0+1);
+  if(state.A.sp>=6 && a0<6)state.spAnnA=false;
+  if(state.B.sp>=6 && b0<6)state.spAnnB=false;
+}
+
+function judge(a,b){if(a===b)return 0;if((a==='G'&&b==='C')||(a==='C'&&b==='P')||(a==='P'&&b==='G'))return 1;return -1;}
+
+async function pick(h){
+  if(state.busy || inputLocked) return; state.busy=true; clearInterval(state.timer); disableRPS(true);
+  const cpuH=['G','C','P'][Math.floor(Math.random()*3)]; const map={G:'グー',C:'チョキ',P:'パー'};
+  toast(`あなたは ${map[h]}、相手は ${map[cpuH]}。${judge(h,cpuH)>0?'あなたの攻撃だ。':judge(h,cpuH)<0?'相手の攻撃だ。':'あいこだ。'}`); await waitToasts();
+
+  let ko=false;
+  if(judge(h,cpuH)>0){
+    if(await startOfAction('ally')){ const r=await doAttack(left(),right(), state.spOn && state.A.sp>=6,'ally'); ko=r.ko; if(state.spOn && state.A.sp>=6){state.A.sp=0; state.spOn=false; state.spAnnA=false;}}
+  }else if(judge(h,cpuH)<0){
+    if(await startOfAction('enemy')){ const r=await doAttack(right(),left(), state.B.sp>=6,'enemy'); ko=r.ko; if(state.B.sp>=6){state.B.sp=0;state.spAnnB=false;}}
+  }
+
+  addGaugeAfterAttack(ko); // KO → 充電なし
+  renderSides(); buildBoxes(); updateSPBtn();
+  await announceEndStatuses();
+  state.busy=false; await restartRoundAfterToasts();
+}
+
+/* ===== render setup ===== */
+function setupSelect(rootId,side){
+  const root=$(rootId); root.innerHTML='';
+  for(let i=0;i<3;i++){
+    const s=document.createElement('select'); s.id=`${side}-${i}`;
+    s.style.cssText='width:100%;margin:6px 0;padding:8px;border-radius:10px;border:1px solid #2b3a70;background:#0b1430;color:#eaf2ff';
+    WORDS_BASE.forEach((w,idx)=>{const o=document.createElement('option');o.value=idx;o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;s.append(o);});
+    root.append(s);
+  }
+  [0,1,2].forEach(i=>$( `${side}-${i}` ).value = Math.floor(Math.random()*WORDS_BASE.length));
+}
+function collect(side){ return [0,1,2].map(i=> ({...makeW( Number($(`${side}-${i}`).value) ),side}) ); }
+
+/* ===== modals ===== */
+const modal=$('switchModal'),grid=$('switchGrid'),doBtn=$('swDo'),cancelBtn=$('swCancel'),swTimer=$('swTimer');let selectIdx=null,swInterval=null;
+function openSwitch(){ if(left().lock>0){toast('今は交代できない（言論統制の効果）。'); return Promise.resolve(null);} return openSwitchAuto(15,null,true); }
+function openSwitchAuto(sec=15,canList=null,allowCancel=false){
+  return new Promise(resolve=>{
+    grid.innerHTML='';selectIdx=null;doBtn.disabled=true;modal.style.display='grid';
+    const idxs=(canList??[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0));
+    if(!idxs.length){ swTimer.textContent='交代できる控えがいない。'; doBtn.disabled=true; }
+    idxs.forEach(i=>{
+      const u=state.A.team[i], mul=typeMult(u.type,right().type);
+      const div=document.createElement('div');div.className='mini selCard';div.setAttribute('data-type',u.type);
+      div.innerHTML=`<div style="font-weight:900">${u.name}</div><span class="tag">${u.type}</span><div class="bar"><span style="width:${100*u.hp/u.maxhp}%"></span></div><div>HP ${u.hp}/${u.maxhp}</div><div style="font-size:12px;margin-top:4px">相性：${mul===1.5?'x1.5（抜群）':mul===0.67?'x0.67（いまいち）':'x1.0（等倍）'}</div>`;
+      div.addEventListener('click',()=>{document.querySelectorAll('.selCard').forEach(x=>x.classList.remove('selected'));div.classList.add('selected');selectIdx=i;doBtn.disabled=false;});
+      grid.append(div);
+    });
+    let remain=sec; swTimer.textContent=`自動交代まで ${remain} 秒`; clearInterval(swInterval);
+    swInterval=setInterval(()=>{ if(toastBusy) return; remain--; swTimer.textContent=`自動交代まで ${remain} 秒`; if(remain<=0){clearInterval(swInterval); auto();}},1000);
+    const close=i=>{modal.style.display='none';clearInterval(swInterval);resolve(i);};
+    const auto=()=>{const r=idxs[Math.floor(Math.random()*idxs.length)];close(r);};
+    doBtn.onclick=()=>{if(selectIdx==null)return;close(selectIdx);};
+    cancelBtn.onclick=()=>{ if(allowCancel){ close(null); } else { auto(); } };
+  });
+}
+
+/* ===== results ===== */
+function showResult(win){
+  const m=document.createElement('div'); m.style.cssText='position:fixed;inset:0;background:rgba(6,10,26,.82);display:grid;place-items:center;z-index:75';
+  m.innerHTML=`<div style="background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:26px 28px;text-align:center;box-shadow:var(--shadow)">
+    <h1 style="margin:0 0 8px">${win?'YOU WIN!':'YOU LOSE...'}</h1><p style="margin:4px 0 0;color:var(--muted)">3秒後に編成へ戻る…</p></div>`;
+  document.body.appendChild(m);
+  setTimeout(()=>{m.remove();document.body.classList.remove('battleMode');$('battle').style.display='none';$('setup').style.display='block';},3000);
+}
+
+/* ===== bindings ===== */
+function bind(){
+  $('btnRand').onclick=()=>{setupSelect('teamA','A');setupSelect('teamB','B');toast('ランダムでチームを編成した。');};
+  $('btnStart').onclick=async()=>{
+    // build teams
+    state.A.team=collect('A'); state.B.team=collect('B'); state.A.i=0; state.B.i=0; state.A.sp=0; state.B.sp=0; state.spOn=false; state.spAnnA=false; state.spAnnB=false;
+    document.body.classList.add('battleMode'); $('setup').style.display='none'; $('battle').style.display='block';
+    // loading overlay until images are触ってから
+    $('loading').style.display='grid';
+    preloadImgs([left().name,right().name, ...state.A.team.map(x=>x.name), ...state.B.team.map(x=>x.name)]);
+    renderSides(); buildBoxes();
+    await delay(400); // 簡易プリロード
+    $('loading').style.display='none';
+    toast(`いけ、${left().name}！バトルスタート！`); await waitToasts(); startRound(); armBGM();
+  };
+  $('btnG').onclick=()=>pick('G'); $('btnC').onclick=()=>pick('C'); $('btnP').onclick=()=>pick('P');
+  $('btnSP').onclick=()=>{if(state.A.sp>=6 && !inputLocked){state.spOn=!state.spOn;updateSPBtn();}};
+  $('btnSwitch').onclick=async()=>{ if(inputLocked) return; const i=await openSwitch(); if(i!=null){state.A.i=i; state.A.sp=0; state.spOn=false; updateSPBtn(); toast(`いけ、${left().name}！`); await waitToasts(); renderSides(); buildBoxes(); const r=await doAttack(right(), left(), state.B.sp>=6, 'enemy'); if(state.B.sp>=6){state.B.sp=0;state.spAnnB=false;} addGaugeAfterAttack(r.ko); renderSides(); buildBoxes(); updateSPBtn(); await announceEndStatuses(); await restartRoundAfterToasts();}};
+}
+
+/* ===== init ===== */
+function init(){ setupSelect('teamA','A'); setupSelect('teamB','B'); bind(); }
+document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+</body>
+</html>
