@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>KOTOBA-BATTLE | 友達対戦P2P・単一HTML版</title>
+<style>
+:root{
+  --bg:#0b1228; --text:#eaf2ff;
+  --panel:#0f1633; --panel2:#0e1530; --border:#20335f; --shadow:0 18px 44px rgba(0,0,0,.18);
+  --ally:#27b1ff; --enemy:#ff6b7a; --hp:#63ff8c; --hpBack:#0f2a1c;
+  --gauge:#ffe066; --gaugeBack:#31260a;
+}
+*{box-sizing:border-box;-webkit-text-size-adjust:100%}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",Inter,system-ui,Roboto,"Helvetica Neue",Arial,sans-serif}
+.container{max-width:1024px;margin:0 auto;padding:12px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+.card h2{margin:0;padding:10px 14px;border-bottom:1px solid var(--border);font-size:17px}
+.card .body{padding:12px}
+.note{color:#c9d7ff;font-size:11px}
+.row{display:flex;gap:10px;align-items:center}
+.primary,.ghost{appearance:none;cursor:pointer;border-radius:12px;border:1px solid #2b3a70;background:#101c3b;color:#eaf2ff;padding:8px 12px;font-weight:700}
+.primary{background:#18326a}
+input[type="text"],textarea{width:100%;background:#0b1430;border:1px solid #25366b;color:#eaf2ff;padding:8px;border-radius:10px}
+textarea{min-height:120px;resize:vertical}
+.grid2{display:grid;gap:12px}
+@media(min-width:740px){.grid2{grid-template-columns:1fr 1fr}}
+.status{display:flex;gap:8px;align-items:center;font-size:13px}
+.badge{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid #2d3a70;background:#0b1635d8;white-space:nowrap}
+.badge.ok{color:#7dffab;border-color:#1f6042;background:#0b2a1bd8}
+.hr{height:1px;background:#20335f;margin:10px 0}
+.toastArea{min-height:54px}
+.toast{margin:6px auto 0;max-width:min(96vw,720px);padding:10px 14px;border-radius:14px;background:rgba(12,22,50,.96);border:1px solid #2b3a70;color:#eaf3ff;opacity:0;transform:translateY(8px);transition:.22s ease}
+.toast.show{opacity:1;transform:translateY(0)}
+.timer{display:flex;justify-content:center;gap:8px;align-items:center;font-weight:900}
+.timer .num{font-size:26px}
+
+/* バトルレイアウト */
+.arena{display:grid;gap:12px}
+.vsrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.unit{position:relative;border-radius:18px;overflow:hidden;background:
+ linear-gradient(180deg,#0e1735,#0d1430) padding-box,
+ linear-gradient(135deg,#fff4a8,#ffd86b 30%,#d7a63a 60%,#ffefb0) border-box;
+border:3px solid transparent;background-clip:padding-box,border-box;box-shadow:0 12px 40px rgba(0,0,0,.25);padding:18px}
+.owner{position:absolute;top:8px;left:10px;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid #2d3a70;background:#0b1635d8}
+.owner.ally{color:var(--ally)}.owner.enemy{color:var(--enemy)}
+.name{font-weight:900;font-size:18px;text-align:center;margin:4px 0 10px}
+.art{display:flex;justify-content:center;align-items:center;height:100px;margin:6px 0 10px}
+.chara{font-size:60px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.28))}
+.hpHead{display:flex;justify-content:space-between;align-items:center;font-size:11px}
+.hpBox{width:100%;height:13px;background:var(--hpBack);border-radius:8px;overflow:hidden;margin-top:4px}
+.hpFill{height:100%;background:var(--hp);transition:width 0.6s cubic-bezier(.22,1,.36,1)}
+.gaugeRow{display:flex;gap:4px;margin-top:6px;justify-content:center}
+.pip{width:16px;height:12px;background:var(--gaugeBack);border:1px solid #5a480c;border-radius:3px;opacity:.7}
+.pip.on{background:var(--gauge);opacity:1}
+.skillArea{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.statusTiny{font-size:9.8px;color:#a7c3ff;background:rgba(10,18,45,.55);border:1px solid #2b3a70;border-radius:10px;padding:4px 6px}
+.padCard{position:relative;background:linear-gradient(180deg,#121c3e 0%,#0a1128 100%);border:1px solid #31457b;border-radius:20px;box-shadow:0 22px 48px rgba(0,0,0,.45), 0 8px 18px rgba(4,10,30,.6), inset 0 1px 0 rgba(255,255,255,.06);padding:8px}
+.padInner{display:grid;grid-template-columns:1fr;gap:8px;align-items:center}
+.rpsArea{position:relative;height:110px}
+.rps{position:absolute;display:grid;place-items:center;width:60px;height:60px;border-radius:999px;border:none;color:#061225;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.rps .emo{font-size:24px}.rps .lbl{font-size:10px;margin-top:2px;font-weight:800}
+.rps.g{left:50%;top:6%;transform:translateX(-50%);background:linear-gradient(180deg,#ffdfde,#ff8b8b)}
+.rps.p{left:70%;bottom:6%;transform:translateX(-50%);background:linear-gradient(180deg,#defae5,#8bffb5)}
+.rps.c{left:30%;bottom:6%;transform:translateX(-50%);background:linear-gradient(180deg,#e0e8ff,#8bb1ff)}
+.sideBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.switchBtn{width:100%;border-radius:14px;background:linear-gradient(90deg,#ffd89b,#fda085);border:none;color:#26110b;font-weight:900;cursor:pointer;padding:8px 0}
+.spToggle{width:100%;border-radius:14px;background:#0e1530;border:2px solid #f2c94c;color:#f2c94c;font-weight:900;transition:.2s;cursor:pointer;padding:8px 0}
+.spToggle.on{background:linear-gradient(90deg,#ffe066,#ffcf33)!important;color:#2a1700!important;border-color:#ffcf33!important}
+.dim{opacity:.6;filter:saturate(.85)}
+#result{position:fixed;inset:0;background:rgba(6,10,26,.82);display:none;place-items:center;z-index:60}
+.box{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:24px 26px;text-align:center;box-shadow:var(--shadow)}
+/* tiny helpers */
+.hidden{display:none}
+.center{display:flex;justify-content:center;align-items:center}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- オンライン設定 -->
+  <section class="card">
+    <h2>オンライン対戦（P2P・単一HTML）</h2>
+    <div class="body">
+      <div class="grid2">
+        <div>
+          <div class="row">
+            <input id="myName" type="text" placeholder="あなたの名前（任意）">
+            <button id="btnHost" class="primary">🛖 ホストする</button>
+            <button id="btnJoin" class="ghost">🔗 参加する</button>
+          </div>
+          <div class="status" style="margin-top:8px">
+            <span class="badge" id="netState">未接続</span>
+            <span class="badge" id="seatBadge">-</span>
+            <span class="badge" id="oppBadge">相手未接続</span>
+          </div>
+          <div class="hr"></div>
+          <div>
+            <div class="note">ホスト→「オファー」を相手に送る／参加→「オファーを貼付→アンサーを返す」</div>
+            <textarea id="sigA" placeholder="ここにオファー（Offer）/アンサー（Answer）が表示されます"></textarea>
+            <div class="row" style="margin-top:8px">
+              <button id="copySig" class="ghost">コピー</button>
+              <button id="clearSig" class="ghost">クリア</button>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <textarea id="sigPaste" placeholder="相手から受け取った文字列を貼り付け"></textarea>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <button id="btnUsePaste" class="primary">貼り付けを適用</button>
+              <span class="note">（ホストは相手のアンサー／参加はホストのオファー）</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="row">
+            <button id="btnReady" class="primary" disabled>✅ 準備完了</button>
+            <span class="note">両者が準備すると試合開始</span>
+          </div>
+          <div class="toastArea"><div class="toast" id="toast"></div></div>
+          <div class="hr"></div>
+          <div class="note">
+            ⚠️ WebRTCは通常 <b>https または localhost</b> でのみ動作します。<br>
+            STUN: <code>stun.l.google.com:19302</code> を使用。P2Pなので一部の回線では接続しにくい場合があります。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- バトル -->
+  <section class="card" id="battleCard">
+    <h2>対戦</h2>
+    <div class="body">
+      <div class="arena">
+        <div class="vsrow">
+          <div class="unit" id="unitA">
+            <div class="owner ally">あなた（A）</div>
+            <div class="name" id="nameA">Player A</div>
+            <div class="art"><div class="chara">🛡️</div></div>
+            <div class="hpHead"><span>HP</span><span id="hpValA">1000/1000</span></div>
+            <div class="hpBox"><div class="hpFill" id="hpFillA" style="width:100%"></div></div>
+            <div class="gaugeRow" id="gaugeA"></div>
+            <div class="skillArea"><span class="statusTiny" id="statA">-</span></div>
+          </div>
+          <div class="unit" id="unitB">
+            <div class="owner enemy">相手（B）</div>
+            <div class="name" id="nameB">Player B</div>
+            <div class="art"><div class="chara">⚔️</div></div>
+            <div class="hpHead"><span>HP</span><span id="hpValB">1000/1000</span></div>
+            <div class="hpBox"><div class="hpFill" id="hpFillB" style="width:100%"></div></div>
+            <div class="gaugeRow" id="gaugeB"></div>
+            <div class="skillArea"><span class="statusTiny" id="statB">-</span></div>
+          </div>
+        </div>
+
+        <section class="padCard" id="pad">
+          <div class="padInner">
+            <div class="rpsArea">
+              <button class="rps g" id="btnG"><div class="emo">✊</div><div class="lbl">グー</div></button>
+              <button class="rps p" id="btnP"><div class="emo">🖐</div><div class="lbl">パー</div></button>
+              <button class="rps c" id="btnC"><div class="emo">✌️</div><div class="lbl">チョキ</div></button>
+            </div>
+            <div class="sideBtns">
+              <button class="spToggle" id="btnSP" disabled>✨ 必殺 OFF</button>
+              <button class="switchBtn" id="btnSwitch" disabled>🔁 交代（未実装）</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="timer">選択まで <span class="num" id="countNum">-</span> 秒</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 結果 -->
+<div id="result" class="center">
+  <div class="box">
+    <h1 id="resTitle" style="margin:0 0 8px;font-size:38px">YOU WIN!</h1>
+    <p id="resSub" style="margin:4px 0 0;color:#cfe2ff">「OK」でロビーに戻ります。</p>
+    <div class="row center" style="margin-top:10px">
+      <button id="btnBack" class="primary">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========== 友達対戦P2P：単一HTML完成形 ========== */
+/* 使い方：
+   1) ホスト：🛖「ホストする」→出た文字列を相手へ送る→相手のアンサーを貼って「貼り付けを適用」
+   2) 参加：🔗「参加する」→ホストの文字列を貼って「貼り付けを適用」→出た文字列をホストへ返す
+   3) 両者「準備完了」→試合開始
+*/
+const $=id=>document.getElementById(id);
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* --------- UI: Toast / Timer / Buttons ---------- */
+const toastEl=$('toast');
+function showToast(msg, ms=1800){
+  toastEl.textContent=msg; toastEl.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t=setTimeout(()=>toastEl.classList.remove('show'),ms);
+}
+function startCountdownTo(deadlineTs){
+  const el=$('countNum');
+  clearInterval(startCountdownTo._t);
+  const tick=()=>{
+    const remain=Math.max(0, Math.ceil((deadlineTs - Date.now())/1000));
+    el.textContent=remain;
+    if(remain<=0){ clearInterval(startCountdownTo._t); }
+  };
+  tick();
+  startCountdownTo._t=setInterval(tick,250);
+}
+function setPadEnabled(on){
+  ['btnG','btnC','btnP'].forEach(id=>{ const b=$(id); b.disabled=!on;});
+  const sp=$('btnSP'); if(on) sp.removeAttribute('disabled'); else sp.setAttribute('disabled','');
+  $('pad').classList.toggle('dim', !on);
+}
+
+/* --------- バトル表示 ---------- */
+const ui = {
+  setNames(a,b){ $('nameA').textContent=a||'Player A'; $('nameB').textContent=b||'Player B'; },
+  setHP(a,b){
+    const max=1000;
+    $('hpValA').textContent=`${a}/${max}`; $('hpFillA').style.width=`${a/max*100}%`;
+    $('hpValB').textContent=`${b}/${max}`; $('hpFillB').style.width=`${b/max*100}%`;
+  },
+  setGauge(ga,gb){
+    const draw=(wrap,val)=>{
+      wrap.innerHTML='';
+      for(let i=0;i<6;i++){ const p=document.createElement('div'); p.className='pip'+(i<val?' on':''); wrap.appendChild(p); }
+    };
+    draw($('gaugeA'), ga); draw($('gaugeB'), gb);
+  },
+  setSeat(seat){
+    $('seatBadge').textContent=seat?`席：${seat}`:'-';
+    $('ownerA'); // visual already shows A/B
+  },
+  setNetState(txt, ok=false){
+    const b=$('netState'); b.textContent=txt; b.classList.toggle('ok', !!ok);
+  },
+  setOpp(txt){ $('oppBadge').textContent=txt; },
+  result(winner, mySeat){
+    $('result').style.display='grid';
+    const title=$('resTitle');
+    if(winner==='draw'){ title.textContent='DRAW'; }
+    else if(winner===mySeat){ title.textContent='YOU WIN!'; }
+    else { title.textContent='YOU LOSE...'; }
+  },
+  resetResult(){ $('result').style.display='none'; }
+};
+
+/* --------- P2Pネットワーク層（手動シグナリング） ---------- */
+class NetP2P {
+  constructor(){ this.pc=null; this.dc=null; this.handlers={}; this.seat=null; this._authority=false; this._oppName='-'; }
+  on(t,fn){ (this.handlers[t]=this.handlers[t]||[]).push(fn); }
+  emit(t,p){ (this.handlers[t]||[]).forEach(f=>f(p)); }
+  send(o){ if(this.dc?.readyState==="open") this.dc.send(JSON.stringify(o)); }
+
+  async host(name){
+    this.pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+    this.dc=this.pc.createDataChannel("game"); this._wire();
+    const offer=await this.pc.createOffer(); await this.pc.setLocalDescription(offer);
+    const sdp=await this._waitGather();
+    $('sigA').value = btoa(JSON.stringify(sdp));
+    ui.setNetState('ホスト: オファー生成', true);
+    ui.setOpp('相手未接続');
+    this.seat="A"; this.myName = name||"Player A";
+    this.emit("JOIN_OK",{seat:"A",gameId:"p2p"});
+  }
+  async join(name){
+    this.pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+    this.pc.ondatachannel=e=>{ this.dc=e.channel; this._wire(); };
+    ui.setNetState('参加: オファー待ち');
+    this.seat="B"; this.myName = name||"Player B";
+    this.emit("JOIN_OK",{seat:"B",gameId:"p2p"});
+  }
+  async applyPasted(text){
+    const obj = JSON.parse(atob(text.trim()));
+    if(this.pc.signalingState==="stable"){
+      // likely we are host expecting ANSWER
+      await this.pc.setRemoteDescription(obj);
+      ui.setNetState('接続済み', true); ui.setOpp('相手接続');
+      this._hello();
+      return;
+    }else{
+      // we are joiner applying OFFER -> create ANSWER
+      await this.pc.setRemoteDescription(obj);
+      const answer=await this.pc.createAnswer(); await this.pc.setLocalDescription(answer);
+      const sdp=await this._waitGather();
+      $('sigA').value = btoa(JSON.stringify(sdp));
+      ui.setNetState('アンサー生成', true);
+      return;
+    }
+  }
+  _wire(){
+    this.dc.onmessage=ev=>{ const m=JSON.parse(ev.data); this.emit(m.type,m); };
+    this.dc.onopen=()=>{ ui.setNetState('接続済み', true); ui.setOpp('相手接続'); this._hello(); };
+  }
+  _waitGather(){ return new Promise(res=>{
+    if(this.pc.iceGatheringState==="complete") return res(this.pc.localDescription);
+    this.pc.onicegatheringstatechange=()=>{
+      if(this.pc.iceGatheringState==="complete") res(this.pc.localDescription);
+    };
+  });}
+  _hello(){
+    this.send({type:"HELLO", name:this.myName});
+    this.emit("HELLO",{name:this.myName}); // reflect self
+  }
+
+  // ゲーム用API
+  ready(){ this._authority ? (this._readyA=true, this._maybeStart()) : this.send({type:"READY",ready:true}); }
+  pick(h){ this._authority ? (this._pending.A={...(this._pending.A||{}),hand:h}, this._maybeResolve()) : this.send({type:"PICK",hand:h}); }
+  spToggle(on){ this._authority ? (this._pending.A={...(this._pending.A||{}),sp:on}) : this.send({type:"SP_TOGGLE",on}); }
+  doSwitch(to){ this._authority ? (this._pending.A={...(this._pending.A||{}),sw:to}) : this.send({type:"SWITCH",to}); }
+
+  // 権威（ホスト）ロジック
+  becomeAuthority(){
+    this._authority=true;
+    this.state={turn:1, hp:{A:1000,B:1000}, gauge:{A:0,B:0}, active:{A:0,B:0}, canSP:{A:false,B:false}};
+    this._pending={A:null,B:null}; this._readyA=false; this._readyB=false;
+    // 受信ハンドラ
+    this.on("READY",()=>{ this._readyB=true; this._maybeStart(); });
+    this.on("PICK",m=>{ this._pending.B={...(this._pending.B||{}),hand:m.hand}; this._maybeResolve(); });
+    this.on("SP_TOGGLE",m=>{ this._pending.B={...(this._pending.B||{}),sp:!!m.on}; });
+    this.on("SWITCH",m=>{ this._pending.B={...(this._pending.B||{}),sw:m.to}; });
+    this.on("HELLO", m=>{ this._oppName = m.name || 'Player B'; this.emit("OPPONENT_NAME",{A:this.myName, B:this._oppName}); });
+  }
+  onOpponentName(cb){
+    this.on("HELLO", m=>cb({me:this.myName, opp:m.name||'Player'}));
+  }
+  _maybeStart(){
+    if(this._readyA && this._readyB){
+      const deadline=Date.now()+15000;
+      this._pending={A:null,B:null};
+      const msg={type:"TURN_START",turn:this.state.turn,deadlineTs:deadline,
+        canSP_A:this.state.gauge.A>=6, canSP_B:this.state.gauge.B>=6,
+        activeA:this.state.active.A, activeB:this.state.active.B};
+      this.send(msg); window.dispatchEvent(new CustomEvent('LOCAL_MSG',{detail:msg}));
+      clearTimeout(this._timer); this._timer=setTimeout(()=>this._resolve(),15050);
+    }
+  }
+  _maybeResolve(){
+    if(this._pending.A?.hand && this._pending.B?.hand){ clearTimeout(this._timer); this._resolve(); }
+  }
+  _resolve(){
+    const A=this._pending.A || {hand:["g","c","p"][Math.random()*3|0]};
+    const B=this._pending.B || {hand:["g","c","p"][Math.random()*3|0]};
+    const win=(a,b)=>a===b?"draw":(a==="g"&&b==="c")||(a==="c"&&b==="p")||(a==="p"&&b==="g")?"A":"B";
+    const who=win(A.hand,B.hand);
+
+    // --- 簡易ダメージ＋SP ---
+    // 通常120ダメージ。SP指定かつゲージ>=6で 260ダメージ＋ゲージ-6（そのターン1回）
+    const dmgBase = 120;
+    const dmgSP   = 260;
+    const effects=[];
+    const state=this.state;
+
+    const useSPA = !!A.sp && state.gauge.A>=6;
+    const useSPB = !!B.sp && state.gauge.B>=6;
+
+    let dmg = 0;
+    if(who==="A"){ dmg = useSPA ? dmgSP : dmgBase; state.hp.B = Math.max(0, state.hp.B - dmg); }
+    if(who==="B"){ dmg = useSPB ? dmgSP : dmgBase; state.hp.A = Math.max(0, state.hp.A - dmg); }
+    if(who!=="draw") effects.push({type:"dmg", who, dmg});
+
+    if(useSPA){ state.gauge.A -= 6; effects.push({type:"sp", who:"A"}); }
+    if(useSPB){ state.gauge.B -= 6; effects.push({type:"sp", who:"B"}); }
+
+    // ゲージ加算：あいこでも+1（両者）
+    state.gauge.A = Math.min(6, state.gauge.A + 1);
+    state.gauge.B = Math.min(6, state.gauge.B + 1);
+
+    // 次ターンのSP可否
+    state.canSP = {A: state.gauge.A>=6, B: state.gauge.B>=6};
+
+    const res={type:"TURN_RESOLVE",turn:state.turn,hands:{A:A.hand,B:B.hand},effects,newState:structuredClone(state)};
+    this.send(res); window.dispatchEvent(new CustomEvent('LOCAL_MSG',{detail:res}));
+
+    // 勝敗
+    if(state.hp.A<=0 || state.hp.B<=0){
+      const winner= state.hp.A<=0 && state.hp.B<=0 ? "draw" : (state.hp.A>0?"A":"B");
+      const fin={type:"RESULT",winner};
+      this.send(fin); window.dispatchEvent(new CustomEvent('LOCAL_MSG',{detail:fin}));
+      return;
+    }
+    state.turn++;
+    this._maybeStart();
+  }
+}
+
+/* --------- ゲーム統合 ---------- */
+const net = new NetP2P();
+let isHost = false;
+
+// 受信を「ネット経由」と「ローカル（ホスト自身用）」で共通処理に流す
+function handleMsg(m){
+  switch(m.type){
+    case "JOIN_OK":{
+      ui.setSeat(m.seat); $('btnReady').disabled=false;
+      showToast(`席が確定：${m.seat}`);
+      break;
+    }
+    case "TURN_START":{
+      setPadEnabled(true);
+      $('btnSP').classList.toggle('on', false);
+      $('btnSP').textContent = '✨ 必殺 OFF';
+      $('btnSP').disabled = !( (net.seat==="A") ? m.canSP_A : m.canSP_B );
+      startCountdownTo(m.deadlineTs);
+      showToast(`ターン${m.turn} 開始`);
+      break;
+    }
+    case "TURN_RESOLVE":{
+      setPadEnabled(false);
+      const s=m.newState;
+      ui.setHP(s.hp.A, s.hp.B);
+      ui.setGauge(s.gauge.A, s.gauge.B);
+      const hands = {g:'✊', c:'✌️', p:'🖐'};
+      $('statA').textContent=`出した手：${hands[m.hands.A]}`;
+      $('statB').textContent=`出した手：${hands[m.hands.B]}`;
+      const spMsg = m.effects?.find(e=>e.type==='sp') ? '（必殺！）' : '';
+      if(m.effects?.length){
+        const e=m.effects.find(e=>e.type==='dmg');
+        if(e) showToast(`${e.who} が ${e.dmg} ダメージ ${spMsg}`);
+      }else{
+        showToast('あいこ！ ゲージ+1');
+      }
+      break;
+    }
+    case "RESULT":{
+      ui.result(m.winner, net.seat);
+      break;
+    }
+    case "HELLO":{
+      // self hello already sent; handled in authority via OPPONENT_NAME
+      break;
+    }
+    case "OPPONENT_NAME":{
+      const a = m.A || 'Player A', b = m.B || 'Player B';
+      if(net.seat==="A") ui.setNames(a,b); else ui.setNames(b,a);
+      break;
+    }
+    default:
+      // ignore
+      break;
+  }
+}
+net.on("JOIN_OK", handleMsg);
+net.on("TURN_START", handleMsg);
+net.on("TURN_RESOLVE", handleMsg);
+net.on("RESULT", handleMsg);
+net.on("HELLO", (m)=>{ if(!isHost){ ui.setNames(net.myName, m.name||'Player'); } });
+window.addEventListener('LOCAL_MSG', e=>handleMsg(e.detail));
+
+// UI 初期
+ui.setHP(1000,1000); ui.setGauge(0,0);
+$('btnSP').disabled=true; $('btnSwitch').disabled=true;
+ui.setNames('Player A','Player B');
+
+/* --------- ボタン配線 ---------- */
+$('btnHost').onclick = async ()=>{
+  try{
+    isHost = true;
+    await net.host($('myName').value.trim());
+    net.becomeAuthority();
+    $('seatBadge').textContent='席：A';
+    ui.setNetState('ホスト待機中', true);
+    showToast('オファーを相手へ送ってください');
+  }catch(e){ console.error(e); showToast('ホスト失敗'); }
+};
+$('btnJoin').onclick = async ()=>{
+  try{
+    isHost = false;
+    await net.join($('myName').value.trim());
+    $('seatBadge').textContent='席：B';
+    ui.setNetState('参加待機中');
+    showToast('ホストのオファーを貼り付けて適用してください');
+  }catch(e){ console.error(e); showToast('参加失敗'); }
+};
+$('btnUsePaste').onclick = async ()=>{
+  const txt=$('sigPaste').value.trim();
+  if(!txt){ showToast('貼り付けが空です'); return; }
+  try{
+    await net.applyPasted(txt);
+    if(!isHost && $('sigA').value){
+      showToast('生成したアンサーをホストへ送ってください');
+    }else{
+      showToast('接続処理を継続中…');
+    }
+  }catch(e){ console.error(e); showToast('適用に失敗しました'); }
+};
+$('copySig').onclick=()=>{
+  const ta=$('sigA'); ta.select(); document.execCommand('copy');
+  showToast('コピーしました');
+};
+$('clearSig').onclick=()=>{ $('sigA').value=''; $('sigPaste').value=''; };
+
+$('btnReady').onclick=()=>{
+  net.ready();
+  if(isHost){ net._readyA = true; net._maybeStart(); }
+  showToast('準備OK');
+};
+
+$('btnG').onclick=()=>{ net.pick("g"); setPadEnabled(false); showToast('✊ を選択'); };
+$('btnC').onclick=()=>{ net.pick("c"); setPadEnabled(false); showToast('✌️ を選択'); };
+$('btnP').onclick=()=>{ net.pick("p"); setPadEnabled(false); showToast('🖐 を選択'); };
+$('btnSP').onclick=()=>{
+  const on=!$('btnSP').classList.contains('on');
+  $('btnSP').classList.toggle('on', on);
+  $('btnSP').textContent = on ? '✨ 必殺 ON' : '✨ 必殺 OFF';
+  net.spToggle(on);
+};
+
+$('btnBack').onclick=()=>{
+  ui.resetResult();
+  // HP/ゲージを初期化（再戦は「準備完了」でホストが再開）
+  ui.setHP(1000,1000); ui.setGauge(0,0);
+  showToast('ロビーへ戻りました。「準備完了」で再戦できます');
+};
+
+/* 見た目の細かな補助 */
+(function initSeatBadges(){
+  $('seatBadge').textContent='-';
+  ui.setNetState('未接続');
+  ui.setOpp('相手未接続');
+})();
+</script>
+</body>
+</html>
