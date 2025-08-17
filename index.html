@@ -1,6 +1,10 @@
 <!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ことばコレクションガチャ — Hypnagogia Edition v4.7</title>
+  <link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0f1c">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
 <style>
 :root{--bg:#0b0f1c;--ink:#eef2ff;--muted:#aab3d6;--panel:#12172b;--edge:#1d2a55;--gold:#f7d774;--amber:#ffbd63;--aqua:#63ead9;--blue:#8fb1ff;--gray:#94a3b8;--bad:#ff6b6b}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:
@@ -489,4 +493,12 @@ collectionBox.addEventListener('keydown',e=>{
 })();
 }); /* DOMContentLoaded */
 </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(console.error);
+    });
+  }
+</script>
+
 </body></html>
