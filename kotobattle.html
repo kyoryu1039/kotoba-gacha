@@ -23,6 +23,9 @@
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",Inter,system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;overflow-x:hidden}
 
+/* 汎用：hidden を強制非表示に（FOUC防止） */
+[hidden]{display:none!important}
+
 /* 共通 */
 .container{max-width:1024px;margin:0 auto;padding:10px}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);position:relative}
@@ -32,7 +35,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .primary,.ghost{appearance:none;cursor:pointer;border-radius:12px;border:1px solid #2b3a70;background:#101c3b;color:#eaf2ff;padding:8px 12px;font-weight:700}
 .primary{background:#18326a}
 
-/* === 追加：編成右上のルールボタン === */
+/* === 編成右上のルールボタン === */
 .ruleBtn{position:absolute;top:10px;right:12px;border:1px solid #365099;background:linear-gradient(180deg,#172650,#0f1b3e);color:#dfe8ff;font-weight:900;padding:6px 10px;border-radius:10px;letter-spacing:.02em}
 .ruleBtn:hover{filter:brightness(1.06)}
 
@@ -194,24 +197,39 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .toast{margin:6px auto 0;max-width:min(96vw,720px);padding:10px 14px;border-radius:14px;background:rgba(12,22,50,.96);border:1px solid #2b3a70;color:#eaf3ff;opacity:0;transform:translateY(8px);transition:.22s ease}
 .toast.show{opacity:1;transform:translateY(0);cursor:pointer}
 
-/* モーダル（交代の横幅を縮小） */
-#switchModal,#infoModal,#ruleModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:55}
+/* モーダル（交代・情報・ルール） */
+#switchModal,#infoModal,#ruleModal{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:90;
+}
+
+/* 交代モーダル */
 #switchModal .card{width:min(84vw,680px);max-height:90vh;overflow:auto}
 #switchGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:520px){#switchGrid{grid-template-columns:1fr}}
 .selCard{cursor:pointer}.selCard.selected{outline:3px solid #ffe066}
 .swFooter{position:sticky;bottom:0;background:var(--panel);padding-top:8px}
 
-/* 追加：ルールモーダルの中身装飾 */
-.ruleCard{width:min(92vw,640px);max-height:90vh;overflow:auto}
-.ruleList{margin:8px 0 0;padding-left:1.2em;line-height:1.75}
-.ruleList li{margin:4px 0}
-.ruleHead{display:flex;justify-content:space-between;align-items:center}
+/* 情報モーダル */
+#infoModal .card{min-width:min(92vw,520px)}
+
+/* ルール：フルスクリーン化 */
+.ruleShell{
+  width:100vw;height:100vh;border-radius:0;padding:0;background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);display:flex;flex-direction:column;
+}
+.ruleBar{
+  display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:linear-gradient(180deg,#121a37,#0e1631);z-index:1
+}
+.ruleTitle{margin:0;font-size:18px}
 .ruleClose{appearance:none;border:1px solid #2b3a70;border-radius:10px;background:#0a1430;color:#eaf2ff;font-weight:900;cursor:pointer;padding:6px 10px}
 .ruleClose:hover{filter:brightness(1.06)}
+.ruleBody{
+  padding:14px;overflow:auto;flex:1
+}
+.ruleList{margin:8px 0 0;padding-left:1.2em;line-height:1.75}
+.ruleList li{margin:6px 0}
 
 /* ローディング（変更なし） */
-.loader{position:fixed;inset:0;display:none;place-items:center;background:rgba(6,10,26,.85);z-index:70;color:#cfe2ff;font-weight:900;letter-spacing:.02em}
+.loader{position:fixed;inset:0;display:none;place-items:center;background:rgba(6,10,26,.85);z-index:80;color:#cfe2ff;font-weight:900;letter-spacing:.02em}
 .spin{width:48px;height:48px;border-radius:50%;border:4px solid #324a80;border-top-color:#ffe066;animation:rot 1s linear infinite;margin:0 auto 10px}
 @keyframes rot{to{transform:rotate(360deg)}}
 
@@ -228,7 +246,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 <div class="container inSetup" id="setup">
   <section class="card">
     <h2>チーム編成（あなた / CPU）</h2>
-    <!-- 追加：編成カード右上のルールボタン -->
+    <!-- ルールボタン（右上） -->
     <button id="btnRule" class="ghost ruleBtn">📘 ルール</button>
 
     <div class="body">
@@ -291,8 +309,8 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   </div>
 </div>
 
-<!-- 交代 -->
-<div id="switchModal">
+<!-- 交代（hiddenで初期非表示） -->
+<div id="switchModal" hidden>
   <div class="card">
     <h2>交代先を選択</h2>
     <div class="body">
@@ -308,22 +326,22 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   </div>
 </div>
 
-<!-- 情報 -->
-<div id="infoModal">
-  <div class="card" style="min-width:min(92vw,520px)">
+<!-- 情報（hiddenで初期非表示） -->
+<div id="infoModal" hidden>
+  <div class="card">
     <h2 id="infoTitle">情報</h2>
     <div class="body" id="infoBody">...</div>
   </div>
 </div>
 
-<!-- 追加：ルール（編成画面右上ボタンから表示） -->
-<div id="ruleModal" aria-hidden="true">
-  <div class="card ruleCard">
-    <div class="ruleHead">
-      <h2 style="margin:0">🌟 KOTOBA-BATTLE ルール</h2>
+<!-- ルール（フルスクリーン / hiddenで初期非表示） -->
+<div id="ruleModal" aria-hidden="true" hidden>
+  <div class="ruleShell">
+    <div class="ruleBar">
+      <h2 class="ruleTitle">🌟 KOTOBA-BATTLE ルール</h2>
       <button id="ruleClose" class="ruleClose" aria-label="閉じる">✕</button>
     </div>
-    <div class="body">
+    <div class="ruleBody">
       <ol class="ruleList">
         <li><strong>3体の言葉キャラを選ぼう！</strong><br>キミのチームは3体。ステータスはキャラごとに違う。組み合わせや順番が勝敗を左右する！</li>
         <li><strong>じゃんけんでバトル！</strong><br>勝ったら自分の攻撃、負けたら相手の攻撃。あいこはもう1回！</li>
@@ -369,12 +387,12 @@ function preloadImgs(names){
   if(!unique.length) return Promise.resolve();
   return new Promise(resolve=>{
     let done=0,total=unique.length;
-    $('loader').style.display='grid';
+    $('loader').hidden=false; $('loader').style.display='grid';
     unique.forEach(f=>{
       const link=document.createElement('link'); link.rel='preload'; link.as='image'; link.href=`images/${f}`; document.head.appendChild(link);
       const im=new Image(); im.decoding='async'; im.loading='eager';
-      im.onload=()=>{ if(++done>=total){$('loader').style.display='none'; resolve();}};
-      im.onerror=()=>{ if(++done>=total){$('loader').style.display='none'; resolve();}};
+      im.onload=()=>{ if(++done>=total){$('loader').style.display='none'; $('loader').hidden=true; resolve();}};
+      im.onerror=()=>{ if(++done>=total){$('loader').style.display='none'; $('loader').hidden=true; resolve();}};
       im.src=`images/${f}`;
     });
   });
@@ -434,7 +452,7 @@ function calcEvasion(name,T,rank){const cls=countClass(name);const hiraRatio=cls
 function makeWordObject([name,rank,type,yomiH]){const y=toKatakana(yomiH||name);const {atkP,defP,T}=calcAttackDefense(name,y);const ATK=Math.round(PRANK[rank]*(atkP/100));const DEF=Math.round(PRANK[rank]*(defP/100));const HP=Math.round(HP_BASE[rank]+20*(T-5));const EVA=calcEvasion(name,T,rank);return {name,rank,type,yomi:y,maxhp:HP,hp:HP,atk:ATK,def:DEF,eva:EVA,shield:0,eva60:0,atk13:0,lock:0,doom:0,selfHurt:0,stun:false,endure:false};}
 
 /* 必殺データ（省略なし） */
-const SKILLS={/*…（前メッセージと同一）…*/ 
+const SKILLS={
  "パラボラアンテナ":["妨害電波","この一撃は2.2倍である。さらに相手の必殺ゲージを0にする。"],
  "ネスカフェアンバサダー":["一杯いかが","通常攻撃のあと、味方全員のHPを60回復する（自分も60）。"],
  "にんじんしりしり":["なんくるないさー","この一撃は1.6倍である。次に受ける致命傷を1回だけHP1で耐える。"],
@@ -659,12 +677,12 @@ async function handleKO(side){
 }
 function showResult(win){$('resTitle').textContent=win?'YOU WIN!':'YOU LOSE...'; $('result').style.display='grid'; setTimeout(()=>{$('result').style.display='none';document.body.classList.remove('battleMode');$('battle').style.display='none';$('setup').style.display='block';},3000);}
 
-/* 交代UI（横幅縮小済み） */
+/* 交代UI（hidden制御に変更） */
 const modal=$('switchModal'),grid=$('switchGrid'),doBtn=$('swDo'),cancelBtn=$('swCancel'),swTimer=$('swTimer');let selectIdx=null,swInterval=null;
 function openSwitch(){ if(left().lock>0){toast('今は交代できない（言論統制の効果）。'); return Promise.resolve(null);} return openSwitchAuto(15,null,true); }
 function openSwitchAuto(sec=15,canList=null,allowCancel=false){
   return new Promise(resolve=>{
-    grid.innerHTML='';selectIdx=null;doBtn.disabled=true;modal.style.display='grid';
+    grid.innerHTML='';selectIdx=null;doBtn.disabled=true;modal.hidden=false;
     const idxs=(canList??[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0));
     if(!idxs.length){ swTimer.textContent='交代できる控えがいない。'; doBtn.disabled=true; }
     idxs.forEach(i=>{
@@ -676,12 +694,27 @@ function openSwitchAuto(sec=15,canList=null,allowCancel=false){
     });
     let remain=sec; swTimer.textContent=`自動交代まで ${remain} 秒`; clearInterval(swInterval);
     swInterval=setInterval(()=>{ if(toastBusy) return; remain--; swTimer.textContent=`自動交代まで ${remain} 秒`; if(remain<=0){clearInterval(swInterval); auto();}},1000);
-    const close=i=>{modal.style.display='none';clearInterval(swInterval);resolve(i);};
+    const close=i=>{modal.hidden=true;clearInterval(swInterval);resolve(i);};
     const auto=()=>{const r=idxs[Math.floor(Math.random()*idxs.length)];close(r);};
     doBtn.onclick=()=>{if(selectIdx==null)return;close(selectIdx);};
     cancelBtn.onclick=()=>{ if(allowCancel){ close(null); } else { auto(); } };
   });
 }
+
+/* 情報モーダル（hidden制御に変更） */
+function showInfo(name){
+  const u=[...state.A.team,...state.B.team].find(x=>x.name===name);
+  if(!u) return;
+  $('infoTitle').textContent=u.name;
+  $('infoBody').innerHTML=`<div style="margin:6px 0"><span class="badge">${u.type}</span></div>${statBarsHtml(u)}<div class="skillBox" style="margin-top:8px"><div class="skillTitle">✨ 必殺：${(SKILLS[u.name]||['—'])[0]}</div><div class="skillDesc">${(SKILLS[u.name]||['—','—'])[1]}</div></div>`;
+  const info=$('infoModal'); info.hidden=false;
+  const close=()=>{info.hidden=true; info.removeEventListener('click',onBg); document.removeEventListener('keydown',onEsc);};
+  const onBg=(e)=>{ if(e.target===info) close();};
+  const onEsc=(e)=>{ if(e.key==='Escape') close();};
+  info.addEventListener('click',onBg);
+  document.addEventListener('keydown',onEsc,{once:true});
+}
+window.__showStatus=(name)=>showInfo(name);
 
 /* じゃんけん進行（省略なし） */
 function disableRPS(dis){['btnG','btnC','btnP'].forEach(id=>{const b=$(id); if(b) b.disabled=dis;});}
@@ -716,10 +749,8 @@ function imgTag(name){const f=IMG[name]; if(!f) return ''; return `<div class="a
 function fitNameOnce(root){
   const el=qs('.nm',root); const row=qs('.nameRow',root);
   if(!el||!row) return;
-  // 初期値（大きめ）
   let size=parseFloat(getComputedStyle(el).fontSize)||22;
-  const target=row.clientWidth-4; // 行コンテナ幅基準で判定
-  // 0.5px刻みで縮小、最小10px
+  const target=row.clientWidth-4;
   while(el.scrollWidth>target && size>10){ size-=0.5; el.style.fontSize=size+'px'; }
 }
 function equalizeHeights(){
@@ -768,14 +799,9 @@ function buildBoxes(){
   const mk=u=>`<div class="mini" data-type="${u.type}" data-name="${u.name}"><div class="head"><div>${u.name}</div><div class="badge">${u.type}</div></div><div class="miniBar"><span style="width:${100*u.hp/u.maxhp}%"></span></div><div class="meta" style="font-size:12px">HP ${u.hp}/${u.maxhp}</div></div>`;
   $('sixA').innerHTML=state.A.team.map(mk).join(''); $('sixB').innerHTML=state.B.team.map(mk).join('');
   document.querySelectorAll('#sixA .mini, #sixB .mini').forEach(div=>{
-    div.onclick=()=>{const n=div.dataset.name;const u=[...state.A.team,...state.B.team].find(x=>x.name===n);if(!u)return;
-      $('infoTitle').textContent=u.name;
-      $('infoBody').innerHTML=`<div style="margin:6px 0"><span class="badge">${u.type}</span></div>${statBarsHtml(u)}<div class="skillBox" style="margin-top:8px"><div class="skillTitle">✨ 必殺：${(SKILLS[u.name]||['—'])[0]}</div><div class="skillDesc">${(SKILLS[u.name]||['—','—'])[1]}</div></div>`;
-      $('infoModal').style.display='grid'; $('infoModal').onclick=()=>($('infoModal').style.display='none');
-    };
+    div.onclick=()=>{const n=div.dataset.name;showInfo(n);};
   });
 }
-window.__showStatus=(name)=>{const u=[...state.A.team,...state.B.team].find(x=>x.name===name); if(!u) return; $('infoTitle').textContent=u.name; $('infoBody').innerHTML=`<div style="margin:6px 0"><span class="badge">${u.type}</span></div>${statBarsHtml(u)}<div class="skillBox" style="margin-top:8px"><div class="skillTitle">✨ 必殺：${(SKILLS[u.name]||['—'])[0]}</div><div class="skillDesc">${(SKILLS[u.name]||['—','—'])[1]}</div></div>`; $('infoModal').style.display='grid'; $('infoModal').onclick=()=>($('infoModal').style.display='none');}
 
 /* 初期化 */
 function ensureBattleMode(){document.body.classList.add('battleMode');$('setup').style.display='none';$('battle').style.display='block';}
@@ -803,14 +829,14 @@ function bindClicks(){
   };
   $('btnSP').onclick=()=>{if(state.A.sp>=6 && !inputLocked){state.spOn=!state.spOn;updateSPBtn();}};
 
-  /* 追加：ルールモーダルの開閉 */
+  /* ルール（全画面） */
   const ruleModal=$('ruleModal'), ruleClose=$('ruleClose'), btnRule=$('btnRule');
-  const openRule=()=>{ruleModal.style.display='grid'; ruleModal.setAttribute('aria-hidden','false');};
-  const closeRule=()=>{ruleModal.style.display='none'; ruleModal.setAttribute('aria-hidden','true');};
+  const openRule=()=>{ruleModal.hidden=false; ruleModal.setAttribute('aria-hidden','false');};
+  const closeRule=()=>{ruleModal.hidden=true; ruleModal.setAttribute('aria-hidden','true');};
   btnRule?.addEventListener('click',openRule);
   ruleClose?.addEventListener('click',closeRule);
   ruleModal?.addEventListener('click',(e)=>{ if(e.target===ruleModal) closeRule(); });
-  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && ruleModal.style.display==='grid') closeRule(); });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && !ruleModal.hidden) closeRule(); });
 }
 document.addEventListener('DOMContentLoaded',()=>{buildSetup(); bindClicks(); toast('READY: v7.80');});
 
