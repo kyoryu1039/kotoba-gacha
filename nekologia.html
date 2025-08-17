@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ネコロジア｜特設ページ</title>
+ <link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0f1c">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
 <style>
  :root{
   --ink:#fdf6e3; --muted:#9ab0d4; --accent:#71ffd8; --bg:#070c18;
@@ -383,6 +387,13 @@ replayBtn?.addEventListener('click', async ()=>{
   try { bgm.currentTime = 0; await bgm.play(); } catch(e){}
   playSubtitles(SUB_LINES, 5, 900);
 });
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(console.error);
+    });
+  }
 </script>
 
 </body>
