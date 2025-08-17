@@ -25,12 +25,16 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 
 /* 共通 */
 .container{max-width:1024px;margin:0 auto;padding:10px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);position:relative}
 .card h2{margin:0;padding:10px 14px;border-bottom:1px solid var(--border);font-size:17px}
 .card .body{padding:12px}
 .note{color:#c9d7ff;font-size:11px}
 .primary,.ghost{appearance:none;cursor:pointer;border-radius:12px;border:1px solid #2b3a70;background:#101c3b;color:#eaf2ff;padding:8px 12px;font-weight:700}
 .primary{background:#18326a}
+
+/* === 追加：編成右上のルールボタン === */
+.ruleBtn{position:absolute;top:10px;right:12px;border:1px solid #365099;background:linear-gradient(180deg,#172650,#0f1b3e);color:#dfe8ff;font-weight:900;padding:6px 10px;border-radius:10px;letter-spacing:.02em}
+.ruleBtn:hover{filter:brightness(1.06)}
 
 /* === 編成（変更なし） === */
 #setup{display:grid;gap:12px}
@@ -89,7 +93,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 }
 .unit>*{position:relative;z-index:1}
 .unit.hit{animation:hit .42s cubic-bezier(.36,.07,.19,.97)}
-@keyframes hit{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-3px)}40%,60%{transform:translateX(3px)}}
+@keyframes hit{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-3px)}40%,60%{transform:translateX(3px)}
 
 /* ランク枠色（カード & イラスト） */
 .unit[data-rank="S"]{background:
@@ -137,7 +141,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .pip.on{background:var(--gauge);opacity:1}
 .readyPulse{animation:pulse 1.2s infinite}
 .btnReady{animation:pulse 1.2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,224,102,.55)}70%{box-shadow:0 0 0 14px rgba(255,224,102,0)}100%{box-shadow:0 0 0 0 rgba(255,224,102,0)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,224,102,.55)}70%{box-shadow:0 0 0 14px rgba(255,224,102,0)}100%{box-shadow:0 0 0 0 rgba(255,224,102,0)}
 
 /* 技と相性 */
 .skillWrap{margin-top:6px}
@@ -191,12 +195,20 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .toast.show{opacity:1;transform:translateY(0);cursor:pointer}
 
 /* モーダル（交代の横幅を縮小） */
-#switchModal,#infoModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:55}
+#switchModal,#infoModal,#ruleModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:55}
 #switchModal .card{width:min(84vw,680px);max-height:90vh;overflow:auto}
 #switchGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:520px){#switchGrid{grid-template-columns:1fr}}
 .selCard{cursor:pointer}.selCard.selected{outline:3px solid #ffe066}
 .swFooter{position:sticky;bottom:0;background:var(--panel);padding-top:8px}
+
+/* 追加：ルールモーダルの中身装飾 */
+.ruleCard{width:min(92vw,640px);max-height:90vh;overflow:auto}
+.ruleList{margin:8px 0 0;padding-left:1.2em;line-height:1.75}
+.ruleList li{margin:4px 0}
+.ruleHead{display:flex;justify-content:space-between;align-items:center}
+.ruleClose{appearance:none;border:1px solid #2b3a70;border-radius:10px;background:#0a1430;color:#eaf2ff;font-weight:900;cursor:pointer;padding:6px 10px}
+.ruleClose:hover{filter:brightness(1.06)}
 
 /* ローディング（変更なし） */
 .loader{position:fixed;inset:0;display:none;place-items:center;background:rgba(6,10,26,.85);z-index:70;color:#cfe2ff;font-weight:900;letter-spacing:.02em}
@@ -216,6 +228,9 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 <div class="container inSetup" id="setup">
   <section class="card">
     <h2>チーム編成（あなた / CPU）</h2>
+    <!-- 追加：編成カード右上のルールボタン -->
+    <button id="btnRule" class="ghost ruleBtn">📘 ルール</button>
+
     <div class="body">
       <div id="teamGrid">
         <div><div class="statsHead" style="color:#27b1ff">あなた</div><div id="teamA"></div></div>
@@ -298,6 +313,25 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <div class="card" style="min-width:min(92vw,520px)">
     <h2 id="infoTitle">情報</h2>
     <div class="body" id="infoBody">...</div>
+  </div>
+</div>
+
+<!-- 追加：ルール（編成画面右上ボタンから表示） -->
+<div id="ruleModal" aria-hidden="true">
+  <div class="card ruleCard">
+    <div class="ruleHead">
+      <h2 style="margin:0">🌟 KOTOBA-BATTLE ルール</h2>
+      <button id="ruleClose" class="ruleClose" aria-label="閉じる">✕</button>
+    </div>
+    <div class="body">
+      <ol class="ruleList">
+        <li><strong>3体の言葉キャラを選ぼう！</strong><br>キミのチームは3体。ステータスはキャラごとに違う。組み合わせや順番が勝敗を左右する！</li>
+        <li><strong>じゃんけんでバトル！</strong><br>勝ったら自分の攻撃、負けたら相手の攻撃。あいこはもう1回！</li>
+        <li><strong>タイプの相性で差がつく！</strong><br>キャラには7つのタイプがある。有利ならダメージ1.5倍、不利なら0.67倍！交代をうまく使って、相性の有利を取ろう！</li>
+        <li><strong>必殺技で一発逆転！</strong><br>ゲージが6たまると必殺技発動！ド派手な技や特別効果で形勢逆転も！</li>
+        <li><strong>勝利条件はシンプル！</strong><br>相手の3体の HP を全て削り切れば勝ち！</li>
+      </ol>
+    </div>
   </div>
 </div>
 
@@ -768,6 +802,15 @@ function bindClicks(){
     }
   };
   $('btnSP').onclick=()=>{if(state.A.sp>=6 && !inputLocked){state.spOn=!state.spOn;updateSPBtn();}};
+
+  /* 追加：ルールモーダルの開閉 */
+  const ruleModal=$('ruleModal'), ruleClose=$('ruleClose'), btnRule=$('btnRule');
+  const openRule=()=>{ruleModal.style.display='grid'; ruleModal.setAttribute('aria-hidden','false');};
+  const closeRule=()=>{ruleModal.style.display='none'; ruleModal.setAttribute('aria-hidden','true');};
+  btnRule?.addEventListener('click',openRule);
+  ruleClose?.addEventListener('click',closeRule);
+  ruleModal?.addEventListener('click',(e)=>{ if(e.target===ruleModal) closeRule(); });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && ruleModal.style.display==='grid') closeRule(); });
 }
 document.addEventListener('DOMContentLoaded',()=>{buildSetup(); bindClicks(); toast('READY: v7.80');});
 
