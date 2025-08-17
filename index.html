@@ -471,7 +471,7 @@ const clearBtn=document.getElementById('clear');
 if(clearBtn){
   clearBtn.onclick=()=>{cards.innerHTML="";localStorage.setItem(storeSeen,JSON.stringify([]));seen.clear();renderProgress();renderBGMTab();renderCollection();toast('データをリセットしました');};
 }
-document.getElementById('info').onclick=()=>alert("排出率：S2% A8% B20% C30% D30% X10%\n端末内にコレクションを保存します（localStorage）。\n音が出ない時は「♪ BGM ON」を押してね。");
+document.getElementById('info').onclick=()=>alert("排出率：S2% A8% B20% C30% D30% X10%\n音が出ない時は「♪ BGM ON」にしてね。");
 
 /* ====== コメントモーダル ====== */
 const cmModal=document.getElementById('cmModal');
