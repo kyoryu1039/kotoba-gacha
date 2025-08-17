@@ -1,0 +1,492 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ことばコレクションガチャ — Hypnagogia Edition v4.7</title>
+<style>
+:root{--bg:#0b0f1c;--ink:#eef2ff;--muted:#aab3d6;--panel:#12172b;--edge:#1d2a55;--gold:#f7d774;--amber:#ffbd63;--aqua:#63ead9;--blue:#8fb1ff;--gray:#94a3b8;--bad:#ff6b6b}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:
+radial-gradient(1200px 800px at 80% -20%, rgba(255,255,255,.04), transparent 60%),
+radial-gradient(1000px 800px at 10% 0%, #121a3b, #0b0f1c 60%);
+font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif}
+header{position:sticky;top:0;z-index:10;backdrop-filter:blur(6px);background:linear-gradient(180deg,rgba(10,14,28,.9),rgba(10,14,28,.65));border-bottom:1px solid var(--edge);padding:8px 10px 12px}
+.titleRow{display:flex;align-items:center;justify-content:center;gap:8px}
+.title{font-weight:900;letter-spacing:.3px;font-size:18px;white-space:nowrap;max-width:80vw;text-overflow:ellipsis;overflow:hidden}
+.ver{font-size:10px;color:#0b0f1c;background:linear-gradient(180deg,#b5ffdf,#63ead9);border-radius:999px;padding:3px 8px;font-weight:900}
+
+/* === 主役ガチャボタン（光沢あり） === */
+button.cta.main {
+  font-size: 15px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  color: #081224;
+  font-weight: 900;
+  cursor: pointer;
+  background: linear-gradient(180deg,#ffd36b,#f0b100); /* 金色 */
+  box-shadow: 0 6px 16px rgba(0,0,0,.35);
+  transition: transform .1s, filter .25s;
+  flex:1;
+}
+button.cta.main.b5 {
+  background: linear-gradient(180deg,#a4d7ff,#5cc6ff); /* 青色 */
+}
+button.cta.main:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+button.cta.main::before {
+  content:"";
+  position:absolute;
+  top:0; left:-50%;
+  width:200%; height:100%;
+  background: linear-gradient(120deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.4) 50%,
+    rgba(255,255,255,0) 100%);
+  transform: skewX(-20deg);
+  animation: shine 3s infinite;
+}
+@keyframes shine {
+  0%   {left:-120%;}
+  50%  {left:120%;}
+  100% {left:120%;}
+}
+
+/* 補助ボタン群 */
+.ctrlRow{margin-top:8px;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center}
+.bigActions{display:flex;gap:10px;justify-content:center;width:100%}
+.auxRow{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:8px}
+button.cta{appearance:none;border:none;cursor:pointer;font-weight:900;letter-spacing:.2px;border-radius:12px;transition:transform .08s}
+button.cta:active{transform:translateY(1px) scale(.99)}
+.bgm{background:linear-gradient(180deg,#ffd1e8,#ff9ecf)}
+.info{background:linear-gradient(180deg,#e8ecff,#c9d4ff)}
+
+.segRow{display:flex;align-items:center;justify-content:center;padding-top:8px}
+.seg{display:inline-flex;border:1px solid var(--edge);border-radius:999px;overflow:hidden;background:#0e1429}
+.seg button{border:none;background:transparent;color:#aab3d6;padding:8px 14px;font-weight:700;font-size:12px}
+.seg button.active{background:linear-gradient(180deg,#b5ffdf,#63ead9);color:#0b0f1c}
+
+.vol{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--edge);background:#0e1429;color:#cfd7ff;font-size:12px}
+@media (max-width:480px){
+  .bigActions{flex-direction:column}
+  .cta.main{width:min(92vw,420px)}
+}
+
+main{padding:12px;display:grid;gap:12px}.panel{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid var(--edge);border-radius:16px;padding:12px}
+.progress{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px;justify-content:center}
+.pill{position:relative;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--edge);border-radius:999px;padding:6px 12px;background:#0e1429;font-size:12px;color:#cfd7ff;overflow:hidden}
+.pill .bar{position:absolute;inset:0;background:linear-gradient(90deg,rgba(99,234,217,.22),rgba(99,234,217,0));transform-origin:left;transform:scaleX(var(--p))}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.card{position:relative;display:flex;gap:10px;padding:12px;border:1px solid var(--edge);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.014));animation:pop .28s}
+@keyframes pop{from{transform:scale(.97);opacity:0}to{transform:scale(1);opacity:1}}
+.rar{width:36px;text-align:center;font-size:22px}
+.word{font-weight:900;font-size:18px;letter-spacing:.2px}.note{font-size:12px;color:#aab3d6;margin-top:2px}
+.exp{font-size:12.5px;margin-top:6px;line-height:1.35}.exp.s{color:#ffe9a6}.exp.a{color:#ffd7a8}.exp.b{color:#bff6ef}.exp.c{color:#cfd7ff}.exp.d{color:#b9c1d6}.exp.x{color:#ffb4b4}
+.new{font-size:10px;color:#111;background:linear-gradient(180deg,#b5ffdf,#63ead9);border-radius:999px;padding:2px 6px;margin-left:6px}
+.s{border-color:#5a4300}.a{border-color:#6a3a00}.b{border-color:#0f5448}.c{border-color:#173a6e}.d{border-color:#2a3450}.x{border-color:#5a1a1a}
+.rar.s{color:var(--gold)}.rar.a{color:var(--amber)}.rar.b{color:var(--aqua)}.rar.c{color:var(--blue)}.rar.d{color:var(--gray)}.rar.x{color:var(--bad)}
+.srOverlay{position:fixed;inset:0;display:none;place-items:center;z-index:25;background:radial-gradient(70% 70% at 50% 50%,rgba(247,215,116,.12),rgba(247,215,116,0) 60%)}
+.srOverlay.show{display:grid;animation:fadeOut 1600ms ease forwards}@keyframes fadeOut{0%{opacity:0}10%{opacity:1}100%{opacity:0}}
+.srBadge{border:2px solid #f7d774;color:#0b0f1c;background:linear-gradient(180deg,#fff2b0,#f7d774);padding:10px 16px;border-radius:999px;font-weight:900;letter-spacing:.4px;box-shadow:0 10px 40px rgba(247,215,116,.35)}
+.confetti{position:absolute;inset:0;pointer-events:none}.shard{position:absolute;width:9px;height:16px;opacity:0;animation:fall 1500ms ease-in forwards;border-radius:2px}
+@keyframes fall{0%{opacity:0;transform:translateY(-20px) rotate(0)}10%{opacity:1}100%{opacity:1;transform:translateY(260px) rotate(360deg)}}
+.summary{position:fixed;inset:0;display:none;place-items:center;z-index:26;background:rgba(0,0,0,.4)}.summary.show{display:grid}
+.sumCard{background:linear-gradient(180deg,#1b2348,#111633);border:1px solid var(--edge);border-radius:16px;padding:16px;width:min(520px,92vw)}
+.footer{color:#aab3d6;font-size:12px;padding:10px 14px 18px;text-align:center}
+.bgmGrid{display:grid;gap:10px}.track{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--edge);border-radius:12px;padding:10px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.014))}
+.meta{display:flex;align-items:center;gap:10px}.tag{font-size:10px;color:#0b0f1c;background:#b5ffdf;border-radius:999px;padding:2px 6px;font-weight:900}.lock{color:#ffd36b}
+
+/* フローティング広告 */
+.ad-float{position:fixed;right:16px;bottom:16px;z-index:9999;width:min(90vw,320px);border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.35);overflow:hidden;backdrop-filter:saturate(1.1);animation:popIn .22s ease-out both}
+.ad-float img{display:block;width:100%;height:auto}
+.ad-close{position:absolute;top:6px;right:6px;width:28px;height:28px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-weight:700;cursor:pointer}
+@media (min-width:1024px){.ad-float{width:300px}}
+@keyframes popIn{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
+/* コメントモーダル */
+.cm-modal{position:fixed;inset:0;display:none;z-index:9998}
+.cm-modal.show{display:block}
+.cm-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px)}
+.cm-dialog{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,560px);background:#0b1329;color:#e8f0ff;border:1px solid var(--edge);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.45);padding:16px 18px 18px}
+.cm-title{font-weight:900;letter-spacing:.06em;margin:2px 32px 8px 2px}
+.cm-text{line-height:1.75;color:#b9c6ea;white-space:pre-wrap}
+.cm-close{position:absolute;right:10px;top:10px;width:32px;height:32px;border-radius:8px;border:1px solid var(--edge);background:#0a1430;color:#e8f0ff;cursor:pointer;font-size:18px}
+.cm-close:hover{filter:brightness(1.1)}
+</style></head><body>
+<header>
+  <div class="titleRow"><div class="title">ことばコレクションガチャ</div><div class="ver">v4.7</div></div>
+
+  <div class="ctrlRow">
+    <div class="bigActions">
+      <button class="cta main b1" id="roll1">単発で引く</button>
+      <button class="cta main b5" id="roll5">5連で引く</button>
+    </div>
+    <div class="auxRow">
+      <button class="cta bgm" id="bgmBtn">♪ BGM OFF</button>
+      <span class="vol"><span>音量</span><input type="range" id="vol" min="0" max="1" step="0.01" value="0.35"></span>
+      <button class="cta info" id="info">ℹ️</button>
+    </div>
+  </div>
+
+  <div class="segRow"><div class="seg">
+    <button id="tabResults" class="active">開封結果</button>
+    <button id="tabCollection">コレクション</button>
+    <button id="tabCPU">CPU対戦</button>
+    <button id="tabBGM">BGM</button>
+  </div></div>
+</header>
+
+<main>
+  <section id="resultsPanel" class="panel">
+    <div id="progress" class="progress"></div>
+    <div id="cards" class="cards"></div>
+  </section>
+  <section id="collectionPanel" class="panel" style="display:none">
+    <div id="counts" style="color:#aab3d6;font-size:12px;margin-bottom:8px"></div>
+    <div id="collection" style="display:grid;gap:12px"></div>
+  </section>
+  <section id="bgmPanel" class="panel" style="display:none">
+    <div style="font-weight:900;margin-bottom:8px">BGM セレクター</div>
+    <div class="bgmGrid" id="bgmGrid"></div>
+  </section>
+
+  <div class="ad-float" role="dialog" aria-label="広告バナー">
+    <a href="nekologia.html" target="_blank" rel="noopener">
+      <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
+    </a>
+    <button class="ad-close" aria-label="閉じる">×</button>
+  </div>
+</main>
+
+<div class="footer">あなたの好きな言葉は何ですか。</div>
+
+<audio id="bgm" src="audio/Hypnagogiaondo.mp3" loop preload="auto"></audio>
+<div id="srLayer" class="srOverlay" aria-hidden="true"><div class="srBadge">🌟 S RARE!</div><div class="confetti" id="confetti"></div></div>
+<div id="summary" class="summary" aria-hidden="true"><div class="sumCard"><div style="font-weight:900">開封まとめ</div><div id="sumText" style="color:#aab3d6;font-size:13px;margin-top:4px"></div><div id="sumRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div></div></div>
+<div id="completeAll" class="summary" aria-hidden="true"><div class="sumCard"><div style="font-weight:900;font-size:18px">🎉 全コレクション制覇！</div><div style="color:#aab3d6;font-size:13px;margin-top:4px">S〜DとXまで、すべて集まりました。おめでとう！</div></div></div>
+<div id="toast" style="position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#111633;border:1px solid var(--edge);padding:10px 14px;border-radius:12px;display:none;z-index:40;box-shadow:0 10px 30px rgba(0,0,0,.35)"></div>
+
+<div class="cm-modal" id="cmModal" aria-hidden="true">
+  <div class="cm-backdrop" id="cmBackdrop"></div>
+  <div class="cm-dialog" role="dialog" aria-modal="true" aria-labelledby="cmTitle">
+    <button class="cm-close" id="cmClose" aria-label="閉じる">×</button>
+    <div class="cm-title" id="cmTitle"></div>
+    <div class="cm-text" id="cmText"></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+
+/* 広告バナー閉じる */
+document.querySelector('.ad-close')?.addEventListener('click', () => {
+  document.querySelector('.ad-float')?.remove();
+});
+
+/* ====== プール／確率 ====== */
+const pools={S:["パラボラアンテナ","ネスカフェアンバサダー"],
+A:["にんじんしりしり","そぼろごはん","ニシローランドゴリラ","毛むくじゃら","九品仏","けんちん汁"],
+B:["カムチャッカ半島","タランチュラ","ハシビロコウ","バルサミコ酢","ピロリ菌","トリニダード・トバゴ","カラメル色素"],
+C:["バビロン捕囚","鳥取砂丘","プラシーボ効果","渡来人","さるびあ丸","ペペロンチーノ","ポリプロピレン","サラエボ事件"],
+D:["クマンバチ","県庁所在地","照り焼きチキン","ねるねるねるね","スルメイカ"],
+X:["本質","見える化","自分ごと化","解像度"]};
+const probs={S:.02,A:.08,B:.20,C:.30,D:.30,X:.10};
+const icons={S:"🌟",A:"💎",B:"🔷",C:"🔹",D:"🔸",X:"❌"};
+const classes={S:"s",A:"a",B:"b",C:"c",D:"d",X:"x"};
+
+/* ====== コメント ====== */
+const exp={
+  "パラボラアンテナ":"声に出して読みたい日本語ランキング第1位。",
+  "ネスカフェアンバサダー":"誰もが人生で一度は就任してみたい憧れの肩書き。",
+  "にんじんしりしり":"沖縄のキッチンから届く、爽やかなくり返し言葉。",
+  "そぼろごはん":"口の中を体現したような語感。",
+  "ニシローランドゴリラ":"名前からビシビシと伝わってくる威厳。くれぐれもVIP待遇で。",
+  "毛むくじゃら":"毛は知ってるけど、むくじゃらって何なのさ。",
+  "九品仏":"難読地名が織りなすリズム。",
+  "けんちん汁":"響きだけで、もうあったかい。",
+  "カムチャッカ半島":"寒気と熱気が同居する極東の地へようこそ。",
+  "タランチュラ":"ファンシーなお菓子みたい。猛毒系スイーツ。",
+  "ハシビロコウ":"間抜けの鳥には間抜けな語感。",
+  "バルサミコ酢":"まるで呪文。",
+  "ピロリ菌":"可愛いふりしてわりとやるもんだね。",
+  "トリニダード・トバゴ":"容赦ない濁音とトの応酬。",
+  "カラメル色素":"おやつの記憶にラボの匂い。",
+  "バビロン捕囚":"いかにも捕まったぁって感じ。",
+  "鳥取砂丘":"荒野を子音が跳ね回る。",
+  "プラシーボ効果":"言葉に舐められている。",
+  "渡来人":"朝鮮半島からの挑戦。",
+  "さるびあ丸":"間の抜けた旅になりそう。",
+  "ペペロンチーノ":"唐辛子が躍動する口内。",
+  "ポリプロピレン":"半濁音の王様。",
+  "サラエボ事件":"さらっと始まったはずだったのに。",
+  "クマンバチ":"「ん」の妙。","県庁所在地":"堂々としてるよね。","照り焼きチキン":"甘辛ビートに乗っちゃって。","ねるねるねるね":"オセロだったら気持ちいい。","スルメイカ":"噛めば噛むほど味が出る名前。",
+  "本質":"たとえあったとしても、軽々しく口に出すような人は一生近づけないと思うんです。",
+  "見える化":"可視化って知ってますか。","自分ごと化":"「自分ごと」でも嫌なのに、「化」までつけられた日には…","解像度":"なるほど、ピクセル数が高まりました！"
+};
+
+/* ====== ストレージ ====== */
+const storeSeen="kotoba_collection_seen_v4_7";
+const storeBGM="kotoba_bgm_selected_v4_7";
+const seen=new Set(JSON.parse(localStorage.getItem(storeSeen)||"[]"));
+let selectedBGM=localStorage.getItem(storeBGM)||"default";
+const tiers=["S","A","B","C","D","X"];
+
+/* ====== DOM参照 ====== */
+const cards=document.getElementById('cards');
+const progress=document.getElementById('progress');
+const counts=document.getElementById('counts');
+const collectionBox=document.getElementById('collection');
+const resultsPanel=document.getElementById('resultsPanel');
+const collectionPanel=document.getElementById('collectionPanel');
+const bgmPanel=document.getElementById('bgmPanel');
+const tabResults=document.getElementById('tabResults');
+const tabCollection=document.getElementById('tabCollection');
+const tabBGM=document.getElementById('tabBGM');
+const tabCPU=document.getElementById('tabCPU');
+const toastEl=document.getElementById('toast');
+
+/* ====== BGM ====== */
+const bgmEl=document.getElementById('bgm');
+const bgmBtn=document.getElementById('bgmBtn');
+const vol=document.getElementById('vol');
+let bgmOn=false;
+bgmEl.volume=parseFloat(vol.value);
+vol.addEventListener('input',()=>bgmEl.volume=parseFloat(vol.value));
+bgmBtn.addEventListener('click',async()=>{bgmOn=!bgmOn;bgmBtn.textContent=bgmOn?"♪ BGM ON":"♪ BGM OFF";try{bgmOn?await bgmEl.play():bgmEl.pause();}catch(e){}});
+
+/* ====== 効果音（通知ボタン削除に伴い自動ON固定、ガード付き） ====== */
+let audioEnabled=true;let audioCtx=null;
+const soundBtn=document.getElementById('sound');
+if(soundBtn){
+  soundBtn.addEventListener('click',()=>{audioEnabled=!audioEnabled;soundBtn.textContent=audioEnabled?"🔊 ON":"🔇 OFF";if(audioEnabled) getCtx();});
+}
+function getCtx(){if(!audioEnabled)return null;if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx;}
+function tone(f=880,d=0.15,t='triangle',v=0.15){const c=getCtx();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(0.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(v,c.currentTime+0.02);o.start();g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+d);o.stop(c.currentTime+d+0.02);}
+function chimeLong(){tone(659,0.14);setTimeout(()=>tone(880,0.18),140);setTimeout(()=>tone(1047,0.22),320);setTimeout(()=>tone(1319,0.26),520);}
+function drawSfx(i){tone(420+i*40,0.10,'square',0.12);}
+function duck(fn){const b=bgmEl.volume;bgmEl.volume=Math.max(0,b*0.6);setTimeout(()=>{bgmEl.volume=parseFloat(vol.value);},700);fn&&fn();}
+
+/* ====== S演出 ====== */
+const srLayer=document.getElementById('srLayer');const confetti=document.getElementById('confetti');
+function showSOverlay(){srLayer.classList.remove('show');confetti.innerHTML="";
+const palette=["#f7d774","#ff8bd1","#63ead9","#8fb1ff","#fff07a","#ff6b6b"];
+for(let i=0;i<110;i++){const s=document.createElement('div');s.className='shard';
+s.style.left=(5+Math.random()*90)+"%";s.style.top=(-10-Math.random()*40)+"px";
+s.style.background=palette[Math.floor(Math.random()*palette.length)];
+s.style.animationDelay=(Math.random()*0.6)+"s";confetti.appendChild(s);}
+srLayer.classList.add('show');duck(chimeLong);setTimeout(()=>srLayer.classList.remove('show'),1600);}
+
+/* ====== UI補助 ====== */
+function toast(msg){toastEl.textContent=msg;toastEl.style.display='block';toastEl.style.opacity='0';toastEl.style.transition='opacity .2s';requestAnimationFrame(()=>toastEl.style.opacity='1');setTimeout(()=>{toastEl.style.opacity='0';setTimeout(()=>toastEl.style.display='none',200)},1600);}
+function hasTier(t){return pools[t].every(w=>seen.has(w));}
+
+/* ====== 進捗 ====== */
+function renderProgress(){
+  progress.innerHTML=tiers.map(t=>{
+    const tot=pools[t].length;const have=pools[t].filter(w=>seen.has(w)).length;const p=tot?(have/tot):0;
+    return `<span class="pill" style="--p:${p}"><span class="bar"></span><span>${icons[t]}</span>${t} ${have}/${tot}</span>`;
+  }).join("");
+}
+
+/* ====== コレクション ====== */
+function renderCollection(){
+  const by={S:[],A:[],B:[],C:[],D:[],X:[]};
+  for(const t of tiers){for(const w of pools[t]) if(seen.has(w)) by[t].push(w);}
+  const total=Object.values(by).reduce((a,x)=>a+x.length,0);
+  counts.textContent=`コレクション：${total}枚 / S:${by.S.length} A:${by.A.length} B:${by.B.length} C:${by.C.length} D:${by.D.length} X:${by.X.length}`;
+  collectionBox.innerHTML="";
+  for(const t of tiers){
+    const sec=document.createElement('div');
+    const h=document.createElement('div');h.style.fontSize="13px";h.style.color="#aab3d6";h.style.margin="6px 0 4px";h.textContent=`${t}ランク`;sec.appendChild(h);
+    const row=document.createElement('div');row.style.display="flex";row.style.flexWrap="wrap";row.style.gap="8px";sec.appendChild(row);
+    const arr=by[t];
+    if(arr.length===0){
+      const tag=document.createElement('div');tag.className='pill';tag.textContent="— 未入手 —";row.appendChild(tag);
+    }else{
+      for(const w of arr){
+        const tag=document.createElement('div');
+        tag.className='pill collection-item';
+        tag.dataset.word = w;
+        tag.tabIndex = 0;
+        tag.setAttribute('role','button');
+        tag.setAttribute('aria-label', `${w} のコメントを開く`);
+        tag.innerHTML=`<span>${icons[t]}</span>${w}`;
+        row.appendChild(tag);
+      }
+    }
+    collectionBox.appendChild(sec);
+  }
+}
+
+/* ====== BGMタブ ====== */
+const bgmGrid=document.getElementById('bgmGrid');
+function bgmTracks(){
+  return [
+    {id:"default",name:"ヒプナゴジア音頭",tier:"FREE",unlocked:true,src:"audio/Hypnagogiaondo.mp3"},
+    {id:"kingyobachi",name: hasTier("S")?"金魚鉢":"？？？",tier:"S",unlocked:hasTier("S"),src:"audio/Kingyobachi.mp3"},
+    {id:"kuganebutsu",name: hasTier("A")?"九品仏奇譚":"？？？",tier:"A",unlocked:hasTier("A"),src:"audio/Kuhonbutsukitan.mp3"},
+    {id:"necology",name: hasTier("B")?"ネコロジア":"？？？",tier:"B",unlocked:hasTier("B"),src:"audio/Nekologia.mp3"},
+    {id:"kingyobachi_chorus",name: (["S","A","B","C","D","X"].every(t=>hasTier(t)))?"金魚鉢（合唱ver.）":"？？？",tier:"ALL",unlocked:["S","A","B","C","D","X"].every(t=>hasTier(t)),src:"audio/Kingyobachi_chorus.mp3"},
+  ];
+}
+function renderBGMTab(){
+  bgmGrid.innerHTML="";
+  bgmTracks().forEach(tr=>{
+    const wrap=document.createElement('div');wrap.className='track';
+    const left=document.createElement('div');left.className='meta';
+    const badge=document.createElement('span');badge.className='tag';badge.textContent=(tr.tier==='FREE'?'FREE解放':tr.tier+' 完了で解放');
+    const name=document.createElement('div');name.style.fontWeight='900';name.textContent=tr.name+(selectedBGM===tr.id?'（選択中）':'');
+    left.appendChild(badge);left.appendChild(name);wrap.appendChild(left);
+    const right=document.createElement('div');right.style.display='flex';right.style.gap='8px';
+    if(tr.unlocked){
+      const sel=document.createElement('button');sel.className='cta b5';sel.textContent='選択';
+      sel.onclick=()=>{switchBGM(tr.id,tr.src);renderBGMTab();toast('BGMを変更しました');};
+      right.appendChild(sel);
+    }else{
+      const lock=document.createElement('div');lock.className='lock';lock.textContent='🔒 未解放'; right.appendChild(lock);
+    }
+    wrap.appendChild(right);bgmGrid.appendChild(wrap);
+  });
+}
+function switchBGM(id,src){
+  if(!src){
+    const map={default:"audio/Hypnagogiaondo.mp3","kingyobachi":"audio/Kingyobachi.mp3","kuganebutsu":"audio/Kuhonbutsukitan.mp3","necology":"audio/Nekologia.mp3","kingyobachi_chorus":"audio/Kingyobachi_chorus.mp3"};
+    src=map[id]||map.default;
+  }
+  bgmEl.pause(); bgmEl.src=src; if(bgmOn){bgmEl.play().catch(()=>{});} selectedBGM=id; localStorage.setItem(storeBGM,id);
+}
+
+/* ====== 抽選 ====== */
+function saveSeen(w){seen.add(w);localStorage.setItem(storeSeen,JSON.stringify([...seen]));}
+function pickTier(){const r=Math.random();let a=0;for(const k of ["S","A","B","C","D","X"]){a+=probs[k];if(r<a)return k;}return "D";}
+function pickWord(t){const a=pools[t];return a[Math.floor(Math.random()*a.length)];}
+function addCard(t,w){
+  const prev=pools[t].filter(x=>seen.has(x)).length;
+  const c=document.createElement('div');c.className=`card ${classes[t]}`;
+  const icon=document.createElement('div');icon.className=`rar ${classes[t]}`;icon.textContent=icons[t];
+  const b=document.createElement('div');const wd=document.createElement('div');wd.className='word';wd.textContent=w;
+  const n=document.createElement('div');n.className='note';n.textContent=`${t}ランク`;
+  b.appendChild(wd);b.appendChild(n);
+  const e=document.createElement('div');e.className='exp '+classes[t];e.textContent=exp[w]||"語感に触れる喜び。";b.appendChild(e);
+  if(!seen.has(w)){const nm=document.createElement('span');nm.className='new';nm.textContent="New";wd.appendChild(nm);}
+  c.appendChild(icon);c.appendChild(b);cards.prepend(c);
+  saveSeen(w);
+  if(t==='S')showSOverlay();
+  tryCompleteTier(t,prev);
+  renderProgress();
+}
+function openOnce(i=0){const t=pickTier();const w=pickWord(t);addCard(t,w);drawSfx(i);return [t,w];}
+function openMulti(n){
+  let i=0;const rs=[];
+  const step=()=>{if(i>=n){showSummary(rs);checkCompleteAll();return;}
+    const r=openOnce(i);rs.push(r);i++;setTimeout(step,720)};
+  step();
+}
+
+/* ====== まとめ表示 ====== */
+const summary=document.getElementById('summary');const sumText=document.getElementById('sumText');const sumRow=document.getElementById('sumRow');
+function showSummary(items){
+  const cnt=items.reduce((m,[t])=>(m[t]=(m[t]||0)+1,m),{});
+  sumText.textContent=`S:${cnt.S||0} / A:${cnt.A||0} / B:${cnt.B||0} / C:${cnt.C||0} / D:${cnt.D||0} / X:${cnt.X||0}`;
+  sumRow.innerHTML="";
+  items.forEach(([t,w])=>{const d=document.createElement('div');d.className='pill';d.innerHTML=`<span>${icons[t]}</span>${w}`;sumRow.appendChild(d);});
+  summary.classList.add('show');setTimeout(()=>summary.classList.remove('show'),1600);
+}
+
+/* ====== コンプリート判定 ====== */
+const completeAll=document.getElementById('completeAll');
+const unlock={FREE:true,S:false,A:false,B:false,ALL:false};
+function tryCompleteTier(tier,prev){
+  if(!["S","A","B","C","D","X"].includes(tier))return;
+  const tot=pools[tier].length;const now=pools[tier].filter(w=>seen.has(w)).length;
+  if(prev<tot && now===tot){
+    if(!unlock[tier]){
+      unlock[tier]=true;
+      if(tier==="S"||tier==="A"||tier==="B"){
+        const name=tier==="S"?"金魚鉢":tier==="A"?"九品仏奇譚":"ネコロジア";
+        toast(`新しいBGM「${name}」が開放されました！`);
+        duck(chimeLong);
+        renderBGMTab();
+      }
+    }
+    const ov=document.createElement('div');ov.className='summary show';
+    ov.innerHTML=`<div class="sumCard"><div style="font-weight:900">${tier}ランク コンプリート！</div><div style="color:#aab3d6;font-size:13px;margin-top:4px">全${tot}枚を獲得しました。</div></div>`;
+    document.body.appendChild(ov);setTimeout(()=>ov.remove(),1600);
+  }
+}
+function checkCompleteAll(){
+  const all=["S","A","B","C","D","X"].every(t=>hasTier(t));
+  if(all){
+    completeAll.classList.add('show');
+    duck(()=>{chimeLong();setTimeout(chimeLong,700)});
+    setTimeout(()=>completeAll.classList.remove('show'),2200);
+    toast('新しいBGM「金魚鉢（合唱ver.）」が開放されました！');
+    switchBGM('kingyobachi_chorus');
+    renderBGMTab();
+  }
+}
+
+/* ====== タブ ====== */
+tabResults.onclick=()=>{resultsPanel.style.display="block";collectionPanel.style.display="none";bgmPanel.style.display="none";tabResults.classList.add('active');tabCollection.classList.remove('active');tabBGM.classList.remove('active');};
+tabCollection.onclick=()=>{renderCollection();resultsPanel.style.display="none";collectionPanel.style.display="block";bgmPanel.style.display="none";tabCollection.classList.add('active');tabResults.classList.remove('active');tabBGM.classList.remove('active');};
+/* 追加：CPU対戦は新規タブで遷移 */
+tabCPU.onclick=()=>{window.open("https://kyoryu1039.github.io/kotoba-gacha/kotobattle","_blank","noopener");};
+tabBGM.onclick=()=>{renderBGMTab();resultsPanel.style.display="none";collectionPanel.style.display="none";bgmPanel.style.display="block";tabBGM.classList.add('active');tabResults.classList.remove('active');tabCollection.classList.remove('active');};
+
+/* ====== ボタン ====== */
+document.getElementById('roll1').onclick=async()=>{if(bgmOn){try{await bgmEl.play()}catch(e){}} openOnce(0);};
+document.getElementById('roll5').onclick=async()=>{if(bgmOn){try{await bgmEl.play()}catch(e){}} openMulti(5);};
+/* 削除: クリアボタン */
+const clearBtn=document.getElementById('clear');
+if(clearBtn){
+  clearBtn.onclick=()=>{cards.innerHTML="";localStorage.setItem(storeSeen,JSON.stringify([]));seen.clear();renderProgress();renderBGMTab();renderCollection();toast('データをリセットしました');};
+}
+document.getElementById('info').onclick=()=>alert("排出率：S2% A8% B20% C30% D30% X10%\n端末内にコレクションを保存します（localStorage）。\n音が出ない時は「♪ BGM ON」を押してね。");
+
+/* ====== コメントモーダル ====== */
+const cmModal=document.getElementById('cmModal');
+const cmTitle=document.getElementById('cmTitle');
+const cmText=document.getElementById('cmText');
+const cmClose=document.getElementById('cmClose');
+const cmBack =document.getElementById('cmBackdrop');
+
+function openComment(word){
+  cmTitle.textContent = word;
+  cmText.textContent  = exp[word] ?? "（コメント未登録）";
+  cmModal.classList.add('show');
+  cmModal.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+function closeComment(){
+  cmModal.classList.remove('show');
+  cmModal.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+cmClose?.addEventListener('click',closeComment);
+cmBack ?.addEventListener('click',closeComment);
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeComment();});
+
+/* コレクション欄クリックでモーダル */
+collectionBox.addEventListener('click',e=>{
+  const el=e.target.closest('.collection-item');
+  if(!el) return;
+  openComment(el.dataset.word);
+});
+collectionBox.addEventListener('keydown',e=>{
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const el=e.target.closest('.collection-item');
+  if(!el) return;
+  e.preventDefault();
+  openComment(el.dataset.word);
+});
+
+/* ====== 初期描画 ====== */
+(function init(){
+  renderProgress();renderCollection();renderBGMTab();
+  if(selectedBGM!=="default") switchBGM(selectedBGM);
+})();
+}); /* DOMContentLoaded */
+</script>
+</body></html>
