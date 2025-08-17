@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>KOTOBA-BATTLE | v7.80</title>
+  <link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0f1c">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
 <style>
 :root{
   --bg:#0b1228; --text:#eaf2ff;
@@ -771,5 +775,13 @@ document.addEventListener('DOMContentLoaded',()=>{buildSetup(); bindClicks(); to
 const left =()=>state.A.team[state.A.i], right=()=>state.B.team[state.B.i];
 })();
 </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(console.error);
+    });
+  }
+</script>
+
 </body>
 </html>
