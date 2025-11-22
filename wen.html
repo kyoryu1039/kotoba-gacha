@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v7.87 Turbo</title>
+<title>KOTOBA-BATTLE | v7.90 Refined</title>
   <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0b0f1c">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -11,11 +11,12 @@
 <style>
 :root{
   --bg:#0b1228; --text:#eaf2ff;
-  --panel:#0f1633; --panel2:#0e1530; --border:#20335f; --shadow:0 18px 44px rgba(0,0,0,.18);
+  --panel:#0f1633; --panel2:#0e1530; --border:#233562; --shadow:0 18px 44px rgba(0,0,0,.25);
   --ally:#27b1ff; --enemy:#ff6b7a;
-  --hp:#63ff8c; --hpBack:#0f2a1c;
+  --hp:#63ff8c; --hpBack:#0a1f16;
   --gauge:#ffe066; --gaugeBack:#31260a;
-  --t-ジオ:#7aa0ff; --t-アニマル:#34d790; --t-フード:#ffb158; --t-コンセプト:#b68cff; --t-サイエンス:#2dd6ff; --t-ヒストリー:#ff7a9a; --t-ヒューマン:#78e063;
+  /* タイプカラー（彩度調整） */
+  --t-ジオ:#4d8aff; --t-アニマル:#00d67d; --t-フード:#ffa640; --t-コンセプト:#a86bff; --t-サイエンス:#00d9ff; --t-ヒストリー:#ff5c87; --t-ヒューマン:#6be655;
 }
 
 /* reset */
@@ -26,213 +27,250 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 /* 共通 */
 .container{max-width:1024px;margin:0 auto;padding:10px}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
-.card h2{margin:0;padding:10px 14px;border-bottom:1px solid var(--border);font-size:17px;position:relative}
+.card h2{margin:0;padding:12px 16px;border-bottom:1px solid var(--border);font-size:16px;position:relative;font-weight:800;letter-spacing:.02em;background:rgba(0,0,0,.1)}
 .card .body{padding:12px}
-.note{color:#c9d7ff;font-size:11px}
-.primary,.ghost{appearance:none;cursor:pointer;border-radius:12px;border:1px solid #2b3a70;background:#101c3b;color:#eaf2ff;padding:8px 12px;font-weight:700}
-.primary{background:#18326a}
-button:disabled{opacity:0.5;cursor:not-allowed}
+.note{color:#8b9bb4;font-size:11px}
+.primary,.ghost{appearance:none;cursor:pointer;border-radius:10px;border:1px solid #364a80;background:#142042;color:#eaf2ff;padding:10px 14px;font-weight:800;font-size:13px;transition:.2s}
+.primary{background:linear-gradient(180deg,#25468a,#18326a);border-color:#4565a8;box-shadow:0 4px 12px rgba(24,50,106,.4)}
+.primary:active{transform:translateY(1px);box-shadow:none}
+.ghost:hover{background:#1c2b55}
+button:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
 
-/* h2 の右上アクション（ルールボタン配置） */
-.h2-actions{position:absolute;right:10px;top:8px;display:flex;gap:8px;align-items:center}
-.btnTiny{padding:6px 10px;border-radius:10px;font-size:12px;line-height:1}
+/* h2 の右上アクション */
+.h2-actions{position:absolute;right:10px;top:9px;display:flex;gap:8px;align-items:center}
+.btnTiny{padding:4px 10px;border-radius:8px;font-size:11px;height:26px;line-height:1}
 
 /* === 編成 === */
-#setup{display:grid;gap:12px}
-#teamGrid{display:grid;gap:10px}
+#setup{display:grid;gap:16px}
+#teamGrid{display:grid;gap:12px}
 @media(min-width:720px){#teamGrid{grid-template-columns:1fr 1fr}}
-.slot{display:flex;gap:8px;align-items:center}
-.pill{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#0b1430;border:1px solid #2b3a70;color:#cfe2ff;font-weight:800}
-.slot select{flex:1;background:#0b1430;border:1px solid #25366b;color:#eaf2ff;padding:8px;border-radius:10px}
-.statsHead{font-weight:900;margin:0 0 6px}
+.slot{display:flex;gap:10px;align-items:center}
+.pill{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#080e24;border:1px solid #2b3a70;color:#9db7e6;font-weight:800;font-size:12px}
+.slot select{flex:1;background:#0f1730;border:1px solid #2d4075;color:#eaf2ff;padding:10px;border-radius:10px;font-weight:700}
+.statsHead{font-weight:800;font-size:12px;letter-spacing:.05em;margin:0 0 8px;opacity:.9}
 #statsGrid{display:grid;gap:12px}
 @media(min-width:720px){#statsGrid{grid-template-columns:1fr 1fr}}
 .statsCol{display:grid;grid-template-rows:repeat(3,auto);gap:10px}
-.setupMini{border:2px solid #203060;border-radius:12px;padding:10px;position:relative}
-.setupMini[data-type="ジオ"]{background:linear-gradient(180deg,#0f1837, rgba(122,160,255,.62))}
-.setupMini[data-type="アニマル"]{background:linear-gradient(180deg,#0a2725, rgba(52,215,144,.62))}
-.setupMini[data-type="フード"]{background:linear-gradient(180deg,#261a07, rgba(255,177,88,.62))}
-.setupMini[data-type="コンセプト"]{background:linear-gradient(180deg,#221742, rgba(182,140,255,.62))}
-.setupMini[data-type="サイエンス"]{background:linear-gradient(180deg,#0c2638, rgba(45,214,255,.62))}
-.setupMini[data-type="ヒストリー"]{background:linear-gradient(180deg,#2b1522, rgba(255,122,154,.62))}
-.setupMini[data-type="ヒューマン"]{background:linear-gradient(180deg,#0f2b10, rgba(120,224,99,.6))}
-.setupMini .head{display:flex;justify-content:space-between;font-weight:800}
-.barLine{display:flex;align-items:center;gap:10px;margin-top:4px}
-.barBox{flex:1;min-width:120px;height:14px;background:#0e1b31;border:1px solid #2a3a6b;border-radius:8px;overflow:hidden}
-.barFill{height:100%;background:var(--hp);transition:width 3.6s cubic-bezier(.22,1,.36,1)}
-.val{font-size:11px;color:#cfe2ff;width:84px;text-align:right}
+.setupMini{
+  border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:10px; position:relative;
+  background:linear-gradient(180deg, rgba(20,30,60,.6), rgba(10,15,30,.8));
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
+}
+.setupMini::before{content:"";position:absolute;top:0;bottom:0;left:0;width:4px;background:var(--typeC);border-radius:4px 0 0 4px}
+.setupMini .head{display:flex;justify-content:space-between;font-weight:800;font-size:13px;margin-bottom:6px;padding-left:8px}
+.barLine{display:flex;align-items:center;gap:8px;margin-top:5px}
+.barBox{flex:1;min-width:80px;height:10px;background:#080e1c;border-radius:5px;overflow:hidden;border:1px solid #253660}
+.barFill{height:100%;background:var(--hp);border-radius:5px}
+.val{font-size:11px;color:#9cb3de;width:40px;text-align:right;font-family:"Menlo",monospace}
 
 /* === バトル === */
 .inBattle{font-size:.94em}
-.arena{display:grid;gap:10px}
+.arena{display:grid;gap:16px}
 .vsrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
 .vsrow>div{min-width:0;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important}
 
-/* === ユニットカード === */
+/* === 新・ユニットカード === */
 .unit{
   --typeColor:#7aa0ff;
-  position:relative;width:100%;
-  border-radius:18px;overflow:hidden;
-  -webkit-mask-image:-webkit-radial-gradient(white, black);
-  background:
-    linear-gradient(180deg,#0e1735,#0d1430) padding-box,
-    linear-gradient(135deg,#fff4a8,#ffd86b 30%,#d7a63a 60%,#ffefb0) border-box;
-  border:3px solid transparent;
-  background-clip:padding-box,border-box;
-  box-shadow:0 12px 40px rgba(0,0,0,.25);
-  padding:34px 12px 12px;
-  min-height:210px;
+  position:relative; width:100%; min-height:220px;
+  border-radius:16px; padding:36px 10px 12px;
+  /* ベース装飾 */
+  background:#121829;
+  border:1px solid rgba(255,255,255,.15);
+  box-shadow:0 16px 36px rgba(0,0,0,.4);
+  overflow:hidden;
 }
-.unit::before{
-  content:"";position:absolute;inset:6px;border-radius:12px;z-index:0;
-  background:linear-gradient(180deg,
-    color-mix(in srgb,var(--typeColor) 78%, #0f193b 22%),
-    color-mix(in srgb,var(--typeColor) 56%, #0c142f 44%)),
-    repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 14px, rgba(0,0,0,.05) 14px 28px);
+
+/* レアリティごとの特殊背景・エフェクト */
+.unit[data-rank="S"] {
+  background:linear-gradient(135deg, #1a1a2e 0%, #2a1f3d 50%, #3d1f2b 100%);
+  border:1px solid rgba(255,215,0,.4);
+  box-shadow:0 0 15px rgba(255,215,0,.15), 0 16px 36px rgba(0,0,0,.4);
 }
-.unit>*{position:relative;z-index:1}
+.unit[data-rank="S"]::after { /* ホログラム */
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.07) 40%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.07) 60%, transparent 70%);
+  mix-blend-mode:overlay; opacity:.8; pointer-events:none;
+  background-size:200% 200%; animation:holo 4s ease infinite;
+}
+.unit[data-rank="A"] {
+  background:linear-gradient(160deg, #131c38 0%, #1f2a4d 100%);
+  border:1px solid rgba(180,200,255,.35);
+}
+.unit[data-rank="A"]::after { /* 光沢 */
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(circle at 50% 0%, rgba(255,255,255,.1), transparent 70%);
+  pointer-events:none;
+}
+.unit[data-rank="B"] { background:#151b2e; border:1px solid #3b4c75; }
+.unit[data-rank="C"] { background:#121624; border:1px solid #2a3655; }
+.unit[data-rank="D"] { background:#0e121d; border:1px solid #202a42; }
+.unit[data-rank="X"] { /* コンセプト:グリッチ系 */
+  background:repeating-linear-gradient(45deg, #080808, #080808 10px, #111 10px, #111 20px);
+  border:1px solid #888;
+}
+
+@keyframes holo { 0%{background-position:100% 100%} 100%{background-position:-20% -20%} }
+
+/* カード内要素 */
+.unit>*{position:relative;z-index:2}
 .unit.hit{animation:hit .42s cubic-bezier(.36,.07,.19,.97)}
-@keyframes hit{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-3px)}40%,60%{transform:translateX(3px)}}
 
-/* ランク枠色（カード & イラスト） */
-.unit[data-rank="S"]{background:
-  linear-gradient(180deg,#0e1735,#0d1430) padding-box,
-  linear-gradient(135deg,#ff6ec7,#ffd36e,#7ef9ff,#baff6e,#ff9a9e) border-box;}
-.unit[data-rank="B"]{background:
-  linear-gradient(180deg,#0e1735,#0d1430) padding-box,
-  linear-gradient(135deg,#f3f6ff,#cfd9ea,#b7c3d9,#e8eefc) border-box;}
-.unit[data-rank="C"]{background:
-  linear-gradient(180deg,#0e1735,#0d1430) padding-box,
-  linear-gradient(135deg,#ffd8b1,#e7a463,#c27a3d) border-box;}
-.unit[data-rank="D"]{background:
-  linear-gradient(180deg,#0e1735,#0d1430) padding-box,
-  linear-gradient(135deg,#c9ced6,#9aa3b2,#707985) border-box;}
-.unit[data-rank="X"]{background:
-  linear-gradient(180deg,#0e1735,#0d1430) padding-box,
-  linear-gradient(135deg,#111,#000,#333) border-box;}
+/* バッジ類 */
+.owner{
+  position:absolute; top:8px; left:8px; font-size:10px; padding:2px 8px; border-radius:4px;
+  font-weight:900; letter-spacing:.05em; background:rgba(0,0,0,.6); border:1px solid rgba(255,255,255,.2);
+}
+.owner.ally{color:var(--ally); border-color:color-mix(in srgb, var(--ally), transparent 60%)}
+.owner.enemy{color:var(--enemy); border-color:color-mix(in srgb, var(--enemy), transparent 60%)}
 
-/* バッジ・見出し */
-.owner{position:absolute;top:8px;left:10px;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid #2d3a70;background:#0b1635d8}
-.owner.ally{color:var(--ally)}.owner.enemy{color:var(--enemy)}
-.typeBadge{position:absolute;top:8px;right:10px;background:color-mix(in srgb,var(--typeColor) 26%, #fff 74%);border:none;color:#0b1228;border-radius:999px;padding:2px 8px;font-size:11px}
-
-/* 名前（1行フィット強化） */
-.nameRow{display:flex;justify-content:center;align-items:center;margin:5px 0 3px;padding:0 6px}
-.nm{
-  font-weight:900;line-height:1;white-space:nowrap;letter-spacing:.2px;
-  text-shadow:0 1px 0 rgba(0,0,0,.45),0 2px 8px rgba(0,0,0,.25);
-  max-width:100%;font-size:22px;overflow:hidden
+.typeBadge{
+  position:absolute; top:8px; right:8px;
+  font-size:10px; font-weight:800; padding:2px 8px; border-radius:99px;
+  background:var(--typeColor); color:#0b1228;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
 }
 
-/* イラスト */
-.artWrap{display:flex;justify-content:center;align-items:center;min-height:102px;margin:2px 0 6px}
-.artFrame{display:inline-flex;justify-content:center;align-items:center;padding:8px 10px;border-radius:0;background:color-mix(in srgb,var(--typeColor) 18%, #fff 82%);border:2px solid transparent;
-  border-image:linear-gradient(135deg,#fff4a8,#ffd86b,#d7a63a,#fff4a8) 1;
-  box-shadow:0 10px 18px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.55)}
-.illust{width:clamp(70px,18.5vw,98px);height:auto;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(0,0,0,.28));opacity:.98}
+/* 名前・イラスト */
+.nameRow{display:flex;justify-content:center;align-items:center;margin:4px 0 8px;padding:0 4px;height:26px}
+.nm{
+  font-weight:900; line-height:1; white-space:nowrap; letter-spacing:.02em;
+  font-size:20px; text-shadow:0 2px 4px rgba(0,0,0,.8);
+}
+.artWrap{display:flex;justify-content:center;margin-bottom:10px}
+.artFrame{
+  position:relative; padding:6px; border-radius:12px;
+  background:rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.1);
+  box-shadow:inset 0 0 20px rgba(0,0,0,.5);
+}
+.illust{
+  width:80px; height:80px; object-fit:contain;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.4));
+  transition:transform .2s;
+}
+.unit:hover .illust{transform:scale(1.05)}
 
-/* HP/ゲージ */
-.hpHead,.spHead{display:flex;justify-content:space-between;align-items:center;font-size:11px}
-.hpBox{width:100%;height:13px;background:var(--hpBack);border-radius:8px;overflow:hidden;margin-top:4px}
-.hpFill{height:100%;background:var(--hp);transition:width 3.6s cubic-bezier(.22,1,.36,1)}
-.gaugeRow{display:flex;gap:4px;margin-top:4px;justify-content:center}
-.pip{width:16px;height:12px;background:var(--gaugeBack);border:1px solid #5a480c;border-radius:3px;opacity:.7}
-.pip.on{background:var(--gauge);opacity:1}
+/* ステータス表示の洗練 */
+.hpHead,.spHead{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#8b9bb4;font-weight:700;margin-bottom:3px}
+.hpBox{
+  height:10px; background:#080c16; border-radius:5px; overflow:hidden;
+  border:1px solid #1f2b47; box-shadow:inset 0 1px 4px rgba(0,0,0,.5);
+}
+.hpFill{height:100%;background:var(--hp);transition:width .6s cubic-bezier(.22,1,.36,1); box-shadow:0 0 10px var(--hp)}
+
+.gaugeRow{display:flex;gap:3px;justify-content:center;margin-top:4px}
+.pip{
+  width:100%; height:6px; background:#1f1805; border-radius:2px; opacity:0.4;
+  border:1px solid #42330a;
+}
+.pip.on{background:var(--gauge);opacity:1;box-shadow:0 0 8px var(--gauge);border-color:#ffeaa7}
+
+/* スキル・フッター */
+.skillWrap{margin-top:10px}
+.skillBox{
+  border-radius:8px; background:rgba(0,0,0,.25); border:1px solid rgba(100,120,180,.2);
+  padding:6px 8px; color:#d0d9ea;
+}
+.skillTitle{font-weight:800;font-size:11px;display:flex;align-items:center;gap:4px;color:#eaf2ff}
+.skillDesc{margin-top:2px;font-size:9px;line-height:1.4;opacity:.85}
+
+.cardBottom{
+  display:flex;align-items:center;justify-content:space-between;margin-top:8px;
+  padding-top:6px; border-top:1px solid rgba(255,255,255,.06);
+}
+.affinityLine{font-size:9px;color:#8b9bb4;font-weight:700}
+.statusTiny{
+  font-size:9px; color:#a7c3ff; background:transparent; border:1px solid #364a80;
+  border-radius:4px; padding:3px 8px; transition:.2s;
+}
+.statusTiny:hover{background:#1f2b55; border-color:#5b7add}
+
+/* アニメーション類（変更なし） */
+@keyframes hit{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
 .readyPulse{animation:pulse 1.2s infinite}
-.btnReady{animation:pulse 1.2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,224,102,.55)}70%{box-shadow:0 0 0 14px rgba(255,224,102,0)}100%{box-shadow:0 0 0 0 rgba(255,224,102,0)}}
-
-/* 技と相性 */
-.skillWrap{margin-top:6px}
-.skillBox{border:1px solid #2b3a70;border-radius:12px;background:#0e1735;padding:7px 8px;color:#f2f6ff}
-.skillTitle{font-weight:900;display:flex;align-items:center;gap:6px;font-size:11px}
-.skillDesc{margin-top:3px;font-size:9.5px;line-height:1.55}
-.cardBottom{display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:6px;min-height:20px;white-space:nowrap}
-.affinityLine{font-size:8.8px;color:#bcd0ff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.statusTiny{font-size:9.2px;color:#a7c3ff;background:rgba(10,18,45,.55);border:1px solid #2b3a70;border-radius:10px;padding:4px 6px;cursor:pointer;flex:0 0 auto;white-space:nowrap}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,224,102,.5)}70%{box-shadow:0 0 0 10px rgba(255,224,102,0)}100%{box-shadow:0 0 0 0 rgba(255,224,102,0)}}
 
 /* 操作パネル */
-.padCard{position:relative;background:linear-gradient(180deg,#121c3e 0%,#0a1128 100%);border:1px solid #31457b;border-radius:20px;box-shadow:0 22px 48px rgba(0,0,0,.45), 0 8px 18px rgba(4,10,30,.6), inset 0 1px 0 rgba(255,255,255,.06);padding:8px; backdrop-filter:saturate(1.1) blur(2px)}
-.padCard::before{content:"";position:absolute;inset:-1px;border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,0));pointer-events:none}
-.padCard.dim{opacity:.6;filter:saturate(.85)}
-.padInner{display:grid;grid-template-columns:1fr;gap:8px;align-items:center}
-.rpsArea{position:relative;height:110px}
-.rps{position:absolute;display:grid;place-items:center;width:50px;height:50px;border-radius:999px;border:none;color:#061225;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
-.rps .emo{font-size:21px}.rps .lbl{font-size:9.5px;margin-top:2px;font-weight:800}
-.rps.g{left:50%;top:6%;transform:translateX(-50%);background:linear-gradient(180deg,#ffdfde,#ff8b8b)}
-.rps.p{left:70%;bottom:6%;transform:translateX(-50%);background:linear-gradient(180deg,#defae5,#8bffb5)}
-.rps.c{left:30%;bottom:6%;transform:translateX(-50%);background:linear-gradient(180deg,#e0e8ff,#8bb1ff)}
-.sideBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.switchBtn{width:100%;border-radius:14px;background:linear-gradient(90deg,#ffd89b,#fda085);border:none;color:#26110b;font-weight:900;cursor:pointer;padding:6px 0}
-.spToggle{width:100%;border-radius:14px;background:#0e1530;border:2px solid #f2c94c;color:#f2c94c;font-weight:900;transition:.2s;cursor:pointer;padding:6px 0}
-.spToggle.on{background:linear-gradient(90deg,#ffe066,#ffcf33)!important;color:#2a1700!important;border-color:#ffcf33!important}
+.padCard{
+  position:relative; background:rgba(18,28,62,.85);
+  border:1px solid #31457b; border-radius:20px;
+  box-shadow:0 12px 32px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.1);
+  padding:12px; backdrop-filter:blur(10px);
+}
+.padInner{display:grid;grid-template-columns:1fr;gap:12px;align-items:center}
+.rpsArea{position:relative;height:100px;display:flex;justify-content:center;gap:24px;align-items:center}
+.rps{
+  position:relative; width:64px; height:64px; border-radius:50%; border:none; cursor:pointer;
+  display:grid; place-items:center; box-shadow:0 8px 20px rgba(0,0,0,.3);
+  transition:transform .1s, filter .2s;
+}
+.rps:active{transform:scale(0.92)}
+.rps.g{background:linear-gradient(135deg,#ffb6b6,#ff7575); color:#4a0d0d}
+.rps.p{background:linear-gradient(135deg,#b6ffce,#52e695); color:#093d20}
+.rps.c{background:linear-gradient(135deg,#c9d9ff,#75a6ff); color:#0f2552}
+.rps .emo{font-size:28px;line-height:1}
+.rps .lbl{position:absolute;bottom:-18px;font-size:10px;font-weight:800;color:#cbd7f0;width:100%;text-align:center}
 
-/* ボックス */
+.sideBtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.switchBtn{width:100%;border-radius:10px;background:linear-gradient(90deg,#6c5ce7,#a29bfe);border:none;color:#fff;font-weight:800;padding:10px 0;text-shadow:0 1px 2px rgba(0,0,0,.2)}
+.spToggle{width:100%;border-radius:10px;background:#151e38;border:2px solid #f2c94c;color:#f2c94c;font-weight:800;transition:.2s;padding:8px 0}
+.spToggle.on{background:linear-gradient(90deg,#f2994a,#f2c94c)!important;color:#2a1700!important;border-color:#f2c94c!important;box-shadow:0 0 15px rgba(242,201,76,.4)}
+
+/* ログ・その他 */
 #boxGrid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
 .boxCol{background:var(--panel2);border:1px solid #233562;border-radius:12px;padding:8px}
-#sixA,#sixB{display:grid;grid-template-columns:1fr;gap:10px}
-.mini{border:1px solid #1a2b54;border-radius:12px;padding:8px;cursor:pointer;position:relative}
-.mini[data-type="ジオ"]{background:linear-gradient(180deg,#0f1837, rgba(122,160,255,.62))}
-.mini[data-type="アニマル"]{background:linear-gradient(180deg,#0a2725, rgba(52,215,144,.62))}
-.mini[data-type="フード"]{background:linear-gradient(180deg,#261a07, rgba(255,177,88,.62))}
-.mini[data-type="コンセプト"]{background:linear-gradient(180deg,#221742, rgba(182,140,255,.62))}
-.mini[data-type="サイエンス"]{background:linear-gradient(180deg,#0c2638, rgba(45,214,255,.62))}
-.mini[data-type="ヒストリー"]{background:linear-gradient(180deg,#2b1522, rgba(255,122,154,.62))}
-.mini[data-type="ヒューマン"]{background:linear-gradient(180deg,#0f2b10, rgba(120,224,99,.6))}
-.mini .head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.mini .badge{font-size:10px;padding:1px 6px;white-space:nowrap}
-.mini .miniBar{height:11px;background:#11321f;border-radius:6px;overflow:hidden;margin-top:6px}
-.mini .miniBar>span{display:block;height:100%;background:var(--hp);transition:width 3.6s cubic-bezier(.22,1,.36,1)}
-
-/* ログ表示 */
-.timer{display:flex;justify-content:center;gap:8px;align-items:center;font-weight:900}
-.timer .num{font-size:26px}
-.logContainer{
-  height:130px; margin:6px 0; overflow-y:auto;
-  background:rgba(8,12,28,0.6); border:1px solid #233562; border-radius:12px;
-  padding:10px; font-family:Menlo,Consolas,Monaco,monospace; font-size:12px;
-  display:flex; flex-direction:column; gap:6px; scroll-behavior:smooth;
+#sixA,#sixB{display:grid;grid-template-columns:1fr;gap:8px}
+.mini{
+  border:1px solid rgba(43,58,112,.6); border-radius:8px; padding:6px 8px; cursor:pointer; position:relative;
+  background:rgba(20,30,55,.6); transition:background .2s;
 }
-.logLine{line-height:1.4; color:#dceeff; border-left:2px solid #2b3a70; padding-left:8px; animation:fadeIn .2s ease}
-.logLine.highlight{color:#ffe066; border-left-color:#ffe066; background:rgba(255,224,102,0.1)}
+.mini:hover{background:rgba(40,60,100,.6)}
+.mini .head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;font-weight:700}
+.mini .badge{font-size:9px;padding:1px 5px;border-radius:4px;background:#2b3a70;color:#dceeff}
+.mini .miniBar{height:6px;background:#0a0f1f;border-radius:3px;overflow:hidden;margin-top:4px}
+.mini .miniBar>span{display:block;height:100%;background:var(--hp)}
+
+.logContainer{
+  height:120px; margin:8px 0; overflow-y:auto;
+  background:rgba(6,10,22,.6); border:1px solid #233562; border-radius:12px;
+  padding:10px; font-family:"Menlo",Consolas,monospace; font-size:11px;
+  display:flex; flex-direction:column; gap:5px;
+}
+.logLine{line-height:1.5; color:#b0c4de; border-left:2px solid #2b3a70; padding-left:8px; animation:fadeIn .2s ease}
+.logLine.highlight{color:#ffe066; border-left-color:#ffe066; background:rgba(255,224,102,0.05)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* じゃんけん演出 */
 #jankenOverlay{
   position:fixed; inset:0; z-index:90; pointer-events:none;
   display:none; align-items:center; justify-content:center;
-  background:rgba(0,0,0,0.3); backdrop-filter:blur(2px);
+  background:rgba(0,0,0,0.4); backdrop-filter:blur(4px);
 }
 #jankenOverlay.active{display:flex}
 .jkWrap{display:flex; flex-direction:column; align-items:center; gap:20px}
 .jkHands{display:flex; gap:60px; align-items:center}
-.jkHand{font-size:80px; transition:transform .3s cubic-bezier(.18,.89,.32,1.28); opacity:0; transform:scale(0.5)}
+.jkHand{font-size:80px; transition:transform .2s cubic-bezier(.18,.89,.32,1.28); opacity:0; transform:scale(0.5)}
 .jkHand.show{opacity:1; transform:scale(1)}
-.jkHand.win{filter:drop-shadow(0 0 20px #ffe066); transform:scale(1.2)}
-.jkHand.lose{filter:grayscale(1); opacity:0.6; transform:scale(0.8)}
-.jkResult{font-size:48px; font-weight:900; color:#fff; text-shadow:0 4px 12px rgba(0,0,0,0.5); opacity:0; transform:scale(0.5); transition:all .2s}
+.jkHand.win{filter:drop-shadow(0 0 25px #ffe066); transform:scale(1.3) rotate(-10deg); z-index:2}
+.jkHand.lose{filter:grayscale(1) brightness(0.6); opacity:0.6; transform:scale(0.7) rotate(10deg)}
+.jkResult{font-size:56px; font-weight:900; color:#fff; text-shadow:0 4px 20px rgba(0,0,0,0.8); opacity:0; transform:scale(0.5); transition:all .2s}
 .jkResult.show{opacity:1; transform:scale(1)}
-.jkVs{font-size:24px; font-weight:900; color:#fff; opacity:0}
+.jkVs{font-size:24px; font-weight:900; color:rgba(255,255,255,.7); opacity:0}
 .jkVs.show{opacity:1}
 
 /* モーダル */
-#switchModal,#infoModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:55}
-#switchModal .card,#infoModal .card{width:min(84vw,680px);max-height:90vh;overflow:auto;border:0;box-shadow:0 20px 50px rgba(0,0,0,.5);background:linear-gradient(180deg,#121a3a,#0b1329);border-radius:16px}
-#switchModal .card h2,#infoModal .card h2{border:0;padding:12px 16px 4px;margin:0;font-size:18px}
-#switchGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px 12px}
+#switchModal,#infoModal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;place-items:center;z-index:55;backdrop-filter:blur(2px)}
+#switchModal .card,#infoModal .card{width:min(84vw,680px);max-height:90vh;overflow:auto;border:1px solid #364a80;box-shadow:0 20px 60px rgba(0,0,0,.6);background:#0f1633;border-radius:16px}
+#switchModal .card h2,#infoModal .card h2{border-bottom:1px solid #233562;padding:14px 18px;margin:0;font-size:16px;background:#121a3a}
+#switchGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
 @media(max-width:520px){#switchGrid{grid-template-columns:1fr}}
-.selCard{cursor:pointer}.selCard.selected{outline:3px solid #ffe066}
-.swFooter{position:sticky;bottom:0;background:transparent;padding-top:8px}
-
-/* ローディング */
-.loader{position:fixed;inset:0;display:none;place-items:center;background:rgba(6,10,26,.85);z-index:70;color:#cfe2ff;font-weight:900;letter-spacing:.02em}
-.spin{width:48px;height:48px;border-radius:50%;border:4px solid #324a80;border-top-color:#ffe066;animation:rot 1s linear infinite;margin:0 auto 10px}
-@keyframes rot{to{transform:rotate(360deg)}}
+.selCard{cursor:pointer;transition:.2s}.selCard:hover{transform:translateY(-2px);background:#1c2645}
+.selCard.selected{outline:2px solid #ffe066;background:#1e2a50}
 
 /* スマホ微調整 */
 @media(max-width:600px){
-  .container{padding:8px}
-  .inSetup{transform:scale(.96);transform-origin:top center}
+  .container{padding:6px}
+  .inSetup{transform:scale(.98);transform-origin:top center}
   .jkHands{gap:30px}
   .jkHand{font-size:60px}
 }
@@ -240,20 +278,14 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 /* ルール全画面 */
 .rulesModal{position:fixed;inset:0;display:none;place-items:center;z-index:80}
 .rulesModal.show{display:grid}
-.rulesBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(2px)}
+.rulesBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
 .rulesDialog{
   position:relative; width:min(920px,94vw); max-height:92vh; overflow:auto;
-  background:linear-gradient(180deg,#141c3f,#0b122d); border:1px solid #2a3b6f; border-radius:18px;
-  box-shadow:0 28px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
-  padding:16px 18px 18px;
+  background:linear-gradient(180deg,#141c3f,#0b122d); border:1px solid #364a80; border-radius:18px;
+  box-shadow:0 28px 60px rgba(0,0,0,.6);
+  padding:20px;
 }
-.rulesClose{position:absolute;right:10px;top:10px;width:36px;height:36px;border-radius:10px;border:1px solid #2a3b6f;background:#0b1430;color:#eaf2ff;cursor:pointer;font-size:18px}
-.rulesHead{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
-.rulesBadge{width:28px;height:28px;display:grid;place-items:center;border-radius:999px;background:linear-gradient(180deg,#fff2b0,#f7d774);color:#0b0f1c;font-weight:900;border:1px solid #c7a84b}
-.rulesTitle{margin:0;font-size:18px;letter-spacing:.04em}
-.rulesList{margin:6px 0 0;padding:0 0 0 18px}
-.rulesList li{margin:8px 0 10px;line-height:1.7}
-.rulesList strong{font-weight:900}
+.rulesClose{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:8px;border:1px solid #364a80;background:#0b1430;color:#eaf2ff;cursor:pointer;font-size:18px;display:grid;place-items:center}
 body.rules-open{overflow:hidden}
 </style>
 </head>
@@ -262,7 +294,7 @@ body.rules-open{overflow:hidden}
 <div class="container inSetup" id="setup">
   <section class="card">
     <h2>
-      チーム編成（あなた / CPU）
+      チーム編成
       <span class="h2-actions">
         <button id="btnRules" class="ghost btnTiny" title="ルールを見る">📘 ルール</button>
       </span>
@@ -272,14 +304,14 @@ body.rules-open{overflow:hidden}
         <div><div class="statsHead" style="color:#27b1ff">あなた</div><div id="teamA"></div></div>
         <div><div class="statsHead" style="color:#ff6b7a">CPU</div><div id="teamB"></div></div>
       </div>
-      <div class="row" style="display:flex;gap:10px;align-items:center;margin-top:10px">
-        <button id="btnRand" class="ghost">ランダムでチームを編成</button>
-        <button id="btnStart" class="primary" style="margin-left:auto">対戦開始</button>
+      <div class="row" style="display:flex;gap:10px;align-items:center;margin-top:16px">
+        <button id="btnRand" class="ghost">ランダム編成</button>
+        <button id="btnStart" class="primary" style="margin-left:auto;min-width:120px">対戦開始</button>
       </div>
     </div>
   </section>
   <section class="card">
-    <h2>選択中のステータス</h2>
+    <h2>ステータス詳細</h2>
     <div class="body">
       <div id="statsGrid">
         <div><div class="statsHead" style="color:#27b1ff">あなた</div><div class="statsCol" id="statsA"></div></div>
@@ -300,8 +332,8 @@ body.rules-open{overflow:hidden}
       <div class="padInner">
         <div class="rpsArea">
           <button class="rps g" id="btnG"><div class="emo">✊</div><div class="lbl">グー</div></button>
-          <button class="rps p" id="btnP"><div class="emo">🖐</div><div class="lbl">パー</div></button>
           <button class="rps c" id="btnC"><div class="emo">✌️</div><div class="lbl">チョキ</div></button>
+          <button class="rps p" id="btnP"><div class="emo">🖐</div><div class="lbl">パー</div></button>
         </div>
         <div class="sideBtns">
           <button class="spToggle" id="btnSP" disabled>✨ 必殺 OFF</button>
@@ -315,11 +347,11 @@ body.rules-open{overflow:hidden}
 
     <div id="boxGrid">
       <div class="boxCol">
-        <div class="statsHead" style="color:#27b1ff">あなたのボックス</div>
+        <div class="statsHead" style="color:#27b1ff">あなたの控え</div>
         <div id="sixA"></div>
       </div>
       <div class="boxCol">
-        <div class="statsHead" style="color:#ff6b7a">CPUのボックス</div>
+        <div class="statsHead" style="color:#ff6b7a">CPUの控え</div>
         <div id="sixB"></div>
       </div>
     </div>
@@ -379,9 +411,9 @@ body.rules-open{overflow:hidden}
 </div>
 
 <div id="result" style="position:fixed;inset:0;background:rgba(6,10,26,.82);display:none;place-items:center;z-index:60">
-  <div class="box" style="background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:24px 26px;text-align:center;box-shadow:var(--shadow)">
-    <h1 id="resTitle" style="margin:0 0 8px;font-size:38px">YOU WIN!</h1>
-    <p id="resSub" style="margin:4px 0 0;color:#cfe2ff">3秒後に編成へ戻る…</p>
+  <div class="box" style="background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:30px 36px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.8)">
+    <h1 id="resTitle" style="margin:0 0 12px;font-size:42px;font-weight:900;letter-spacing:.05em;text-shadow:0 4px 10px rgba(0,0,0,.5)">YOU WIN!</h1>
+    <p id="resSub" style="margin:0;color:#b0c4de;font-size:14px">3秒後に編成へ戻ります…</p>
   </div>
 </div>
 
@@ -440,7 +472,6 @@ async function playJankenAnim(myH, cpuH, res){
   ov.classList.add('active');
   hA.className='jkHand'; hB.className='jkHand'; vs.className='jkVs'; rs.className='jkResult';
   hA.textContent=map[myH]; hB.textContent=map[cpuH];
-  // 変更：待ち時間を短縮
   await delay(50);
   hA.classList.add('show'); hB.classList.add('show');
   await delay(250); 
@@ -450,7 +481,7 @@ async function playJankenAnim(myH, cpuH, res){
   else if(res<0){ rs.textContent='LOSE...'; rs.style.color='#ff6b7a'; hA.classList.add('lose'); hB.classList.add('win'); }
   else { rs.textContent='DRAW'; rs.style.color='#ffe066'; }
   rs.classList.add('show');
-  await delay(600); // 結果表示後のウェイトを大幅短縮
+  await delay(600); 
   ov.classList.remove('active');
 }
 
@@ -533,8 +564,8 @@ const makeW=i=>makeWordObject(WORDS_BASE[i]);
 const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false,spAnnA:false,spAnnB:false};
 
 /* 小物UI */
-function barRow(label,val,max){const pct=label==='回避'?Math.max(0,Math.min(100,(val/20)*100)):Math.max(0,Math.min(100,(val/max)*100));return `<div class="barLine"><div style="width:74px;font-size:12px;color:#cfe2ff">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="val">${label==='回避'?val+'%':val}</div></div>`;}
-function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" data-type="${w.type}"><div class="head"><div>${w.name}</div><div class="badge">${w.type}</div></div>${barRow('HP',w.maxhp,800)}${barRow('攻撃',w.atk,120)}${barRow('防御',w.def,120)}${barRow('回避',w.eva,20)}</div>`;}
+function barRow(label,val,max){const pct=label==='回避'?Math.max(0,Math.min(100,(val/20)*100)):Math.max(0,Math.min(100,(val/max)*100));return `<div class="barLine"><div style="width:74px;font-size:12px;color:#9cb3de;font-weight:700">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="val">${label==='回避'?val+'%':val}</div></div>`;}
+function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" style="--typeC:${typeColor(w.type)}"><div class="head"><div>${w.name}</div><div style="color:var(--typeC)">${w.type}</div></div>${barRow('HP',w.maxhp,800)}${barRow('攻撃',w.atk,120)}${barRow('防御',w.def,120)}${barRow('回避',w.eva,20)}</div>`;}
 function renderMini(side){const root=side==='A'?$('statsA'):$('statsB');root.innerHTML='';for(let i=0;i<3;i++){const idx=Number($(`${side}-${i}`).value)||0;root.innerHTML+=miniCard(idx);}}
 
 /* 編成UI */
@@ -547,7 +578,7 @@ const collect=side=>[0,1,2].map(i=>{const idx=Number($(`${side}-${i}`).value)||0
 function updateSPBtn(){
   const readyA=state.A.sp>=6, readyB=state.B.sp>=6, btn=$('btnSP');
   if(btn){
-    // 修正：入力ロック中かビジーでなければ押せるように（ロック解除ロジックを追加）
+    // 重要：ターン開始時に inputLocked は false になっているので、ここでボタンが有効化される
     btn.disabled = state.busy || inputLocked || !readyA;
     btn.classList.toggle('on',state.spOn);
     btn.textContent=state.spOn?'✨ 必殺 ON':'✨ 必殺 OFF';
@@ -560,8 +591,9 @@ function updateSPBtn(){
 }
 function startRound(){
   state.remain=15; $('countNum').textContent=state.remain; clearInterval(state.timer);
-  ['btnG','btnC','btnP'].forEach(id=>$(id).disabled=false);
-  updateSPBtn(); // 修正：ラウンド開始時にボタンの状態を更新する
+  // 【修正】ここで入力を確実にアンロックする
+  lockInputs(false); 
+  updateSPBtn();
   state.timer=setInterval(()=>{if(state.busy)return; state.remain--; $('countNum').textContent=state.remain; if(state.remain<=0){const r=['G','C','P'][Math.floor(Math.random()*3)]; pick(r);}},1000);
 }
 async function restartRoundAfterToasts(){clearInterval(state.timer); await waitToasts(); startRound();}
@@ -745,8 +777,8 @@ function openSwitchAuto(sec=15,canList=null,allowCancel=false){
     if(!idxs.length){ swTimer.textContent='交代できる控えがいない。'; doBtn.disabled=true; }
     idxs.forEach(i=>{
       const u=state.A.team[i], mul=typeMult(u.type,right().type);
-      const div=document.createElement('div');div.className='setupMini selCard';div.setAttribute('data-type',u.type);
-      div.innerHTML=`<div class="head"><div>${u.name}</div><div class="badge">${u.type}</div></div>${barRow('HP',u.hp,u.maxhp)}<div class="meta" style="font-size:12px;margin-top:6px">相性：${mul===1.5?'x1.5（抜群）':mul===0.67?'x0.67（いまいち）':'x1.0（等倍）'}</div>`;
+      const div=document.createElement('div');div.className='setupMini selCard';div.style.setProperty('--typeC',typeColor(u.type));
+      div.innerHTML=`<div class="head"><div>${u.name}</div><div style="color:var(--typeC)">${u.type}</div></div>${barRow('HP',u.hp,u.maxhp)}<div class="meta" style="font-size:12px;margin-top:6px;color:#b0c4de">相性：${mul===1.5?'x1.5（抜群）':mul===0.67?'x0.67（いまいち）':'x1.0（等倍）'}</div>`;
       div.addEventListener('click',()=>{document.querySelectorAll('.selCard').forEach(x=>x.classList.remove('selected'));div.classList.add('selected');selectIdx=i;doBtn.disabled=false;});
       grid.append(div);
     });
@@ -900,7 +932,7 @@ function bindClicks(){
   $('rulesBackdrop').onclick=closeRules;
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeRules(); });
 }
-document.addEventListener('DOMContentLoaded',()=>{buildSetup(); bindClicks(); log('READY: v7.87 Turbo');});
+document.addEventListener('DOMContentLoaded',()=>{buildSetup(); bindClicks(); log('READY: v7.90 Refined');});
 
 /* アクセス */
 const left =()=>state.A.team[state.A.i], right=()=>state.B.team[state.B.i];
