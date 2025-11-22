@@ -94,6 +94,19 @@ body{
 .statsCol { display: grid; gap: 8px; }
 .setupMini { border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; background: rgba(30, 41, 59, 0.6); display: flex; flex-direction: column; gap: 4px;}
 
+  /* 交代モーダルで選択中のカードの枠を強調 */
+.selCard {
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.selCard.selected {
+  border: 2px solid #facc15;                 /* 選択枠（お好みで色変更可） */
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.7),
+              0 0 16px rgba(250, 204, 21, .8);
+  transform: translateY(-2px);               /* ちょっと浮かせる演出（不要なら削除） */
+}
+
 .barLine{display:flex;align-items:center;gap:6px;height:10px}
 .barBox{flex:1;height:5px;background:#060912;border-radius:3px;overflow:hidden}
 .barFill{height:100%;background:var(--hp);border-radius:3px}
@@ -132,12 +145,15 @@ body{
 .unit[data-rank="B"] {
   background: conic-gradient(from 0deg, #718096, #c0c0c0, #fff, #c0c0c0, #718096);
 }
-/* C: 鼠色 (固定) */
-.unit[data-rank="C"] { background: var(--glow-C); }
-/* D: 白色 (固定) */
-.unit[data-rank="D"] { background: var(--glow-D); }
-/* X: 紫色 (固定) */
-.unit[data-rank="X"] { background: var(--glow-X); box-shadow: 0 0 15px var(--glow-X); }
+/* C / D / X は枠なし・共通デザインに統一 */
+.unit[data-rank="C"],
+.unit[data-rank="D"],
+.unit[data-rank="X"] {
+  background: #0f172a;      /* ← ダーク背景に統一（お好みの色でOK） */
+  box-shadow: none !important; /* ← Xランクの光も消す */
+  border: none !important;     /* ← 完全に枠なし */
+}
+
 
 @keyframes rainbowBorder { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
