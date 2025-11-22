@@ -2,411 +2,588 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KOTOBA-BATTLE | 対戦 完全版</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>KOTOBA-BATTLE | v8.5 Flashy</title>
+<meta name="theme-color" content="#0b0f1c">
+
 <style>
+/* === 元の配色とデザインベース (v7.80 Respect) === */
 :root{
-  --bg:#0b1227;--panel:#0f1633;--border:#1d2440;--muted:#96a7d6;--text:#eaf2ff;
-  --ally:#69d3ff;--ally2:#2fb1ff;--enemy:#ff9aa5;--enemy2:#ff6b7a;
-  --hp:#6bff8b;--hpBack:#12321f;--gauge:#ffe066;--gaugeBack:#342b0b;
+  --bg:#0b1228; --text:#eaf2ff;
+  --panel:#0f1633; --panel2:#0e1530; --border:#20335f; --shadow:0 18px 44px rgba(0,0,0,.18);
+  --ally:#27b1ff; --enemy:#ff6b7a;
+  --hp:#63ff8c; --hpBack:#0f2a1c;
+  --gauge:#ffe066; --gaugeBack:#31260a;
+  --t-ジオ:#7aa0ff; --t-アニマル:#34d790; --t-フード:#ffb158; --t-コンセプト:#b68cff; --t-サイエンス:#2dd6ff; --t-ヒストリー:#ff7a9a; --t-ヒューマン:#78e063;
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,"Noto Sans JP",sans-serif}
-button{appearance:none;cursor:pointer}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-.card h2{margin:0;padding:12px 16px;border-bottom:1px solid var(--border);font-size:18px}
-.card .body{padding:14px}
-.container{max-width:1200px;margin:0 auto;padding:16px}
 
-/* タイプ配色（カード背景） */
-.t-ジオ{background:linear-gradient(180deg,#0f1730,#101f46)}
-.t-アニマル{background:linear-gradient(180deg,#0f1c30,#132c4f)}
-.t-フード{background:linear-gradient(180deg,#0f1a26,#1f2c46)}
-.t-コンセプト{background:linear-gradient(180deg,#12182e,#1b2544)}
-.t-サイエンス{background:linear-gradient(180deg,#0e1d2f,#0e2c48)}
-.t-ヒストリー{background:linear-gradient(180deg,#12172a,#1b2142)}
-.t-ヒューマン{background:linear-gradient(180deg,#121a28,#1e2941)}
+*{box-sizing:border-box;-webkit-text-size-adjust:100%}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;overflow:hidden; touch-action:manipulation;}
 
-.pill{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#0a1430;border:1px solid #2b3a70;color:#cfe2ff;font-weight:800}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.ghost{background:transparent;border:1px dashed #2b3a70;color:#cfe2ff;padding:10px 12px;border-radius:10px}
-.primary{background:linear-gradient(90deg,var(--ally),var(--ally2));color:#05203a;border:none;padding:10px 14px;border-radius:12px;font-weight:900}
+/* レイアウト共通 */
+.container{max-width:600px;margin:0 auto;padding:10px;height:100%;display:flex;flex-direction:column}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.card h2{margin:0;padding:10px 14px;border-bottom:1px solid var(--border);font-size:15px;background:rgba(0,0,0,0.2)}
+.body{padding:12px}
 
-/* 編成 */
-#setup{display:grid;gap:16px}
-#teamGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.slot{display:flex;gap:8px;align-items:center}
-.slot select{flex:1;background:#0b1430;border:1px solid #25366b;color:#eaf2ff;padding:10px;border-radius:10px}
+/* ボタン類 */
+.primary,.ghost{appearance:none;cursor:pointer;border-radius:12px;border:1px solid #2b3a70;background:#101c3b;color:#eaf2ff;padding:10px 12px;font-weight:700;transition:transform 0.1s}
+.primary{background:linear-gradient(135deg,#18326a,#264385);border-color:#385291}
+.primary:active, .ghost:active{transform:scale(0.96)}
 
-#statsGrid{display:grid;gap:10px}
-@media(min-width:720px){ #statsGrid{grid-template-columns:1fr 1fr} }
-.statsCol{display:grid;grid-template-rows:repeat(3,auto);gap:10px}
-.setupMini{background:#0b1227;border:1px solid #1a2b54;border-radius:10px;padding:8px}
-.setupMini .head{display:flex;justify-content:space-between;font-weight:800}
-.barLine{display:flex;align-items:center;gap:8px;margin-top:6px}
-.barBox{flex:1;height:10px;background:#101c31;border:1px solid #263a6b;border-radius:6px;overflow:hidden}
-.barFill{height:100%;background:var(--hp);width:0%}
-.val{font-size:12px;color:#cfe2ff;width:60px;text-align:right}
-.note{color:#8aa0d6}
+/* === 編成画面 (元のレイアウト維持) === */
+#setup{display:grid;gap:12px;align-content:start;overflow-y:auto}
+.slot{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.slot select{flex:1;background:#0b1430;border:1px solid #25366b;color:#eaf2ff;padding:8px;border-radius:10px}
+.pill{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:#0b1430;border:1px solid #2b3a70;font-size:12px}
 
-/* バトル全画面化 */
-body.battleMode{height:100vh;overflow:hidden}
-.inSetup{display:block}
-body.battleMode .inSetup{display:none}
-#battle{display:none}
-body.battleMode #battle{display:block}
+/* === バトル画面レイアウト === */
+#battle{display:none;grid-template-rows:auto 1fr auto;gap:10px;height:100%}
 
-.arena{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto auto;gap:10px}
-.vsrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.unit{border:1px solid #22325c;border-radius:12px;padding:10px;position:relative;min-height:148px}
-.unit.ally{box-shadow:0 0 0 2px var(--ally) inset}
-.unit.enemy{box-shadow:0 0 0 2px var(--enemy) inset}
-.nameRow{display:flex;justify-content:space-between;align-items:center}
-.badge{font-size:12px;background:#0d1630;border:1px solid #2b3a70;padding:2px 6px;border-radius:999px}
-.meta{font-size:12px;color:#cfe2ff;margin-top:6px}
+/* タイマー (復活！) */
+.timer-bar{
+  display:flex; justify-content:center; align-items:center; gap:10px;
+  background:var(--panel2); padding:8px; border-radius:12px; border:1px solid var(--border);
+  font-weight:900; font-size:18px; color:#fff;
+}
+.timer-val{color:#ff6b7a;font-variant-numeric:tabular-nums}
+.timer-val.safe{color:#63ff8c}
 
-/* HP & ゲージ */
-.hpRow{display:flex;align-items:center;gap:8px;margin-top:6px}
-.hpBox{flex:1;height:12px;background:var(--hpBack);border-radius:8px;overflow:hidden;position:relative}
-.hpFill{height:100%;background:var(--hp);width:0%}
-.hpNum{font-size:12px;width:120px;text-align:right}
-.gaugeWrap{display:flex;align-items:center;gap:8px;margin-top:4px}
-.gLabel{font-size:12px;color:#ffeaa7}
-.gauge{display:flex;gap:4px}
-.pip{width:14px;height:12px;background:var(--gaugeBack);border:1px solid #5a480c;border-radius:3px;opacity:.7}
-.pip.on{background:var(--gauge);opacity:1}
-.readyPulse{animation:pulse 1.2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,224,102,.5)}70%{box-shadow:0 0 0 12px rgba(255,224,102,0)}100%{box-shadow:0 0 0 0 rgba(255,224,102,0)}}
+/* アリーナ (カード表示) */
+.arena{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
 
-/* 必殺・相性 */
-.skillWrap{display:grid;grid-template-columns:1fr;gap:6px;margin-top:6px}
-.skillBox{border:1px solid #2c3a69;border-radius:10px;background:#0c1633;padding:8px}
-.skillTitle{font-weight:900;display:flex;align-items:center;gap:6px}
-.skillDesc{margin-top:4px;font-size:12px;color:#cfe2ff}
-.affinityBox{border:1px solid #2c3a69;border-radius:10px;background:#0b1530;padding:6px;font-size:12px}
+/* ユニットカード (v7.80準拠 + 微調整) */
+.unit{
+  --typeColor:#7aa0ff;
+  position:relative; width:100%; border-radius:14px; padding:8px;
+  background:linear-gradient(180deg,#0e1735,#0d1430);
+  border:2px solid color-mix(in srgb,var(--typeColor) 40%, transparent);
+  box-shadow:0 8px 20px rgba(0,0,0,.3);
+  transition:transform 0.2s, filter 0.2s;
+}
+.unit.hit{animation:shake 0.4s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes shake{10%,90%{transform:translate3d(-2px,0,0)}20%,80%{transform:translate3d(4px,0,0)}30%,50%,70%{transform:translate3d(-6px,0,0)}40%,60%{transform:translate3d(6px,0,0)}}
+.unit.dead{filter:grayscale(1) brightness(0.5); opacity:0.7}
 
-/* コントロールパッド */
-.pad{border:1px solid #22335f;border-radius:14px;background:linear-gradient(180deg,#0d1530,#0b1428);padding:8px}
-.padInner{position:relative;width:min(520px,92vw);height:210px;margin:0 auto}
-.rps{position:absolute;display:grid;place-items:center;width:92px;height:92px;border-radius:999px;border:none;color:#061225}
-.rps .emo{font-size:34px}.rps .lbl{font-size:12px;margin-top:2px;font-weight:800}
-.rps.g{left:8%;top:8%;background:linear-gradient(180deg,#ffdfde,#ff8b8b)}
-.rps.c{right:8%;top:8%;background:linear-gradient(180deg,#e0e8ff,#8bb1ff)}
-.rps.p{left:50%;transform:translateX(-50%);bottom:26%;background:linear-gradient(180deg,#defae5,#8bffb5)}
-.switchBtn{position:absolute;right:4%;bottom:6%;width:132px;height:56px;border-radius:14px;background:linear-gradient(90deg,#ffd89b,#fda085);border:none;color:#26110b;font-weight:900}
-.spToggle{position:absolute;left:4%;bottom:6%;width:132px;height:56px;border-radius:14px;background:#0e1530;border:2px solid #f2c94c;color:#f2c94c;font-weight:900;transition:.2s}
-.spToggle.on{background:linear-gradient(90deg,#ffe066,#ffcf33)!important;color:#2a1700!important;border-color:#ffcf33!important}
-.spToggle:disabled{opacity:.5;filter:grayscale(.4)}
+.nm{font-weight:900;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.hpBox{width:100%;height:10px;background:var(--hpBack);border-radius:4px;overflow:hidden;margin:4px 0}
+.hpFill{height:100%;background:var(--hp);transition:width 0.4s}
+.spRow{display:flex;gap:3px;height:6px;margin-top:4px}
+.pip{flex:1;background:#31260a;border-radius:2px}
+.pip.on{background:var(--gauge);box-shadow:0 0 4px var(--gauge)}
 
-/* ベンチ（控え） */
-.benchBar{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-height:16vh;overflow:auto;padding:6px;border:1px dashed #2b3a70;border-radius:12px;background:#0a1733;touch-action:pan-y}
-.chip{display:flex;gap:6px;align-items:center;padding:6px 10px;border:1px solid #2b3a70;background:#0b1833;border-radius:999px;font-size:12px}
-.chip.good{outline:2px solid #69ffb6}
+/* === 新機能: バトルログ (トーストの代わり) === */
+.log-window{
+  height:100px; overflow-y:scroll; 
+  background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:8px;
+  padding:6px; font-size:12px; font-family:monospace; line-height:1.4;
+  display:flex; flex-direction:column; gap:2px;
+}
+.log-line{padding:2px 4px; border-radius:4px}
+.log-line.turn{background:rgba(255,255,255,0.05); color:#a0b8ff; margin-top:4px; font-weight:bold}
+.log-line.dmg{color:#ff9ea9}
+.log-line.heal{color:#9effa9}
+.log-line.sys{color:#ffd04f}
 
-/* 交代オーバーレイ */
-#switchModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;z-index:30}
-.modalCard{background:#0f1633;border:1px solid #2b3a70;border-radius:12px;padding:14px;min-width:min(92vw,520px)}
-.modalGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.selCard{border:1px solid #28407a;border-radius:10px;padding:10px;cursor:pointer}
-.selCard.selected{outline:3px solid #69d3ff}
-.modalRow{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+/* === 操作パネル === */
+.padCard{
+  background:linear-gradient(180deg,#121c3e,#0a1128);
+  border-top:1px solid #31457b; padding:10px; border-radius:16px 16px 0 0;
+  display:grid; gap:10px;
+}
+.rpsArea{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.rps{
+  height:60px; border-radius:12px; border:none; cursor:pointer;
+  background:linear-gradient(145deg,#1e2a50,#101730);
+  border:2px solid #304275; color:#fff; font-size:24px;
+  position:relative; overflow:hidden;
+}
+.rps:active{transform:scale(0.95)}
+.rps:disabled{opacity:0.5; filter:grayscale(1)}
 
-/* 六枚まとめ */
-#sixStats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mini{border:1px solid #1a2b54;border-radius:10px;padding:8px}
-.mini .head{display:flex;justify-content:space-between}
-.mini .miniBar{height:8px;background:#12321f;border-radius:6px;overflow:hidden;margin-top:4px}
-.mini .miniBar>span{display:block;height:100%;background:var(--hp);width:0%}
+.subBtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.spToggle{background:#0e1530;border:2px solid #f2c94c;color:#f2c94c;border-radius:10px;font-weight:900}
+.spToggle.on{background:#f2c94c;color:#000}
 
-/* タイマー & トースト */
-.timer{display:flex;justify-content:center;gap:8px;align-items:center;font-weight:900}
-.timer .num{font-size:28px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(12px);padding:10px 14px;border-radius:12px;background:rgba(12,22,50,.95);border:1px solid #2b3a70;color:#eaf3ff;opacity:0;pointer-events:none;z-index:50;max-width:min(92vw,720px);line-height:1.6}
-body.battleMode .toast{bottom:26vh}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);transition:.22s ease}
+/* === ド派手演出レイヤー (NEW!) === */
+#fxLayer{
+  position:fixed; inset:0; pointer-events:none; z-index:100;
+  display:grid; place-items:center; overflow:hidden;
+}
+.fx-hand{
+  font-size:120px; position:absolute; top:40%; 
+  transition:transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter:drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+  opacity:0;
+}
+.fx-hand.left{left:-150px; transform:translateY(-50%) rotate(90deg)}
+.fx-hand.right{right:-150px; transform:translateY(-50%) rotate(-90deg) scaleX(-1)}
 
-/* 攻撃FX */
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
-.shake{animation:shake .5s ease}
-.fx-burst{box-shadow:0 0 0 3px rgba(255,224,102,.7),0 0 22px 6px rgba(255,224,102,.25);transition:.2s}
+/* アニメーション用クラス */
+.fx-active .fx-hand.left{transform:translate(calc(50vw - 40px), -50%) rotate(15deg); opacity:1}
+.fx-active .fx-hand.right{transform:translate(calc(-50vw + 40px), -50%) rotate(-15deg) scaleX(-1); opacity:1}
 
-/* 便利 */
-.hidden{display:none!important}
+.fx-text{
+  font-size:80px; font-weight:900; color:#fff;
+  text-shadow:0 0 20px rgba(255,255,255,0.8), 0 0 40px var(--ally);
+  opacity:0; transform:scale(0.5);
+  position:absolute; top:30%;
+}
+.fx-text.show{animation:popText 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards}
+@keyframes popText{0%{opacity:0;transform:scale(0);filter:blur(10px)} 50%{opacity:1;transform:scale(1.2)} 100%{opacity:1;transform:scale(1);filter:blur(0)}}
+
+.flash-screen{
+  position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none;
+}
+.flash-now{animation:flash 0.4s ease-out}
+@keyframes flash{0%{opacity:0.8} 100%{opacity:0}}
+
+/* モーダル */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;place-items:center;z-index:90}
+.modal.show{display:grid}
+.modal-content{background:var(--panel);width:90%;max-width:400px;border-radius:16px;padding:20px;border:1px solid var(--border)}
+
 </style>
 </head>
 <body>
-<div class="container inSetup" id="setup">
-  <section class="card">
-    <h2>チーム編成（あなた / CPU）</h2>
-    <div class="body">
-      <div id="teamGrid">
-        <div>
-          <div style="font-weight:900;color:var(--ally);margin-bottom:6px">あなた</div>
-          <div id="teamA"></div>
-        </div>
-        <div>
-          <div style="font-weight:900;color:var(--enemy);margin-bottom:6px">CPU</div>
-          <div id="teamB"></div>
-        </div>
-      </div>
-      <div class="row" style="margin-top:12px">
-        <button id="btnRand" class="ghost">ランダムでチームを編成</button>
-        <button id="btnStart" class="primary" style="margin-left:auto">対戦開始</button>
-      </div>
-    </div>
-  </section>
 
-  <section class="card">
-    <h2>選択中のステータス</h2>
-    <div class="body">
-      <div id="statsGrid">
-        <div class="statsCol" id="statsA"></div>
-        <div class="statsCol" id="statsB"></div>
-      </div>
-    </div>
-  </section>
+<div id="fxLayer">
+  <div class="flash-screen" id="flash"></div>
+  <div class="fx-hand left" id="fxHandL">✊</div>
+  <div class="fx-hand right" id="fxHandR">✊</div>
+  <div class="fx-text" id="fxText">WIN!</div>
 </div>
 
-<!-- バトル -->
+<div id="setup" class="container">
+  <section class="card">
+    <h2>チーム編成</h2>
+    <div class="body">
+      <div style="color:var(--ally);font-weight:900;margin-bottom:6px">YOU</div>
+      <div id="setupA"></div>
+      <div style="color:var(--enemy);font-weight:900;margin:12px 0 6px">CPU</div>
+      <div id="setupB"></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button id="btnRand" class="ghost" style="flex:1">ランダム</button>
+        <button id="btnStart" class="primary" style="flex:2">対戦開始！</button>
+      </div>
+    </div>
+  </section>
+  <div style="font-size:12px;color:#667;text-align:center;margin-top:20px">KOTOBA-BATTLE v8.5 Flashy</div>
+</div>
+
 <div id="battle" class="container">
-  <section class="card">
-    <h2 style="display:none">バトル</h2>
-    <div class="body">
-      <div class="arena">
-        <div class="vsrow">
-          <div id="leftWrap"></div>
-          <div id="rightWrap"></div>
-        </div>
+  
+  <div class="timer-bar">
+    <span>TIME LIMIT</span>
+    <span id="timerVal" class="timer-val safe">15</span>
+  </div>
 
-        <div class="pad">
-          <div class="padInner">
-            <button class="rps g" id="btnG"><div class="emo">✊</div><div class="lbl">グー</div></button>
-            <button class="rps c" id="btnC"><div class="emo">✌️</div><div class="lbl">チョキ</div></button>
-            <button class="rps p" id="btnP"><div class="emo">🖐</div><div class="lbl">パー</div></button>
-            <button class="switchBtn" id="btnSwitch">🔁 交代</button>
-            <button class="spToggle" id="btnSP" disabled>✨ 必殺 OFF</button>
-          </div>
-          <div class="benchBar" id="benchBar"></div>
-        </div>
-
-        <div class="timer">選択まで <span class="num" id="countNum">15</span> 秒</div>
-        <div id="sixStats"></div>
-        <div class="toast" id="toast">READY</div>
+  <div class="arena">
+    <div class="unit" id="unitA" style="--typeColor:var(--ally)">
+      <div class="nm" id="nameA">Name</div>
+      <div class="hpBox"><div class="hpFill" id="hpBarA" style="width:100%"></div></div>
+      <div style="font-size:11px;display:flex;justify-content:space-between">
+        <span id="hpNumA">100/100</span>
+        <span class="badge" id="typeA">TYPE</span>
       </div>
-      <div class="row" style="margin-top:10px;justify-content:space-between">
-        <div id="summary" class="note">バトル準備中</div>
-        <button id="btnBack" class="ghost">編成に戻る</button>
-      </div>
+      <div class="spRow" id="spA"></div>
     </div>
-  </section>
-</div>
+    <div class="unit" id="unitB" style="--typeColor:var(--enemy)">
+      <div class="nm" id="nameB">Enemy</div>
+      <div class="hpBox"><div class="hpFill" id="hpBarB" style="width:100%"></div></div>
+      <div style="font-size:11px;display:flex;justify-content:space-between">
+        <span id="hpNumB">100/100</span>
+        <span class="badge" id="typeB">TYPE</span>
+      </div>
+      <div class="spRow" id="spB"></div>
+    </div>
+  </div>
 
-<!-- 交代オーバーレイ -->
-<div id="switchModal">
-  <div class="modalCard">
-    <div style="font-weight:900;margin-bottom:8px">交代先を選択</div>
-    <div class="modalGrid" id="switchGrid"></div>
-    <div class="modalRow">
-      <button id="swCancel" class="ghost">キャンセル</button>
-      <button id="swDo" class="primary" disabled>交代する</button>
+  <div class="log-window" id="battleLog">
+    <div class="log-line">バトル開始！</div>
+  </div>
+
+  <div class="padCard">
+    <div class="rpsArea">
+      <button class="rps" id="btnG">✊</button>
+      <button class="rps" id="btnC">✌️</button>
+      <button class="rps" id="btnP">🖐</button>
+    </div>
+    <div class="subBtns">
+      <button class="spToggle" id="btnSP">✨ 必殺 OFF</button>
+      <button class="ghost" id="btnSwap">🔁 交代</button>
     </div>
   </div>
 </div>
 
+<div id="modalSwap" class="modal">
+  <div class="modal-content">
+    <h2>交代メンバー</h2>
+    <div id="swapList" style="display:grid;gap:8px;margin:10px 0"></div>
+    <button class="ghost" onclick="toggleModal('modalSwap',false)" style="width:100%">キャンセル</button>
+  </div>
+</div>
+
+<div id="modalResult" class="modal">
+  <div class="modal-content" style="text-align:center">
+    <h1 id="resTitle" style="font-size:40px;margin:0 0 10px">YOU WIN!</h1>
+    <button class="primary" onclick="location.reload()">タイトルに戻る</button>
+  </div>
+</div>
+
 <script>
-(()=>{"use strict";
+'use strict';
+const $=(id)=>document.getElementById(id);
+const delay=(ms)=>new Promise(r=>setTimeout(r,ms));
 
-/* ====== 便利 ====== */
-const $=id=>document.getElementById(id);
-const MAX={HP:800,ATK:120,DEF:120,EVA:20};
-const TYPES_RING=['ヒストリー','ジオ','コンセプト','サイエンス','アニマル','ヒューマン','フード'];
-const typeMult=(atk,def)=>{const n=TYPES_RING.length,i=TYPES_RING.indexOf(atk),j=TYPES_RING.indexOf(def);if(i<0||j<0)return 1;const strong=[(i+1)%n,(i+2)%n],weak=[(i-1+n)%n,(i-2+n)%n];if(strong.includes(j))return 1.5;if(weak.includes(j))return 0.67;return 1;};
-const TYPE_CLASS=t=>`t-${t}`;
-function toast(msg){ // グローバル toast（可変表示時間）
-  const t=$('toast'); const base=900, per=22;
-  t.textContent=msg; t.classList.add('show'); clearTimeout(t._h);
-  const stay=Math.min(4200, base + Math.max(0,msg.length-12)*per);
-  t._h=setTimeout(()=>t.classList.remove('show'),stay);
-}
-
-/* ====== データ ====== */
-/* [名前, ランク, タイプ, HP, ATK, DEF, EVA, 必殺名, 必殺説明] */
+// === データ (v7.80準拠) ===
 const WORDS=[
-  /* S */
-  ["パラボラアンテナ","S","サイエンス",560,100,85,9.0,"妨害電波","攻撃2.2倍＋相手のゲージ0。"],
-  ["ネスカフェアンバサダー","S","ヒューマン",540,92,90,9.5,"一杯いかが","通常攻撃＋味方全員HP60回復（自分も60）。"],
-  /* A */
-  ["にんじんしりしり","A","フード",540,86,74,10.5,"なんくるないさー","攻撃1.5倍＋致死ダメージを1回だけHP1で耐える。"],
-  ["そぼろごはん","A","フード",540,88,72,10.5,"そぼろ乱舞","3回攻撃（0.75→0.5→0.25）。途中KOでも次に続く。"],
-  ["ニシローランドゴリラ","A","アニマル",520,92,70,9.5,"マウンテンビート","初回1.5倍。以後2Tは1.3倍。"],
-  ["毛むくじゃら","A","アニマル",520,90,71,9.5,"ムクジャララ","攻撃1.4倍＋回避80%×3T。"],
-  ["九品仏","A","ジオ",520,84,78,10.0,"仏の顔も三度まで","攻撃1.6倍＋被ダメ半減×3T。"],
-  ["けんちん汁","A","フード",540,82,76,10.5,"長寿の秘訣","攻撃1.2倍＋HP150回復。"],
-  /* B */
-  ["カムチャッカ半島","B","ジオ",520,80,74,10.0,"言論統制","4T 交代不可。"],
-  ["タランチュラ","B","アニマル",520,84,70,10.5,"言葉狩り","1T 行動不能。"],
-  ["ハシビロコウ","B","アニマル",520,83,71,10.0,"言論統制","4T 交代不可。"],
-  ["バルサミコ酢","B","フード",520,86,69,10.5,"言論統制","4T 交代不可。"],
-  ["ピロリ菌","B","サイエンス",520,82,73,10.5,"ゲシュタルト崩壊","4T、攻撃時33%で自傷100。"],
-  ["トリニダード・トバゴ","B","ジオ",520,81,73,10.0,"言葉狩り","1T 行動不能。"],
-  ["カラメル色素","B","サイエンス",520,82,72,10.5,"ゲシュタルト崩壊","4T、攻撃時33%で自傷100。"],
-  /* C */
-  ["バビロン捕囚","C","ヒストリー",500,76,73,11.0,"言論統制","4T 交代不可。"],
-  ["鳥取砂丘","C","ジオ",500,78,72,11.0,"ゲシュタルト崩壊","4T、攻撃時33%で自傷100。"],
-  ["プラシーボ効果","C","サイエンス",500,79,71,11.0,"ゲシュタルト崩壊","4T、攻撃時33%で自傷100。"],
-  ["渡来人","C","ヒューマン",500,77,73,11.0,"文字化け","3T後に戦闘不能（交代で解除）。"],
-  ["さるびあ丸","C","ジオ",500,77,72,11.0,"言葉狩り","1T 行動不能。"],
-  ["ペペロンチーノ","C","フード",500,79,71,11.0,"ゲシュタルト崩壊","4T、攻撃時33%で自傷100。"],
-  ["ポリプロピレン","C","サイエンス",500,80,70,11.0,"言論統制","4T 交代不可。"],
-  ["サラエボ事件","C","ヒストリー",500,76,74,11.0,"言葉狩り","1T 行動不能。"],
-  /* D */
-  ["クマンバチ","D","アニマル",480,60,72,10.5,"言論統制","4T 交代不可。"],
-  ["県庁所在地","D","ジオ",480,58,75,11.0,"文字化け","3T後に戦闘不能（交代で解除）。"],
-  ["照り焼きチキン","D","フード",480,59,74,11.0,"言論統制","4T 交代不可。"],
-  ["ねるねるねるね","D","フード",480,58,73,11.0,"ゲシュタルト崩壊","4T、攻撃時33%で自傷100。"],
-  ["スルメイカ","D","アニマル",480,60,72,10.5,"ゲシュタルト崩壊","4T、攻撃時33%で自傷100。"],
-  /* X */
-  ["本質","X","コンセプト",500,75,72,10.0,"鏡文字","相手の誰かの必殺をコピー。威力2倍。"],
-  ["見える化","X","コンセプト",500,75,72,10.0,"鏡文字","相手の誰かの必殺をコピー。威力2倍。"],
-  ["自分ごと化","X","コンセプト",500,75,72,10.0,"鏡文字","相手の誰かの必殺をコピー。威力2倍。"],
-  ["解像度","X","コンセプト",500,75,72,10.0,"鏡文字","相手の誰かの必殺をコピー。威力2倍。"]
+ ["パラボラアンテナ","S","サイエンス"],["ネスカフェアンバサダー","S","ヒューマン"],
+ ["にんじんしりしり","A","フード"],["そぼろごはん","A","フード"],
+ ["ニシローランドゴリラ","A","アニマル"],["毛むくじゃら","A","アニマル"],
+ ["九品仏","A","ジオ"],["けんちん汁","A","フード"],
+ ["カムチャッカ半島","B","ジオ"],["タランチュラ","B","アニマル"],
+ ["ハシビロコウ","B","アニマル"],["バルサミコ酢","B","フード"],
+ ["ピロリ菌","B","サイエンス"],["トリニダード・トバゴ","B","ジオ"],
+ ["カラメル色素","B","サイエンス"],["バビロン捕囚","C","ヒストリー"],
+ ["鳥取砂丘","C","ジオ"],["プラシーボ効果","C","サイエンス"],
+ ["渡来人","C","ヒューマン"],["さるびあ丸","C","ジオ"],
+ ["ペペロンチーノ","C","フード"],["ポリプロピレン","C","サイエンス"],
+ ["サラエボ事件","C","ヒストリー"],["クマンバチ","D","アニマル"],
+ ["県庁所在地","D","ジオ"],["照り焼きチキン","D","フード"],
+ ["ねるねるねるね","D","フード"],["スルメイカ","D","アニマル"],
+ ["本質","X","コンセプト"],["見える化","X","コンセプト"],
+ ["自分ごと化","X","コンセプト"],["解像度","X","コンセプト"]
 ];
 
-/* ====== 編成UI ====== */
-const teamA=$('teamA'), teamB=$('teamB');
-function makeTeam(root,side){
-  root.innerHTML='';
-  for(let i=0;i<3;i++){
-    const div=document.createElement('div'); div.className='slot';
-    const pill=document.createElement('span'); pill.className='pill'; pill.textContent='#'+(i+1);
-    const sel=document.createElement('select'); sel.id=`${side}-${i}`;
-    WORDS.forEach((w,idx)=>{const o=document.createElement('option');o.value=idx;o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;sel.append(o);});
-    sel.onchange=()=>{renderMini(side);};
-    div.append(pill,sel); root.append(div);
+const TYPE_RING=['ヒストリー','ジオ','コンセプト','サイエンス','アニマル','ヒューマン','フード'];
+const getAff=(at,df)=>{
+  const i=TYPE_RING.indexOf(at), j=TYPE_RING.indexOf(df), n=TYPE_RING.length;
+  if([(i+1)%n,(i+2)%n].includes(j)) return 1.5;
+  if([(i-1+n)%n,(i-2+n)%n].includes(j)) return 0.67;
+  return 1.0;
+};
+
+// === ステータス生成 ===
+function makeUnit([name,rank,type]){
+  // 名前から疑似ランダムに強さを決定
+  let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h);
+  const rBonus={S:1.3,A:1.15,B:1.0,C:0.9,D:0.8,X:1.0}[rank];
+  const hp=Math.floor((500+(name.length*15))*rBonus);
+  const atk=Math.floor((80+(Math.abs(h)%40))*rBonus);
+  return {name,rank,type,maxhp:hp,hp:hp,atk:atk,def:80,sp:0};
+}
+
+// === ゲーム状態 ===
+const state={
+  A:{team:[],idx:0,spOn:false},
+  B:{team:[],idx:0},
+  timer:null, remain:15, busy:false
+};
+const getA=()=>state.A.team[state.A.idx];
+const getB=()=>state.B.team[state.B.idx];
+
+// === ログシステム ===
+function log(msg, type=''){
+  const box=$('battleLog');
+  const d=document.createElement('div');
+  d.className=`log-line ${type}`;
+  d.textContent=msg;
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
+
+// === UI更新 ===
+function render(){
+  const draw=(side, u)=>{
+    $(`name${side}`).textContent=u.name;
+    $(`type${side}`).textContent=u.type;
+    $(`unit${side}`).style.setProperty('--typeColor', `var(--t-${u.type})`);
+    
+    // HP
+    const pct=(u.hp/u.maxhp)*100;
+    $(`hpBar${side}`).style.width=`${pct}%`;
+    $(`hpBar${side}`).style.background=pct<30?'#ff6b7a':'var(--hp)';
+    $(`hpNum${side}`).textContent=`${u.hp}/${u.maxhp}`;
+
+    // SP
+    let pips=''; for(let i=0;i<6;i++) pips+=`<div class="pip ${i<u.sp?'on':''}"></div>`;
+    $(`sp${side}`).innerHTML=pips;
+    
+    if(u.hp<=0) $(`unit${side}`).classList.add('dead');
+    else $(`unit${side}`).classList.remove('dead');
+  };
+  draw('A', getA());
+  draw('B', getB());
+
+  const spReady = getA().sp>=6;
+  $('btnSP').disabled = !spReady;
+  $('btnSP').className = `spToggle ${state.A.spOn?'on':''}`;
+  $('btnSP').textContent = state.A.spOn ? '✨ 必殺 ON' : '✨ 必殺 OFF';
+}
+
+// === タイマー ===
+function startTimer(){
+  clearInterval(state.timer);
+  state.remain=15;
+  updateTimerUI();
+  state.timer=setInterval(()=>{
+    state.remain--;
+    updateTimerUI();
+    if(state.remain<=0){
+      clearInterval(state.timer);
+      pick(['G','C','P'][Math.floor(Math.random()*3)]); // 時間切れでランダム
+    }
+  },1000);
+}
+function updateTimerUI(){
+  const el=$('timerVal');
+  el.textContent=state.remain;
+  el.className=`timer-val ${state.remain<=5?'':'safe'}`;
+}
+
+// === 派手なじゃんけん演出 (ここがポイント！) ===
+async function playJankenEffect(userH, cpuH, res){
+  const layer=$('fxLayer');
+  const hL=$('fxHandL');
+  const hR=$('fxHandR');
+  const txt=$('fxText');
+  const flash=$('flash');
+  
+  const map={G:'✊',C:'✌️',P:'🖐'};
+  hL.textContent = map[userH];
+  hR.textContent = map[cpuH];
+
+  // 1. 手が画面外から飛んでくる
+  layer.classList.add('fx-active');
+  await delay(300); // ぶつかるまでの時間
+
+  // 2. 衝突！フラッシュ！
+  flash.classList.add('flash-now');
+  
+  // 3. 結果文字の表示
+  let msg="DRAW";
+  let color="#fff";
+  if(res===1) { msg="WIN!"; color="var(--ally)"; }
+  if(res===-1){ msg="LOSE"; color="var(--enemy)"; }
+  
+  txt.textContent=msg;
+  txt.style.textShadow=`0 0 40px ${color}`;
+  txt.classList.add('show');
+
+  await delay(1000); // 結果を見せる時間
+
+  // 4. 片付け
+  layer.classList.remove('fx-active');
+  flash.classList.remove('flash-now');
+  txt.classList.remove('show');
+}
+
+// === バトルロジック ===
+function judge(a,b){
+  if(a===b)return 0;
+  if((a==='G'&&b==='C')||(a==='C'&&b==='P')||(a==='P'&&b==='G'))return 1;
+  return -1;
+}
+
+async function pick(hand){
+  if(state.busy)return;
+  state.busy=true;
+  clearInterval(state.timer); // タイマーストップ
+  
+  const cpuHand=['G','C','P'][Math.floor(Math.random()*3)];
+  const res=judge(hand,cpuHand);
+
+  // 演出実行
+  await playJankenEffect(hand, cpuHand, res);
+  
+  if(res===0){
+    log(`あいこ！ (${hand} vs ${cpuHand})`);
+    state.busy=false;
+    startTimer(); // タイマー再開
+    return;
+  }
+
+  // 攻撃処理
+  const isPlayerAtk = res===1;
+  const at = isPlayerAtk ? getA() : getB();
+  const df = isPlayerAtk ? getB() : getA();
+  const side = isPlayerAtk ? 'A' : 'B';
+
+  const useSP = isPlayerAtk ? (state.A.spOn && at.sp>=6) : (at.sp>=6); // CPUは溜まったら即撃ち
+  
+  if(useSP){
+    log(`⚡️ ${at.name}の必殺技！！`, 'sys');
+    at.sp=0; if(isPlayerAtk) state.A.spOn=false;
+  }else{
+    log(`⚔️ ${at.name}の攻撃！`);
+    at.sp=Math.min(6, at.sp+1);
+  }
+
+  // ダメージ計算
+  await delay(200);
+  const aff=getAff(at.type, df.type);
+  let dmg=Math.floor(at.atk * (useSP?2.2:1.0) * aff * (0.9+Math.random()*0.2));
+  df.hp=Math.max(0, df.hp-dmg);
+
+  // 画面揺れ
+  $(`unit${isPlayerAtk?'B':'A'}`).classList.add('hit');
+  setTimeout(()=>$(`unit${isPlayerAtk?'B':'A'}`).classList.remove('hit'), 400);
+
+  log(`${df.name}に${dmg}ダメージ！${aff>1?'(抜群)':''}`, 'dmg');
+  render();
+
+  await delay(800);
+
+  // 決着判定
+  if(df.hp<=0){
+    log(`💀 ${df.name}は倒れた！`, 'sys');
+    await handleKO(isPlayerAtk?'B':'A');
+  }
+
+  state.busy=false;
+  if(state.A.team.some(u=>u.hp>0) && state.B.team.some(u=>u.hp>0)){
+    startTimer(); // 次のターンへ
   }
 }
-makeTeam(teamA,'A'); makeTeam(teamB,'B');
 
-$('btnRand').onclick=()=>{
-  const picks=()=>{
-    const used=new Set(),arr=[];
-    while(arr.length<3){const i=Math.floor(Math.random()*WORDS.length); if(!used.has(i)){used.add(i);arr.push(i);} }
-    return arr;
+async function handleKO(deadSide){
+  const team = deadSide==='A'?state.A.team:state.B.team;
+  const alive = team.map((u,i)=>u.hp>0?i:-1).filter(i=>i!==-1);
+
+  if(alive.length===0){
+    // ゲーム終了
+    $('resTitle').textContent = deadSide==='B' ? "YOU WIN!" : "YOU LOSE...";
+    $('resTitle').style.color = deadSide==='B' ? "#ffe066" : "#aab";
+    toggleModal('modalResult', true);
+    return;
+  }
+
+  if(deadSide==='A'){
+    // プレイヤー交代（強制）
+    await delay(500);
+    toggleModal('modalSwap', true);
+  }else{
+    // CPU交代（自動：有利属性を選ぶ）
+    await delay(1000);
+    const myType = getA().type;
+    let bestIdx = alive[0];
+    let bestScore = 0;
+    alive.forEach(i=>{
+      const score = getAff(team[i].type, myType);
+      if(score > bestScore) { bestScore=score; bestIdx=i; }
+    });
+    state.B.idx = bestIdx;
+    log(`CPUは ${getB().name} を繰り出した！`, 'sys');
+    render();
+  }
+}
+
+// === セットアップ ===
+function init(){
+  const mkSel=(root,prefix)=>{
+    root.innerHTML='';
+    for(let i=0;i<3;i++){
+      const d=document.createElement('div'); d.className='slot';
+      d.innerHTML=`<span class="pill">#${i+1}</span><select id="${prefix}${i}"></select>`;
+      root.appendChild(d);
+      const s=d.querySelector('select');
+      WORDS.forEach((w,idx)=>{
+        const o=document.createElement('option');
+        o.value=idx; o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;
+        s.appendChild(o);
+      });
+      s.value=Math.floor(Math.random()*WORDS.length);
+    }
   };
-  const a=picks(), b=picks();
-  a.forEach((v,i)=>$(`A-${i}`).value=v);
-  b.forEach((v,i)=>$(`B-${i}`).value=v);
-  renderMini('A'); renderMini('B'); toast('ランダムでチームを編成しました');
-};
-
-const statsA=$('statsA'), statsB=$('statsB');
-function barRow(label,val,max){
-  const pct=Math.max(0,Math.min(100, Math.round((val/max)*100)));
-  return `<div class="barLine"><div style="width:76px;font-size:12px;color:#cfe2ff">${label}</div>
-    <div class="barBox"><div class="barFill" style="width:${pct}%"></div></div>
-    <div class="val">${val}</div></div>`;
-}
-function miniCard(idx){
-  const [n,rank,typ,hp,atk,def,eva]=WORDS[idx];
-  return `<div class="setupMini ${TYPE_CLASS(typ)}">
-    <div class="head"><div>${n}</div><div class="badge">[${typ}]</div></div>
-    ${barRow('HP',hp,MAX.HP)}${barRow('攻撃',atk,MAX.ATK)}${barRow('防御',def,MAX.DEF)}${barRow('回避',eva,MAX.EVA)}
-  </div>`;
-}
-function renderMini(side){
-  const root= side==='A'?statsA:statsB; root.innerHTML='';
-  for(let i=0;i<3;i++){ const idx=Number($(`${side}-${i}`).value)||0; root.innerHTML += miniCard(idx); }
-}
-renderMini('A'); renderMini('B');
-
-/* ====== バトル部 ====== */
-const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false};
-const left =()=>state.A.team[state.A.i], right=()=>state.B.team[state.B.i];
-
-$('btnStart').onclick=()=>{
-  state.A.team=collect('A'); state.B.team=collect('B');
-  state.A.i=0; state.B.i=0; state.A.sp=0; state.B.sp=0; state.spOn=false;
-  document.body.classList.add('battleMode'); $('battle').style.display='block';
-  renderSides(); buildBench(); buildSix();
-  (async()=>{ toast(`いけ、${left().name}！バトルスタート！`); await delay(900); startRound(); })();
-};
-$('btnBack').onclick=()=>{document.body.classList.remove('battleMode'); $('battle').style.display='none'; toast('編成に戻りました');};
-
-function collect(side){
-  const arr=[]; for(let i=0;i<3;i++){ const w=WORDS[Number($(`${side}-${i}`).value)||0]; arr.push(pack(w,side)); } return arr;
-}
-function pack([n,rank,typ,hp,atk,def,eva,sk,skd],side){ return {name:n,rank,type:typ,maxhp:hp,hp,atk,def,eva,skill:sk,skillDesc:skd,side}; }
-
-function gaugeHtml(sp,sideTag){
-  const pips=[...Array(6)].map((_,i)=>`<span class="pip ${i<sp?'on':''}"></span>`).join('');
-  const pulse=sp>=6?'readyPulse':'';
-  return `<div class="gaugeWrap"><div class="gLabel">必殺ゲージ</div><div class="gauge ${pulse}" id="g${sideTag}">${pips}</div></div>`;
-}
-function cardHtml(u,role,opp){
-  const aff = typeMult(u.type,opp.type);
-  const affText = aff===1.5?'相性 x1.5（抜群）': aff===0.67?'相性 x0.67（いまいち）':'相性 x1.0（等倍）';
-  const sp = role==='ally'?state.A.sp:state.B.sp;
-  const sideTag = role==='ally'?'A':'B';
-  return `<div class="unit ${role} ${TYPE_CLASS(u.type)}" id="card-${role}">
-    <div class="nameRow"><div style="font-weight:900">${u.name}</div><div class="badge">[${u.type}]</div></div>
-    <div class="hpRow">
-      <div class="hpBox"><div class="hpFill" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div>
-      <div class="hpNum" id="hpnum-${role}">HP ${u.hp}/${u.maxhp}</div>
-    </div>
-    ${gaugeHtml(sp,sideTag)}
-    <div class="skillWrap">
-      <div class="skillBox">
-        <div class="skillTitle">✨ 必殺：${u.skill}</div>
-        <div class="skillDesc">${u.skillDesc}</div>
-      </div>
-      <div class="affinityBox">${affText}</div>
-    </div>
-    <div class="meta">ATK ${u.atk} / DEF ${u.def} / 回避 ${u.eva}%</div>
-  </div>`;
-}
-function renderSides(){
-  $('leftWrap').innerHTML=cardHtml(left(),'ally',right());
-  $('rightWrap').innerHTML=cardHtml(right(),'enemy',left());
-  attachPop('ally',left()); attachPop('enemy',right());
-  updateSPBtn();
-}
-function attachPop(role,u){
-  $('card-'+role).onclick=()=>toast(`${u.name} 基礎値｜HP:${u.maxhp} / ATK:${u.atk} / DEF:${u.def} / 回避:${u.eva}%`);
-}
-function updateSPBtn(){
-  const ready = state.A.sp>=6;
-  $('btnSP').disabled=!ready;
-  $('btnSP').classList.toggle('on',state.spOn);
-  $('btnSP').textContent = state.spOn? '✨ 必殺 ON' : '✨ 必殺 OFF';
-  $('gA')?.classList.toggle('readyPulse',ready);
+  mkSel($('setupA'), 'p');
+  mkSel($('setupB'), 'c');
+  
+  $('btnRand').onclick=init;
+  $('btnStart').onclick=startBattle;
+  
+  // ボタンイベント
+  $('btnG').onclick=()=>pick('G');
+  $('btnC').onclick=()=>pick('C');
+  $('btnP').onclick=()=>pick('P');
+  $('btnSP').onclick=()=>{if(getA().sp>=6){state.A.spOn=!state.A.spOn; render();}};
+  $('btnSwap').onclick=()=>{if(!state.busy) toggleModal('modalSwap',true);};
 }
 
-function buildBench(){
-  const bar=$('benchBar'); bar.innerHTML='';
-  const idxs=[0,1,2].filter(i=>i!==state.A.i);
-  if(!idxs.length){ bar.innerHTML='<span class="note">控えなし</span>'; return; }
-  idxs.forEach(i=>{
-    const u=state.A.team[i], good=typeMult(u.type,right().type)>1;
-    const chip=document.createElement('div'); chip.className='chip'+(good?' good':'');
-    chip.innerHTML=`<span>🪪 ${u.name}</span><span class="badge">[${u.type}]</span>${good?'<span class="badge">おすすめ</span>':''}`;
-    chip.onclick=()=>openSwitch(i);
-    bar.append(chip);
-  });
-}
-function buildSix(){
-  const root=$('sixStats'); root.innerHTML='';
-  const mk=(u)=>`<div class="mini"><div class="head"><div>${u.name}</div><div class="badge">[${u.type}]</div></div><div class="miniBar"><span style="width:${100*u.hp/u.maxhp}%"></span></div><div class="meta">HP ${u.hp}/${u.maxhp}</div></div>`;
-  root.innerHTML += mk(left()) + mk(right());
-  state.A.team.forEach((u,i)=> i!==state.A.i && (root.innerHTML += mk(u)));
-  state.B.team.forEach((u,i)=> i!==state.B.i && (root.innerHTML += mk(u)));
+function startBattle(){
+  const getTeam=(pre)=>[0,1,2].map(i=>makeUnit(WORDS[$(`${pre}${i}`).value]));
+  state.A.team=getTeam('p'); state.A.idx=0; state.A.spOn=false;
+  state.B.team=getTeam('c'); state.B.idx=0;
+  
+  $('setup').style.display='none';
+  $('battle').style.display='grid';
+  render();
+  log('バトルスタート！制限時間は15秒！');
+  startTimer();
 }
 
-/* カウント＆操作 */
-$('btnG').onclick=()=>pick('G');
-$('btnC').onclick=()=>pick('C');
-$('btnP').onclick=()=>pick('P');
-$('btnSP').onclick=()=>{ if(state.A.sp>=6){ state.spOn=!state.spOn; updateSPBtn(); } };
-$('btnSwitch').onclick=()=>openSwitch();
+// === モーダル・交代 ===
+function toggleModal(id, show){
+  $(id).classList.toggle('show', show);
+  if(id==='modalSwap' && show){
+    const list=$('swapList'); list.innerHTML='';
+    state.A.team.forEach((u,i)=>{
+      if(i===state.A.idx || u.hp<=0) return;
+      const b=document.createElement('button');
+      b.className='unit'; // スタイル流用
+      b.style.textAlign='left';
+      b.style.cursor='pointer';
+      b.innerHTML=`<div class="nm">${u.name}</div><div style="font-size:12px">HP:${u.hp} TYPE:${u.type}</div>`;
+      b.onclick=()=>{ doSwap(i); toggleModal('modalSwap',false); };
+      list.appendChild(b);
+    });
+    if(list.children.length===0 && state.A.team[state.A.idx].hp>0){
+      log('交代できるメンバーがいません');
+      toggleModal('modalSwap',false);
+    }
+  }
+}
 
-function startRound(){ state.remain=15; $('countNum').textContent=state.remain; clearInterval(state.timer);
-  state.timer=setInterval(()=>{ state.remain--; $('countNum').textConte
+async function doSwap(newIdx){
+  const deadSwap = getA().hp<=0;
+  state.A.idx = newIdx;
+  state.A.spOn = false;
+  log(`🔄 ${getA().name} に交代した！`, 'sys');
+  render();
+
+  // 戦闘不能による交代でなければ、相手の攻撃を受ける
+  if(!deadSwap){
+    state.busy=true;
+    clearInterval(state.timer);
+    await delay(500);
+    log(`⚠️ 交代の隙を突かれた！`, 'dmg');
+    
+    const at = getB();
+    const df = getA();
+    const aff = getAff(at.type, df.type);
+    let dmg = Math.floor(at.atk * aff * 0.8); // 交代ペナルティは少し軽減
+    df.hp = Math.max(0, df.hp - dmg);
+    
+    $('unitA').classList.add('hit');
+    setTimeout(()=>$('unitA').classList.remove('hit'), 400);
+    log(`${df.name}に${dmg}ダメージ！`, 'dmg');
+    render();
+    
+    if(df.hp<=0) await handleKO('A');
+    else {
+      state.busy=false;
+      startTimer();
+    }
+  } else {
+    // 戦闘不能後の交代なら即再開
+    state.busy=false;
+    startTimer();
+  }
+}
+
+init();
+
+</script>
+</body>
+</html>
