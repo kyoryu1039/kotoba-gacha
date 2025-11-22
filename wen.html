@@ -137,21 +137,79 @@ body{
   background-size: 300% 300%; 
   animation: rainbowBorder 3s linear infinite; 
 }
-/* A: 金色（静止） */
+/* ==== Aランク（回転しないキラキラ） ==== */
 .unit[data-rank="A"] {
-  background: conic-gradient(from 0deg, #b8860b, #ffd700, #fff, #ffd700, #b8860b);
+  position: relative;
+  border: 1px solid #ffd700;
+  overflow: hidden;
 }
-/* B: 銀色（静止） */
+
+.unit[data-rank="A"]::after {
+  content: "";
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(
+     115deg,
+     transparent 40%,
+     rgba(255,255,255,0.35) 50%,
+     transparent 60%
+  );
+  animation: shineA 3.5s ease-in-out infinite;
+}
+
+@keyframes shineA {
+  0%   { transform: translate(0,0); }
+  100% { transform: translate(150%,150%); }
+}
+
+
+/* ==== Bランク（回転しないキラキラ・銀） ==== */
 .unit[data-rank="B"] {
-  background: conic-gradient(from 0deg, #718096, #c0c0c0, #fff, #c0c0c0, #718096);
+  position: relative;
+  border: 1px solid #e5e7eb; /* 明るい銀 */
+  overflow: hidden;
 }
-/* C / D / X は枠なし・共通デザインに統一 */
-.unit[data-rank="C"],
-.unit[data-rank="D"],
+
+.unit[data-rank="B"]::after {
+  content: "";
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255,255,255,0.25) 50%,
+    transparent 60%
+  );
+  animation: shineB 4.2s ease-in-out infinite;
+}
+
+@keyframes shineB {
+  0%   { transform: translate(0,0); }
+  100% { transform: translate(150%,150%); }
+}
+
+/* ★ Cランク（カード色と近い“濃いグレー枠” → Bとの差が明確） */
+.unit[data-rank="C"] {
+  background: #64748b;        /* 既存のカード色 */
+  border: 1px solid #475569;  /* Bより明確に暗い枠 → コントラスト差で差別化 */
+}
+
+/* ★ Dランク（白カード＋自然な薄めグレー枠） */
+.unit[data-rank="D"] {
+  background: #ffffff;
+  border: 1px solid #d1d5db;  /* B の銀より暗めで C とも区別できる */
+}
+
+/* ★ Xランク（紫＋控えめなダークパープル枠）*/
 .unit[data-rank="X"] {
-  background: #0f172a;      /* ← ダーク背景に統一（お好みの色でOK） */
-  box-shadow: none !important; /* ← Xランクの光も消す */
-  border: none !important;     /* ← 完全に枠なし */
+  background: #d946ef;
+  border: 1px solid #9333ea; /* 紫に馴染むが B より暗いので差がつく */
 }
 
 
