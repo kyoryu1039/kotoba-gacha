@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v8.00 Ultimate</title>
+<title>KOTOBA-BATTLE | v8.02 Mobile Fix</title>
   <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0b0f1c">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -15,216 +15,212 @@
   --ally:#4da6ff; --enemy:#ff5c6c;
   --hp:#4effa5; --hpBack:#0a2618;
   --gauge:#ffd900; --gaugeBack:#3d2e00;
-  /* タイプカラー */
   --t-ジオ:#4d8aff; --t-アニマル:#00db84; --t-フード:#ffaa2b; --t-コンセプト:#b366ff; --t-サイエンス:#00e5ff; --t-ヒストリー:#ff5c87; --t-ヒューマン:#88f060;
 }
 
-/* reset */
 *{box-sizing:border-box;-webkit-text-size-adjust:100%}
-html,body{height:100%;margin:0;overflow:hidden} /* シェイク演出のためスクロール制限 */
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;overflow-y:auto}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}
 
-/* 共通 */
-.container{max-width:1024px;margin:0 auto;padding:12px;position:relative}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
-.card h2{margin:0;padding:12px 18px;border-bottom:1px solid var(--border);font-size:16px;position:relative;font-weight:800;letter-spacing:.05em;background:rgba(0,0,0,.2);display:flex;justify-content:space-between;align-items:center}
-.card .body{padding:14px}
-.primary,.ghost{appearance:none;cursor:pointer;border-radius:10px;border:1px solid #364a80;background:#142042;color:#eaf2ff;padding:10px 16px;font-weight:800;font-size:13px;transition:.15s;display:inline-flex;justify-content:center;align-items:center}
-.primary{background:linear-gradient(180deg,#2b52a3,#18326a);border-color:#4a74c9;box-shadow:0 4px 0 #0f1f42}
-.primary:active{transform:translateY(2px);box-shadow:0 2px 0 #0f1f42}
+/* コンテナ */
+.container{max-width:1024px;margin:0 auto;padding:10px;padding-bottom:40px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
+.card h2{margin:0;padding:10px 16px;border-bottom:1px solid var(--border);font-size:15px;font-weight:800;letter-spacing:.05em;background:rgba(0,0,0,.2);display:flex;justify-content:space-between;align-items:center}
+.card .body{padding:12px}
+
+/* ボタン類 */
+.primary,.ghost{appearance:none;cursor:pointer;border-radius:8px;border:1px solid #364a80;background:#142042;color:#eaf2ff;padding:10px 14px;font-weight:800;font-size:13px;transition:.15s;display:inline-flex;justify-content:center;align-items:center}
+.primary{background:linear-gradient(180deg,#2b52a3,#18326a);border-color:#4a74c9;box-shadow:0 3px 0 #0f1f42}
+.primary:active{transform:translateY(2px);box-shadow:0 1px 0 #0f1f42}
 .ghost:hover{background:#1c2b55}
-button:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shadow:none!important;filter:grayscale(1)}
-.btnTiny{padding:4px 10px;border-radius:6px;font-size:11px;height:24px;border:1px solid #364a80;background:transparent;color:#abc}
+button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:none!important;box-shadow:none!important}
+.btnTiny{padding:4px 8px;border-radius:6px;font-size:10px;height:24px;border:1px solid #364a80;background:transparent;color:#abc;cursor:pointer}
 
-/* === 編成 === */
-#setup{display:grid;gap:16px}
-#teamGrid{display:grid;gap:12px}
+/* 編成・ミニカード */
+#setup{display:grid;gap:14px}
+#teamGrid{display:grid;gap:10px}
 @media(min-width:720px){#teamGrid{grid-template-columns:1fr 1fr}}
-.slot{display:flex;gap:10px;align-items:center;background:#090e1c;padding:6px;border-radius:12px;border:1px solid #1f2b4d}
-.pill{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:6px;background:#1a2642;color:#8ba6d6;font-weight:900;font-size:11px}
-.slot select{flex:1;background:transparent;border:none;color:#eaf2ff;padding:4px;font-weight:700;font-size:14px;outline:none}
-.statsHead{font-weight:800;font-size:12px;letter-spacing:.05em;margin:0 0 8px;opacity:.8;text-transform:uppercase}
-#statsGrid{display:grid;gap:12px}
+.slot{display:flex;gap:8px;align-items:center;background:#090e1c;padding:6px;border-radius:10px;border:1px solid #1f2b4d}
+.pill{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:#1a2642;color:#8ba6d6;font-weight:900;font-size:11px}
+.slot select{flex:1;background:transparent;border:none;color:#eaf2ff;padding:4px;font-weight:700;font-size:13px;outline:none}
+#statsGrid{display:grid;gap:10px}
 @media(min-width:720px){#statsGrid{grid-template-columns:1fr 1fr}}
-.statsCol{display:grid;grid-template-rows:repeat(3,auto);gap:10px}
-.setupMini{
-  border:1px solid #2a3d6b; border-radius:10px; padding:10px; position:relative;
-  background:#11182b; box-shadow:0 4px 10px rgba(0,0,0,.3);
-  display:flex; flex-direction:column; gap:6px;
-}
-.setupMini .head{display:flex;justify-content:space-between;font-weight:800;font-size:13px}
-.barLine{display:flex;align-items:center;gap:8px;height:12px}
-.barBox{flex:1;height:6px;background:#060912;border-radius:3px;overflow:hidden}
-.barFill{height:100%;background:var(--hp);border-radius:3px}
-.val{font-size:10px;color:#9cb3de;width:30px;text-align:right;font-family:"Menlo",monospace}
+.statsCol{display:grid;grid-template-rows:repeat(3,auto);gap:8px}
 
-/* === バトル === */
-.inBattle{font-size:.95em}
-.arena{display:grid;gap:16px;transition:transform .1s}
+.setupMini{
+  border:1px solid #2a3d6b; border-radius:8px; padding:8px; position:relative;
+  background:#11182b; box-shadow:0 2px 8px rgba(0,0,0,.3);
+  display:flex; flex-direction:column; gap:4px;
+}
+.setupMini .head{display:flex;justify-content:space-between;font-weight:800;font-size:12px}
+.barLine{display:flex;align-items:center;gap:6px;height:10px}
+.barBox{flex:1;height:5px;background:#060912;border-radius:3px;overflow:hidden}
+.barFill{height:100%;background:var(--hp);border-radius:3px}
+.val{font-size:10px;color:#9cb3de;width:28px;text-align:right;font-family:"Menlo",monospace}
+
+/* バトルレイアウト */
+.arena{display:grid;gap:12px;transition:transform .1s}
 .shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes shake{10%,90%{transform:translate(-2px,1px)}20%,80%{transform:translate(1px,-2px)}30%,50%,70%{transform:translate(-4px,2px)}40%,60%{transform:translate(4px,-2px)}}
+.vsrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
+.vsrow>div{min-width:0;background:transparent!important;box-shadow:none!important;border:none!important}
 
-.vsrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}
-.vsrow>div{min-width:0;background:transparent!important;box-shadow:none!important;border:none!important;position:relative}
-
-/* カードデザイン */
+/* === カード本体（スマホ対応強化） === */
 .unit{
-  position:relative; width:100%; height:100%; min-height:230px;
-  border-radius:14px; padding:10px;
+  position:relative; width:100%; height:100%; min-height:210px;
+  border-radius:12px; padding:8px;
   background:#151b2e; border:1px solid #2a3d6b;
   display:flex; flex-direction:column;
-  box-shadow:0 12px 30px rgba(0,0,0,.5);
-  overflow:hidden;
+  box-shadow:0 8px 20px rgba(0,0,0,.5);
+  overflow:hidden; /* はみ出し防止 */
 }
-.unit[data-rank="S"]{ background:linear-gradient(145deg,#1a1a2e,#2e2138); border:1px solid #ffd700; box-shadow:0 0 15px rgba(255,215,0,.2), 0 12px 30px rgba(0,0,0,.5); }
+.unit[data-rank="S"]{ background:linear-gradient(145deg,#1a1a2e,#2e2138); border:1px solid #ffd700; box-shadow:0 0 10px rgba(255,215,0,.15), 0 8px 20px rgba(0,0,0,.5); }
 .unit[data-rank="S"]::before{
   content:""; position:absolute; inset:0; z-index:0;
   background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.1) 45%, rgba(255,255,255,.2) 50%, transparent 55%);
   background-size:250% 250%; animation:shine 4s infinite linear; pointer-events:none;
 }
 .unit[data-rank="A"]{ background:linear-gradient(145deg,#141e38,#242f4f); border:1px solid #e0c060; }
-.unit[data-rank="B"]{ border:1px solid #a0b0d0; }
-.unit[data-rank="C"]{ border:1px solid #cd7f32; }
 @keyframes shine{0%{background-position:200% 200%}100%{background-position:-50% -50%}}
 
 .unitInner{position:relative; z-index:2; flex:1; display:flex; flex-direction:column}
-.cardHeader{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.ownerBadge{font-size:9px;font-weight:900;padding:2px 6px;border-radius:4px;background:#000;border:1px solid #444;color:#ccc}
+
+/* ヘッダー */
+.cardHeader{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;min-height:18px}
+.ownerBadge{font-size:9px;font-weight:900;padding:2px 5px;border-radius:4px;background:#000;border:1px solid #444;color:#ccc;line-height:1}
 .ownerBadge.ally{color:var(--ally);border-color:var(--ally)}
 .ownerBadge.enemy{color:var(--enemy);border-color:var(--enemy)}
-.typeIcon{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;background:var(--typeColor);color:#080b14;box-shadow:0 2px 5px rgba(0,0,0,.3)}
+.typeIcon{font-size:9px;font-weight:800;padding:2px 6px;border-radius:8px;background:var(--typeColor);color:#080b14;line-height:1}
 
+/* イラストエリア（修正箇所） */
 .artArea{
-  position:relative; width:100%; aspect-ratio:1.8/1; margin-bottom:8px;
+  position:relative; width:100%; aspect-ratio:1.8/1; margin-bottom:6px;
   background:radial-gradient(circle, rgba(0,0,0,.2), rgba(0,0,0,.6));
   border-radius:8px; border:1px solid rgba(255,255,255,.1);
   display:flex; align-items:center; justify-content:center;
+  overflow:hidden; /* これが重要 */
 }
-.mainImg{height:90%; width:auto; filter:drop-shadow(0 5px 8px rgba(0,0,0,.6)); transition:transform .2s}
+.mainImg{
+  max-height: 100%; max-width: 100%; /* 枠内に収める */
+  width: auto; height: auto;
+  object-fit: contain; /* アスペクト比保持 */
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.6)); transition:transform .2s;
+}
 .unit.hit .mainImg{animation:hit .4s ease}
-@keyframes hit{10%,90%{transform:translate(-4px,0)}20%,80%{transform:translate(8px,0)}30%,50%,70%{transform:translate(-8px,0)}40%,60%{transform:translate(8px,0)}}
+@keyframes hit{10%,90%{transform:translate(-3px,0)}20%,80%{transform:translate(3px,0)}30%,50%,70%{transform:translate(-3px,0)}40%,60%{transform:translate(3px,0)}}
 
-.cardName{text-align:center; font-weight:900; font-size:16px; margin:0 0 8px; text-shadow:0 2px 0 #000; letter-spacing:.02em; white-space:nowrap; overflow:hidden}
-.statRow{display:grid; grid-template-columns:24px 1fr; gap:6px; align-items:center; margin-bottom:4px; font-size:10px; font-weight:700; color:#8ba0c0}
-.hpBarBg{height:8px; background:#06080e; border-radius:4px; border:1px solid #233562; overflow:hidden}
-.hpBar{height:100%; background:var(--hp); width:100%; transition:width .4s ease-out; box-shadow:0 0 8px var(--hp)}
-.num{text-align:right; font-family:monospace}
+/* 名前・ステータス */
+.cardName{text-align:center; font-weight:900; font-size:14px; margin:0 0 6px; text-shadow:0 2px 0 #000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.statRow{display:grid; grid-template-columns:20px 1fr; gap:4px; align-items:center; margin-bottom:4px; font-size:10px; font-weight:700; color:#8ba0c0}
+.hpBarBg{height:6px; background:#06080e; border-radius:3px; border:1px solid #233562; overflow:hidden}
+.hpBar{height:100%; background:var(--hp); width:100%; transition:width .4s ease-out; box-shadow:0 0 6px var(--hp)}
+.num{text-align:right; font-family:monospace; font-size:10px}
 
-/* 状態異常バッジ */
-.statusRow{display:flex;gap:4px;min-height:16px;margin-bottom:4px;justify-content:flex-end}
-.stBadge{font-size:9px;padding:2px 4px;border-radius:4px;background:#330000;color:#ff5c6c;border:1px solid #ff5c6c;display:flex;align-items:center;gap:2px}
+/* バッジ・ゲージ */
+.statusRow{display:flex;gap:2px;min-height:14px;margin-bottom:4px;justify-content:flex-end;flex-wrap:wrap}
+.stBadge{font-size:8px;padding:1px 3px;border-radius:3px;background:#330000;color:#ff5c6c;border:1px solid #ff5c6c;white-space:nowrap}
+.spRow{display:flex; gap:2px; justify-content:center; margin:6px 0}
+.pip{width:12px; height:5px; background:#221a00; border:1px solid #4d3900; border-radius:2px}
+.pip.on{background:var(--gauge); border-color:#ffeaa7; box-shadow:0 0 5px var(--gauge)}
 
-.spRow{display:flex; gap:3px; justify-content:center; margin:6px 0}
-.pip{width:14px; height:6px; background:#221a00; border:1px solid #4d3900; border-radius:2px}
-.pip.on{background:var(--gauge); border-color:#ffeaa7; box-shadow:0 0 6px var(--gauge)}
-
-.skillInfo{background:rgba(0,0,0,.3); padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,.05); margin-top:auto}
-.skillN{font-size:10px; font-weight:800; color:#e0e6f0; margin-bottom:2px}
-.skillD{font-size:9px; line-height:1.3; color:#9aa5b8}
+/* フッター */
+.skillInfo{background:rgba(0,0,0,.3); padding:5px; border-radius:5px; border:1px solid rgba(255,255,255,.05); margin-top:auto}
+.skillN{font-size:9px; font-weight:800; color:#e0e6f0; margin-bottom:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.skillD{font-size:8px; line-height:1.2; color:#9aa5b8; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .footer{display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:9px; color:#677a99}
-.btnStat{background:transparent; border:1px solid #364a80; color:#8ba6d6; border-radius:4px; padding:2px 6px; font-size:9px; cursor:pointer}
+.btnStat{background:transparent; border:1px solid #364a80; color:#8ba6d6; border-radius:4px; padding:1px 5px; font-size:8px; cursor:pointer}
 
-/* ポップアップ演出 */
-.floatingText{
-  position:absolute; left:50%; top:40%; transform:translate(-50%,-50%);
-  font-family:"Arial Black",sans-serif; font-weight:900; font-size:32px;
-  color:#fff; -webkit-text-stroke:1px #000; text-shadow:0 4px 10px rgba(0,0,0,.8);
-  pointer-events:none; z-index:10; animation:floatUp .8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-}
-.floatingText.dmg{color:#ff5c6c}
-.floatingText.heal{color:#4effa5}
-@keyframes floatUp{0%{opacity:0;transform:translate(-50%,0) scale(0.5)} 20%{opacity:1;transform:translate(-50%,-60px) scale(1.2)} 100%{opacity:0;transform:translate(-50%,-100px) scale(1)}}
-
-/* カットイン */
-#cutIn{
-  position:fixed; top:35%; left:0; width:100%; height:120px; z-index:85;
-  background:linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(20,30,80,.95) 15%, rgba(20,30,80,.95) 85%, rgba(0,0,0,0) 100%);
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  transform:scaleY(0); transform-origin:center; transition:transform .15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  pointer-events:none; border-top:2px solid #ffe066; border-bottom:2px solid #ffe066;
-}
-#cutIn.show{transform:scaleY(1)}
-.cutInText{font-size:32px; font-weight:900; color:#fff; text-shadow:0 4px 15px #000; font-style:italic; letter-spacing:.1em}
-.cutInSub{font-size:14px; color:#ffe066; font-weight:700; margin-top:4px}
-
-/* 操作パネル */
-.padCard{
-  position:relative; background:rgba(18,28,58,.9);
-  border:1px solid #31457b; border-radius:20px;
-  box-shadow:0 12px 32px rgba(0,0,0,.5);
-  padding:12px; backdrop-filter:blur(8px);
-}
-.padInner{display:grid;grid-template-columns:1fr;gap:12px}
-.rpsArea{display:flex;justify-content:center;gap:20px;padding:10px 0}
+/* パッド・ログ */
+.padCard{position:relative; background:rgba(18,28,58,.95); border:1px solid #31457b; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.5); padding:10px}
+.padInner{display:grid;grid-template-columns:1fr;gap:10px}
+.rpsArea{display:flex;justify-content:center;gap:16px;padding:8px 0}
 .rps{
-  position:relative; width:68px; height:68px; border-radius:50%; border:none; cursor:pointer;
-  display:grid; place-items:center; box-shadow:0 6px 0 rgba(0,0,0,.4), 0 12px 20px rgba(0,0,0,.3);
+  position:relative; width:58px; height:58px; border-radius:50%; border:none; cursor:pointer;
+  display:grid; place-items:center; box-shadow:0 5px 0 rgba(0,0,0,.4), 0 8px 16px rgba(0,0,0,.3);
   transition:transform .1s, box-shadow .1s;
 }
-.rps:active{transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.rps:active{transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.4)}
 .rps.g{background:linear-gradient(#ff9ea6,#ff5c6c); color:#52000b}
 .rps.c{background:linear-gradient(#9ebdff,#4d8aff); color:#001a4d}
 .rps.p{background:linear-gradient(#9effc5,#00db84); color:#003d24}
-.emo{font-size:30px}
-.lbl{position:absolute; bottom:-20px; font-size:10px; font-weight:800; color:#8ba6d6}
+.emo{font-size:26px}
+.lbl{position:absolute; bottom:-16px; font-size:9px; font-weight:800; color:#8ba6d6}
 
-.sideBtns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.switchBtn{border-radius:8px;background:linear-gradient(90deg,#8e44ad,#9b59b6);border:none;color:#fff;font-weight:800;padding:12px 0;text-shadow:0 1px 1px rgba(0,0,0,.3)}
-.spToggle{
-  border-radius:8px; background:#121829; border:2px solid #554400; color:#776600;
-  font-weight:800; padding:10px 0; transition:.2s;
-}
-.spToggle.on{background:linear-gradient(90deg,#ffb700,#ffaa00); color:#3d2e00!important; border-color:#ffd700!important; box-shadow:0 0 15px rgba(255,200,0,.4); text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.sideBtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.switchBtn{border-radius:8px;background:linear-gradient(90deg,#8e44ad,#9b59b6);border:none;color:#fff;font-weight:800;padding:10px 0;font-size:12px}
+.spToggle{border-radius:8px; background:#121829; border:2px solid #554400; color:#776600; font-weight:800; padding:8px 0; font-size:12px; transition:.2s}
+.spToggle.on{background:linear-gradient(90deg,#ffb700,#ffaa00); color:#3d2e00!important; border-color:#ffd700!important; box-shadow:0 0 12px rgba(255,200,0,.4)}
 .spToggle.btnReady:not(.on){border-color:#ffaa00; color:#ffaa00; animation:glow 1.5s infinite}
-@keyframes glow{50%{box-shadow:0 0 10px rgba(255,170,0,.3)}}
+@keyframes glow{50%{box-shadow:0 0 8px rgba(255,170,0,.3)}}
 
-/* ログ・控え */
-#boxGrid{display:grid;gap:8px;grid-template-columns:1fr 1fr}
-.boxCol{background:#0e1424;border:1px solid #1f2b4d;border-radius:12px;padding:8px}
-.mini{
-  border:1px solid #2a3d6b; border-radius:6px; padding:6px; cursor:pointer; position:relative;
-  background:#141d33; margin-bottom:6px; transition:.2s;
-}
-.mini:hover{background:#1c2642; transform:translateX(2px)}
-.mini .head{display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px}
-.miniBarBg{height:4px;background:#000;border-radius:2px;overflow:hidden}
-.miniBar{height:100%;background:var(--hp)}
-
-/* ログ強化 */
 .logContainer{
-  height:140px; margin:8px 0; overflow-y:auto;
+  height:120px; margin:10px 0; overflow-y:auto;
   background:rgba(0,0,0,.4); border:1px solid #1f2b4d; border-radius:10px;
-  padding:8px; font-family:"Hiragino Kaku Gothic ProN", sans-serif; font-size:13px; /* サイズUP */
-  display:flex; flex-direction:column; gap:6px;
+  padding:8px; font-family:sans-serif; font-size:12px; display:flex; flex-direction:column; gap:5px;
 }
-.logLine{color:#b0c4de; border-left:3px solid #2b3a70; padding-left:8px; padding-bottom:2px; line-height:1.4}
+.logLine{color:#b0c4de; border-left:3px solid #2b3a70; padding-left:6px; line-height:1.3}
 .logLine.highlight{color:#ffe066; border-left-color:#ffe066; background:rgba(255,224,102,0.08)}
 .logLine.dmg{color:#ff9e9e; border-left-color:#ff5c6c}
 .logLine.heal{color:#9effc5; border-left-color:#4effa5}
-.logLine.sp{color:#fff; border-left-color:#a29bfe; background:linear-gradient(90deg, rgba(162,155,254,0.1), transparent)}
+.logLine.sp{color:#fff; border-left-color:#a29bfe}
 
-/* じゃんけん演出 */
-#jankenOverlay{
-  position:fixed; inset:0; z-index:90; pointer-events:none;
-  display:none; align-items:center; justify-content:center;
-  background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
+#boxGrid{display:grid;gap:8px;grid-template-columns:1fr 1fr; margin-top:12px}
+.boxCol{background:#0e1424;border:1px solid #1f2b4d;border-radius:10px;padding:6px}
+.mini{border:1px solid #2a3d6b; border-radius:6px; padding:5px; cursor:pointer; background:#141d33; margin-bottom:5px}
+.mini:hover{background:#1c2642}
+.mini .head{display:flex;justify-content:space-between;font-size:10px;font-weight:700;margin-bottom:3px}
+.miniBarBg{height:3px;background:#000;border-radius:2px;overflow:hidden}
+.miniBar{height:100%;background:var(--hp)}
+
+/* スマホ微調整 */
+@media(max-width:600px){
+  .container{padding:8px}
+  .unit{min-height:200px; padding:6px}
+  .cardName{font-size:13px}
+  .skillD{display:none} /* スマホでは詳細を省略してスッキリさせる */
+  .rps{width:50px;height:50px}
+  .emo{font-size:22px}
 }
-#jankenOverlay.active{display:flex}
-.jkWrap{display:flex; flex-direction:column; align-items:center; gap:30px}
-.jkHands{display:flex; gap:50px; align-items:center}
-.jkHand{font-size:80px; transition:transform .2s cubic-bezier(.17,.67,.28,1.4); opacity:0; transform:scale(0)}
+
+/* オーバーレイ */
+#jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result{
+  position:fixed; inset:0; z-index:99; pointer-events:none;
+  display:none; align-items:center; justify-content:center;
+}
+#switchModal,#infoModal,#rulesModal,#result{background:rgba(0,0,0,.8); pointer-events:auto; backdrop-filter:blur(4px)}
+#jankenOverlay.active{display:flex; background:rgba(0,0,0,.5); backdrop-filter:blur(2px)}
+#switchModal.show,#infoModal.show,#rulesModal.show,#result.show{display:flex}
+
+.jkWrap{display:flex; flex-direction:column; align-items:center; gap:20px}
+.jkHands{display:flex; gap:30px; align-items:center}
+.jkHand{font-size:60px; transition:transform .2s; opacity:0; transform:scale(0)}
 .jkHand.show{opacity:1; transform:scale(1)}
-.jkHand.win{filter:drop-shadow(0 0 30px #ffe066); transform:scale(1.4) rotate(-15deg); z-index:10}
+.jkHand.win{filter:drop-shadow(0 0 20px #ffe066); transform:scale(1.3) rotate(-15deg); z-index:10}
 .jkHand.lose{filter:grayscale(1) brightness(0.5); opacity:0.5; transform:scale(0.8) rotate(15deg)}
-.jkResult{font-size:60px; font-weight:900; color:#fff; text-shadow:0 4px 20px rgba(0,0,0,1); opacity:0; transform:translateY(20px)}
+.jkResult{font-size:48px; font-weight:900; color:#fff; text-shadow:0 4px 10px #000; opacity:0; transform:translateY(20px); transition:all .2s}
 .jkResult.show{opacity:1; transform:translateY(0)}
 
-/* 勝敗・ルール */
-#result,#rulesModal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;place-items:center;z-index:99;backdrop-filter:blur(5px)}
-#result.show,#rulesModal.show{display:grid}
-.box{background:#151b2e;border:1px solid #364a80;border-radius:20px;padding:30px;text-align:center;box-shadow:0 20px 50px #000}
-.rulesDialog{width:min(600px,90vw);max-height:80vh;overflow-y:auto;background:#101626;border:1px solid #2a3d6b;border-radius:16px;padding:20px;position:relative;color:#eaf2ff}
-.rulesClose{position:absolute;top:10px;right:10px;background:#1f2b4d;border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer}
+#cutIn{
+  background:linear-gradient(90deg, transparent, rgba(20,30,80,.95) 20%, rgba(20,30,80,.95) 80%, transparent);
+  height:100px; border-top:2px solid #ffe066; border-bottom:2px solid #ffe066;
+  flex-direction:column; transform:scaleY(0); transition:.15s;
+}
+#cutIn.show{display:flex; transform:scaleY(1)}
+.cutInText{font-size:28px; font-weight:900; color:#fff; text-shadow:0 4px 10px #000; font-style:italic}
+.cutInSub{font-size:12px; color:#ffe066; font-weight:700}
+
+.modalCard{width:min(500px, 90vw); max-height:80vh; overflow-y:auto; background:#101626; border:1px solid #364a80; border-radius:14px; padding:16px; box-shadow:0 20px 50px #000}
+.modalHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid #2a3d6b;padding-bottom:8px}
+.modalTitle{margin:0;font-size:16px;font-weight:800;color:#fff}
+#switchGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.selCard{cursor:pointer;transition:.2s}.selCard:hover{background:#1c2645}
+.selCard.selected{outline:2px solid #ffe066;background:#1e2a50}
+
+.timer{text-align:center; font-weight:900; font-size:12px; color:#8ba6d6; margin-top:6px}
+.timer .num{font-size:20px; color:#fff}
+.floatingText{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-weight:900;font-size:28px;color:#fff;-webkit-text-stroke:1px #000;text-shadow:0 2px 5px rgba(0,0,0,.8);pointer-events:none;z-index:10;animation:floatUp .8s forwards}
+.floatingText.dmg{color:#ff5c6c}.floatingText.heal{color:#4effa5}
+@keyframes floatUp{0%{opacity:0;transform:translate(-50%,0) scale(0.5)} 20%{opacity:1;transform:translate(-50%,-40px) scale(1.2)} 100%{opacity:0;transform:translate(-50%,-80px) scale(1)}}
 </style>
 </head>
 <body>
@@ -276,7 +272,7 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shad
     </section>
 
     <div class="logContainer" id="battleLog"></div>
-    <div class="timer" style="margin-top:-4px">TIME <span class="num" id="countNum">15</span></div>
+    <div class="timer">TIME <span class="num" id="countNum">15</span></div>
 
     <div id="boxGrid">
       <div class="boxCol"><div class="statsHead">Ally</div><div id="sixA"></div></div>
@@ -285,7 +281,7 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shad
   </div>
 </div>
 
-<div id="jankenOverlay"><div class="jkWrap"><div class="jkResult" id="jkResult">WIN</div><div class="jkHands"><div class="jkHand" id="jkHandA">✊</div><div style="color:#fff;font-weight:900;font-size:24px">VS</div><div class="jkHand" id="jkHandB">✌️</div></div></div></div>
+<div id="jankenOverlay"><div class="jkWrap"><div class="jkResult" id="jkResult">WIN</div><div class="jkHands"><div class="jkHand" id="jkHandA">✊</div><div style="color:#fff;font-weight:900;font-size:20px">VS</div><div class="jkHand" id="jkHandB">✌️</div></div></div></div>
 
 <div id="cutIn">
   <div class="cutInText" id="cutInName">SKILL NAME</div>
@@ -293,27 +289,24 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shad
 </div>
 
 <div id="switchModal">
-  <div class="card">
-    <h2>交代メンバー<button class="btnTiny" id="swCancel">キャンセル</button></h2>
-    <div class="body">
-      <div id="switchGrid"></div>
-      <button id="swDo" class="primary" style="width:100%;margin-top:10px" disabled>交代決定</button>
-    </div>
+  <div class="modalCard">
+    <div class="modalHead"><h3 class="modalTitle">交代</h3><button class="btnTiny" id="swCancel">閉じる</button></div>
+    <div id="switchGrid"></div>
+    <button id="swDo" class="primary" style="width:100%;margin-top:16px" disabled>決定</button>
   </div>
 </div>
 
 <div id="infoModal">
-  <div class="card" style="width:min(400px,90vw)">
-    <h2 id="infoTitle">詳細 <button class="btnTiny" onclick="$('infoModal').style.display='none'">閉じる</button></h2>
-    <div class="body" id="infoBody"></div>
+  <div class="modalCard">
+    <div class="modalHead"><h3 class="modalTitle">詳細</h3><button class="btnTiny" onclick="$('infoModal').classList.remove('show')">閉じる</button></div>
+    <div id="infoBody"></div>
   </div>
 </div>
 
 <div id="rulesModal">
-  <div class="rulesDialog">
-    <button class="rulesClose">×</button>
-    <h3 style="margin-top:0">ルール説明</h3>
-    <ul style="padding-left:20px;line-height:1.6">
+  <div class="modalCard">
+    <div class="modalHead"><h3 class="modalTitle">ルール</h3><button class="btnTiny" onclick="$('rulesModal').classList.remove('show')">閉じる</button></div>
+    <ul style="padding-left:18px;line-height:1.6;color:#cbd7f0;font-size:13px">
       <li>3体の「言葉」でチームを組んで戦います。</li>
       <li>じゃんけんに勝つと攻撃、負けると防御です。</li>
       <li>タイプ相性（有利1.5倍、不利0.67倍）が重要です。</li>
@@ -324,9 +317,9 @@ button:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shad
 </div>
 
 <div id="result">
-  <div class="box">
-    <h1 id="resTitle" style="color:#fff;margin:0 0 10px">WIN</h1>
-    <p>Returning to setup...</p>
+  <div class="modalCard" style="text-align:center;padding:40px">
+    <h1 id="resTitle" style="color:#fff;margin:0 0 20px;font-size:36px">WIN</h1>
+    <p style="color:#8ba6d6;font-size:12px">Returning to setup...</p>
   </div>
 </div>
 
@@ -337,14 +330,12 @@ const $=id=>document.getElementById(id);
 const qs=(s,el=document)=>el.querySelector(s);
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 
-// 画像マップ
 const IMG={"パラボラアンテナ":"parabola_antenna.png","ネスカフェアンバサダー":"nescafe_ambassador.png","にんじんしりしり":"ninjin_shirishiri.png","そぼろごはん":"soboro_gohan.png","ニシローランドゴリラ":"western_lowland_gorilla.png","毛むくじゃら":"kemukujara.png","九品仏":"kuhonbutsu.png","けんちん汁":"kenchin_jiru.png","カムチャッカ半島":"kamchatka_peninsula.png","タランチュラ":"tarantula.png","ハシビロコウ":"shoebill.png","バルサミコ酢":"balsamic_vinegar.png","ピロリ菌":"helicobacter_pylori.png","トリニダード・トバゴ":"trinidad_and_tobago.png","カラメル色素":"caramel_color.png","バビロン捕囚":"babylonian_captivity.png","鳥取砂丘":"tottori_sand_dunes.png","プラシーボ効果":"placebo_effect.png","渡来人":"torai_jin.png","さるびあ丸":"sarubia_maru.png","ペペロンチーノ":"peperoncino.png","ポリプロピレン":"polypropylene.png","サラエボ事件":"sarajevo_incident.png","クマンバチ":"kumabachi.png","県庁所在地":"prefectural_capital.png","照り焼きチキン":"teriyaki_chicken.png","ねるねるねるね":"nerunerunerune.png","スルメイカ":"surume_ika.png","本質":"essence.png","見える化":"mieruka.png","自分ごと化":"jibungotoka.png","解像度":"resolution.png","さるびあ丸":"sarubia_maru.png"};
 function preloadImgs(names){
   const unique=[...new Set(names.map(n=>IMG[n]).filter(Boolean))];
   unique.forEach(f=>{ const im=new Image(); im.src=`images/${f}`; });
 }
 
-// ログ（アイコン・スタイル強化）
 function log(msg, type='normal'){
   const c=$('battleLog');
   const d=document.createElement('div');
@@ -353,13 +344,11 @@ function log(msg, type='normal'){
   else if(type==='dmg') icon='💥 ';
   else if(type==='heal') icon='💖 ';
   else if(type==='sp') icon='✨ ';
-  
   d.className='logLine '+type;
   d.textContent=icon + msg;
   c.appendChild(d); c.scrollTop=c.scrollHeight;
 }
 
-// 演出：ダメージポップアップ
 function showFloatingText(targetId, text, type){
   const wrap = $(targetId); if(!wrap) return;
   const el = document.createElement('div');
@@ -369,7 +358,6 @@ function showFloatingText(targetId, text, type){
   setTimeout(()=>el.remove(), 900);
 }
 
-// 演出：カットイン
 async function showCutIn(skill, user){
   $('cutInName').textContent = skill;
   $('cutInUser').textContent = user;
@@ -380,7 +368,6 @@ async function showCutIn(skill, user){
   await delay(200);
 }
 
-// 演出：画面シェイク
 function shakeScreen(){
   const a=$('arena');
   a.classList.remove('shake');
@@ -388,7 +375,6 @@ function shakeScreen(){
   a.classList.add('shake');
 }
 
-// 入力ロック管理
 let inputLocked=false;
 function lockInputs(on){
   inputLocked=on;
@@ -397,14 +383,11 @@ function lockInputs(on){
   updateSPBtn(); 
 }
 
-// 必殺ボタン更新
 function updateSPBtn(){
   const btn=$('btnSP'); if(!btn)return;
   const ready = state.A.sp >= 6;
   const canPress = !inputLocked && ready && !state.busy;
-  
   btn.disabled = !canPress;
-  
   if(state.spOn){
     btn.textContent='✨ 必殺 ON';
     btn.classList.add('on');
@@ -415,38 +398,30 @@ function updateSPBtn(){
     if(ready && !inputLocked) btn.classList.add('btnReady');
     else btn.classList.remove('btnReady');
   }
-
   qs('#gA')?.classList.toggle('readyPulse', ready);
-  
   if(ready && !state.spAnnA){
     log('必殺ゲージMAX！使用可能', 'highlight');
     state.spAnnA=true;
   }
 }
 
-// じゃんけん演出
 async function playJankenAnim(myH, cpuH, res){
   const map={G:'✊',C:'✌️',P:'🖐'};
   const ov=$('jankenOverlay'), hA=$('jkHandA'), hB=$('jkHandB'), rs=$('jkResult');
-  
   ov.classList.add('active');
   hA.className='jkHand'; hB.className='jkHand'; rs.className='jkResult';
   hA.textContent=map[myH]; hB.textContent=map[cpuH];
-  
   await delay(50);
   hA.classList.add('show'); hB.classList.add('show');
   await delay(300);
-  
   if(res>0){ rs.textContent='WIN!'; rs.style.color='#4effa5'; hA.classList.add('win'); hB.classList.add('lose'); }
   else if(res<0){ rs.textContent='LOSE'; rs.style.color='#ff5c6c'; hA.classList.add('lose'); hB.classList.add('win'); }
   else { rs.textContent='DRAW'; rs.style.color='#ffd900'; }
   rs.classList.add('show');
-  
   await delay(700);
   ov.classList.remove('active');
 }
 
-// ゲーム定数・ロジック
 const TYPES_RING=['ヒストリー','ジオ','コンセプト','サイエンス','アニマル','ヒューマン','フード'];
 const typeColor = t => getComputedStyle(document.documentElement).getPropertyValue(`--t-${t}`)||'#7aa0ff';
 const typeMult=(atk,def)=>{const n=TYPES_RING.length,i=TYPES_RING.indexOf(atk),j=TYPES_RING.indexOf(def);if(i<0||j<0)return 1;const st=[(i+1)%n,(i+2)%n],wk=[(i-1+n)%n,(i-2+n)%n];if(st.includes(j))return 1.5;if(wk.includes(j))return 0.67;return 1;};
@@ -471,7 +446,6 @@ function makeWordObject([name,rank,type,yomiH]){
   return {name,rank,type,yomi:y,maxhp:HP,hp:HP,atk:ATK,def:DEF,eva:EVA,shield:0,eva60:0,atk13:0,lock:0,doom:0,selfHurt:0,stun:false,endure:false};
 }
 
-// データ
 const SKILLS={
  "パラボラアンテナ":["妨害電波","威力2.2倍。相手の必殺ゲージを0にする。"],
  "ネスカフェアンバサダー":["一杯いかが","攻撃後、味方全員HP60回復。"],
@@ -510,7 +484,6 @@ const WORDS_BASE=[["パラボラアンテナ","S","サイエンス","ぱらぼ�
 const makeW=i=>makeWordObject(WORDS_BASE[i]);
 const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false,spAnnA:false};
 
-// UI更新
 function barRow(label,val,max){const pct=Math.min(100,(val/max)*100);return `<div class="barLine"><div class="val" style="width:20px;text-align:left">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="val">${val}</div></div>`;}
 function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" data-type="${w.type}"><div class="head"><div>${w.name}</div><div style="color:${typeColor(w.type)}">${w.type}</div></div>${barRow('HP',w.maxhp,800)}${barRow('ATK',w.atk,120)}</div>`;}
 function renderMini(side){const root=side==='A'?$('statsA'):$('statsB');root.innerHTML='';for(let i=0;i<3;i++){const idx=Number($(`${side}-${i}`).value)||0;root.innerHTML+=miniCard(idx);}}
@@ -524,15 +497,12 @@ function startRound(){
 }
 function judge(a,b){if(a===b)return 0;if((a==='G'&&b==='C')||(a==='C'&&b==='P')||(a==='P'&&b==='G'))return 1;return -1;}
 
-// カード描画（状態異常バッジ追加）
 function renderCard(u,role,opp){
   const sp=role==='ally'?state.A.sp:state.B.sp, tag=role==='ally'?'A':'B';
   const owner=role==='ally'?'YOU':'CPU';
   const img=IMG[u.name]?`<img src="images/${IMG[u.name]}" class="mainImg" onerror="this.style.display='none'">`:'<span style="font-size:40px">📦</span>';
   const skill=(SKILLS[u.name]||['—','—']);
   const pips=[...Array(6)].map((_,i)=>`<span class="pip ${i<sp?'on':''}"></span>`).join('');
-  
-  // バッジ生成
   let badges='';
   if(u.lock>0) badges+=`<div class="stBadge">🔒交代不可</div>`;
   if(u.doom>0) badges+=`<div class="stBadge">👾文字化け</div>`;
@@ -540,56 +510,44 @@ function renderCard(u,role,opp){
   
   return `<div class="unit" style="--typeColor:${typeColor(u.type)}" data-rank="${u.rank}">
     <div class="unitInner">
-      <div class="cardHeader">
-        <span class="ownerBadge ${role}">${owner}</span>
-        <span class="typeIcon">${u.type}</span>
-      </div>
+      <div class="cardHeader"><span class="ownerBadge ${role}">${owner}</span><span class="typeIcon">${u.type}</span></div>
       <div class="cardName">${u.name}</div>
       <div class="artArea" id="art-${role}">${img}</div>
-      
       <div class="statusRow">${badges}</div>
-      <div class="statRow">
-        <span>HP</span>
-        <div class="hpBarBg"><div class="hpBar" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div>
-      </div>
+      <div class="statRow"><span>HP</span><div class="hpBarBg"><div class="hpBar" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div></div>
       <div style="text-align:right;font-size:10px;margin-bottom:6px"><span id="hpnum-${role}" class="num">${u.hp}</span> / ${u.maxhp}</div>
-      
       <div class="spRow">${pips}</div>
-      
-      <div class="skillInfo">
-        <div class="skillN">必殺: ${skill[0]}</div>
-        <div class="skillD">${skill[1]}</div>
-      </div>
-      
-      <div class="footer">
-        <span>ATK ${u.atk} / DEF ${u.def}</span>
-        <button class="btnStat" onclick="window._sh('${u.name}')">STATUS</button>
-      </div>
+      <div class="skillInfo"><div class="skillN">必殺: ${skill[0]}</div><div class="skillD">${skill[1]}</div></div>
+      <div class="footer"><span>ATK ${u.atk} / DEF ${u.def}</span><button class="btnStat" onclick="window._sh('${u.name}')">STATUS</button></div>
     </div>
   </div>`;
 }
+
+function buildBoxes(){
+  const mk=u=>`<div class="mini" data-type="${u.type}" onclick="window._sh('${u.name}')"><div class="head"><div>${u.name}</div><div style="color:${typeColor(u.type)}">${u.type}</div></div><div class="miniBarBg"><div class="miniBar" style="width:${Math.max(0,100*u.hp/u.maxhp)}%"></div></div></div>`;
+  $('sixA').innerHTML=state.A.team.map(mk).join('');
+  $('sixB').innerHTML=state.B.team.map(mk).join('');
+}
+
 function renderSides(){
   $('leftWrap').innerHTML=renderCard(state.A.team[state.A.i],'ally',state.B.team[state.B.i]);
   $('rightWrap').innerHTML=renderCard(state.B.team[state.B.i],'enemy',state.A.team[state.A.i]);
+  buildBoxes();
   updateSPBtn();
 }
-window._sh=(n)=>{const u=[...state.A.team,...state.B.team].find(x=>x.name===n); if(u){$('infoTitle').innerHTML=`${u.name}`; $('infoBody').innerHTML=renderCard(u,'info','info'); $('infoModal').style.display='grid';}};
+window._sh=(n)=>{const u=[...state.A.team,...state.B.team].find(x=>x.name===n); if(u){$('infoTitle').innerHTML=`${u.name}`; $('infoBody').innerHTML=renderCard(u,'info','info'); $('infoModal').classList.add('show');}};
 
 async function pick(h){
   if(state.busy || inputLocked) return;
   state.busy=true; clearInterval(state.timer);
   lockInputs(true);
-  
   try{
     const cpu=['G','C','P'][Math.floor(Math.random()*3)];
     const res=judge(h,cpu);
     await playJankenAnim(h,cpu,res);
-    
-    // バトル処理
     let ko=false;
     if(res>0) ko = await doTurn('ally');
     else if(res<0) ko = await doTurn('enemy');
-    
     if(!ko){
       state.A.sp=Math.min(6,state.A.sp+1);
       state.B.sp=Math.min(6,state.B.sp+1);
@@ -599,9 +557,7 @@ async function pick(h){
       await delay(600);
       startRound();
     }
-  }catch(e){
-    console.error(e); startRound();
-  }
+  }catch(e){console.error(e); startRound();}
 }
 
 async function doTurn(side){
@@ -609,35 +565,26 @@ async function doTurn(side){
   const def=side==='ally'?state.B.team[state.B.i]:state.A.team[state.A.i];
   const spUse = (side==='ally' && state.spOn && state.A.sp>=6) || (side==='enemy' && state.B.sp>=6);
   
-  // 必殺カットイン
   if(spUse){
-    if(side==='ally'){ state.A.sp=0; state.spOn=false; state.spAnnA=false; }
-    else { state.B.sp=0; }
-    
+    if(side==='ally'){ state.A.sp=0; state.spOn=false; state.spAnnA=false; } else { state.B.sp=0; }
     const sName = (SKILLS[att.name]||['?'])[0];
     await showCutIn(sName, att.name);
     log(`【必殺】${att.name}の『${sName}』発動！`, 'sp');
   } else {
     log(`${att.name}の攻撃！`, 'atk');
   }
-  
   await delay(400);
   
-  // 簡易ダメージ計算
   let mult=typeMult(att.type,def.type);
   if(spUse) mult *= 1.5; 
   let dmg = Math.floor( 40 * (att.atk/def.def) * mult * (Math.random()*0.4+0.8) );
   if(spUse) dmg = Math.floor(dmg*1.5);
   
-  // 状態異常などの簡易処理(今回は演出メイン)
   def.hp = Math.max(0, def.hp-dmg);
-  
-  // ヒット演出
   qs(side==='ally'?'#rightWrap .unit':'#leftWrap .unit').classList.add('hit');
   shakeScreen();
   showFloatingText(side==='ally'?'rightWrap':'leftWrap', `-${dmg}`, 'dmg');
   renderSides();
-  
   log(`${def.name}に ${dmg} ダメージ`, 'dmg');
   await delay(800);
   qs('.unit.hit')?.classList.remove('hit');
@@ -652,7 +599,6 @@ async function doTurn(side){
 async function handleKO(side){
   const team = side==='ally' ? state.A.team : state.B.team;
   const survivors = team.map((u,i)=>({u,i})).filter(o=>o.u.hp>0);
-  
   if(survivors.length===0){
     $('resTitle').textContent = side==='enemy' ? 'YOU WIN!' : 'YOU LOSE...';
     $('result').classList.add('show');
@@ -661,7 +607,6 @@ async function handleKO(side){
     $('battle').style.display='none'; $('setup').style.display='grid';
     return true; 
   }
-  
   if(side==='enemy'){
     state.B.i = survivors[0].i;
     state.B.sp=0;
@@ -677,7 +622,46 @@ async function handleKO(side){
   return true; 
 }
 
-// 起動処理
+// 交代モーダル
+const swModal=$('switchModal');
+const swGrid=$('switchGrid');
+const swDo=$('swDo');
+let swIdx=null;
+
+function openSwitch(){
+  swGrid.innerHTML=''; swIdx=null; swDo.disabled=true;
+  const idxs=[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0);
+  if(!idxs.length){ log('交代できる控えがいません'); return; }
+  idxs.forEach(i=>{
+    const u=state.A.team[i];
+    const div=document.createElement('div');
+    div.className='setupMini selCard';
+    div.style.setProperty('--typeC',typeColor(u.type));
+    div.innerHTML=`<div class="head"><div>${u.name}</div></div>${barRow('HP',u.hp,u.maxhp)}`;
+    div.onclick=()=>{
+      document.querySelectorAll('.selCard').forEach(e=>e.classList.remove('selected'));
+      div.classList.add('selected'); swIdx=i; swDo.disabled=false;
+    };
+    swGrid.appendChild(div);
+  });
+  swModal.classList.add('show');
+}
+
+$('btnSwitch').onclick=()=>{ if(!inputLocked) openSwitch(); };
+$('swCancel').onclick=()=>swModal.classList.remove('show');
+swDo.onclick=async()=>{
+  if(swIdx===null)return;
+  swModal.classList.remove('show');
+  state.A.i=swIdx; state.A.sp=0; state.spOn=false;
+  renderSides();
+  log(`${state.A.team[swIdx].name} に交代！`, 'highlight');
+  await delay(500);
+  await doTurn('enemy');
+  state.A.sp=Math.min(6,state.A.sp+1);
+  state.B.sp=Math.min(6,state.B.sp+1);
+  startRound();
+};
+
 document.addEventListener('DOMContentLoaded',()=>{
   makeTeam($('teamA'),'A'); makeTeam($('teamB'),'B');
   $('btnStart').onclick=async()=>{
@@ -686,7 +670,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     state.spOn=false; state.spAnnA=false;
     $('battleLog').innerHTML='';
     $('setup').style.display='none'; $('battle').style.display='block';
-    
     await preloadImgs([...state.A.team, ...state.B.team].map(u=>u.name));
     renderSides();
     log('バトル開始！', 'highlight');
@@ -696,16 +679,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('btnG').onclick=()=>pick('G');
   $('btnC').onclick=()=>pick('C');
   $('btnP').onclick=()=>pick('P');
-  $('btnSP').onclick=()=>{
-    if(!inputLocked && state.A.sp>=6){
-      state.spOn = !state.spOn;
-      updateSPBtn();
-    }
-  };
-  
-  // ルール
+  $('btnSP').onclick=()=>{ if(!inputLocked && state.A.sp>=6){ state.spOn = !state.spOn; updateSPBtn(); }};
   $('btnRules').onclick=()=>$('rulesModal').classList.add('show');
-  qs('.rulesClose').onclick=()=>$('rulesModal').classList.remove('show');
   $('btnRand').onclick=()=>{makeTeam($('teamA'),'A');makeTeam($('teamB'),'B');};
 });
 
