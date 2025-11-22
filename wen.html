@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v24.00 Resurrection</title>
-  <link rel="manifest" href="manifest.webmanifest">
+<title>KOTOBA-BATTLE | v23.00 Final Integrity</title>
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 
@@ -19,14 +19,13 @@
   --border-color: rgba(255, 255, 255, 0.15);
   
   --ally: #3b82f6; --enemy: #ef4444;
-  --hp: #10b981; --gauge: #fbbf24;
+  --hp-high: #10b981; --hp-mid: #eab308; --hp-low: #ef4444;
+  --gauge: #fbbf24;
   
   --t-ジオ:#38bdf8; --t-アニマル:#4ade80; --t-フード:#ffaa2b; 
   --t-コンセプト:#c084fc; --t-サイエンス:#22d3ee; --t-ヒストリー:#f472b6; --t-ヒューマン:#a3e635;
 
-  /* レアリティ色 */
-  --r-A: #ffd700; /* 金 */
-  --r-B: #c0c0c0; /* 銀 */
+  /* レアリティ枠色（静止用） */
   --r-C: #64748b; /* 鼠 */
   --r-D: #ffffff; /* 白 */
   --r-X: #d946ef; /* 紫 */
@@ -40,7 +39,6 @@ body{
   background-image: radial-gradient(circle at 50% 30%, #1e293b 0%, #020617 80%);
 }
 
-/* 背景アニメーション */
 .bg-anim {
   position: fixed; inset: 0; z-index: -1;
   background: 
@@ -52,7 +50,7 @@ body{
 }
 @keyframes gridMove { from { transform: translateY(0); } to { transform: translateY(40px); } }
 
-.container{max-width:800px;margin:0 auto;padding:8px;padding-bottom:160px}
+.container{max-width:800px;margin:0 auto;padding:8px;padding-bottom:180px}
 
 /* カード共通 */
 .card {
@@ -88,7 +86,7 @@ body{
 .slot { display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); }
 .pill { width: 20px; height: 20px; border-radius: 4px; background: #334155; color: #fff; font-weight: 800; font-size: 11px; display: grid; place-items: center; }
 .slot select { flex: 1; background: transparent; border: none; color: #fff; font-weight: 800; font-size: 13px; outline: none; }
-.slot select option { background: #0f172a; color: #fff; }
+.slot select option { background: #0f172a; }
 
 #statsGrid { display: grid; gap: 10px; }
 @media(min-width:720px){ #statsGrid { grid-template-columns: 1fr 1fr; } }
@@ -97,7 +95,7 @@ body{
 
 .barLine{display:flex;align-items:center;gap:6px;height:10px}
 .barBox{flex:1;height:5px;background:#060912;border-radius:3px;overflow:hidden}
-.barFill{height:100%;background:var(--hp);border-radius:3px}
+.barFill{height:100%;background:var(--hp-high);border-radius:3px}
 .val{font-size:10px;color:#9cb3de;width:28px;text-align:right;font-family:"Menlo",monospace}
 
 /* バトル画面 */
@@ -107,59 +105,74 @@ body{
 .vsrow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }
 .vsrow > div { min-width: 0; }
 
-/* === ユニットカード (枠線アニメーション完全版) === */
+/* === ユニットカード (枠線アニメーション実装) === */
 .unit {
-  position: relative; width: 100%; height: 100%; min-height: 320px;
+  position: relative; width: 100%; height: 100%; min-height: 280px;
   border-radius: 14px;
-  /* パディングで枠の太さを表現 */
-  padding: 3px; 
-  /* デフォルト背景 */
-  background: #334155;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+  background: #1e293b; 
   display: flex; flex-direction: column; overflow: hidden;
-  transition: filter 0.3s;
+  transition: filter 0.5s, opacity 0.5s, transform 0.5s;
+  z-index: 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
 }
 
-/* ランク別 動く背景（これが枠線に見える） */
-.unit[data-rank="S"] { background: linear-gradient(60deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); background-size: 300% 300%; animation: rainbowBorder 3s linear infinite; }
-.unit[data-rank="A"] { background: conic-gradient(from 0deg, #b8860b, #ffd700, #fff, #ffd700, #b8860b); animation: spinBorder 4s linear infinite; }
-.unit[data-rank="B"] { background: conic-gradient(from 0deg, #718096, #c0c0c0, #fff, #c0c0c0, #718096); animation: spinBorder 5s linear infinite; }
-
-/* 静止枠 */
-.unit[data-rank="C"] { background: var(--r-C); }
-.unit[data-rank="D"] { background: var(--r-D); }
-.unit[data-rank="X"] { background: var(--r-X); box-shadow: 0 0 15px var(--r-X); }
-
-@keyframes rainbowBorder { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-@keyframes spinBorder { from{background: conic-gradient(from 0deg, var(--c1), var(--c2), var(--c1));} to{background: conic-gradient(from 360deg, var(--c1), var(--c2), var(--c1));} }
-/* conic-gradientのアニメーションはJS無しでは重いので、擬似要素回転で代用 */
-.unit[data-rank="A"]::before, .unit[data-rank="B"]::before {
-  content:""; position:absolute; top:-50%; left:-50%; width:200%; height:200%; z-index:0;
-  animation: spin 3s linear infinite;
+/* S, A, B は擬似要素で回転する背景を作ることで「動く枠線」を表現 */
+.unit[data-rank="S"]::before, 
+.unit[data-rank="A"]::before, 
+.unit[data-rank="B"]::before {
+  content: ""; position: absolute; 
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  z-index: -2; animation: spin 4s linear infinite;
 }
-.unit[data-rank="A"]::before { background: conic-gradient(#b8860b, #ffd700, #fff, #ffd700, #b8860b); }
-.unit[data-rank="B"]::before { background: conic-gradient(#475569, #c0c0c0, #fff, #c0c0c0, #475569); }
-@keyframes spin { 100% { transform: rotate(360deg); } }
 
+/* S: 虹色回転 */
+.unit[data-rank="S"]::before {
+  background: conic-gradient(from 0deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
+}
+/* A: 金色回転 */
+.unit[data-rank="A"]::before {
+  background: conic-gradient(from 0deg, #b8860b, #ffd700, #fff, #ffd700, #b8860b);
+}
+/* B: 銀色回転 */
+.unit[data-rank="B"]::before {
+  background: conic-gradient(from 0deg, #718096, #c0c0c0, #fff, #c0c0c0, #718096);
+}
 
-/* カードの中身（枠線の上に浮く） */
+/* C, D, X は静的なborderで表現 */
+.unit[data-rank="C"] { border: 2px solid var(--r-C); }
+.unit[data-rank="D"] { border: 2px solid var(--r-D); }
+.unit[data-rank="X"] { border: 2px solid var(--r-X); box-shadow: 0 0 10px var(--r-X); }
+
+/* 中身のマスク */
 .unitInner {
-  position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column;
+  position: absolute; inset: 3px;
   background: linear-gradient(160deg, #1e293b, var(--typeColor), #0f172a);
-  border-radius: 11px; /* 外枠(14px) - padding(3px) */
-  padding: 4px; overflow: hidden;
+  border-radius: 11px;
+  z-index: 1;
+  display: flex; flex-direction: column; padding: 4px;
 }
+
+/* Sランクのカード表面キラキラ */
+.unit[data-rank="S"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 10; pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.4) 50%, transparent 55%);
+  background-size: 250% 250%; animation: shine 3.5s infinite linear; mix-blend-mode: overlay;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes shine { 0%{background-position:200% 200%} 100%{background-position:-50% -50%} }
 
 .unit.fall { animation: fallDown 0.8s forwards; filter: grayscale(1) brightness(0.4); }
 @keyframes fallDown { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(80px) rotate(20deg); opacity: 0; } }
 
+/* カード内部要素 */
 .cardHeader {
   display: flex; justify-content: space-between; align-items: center;
   padding: 4px 8px; background: rgba(0,0,0,0.5); border-radius: 8px 8px 0 0;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 .cardName {
-  font-weight: 900; font-size: 15px; color: #fff;
+  font-weight: 900; font-size: 14px; color: #fff;
   text-shadow: 0 2px 4px #000; white-space: nowrap;
   flex: 1; text-align: center; display: block; height: 24px; line-height: 24px;
 }
@@ -181,24 +194,23 @@ body{
 .unit.hit .mainImg { animation: hit .4s ease; }
 @keyframes hit{10%,90%{transform:translate(-6px,0)}20%,80%{transform:translate(10px,0)}30%,50%,70%{transform:translate(-10px,0)}40%,60%{transform:translate(10px,0)}}
 
-.statsArea { padding: 4px; }
-
+.midSection { padding: 8px 6px; background: rgba(15, 23, 42, 0.6); margin-top: -4px; position: relative; z-index: 3; border-radius: 0 0 10px 10px; }
 .typeRow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.typeIcon { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px; background: var(--typeColor); color: #0b0f1c; box-shadow: 0 2px 4px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3); }
-.ownerBadge { font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 4px; background: #020617; border: 1px solid #334155; color: #94a3b8; }
+.typeIcon { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: var(--typeColor); color: #0b0f1c; box-shadow: 0 2px 4px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3); }
 
 .statusRow { display: flex; gap: 4px; min-height: 14px; margin-bottom: 4px; justify-content: flex-end; flex-wrap: wrap; }
 .stBadge { font-size: 9px; padding: 1px 4px; border-radius: 4px; background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
 
+/* HPバー */
 .hpRow { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px; font-family: 'Teko'; }
 .hpLabel { font-size: 12px; color: #94a3b8; font-weight: 700; line-height: 1; }
 .hpVal { font-size: 16px; color: #fff; font-weight: 600; line-height: 0.9; }
 
 .hpBarBg { width: 100%; height: 10px; background: #0f172a; border-radius: 5px; border: 1px solid #334155; overflow: hidden; }
-.hpBar { height: 100%; width: 100%; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
-.hpBar.high { background: #10b981; box-shadow: 0 0 8px #10b981; }
-.hpBar.mid { background: #eab308; box-shadow: 0 0 8px #eab308; }
-.hpBar.low { background: #ef4444; box-shadow: 0 0 8px #ef4444; animation: pulseHP 0.5s infinite alternate; }
+.hpBar { height: 100%; width: 100%; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s; }
+.hpBar.high { background: var(--hp-high); box-shadow: 0 0 8px var(--hp-high); }
+.hpBar.mid { background: var(--hp-mid); box-shadow: 0 0 8px var(--hp-mid); }
+.hpBar.low { background: var(--hp-low); box-shadow: 0 0 8px var(--hp-low); animation: pulseHP 0.5s infinite alternate; }
 @keyframes pulseHP { from { opacity: 1; } to { opacity: 0.6; } }
 
 .bottomSection { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 6px; }
@@ -227,8 +239,9 @@ body{
 .padHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; color: #94a3b8; font-family: 'Teko'; letter-spacing: 1px; }
 .timerVal { font-size: 24px; color: #fff; font-weight: 600; margin-left: 4px; }
 
-/* 控えアイコン */
-.reserveMini { display: flex; gap: 6px; }
+/* 控え表示エリア (YOU / CPU) */
+.resBox { display: flex; gap: 6px; align-items: center; }
+.resLabel { font-weight: 900; margin-right: 2px; font-family: 'Teko'; }
 .resIcon { 
   width: 28px; height: 28px; border-radius: 4px; background: #1e293b; 
   border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; 
@@ -250,6 +263,7 @@ body{
 .rps.p { background: linear-gradient(145deg, #22c55e, #15803d); color: #fff; }
 .rps:disabled { filter: grayscale(1); opacity: 0.4; cursor: not-allowed; top: 8px; box-shadow: none; }
 .emo { font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+.lbl { position: absolute; bottom: -20px; font-size: 10px; font-weight: 900; color: #94a3b8; font-family: 'Orbitron'; text-shadow: 0 1px 2px #000; }
 
 .sideBtns { display: flex; flex-direction: column; gap: 8px; width: 120px; }
 .cmdBtn {
@@ -267,11 +281,12 @@ body{
   animation: flashReady 0.15s infinite alternate; 
   border: 2px solid #fff;
 }
-@keyframes flashReady { from { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; } to { background: #b91c1c; box-shadow: 0 0 25px #fbbf24; } }
+@keyframes flashReady { from { background: #f59e0b; box-shadow: 0 0 5px #f59e0b; } to { background: #b91c1c; box-shadow: 0 0 20px #ef4444; } }
 .btn-sp.on { background: linear-gradient(to bottom, #ef4444, #b91c1c); color: #fff; box-shadow: 0 0 15px #ef4444; animation: pulse 1s infinite; }
 @keyframes pulse { 0% { opacity:1; } 50% { opacity:0.8; } 100% { opacity:1; } }
 .btn-switch { background: linear-gradient(to bottom, #8b5cf6, #6d28d9); }
 
+/* ログ */
 .logWrapper {
   border: 1px solid #334155; background: rgba(2, 6, 23, 0.8); border-radius: 8px; overflow: hidden; margin-bottom: 8px;
 }
@@ -286,7 +301,7 @@ body{
 .logLine.dmg { color: #fca5a5; }
 .logLine.heal { color: #6ee7b7; }
 
-/* トースト (2.0秒) */
+/* トースト */
 .floatingText {
   position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
   font-family: 'Teko', sans-serif; font-weight: 700; font-size: 48px;
@@ -300,7 +315,7 @@ body{
 .floatingText.miss { color: #94a3b8; --glow-color: #94a3b8; font-size: 32px; }
 .floatingText.buff { color: #facc15; --glow-color: #facc15; font-size: 28px; }
 .floatingText.debuff { color: #c084fc; --glow-color: #c084fc; font-size: 28px; }
-.floatingText.adv { color: #10b981; font-size: 36px; --glow-color: #10b981; }
+.floatingText.adv { color: #34d399; font-size: 36px; --glow-color: #34d399; }
 .floatingText.dis { color: #f87171; font-size: 36px; --glow-color: #f87171; }
 @keyframes popUp { 
   0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); } 
@@ -309,10 +324,11 @@ body{
   100% { opacity: 0; transform: translate(-50%, -80px) scale(1); } 
 }
 
-#jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result,#statusModal{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
-#switchModal,#infoModal,#rulesModal,#result,#statusModal{background:rgba(0,0,0,0.8);pointer-events:auto;backdrop-filter:blur(8px)}
+#jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
+#switchModal,#infoModal,#rulesModal,#result{background:rgba(0,0,0,0.8);pointer-events:auto;backdrop-filter:blur(8px)}
 #jankenOverlay.active{display:flex;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)}
-#switchModal.show,#infoModal.show,#rulesModal.show,#result.show,#statusModal.show{display:flex}
+#switchModal.show,#infoModal.show,#rulesModal.show,#result.show{display:flex}
+
 .jkWrap{display:flex;flex-direction:column;align-items:center;gap:24px}
 .jkHands{display:flex;gap:40px;align-items:center}
 .jkHand{font-size:80px;transition:transform .2s cubic-bezier(0.34,1.56,0.64,1);opacity:0;transform:scale(0)}
@@ -381,8 +397,11 @@ body{
   
   <section class="padCard" id="pad">
     <div class="padHead">
-      <div id="reserveArea" class="reserveMini"></div>
-      <div>TIME <span class="timerVal" id="countNum">15</span></div>
+      <div style="display:flex;justify-content:space-between;width:100%">
+        <div id="resA" class="resBox"><span class="resLabel" style="color:#4da6ff">YOU</span></div>
+        <div style="font-size:24px;color:#fff;font-weight:600;font-family:'Teko'">TIME <span id="countNum">15</span></div>
+        <div id="resB" class="resBox"><span class="resLabel" style="color:#ff5c6c">CPU</span></div>
+      </div>
     </div>
     <div class="padInner">
       <div class="rpsArea">
@@ -412,7 +431,40 @@ const $=id=>document.getElementById(id);
 const qs=(s,el=document)=>el.querySelector(s);
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 
-const IMG={"パラボラアンテナ":"parabola_antenna.png","ネスカフェアンバサダー":"nescafe_ambassador.png","にんじんしりしり":"ninjin_shirishiri.png","そぼろごはん":"soboro_gohan.png","ニシローランドゴリラ":"western_lowland_gorilla.png","毛むくじゃら":"kemukujara.png","九品仏":"kuhonbutsu.png","けんちん汁":"kenchin_jiru.png","カムチャッカ半島":"kamchatka_peninsula.png","タランチュラ":"tarantula.png","ハシビロコウ":"shoebill.png","バルサミコ酢":"balsamic_vinegar.png","ピロリ菌":"helicobacter_pylori.png","トリニダード・トバゴ":"trinidad_and_tobago.png","カラメル色素":"caramel_color.png","バビロン捕囚":"babylonian_captivity.png","鳥取砂丘":"tottori_sand_dunes.png","プラシーボ効果":"placebo_effect.png","渡来人":"torai_jin.png","さるびあ丸":"sarubia_maru.png","ペペロンチーノ":"peperoncino.png","ポリプロピレン":"polypropylene.png","サラエボ事件":"sarajevo_incident.png","クマンバチ":"kumabachi.png","県庁所在地":"prefectural_capital.png","照り焼きチキン":"teriyaki_chicken.png","ねるねるねるね":"nerunerunerune.png","スルメイカ":"surume_ika.png","本質":"essence.png","見える化":"mieruka.png","自分ごと化":"jibungotoka.png","解像度":"resolution.png","さるびあ丸":"sarubia_maru.png"};
+const IMG={
+  "パラボラアンテナ":"parabola_antenna.png",
+  "ネスカフェアンバサダー":"nescafe_ambassador.png",
+  "にんじんしりしり":"ninjin_shirishiri.png",
+  "そぼろごはん":"soboro_gohan.png",
+  "ニシローランドゴリラ":"western_lowland_gorilla.png",
+  "毛むくじゃら":"kemukujara.png",
+  "九品仏":"kuhonbutsu.png",
+  "けんちん汁":"kenchin_jiru.png",
+  "カムチャッカ半島":"kamchatka_peninsula.png",
+  "タランチュラ":"tarantula.png",
+  "ハシビロコウ":"shoebill.png",
+  "バルサミコ酢":"balsamic_vinegar.png",
+  "ピロリ菌":"helicobacter_pylori.png",
+  "トリニダード・トバゴ":"trinidad_and_tobago.png",
+  "カラメル色素":"caramel_color.png",
+  "バビロン捕囚":"babylonian_captivity.png",
+  "鳥取砂丘":"tottori_sand_dunes.png",
+  "プラシーボ効果":"placebo_effect.png",
+  "渡来人":"torai_jin.png",
+  "さるびあ丸":"sarubia_maru.png",
+  "ペペロンチーノ":"peperoncino.png",
+  "ポリプロピレン":"polypropylene.png",
+  "サラエボ事件":"sarajevo_incident.png",
+  "クマンバチ":"kumabachi.png",
+  "県庁所在地":"prefectural_capital.png",
+  "照り焼きチキン":"teriyaki_chicken.png",
+  "ねるねるねるね":"nerunerunerune.png",
+  "スルメイカ":"surume_ika.png",
+  "本質":"essence.png",
+  "見える化":"mieruka.png",
+  "自分ごと化":"jibungotoka.png",
+  "解像度":"resolution.png"
+};
 function preloadImgs(names){
   const unique=[...new Set(names.map(n=>IMG[n]).filter(Boolean))];
   unique.forEach(f=>{ const im=new Image(); im.src=`images/${f}`; });
@@ -423,8 +475,13 @@ function log(msg, type='normal'){
   if(!c) return;
   const d=document.createElement('div');
   let icon='';
-  if(type==='atk') icon='⚔️'; else if(type==='dmg') icon='💥'; else if(type==='heal') icon='💖'; else if(type==='sp') icon='✨'; else if(type==='miss') icon='💨';
-  d.className='logLine '+type; d.textContent=(icon?icon+' ':'')+msg; c.appendChild(d); c.scrollTop=c.scrollHeight;
+  if(type==='atk') icon='⚔️';
+  else if(type==='dmg') icon='💥';
+  else if(type==='heal') icon='💖';
+  else if(type==='sp') icon='✨';
+  else if(type==='miss') icon='💨';
+  d.className='logLine '+type; d.textContent=(icon?icon+' ':'')+msg;
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
 }
 
 function updateHPUI(role, val, max){
@@ -479,16 +536,25 @@ function updateSPBtn(){
   const ready=state.A.sp>=6;
   const canPress=!inputLocked && ready && !state.busy;
   btn.disabled=!canPress;
+
   if(state.spOn){
-    btn.innerHTML='<span>✨</span> 必殺 ON'; btn.classList.add('on'); btn.classList.remove('btnReady');
+    btn.innerHTML='<span>✨</span> 必殺 ON';
+    btn.classList.add('on');
+    btn.classList.remove('ready');
   } else {
     if(ready && !inputLocked) {
-      btn.innerHTML='<span>✨</span> PUSH!'; btn.classList.add('btnReady'); btn.classList.remove('on');
+      btn.innerHTML='<span>✨</span> PUSH!';
+      btn.classList.add('ready');
+      btn.classList.remove('on');
     } else {
-      btn.innerHTML='<span>SP</span> 必殺技'; btn.classList.remove('on','btnReady');
+      btn.innerHTML='<span>SP</span> 必殺技';
+      btn.classList.remove('on','ready');
     }
   }
-  if(ready && !state.spAnnA){ log('必殺ゲージMAX！', 'highlight'); state.spAnnA=true; }
+  if(ready && !state.spAnnA){
+    log('必殺ゲージMAX！', 'highlight');
+    state.spAnnA=true;
+  }
 }
 
 async function playJankenAnim(myH, cpuH, res){
@@ -508,14 +574,26 @@ async function playJankenAnim(myH, cpuH, res){
 
 const TYPES_RING=['ヒストリー','ジオ','コンセプト','サイエンス','アニマル','ヒューマン','フード'];
 const typeColor=t=>getComputedStyle(document.documentElement).getPropertyValue(`--t-${t}`)||'#7aa0ff';
-const typeMult=(atk,def)=>{const n=TYPES_RING.length,i=TYPES_RING.indexOf(atk),j=TYPES_RING.indexOf(def);if(i<0||j<0)return 1;const st=[(i+1)%n,(i+2)%n],wk=[(i-1+n)%n,(i-2+n)%n];if(st.includes(j))return 1.5;if(wk.includes(j))return 0.67;return 1;};
+const typeMult=(atk,def)=>{
+  const n=TYPES_RING.length,i=TYPES_RING.indexOf(atk),j=TYPES_RING.indexOf(def);
+  if(i<0||j<0)return 1;
+  const st=[(i+1)%n,(i+2)%n],wk=[(i-1+n)%n,(i-2+n)%n];
+  if(st.includes(j))return 1.5;
+  if(wk.includes(j))return 0.67;
+  return 1;
+};
 const PRANK={S:170,A:165,B:160,C:150,D:145,X:150};
 const HP_BASE={S:560,A:540,B:520,C:500,D:480,X:500};
 
 const toKatakana=(s)=>(s||"").replace(/[ぁ-ん]/g,ch=>String.fromCharCode(ch.charCodeAt(0)+0x60));
 const visualLen = (s)=> (s||"").replace(/[・\s]/g,"").length;
 const reKanaH = /[ぁ-ゟ]/g, reKanaK = /[゠-ヿー]/g, reKanji = /[一-龥々〆ヵヶ]/g;
-function countClass(name){const H=(name.match(reKanaH)||[]).length,K=(name.match(reKanaK)||[]).length,J=(name.match(reKanji)||[]).length;return{H,K,J,total:H+K+J};}
+function countClass(name){
+  const H=(name.match(reKanaH)||[]).length;
+  const K=(name.match(reKanaK)||[]).length;
+  const J=(name.match(reKanji)||[]).length;
+  return{H,K,J,total:H+K+J};
+}
 const reSmallK = /[ァィゥェォャュョヮㇰ-ㇿ]/g, reSokuon=/ッ/g, reVoiced=/[ガ-ポヴ]/g, rePlosiveEnd=/[ツックキチテトプピペポカタ]$/;
 function calcAttackDefense(name,yomiKatakana){
   let atkP=17.5, defP=17.5;
@@ -537,8 +615,28 @@ function calcAttackDefense(name,yomiKatakana){
   atkP+=atk_len; defP+=20-atk_len;
   return {atkP,defP,T};
 }
-function calcEvasion(name,T,rank){const cls=countClass(name);const hiraRatio=cls.total?(cls.H/cls.total):0;const rankAdj=({S:-1,A:-0.5,B:0,C:0.5,D:1,X:0})[rank]??0;let eva=10+8*hiraRatio-0.5*(T-5)+rankAdj;eva=Math.round(eva*10)/10;return Math.max(5,Math.min(35,eva));}
-function makeWordObject([name,rank,type,yomiH]){const y=toKatakana(yomiH||name);const {atkP,defP,T}=calcAttackDefense(name,y);const ATK=Math.round(PRANK[rank]*(atkP/100));const DEF=Math.round(PRANK[rank]*(defP/100));const HP=Math.round(HP_BASE[rank]+20*(T-5));const EVA=calcEvasion(name,T,rank);return {name,rank,type,yomi:y,maxhp:HP,hp:HP,atk:ATK,def:DEF,eva:EVA,shield:0,eva60:0,atk13:0,lock:0,doom:0,selfHurt:0,stun:false,endure:false};}
+function calcEvasion(name,T,rank){
+  const cls=countClass(name);
+  const hiraRatio=cls.total?(cls.H/cls.total):0;
+  const rankAdj=({S:-1,A:-0.5,B:0,C:0.5,D:1,X:0})[rank]??0;
+  let eva=10+8*hiraRatio-0.5*(T-5)+rankAdj;
+  eva=Math.round(eva*10)/10;
+  return Math.max(5,Math.min(35,eva));
+}
+function makeWordObject([name,rank,type,yomiH]){
+  const y=toKatakana(yomiH||name);
+  const {atkP,defP,T}=calcAttackDefense(name,y);
+  const ATK=Math.round(PRANK[rank]*(atkP/100));
+  const DEF=Math.round(PRANK[rank]*(defP/100));
+  const HP=Math.round(HP_BASE[rank]+20*(T-5));
+  const EVA=calcEvasion(name,T,rank);
+  return {
+    name,rank,type,yomi:y,
+    maxhp:HP,hp:HP,atk:ATK,def:DEF,eva:EVA,
+    shield:0,eva60:0,atk13:0,lock:0,doom:0,selfHurt:0,
+    stun:false,endure:false
+  };
+}
 
 const SKILLS={
  "パラボラアンテナ":["妨害電波","威力2.2倍。相手の必殺ゲージを0にする。"],
@@ -574,17 +672,135 @@ const SKILLS={
  "自分ごと化":["鏡文字","相手の必殺をコピー（威力2倍）。"],
  "解像度":["鏡文字","相手の必殺をコピー（威力2倍）。"]
 };
-const WORDS_BASE=[["パラボラアンテナ","S","サイエンス","ぱらぼらあんてな"],["ネスカフェアンバサダー","S","ヒューマン","ねすかふぇあんばさだー"],["にんじんしりしり","A","フード","にんじんしりしり"],["そぼろごはん","A","フード","そぼろごはん"],["ニシローランドゴリラ","A","アニマル","にしろーらんどごりら"],["毛むくじゃら","A","アニマル","けむくじゃら"],["九品仏","A","ジオ","くほんぶつ"],["けんちん汁","A","フード","けんちんじる"],["カムチャッカ半島","B","ジオ","かむちゃっかはんとう"],["タランチュラ","B","アニマル","たらんちゅら"],["ハシビロコウ","B","アニマル","はしびろこう"],["バルサミコ酢","B","フード","ばるさみこす"],["ピロリ菌","B","サイエンス","ぴろりきん"],["トリニダード・トバゴ","B","ジオ","とりにだーどとばご"],["カラメル色素","B","サイエンス","からめるしきそ"],["バビロン捕囚","C","ヒストリー","ばびろんほしゅう"],["鳥取砂丘","C","ジオ","とっとりさきゅう"],["プラシーボ効果","C","サイエンス","ぷらしーぼこうか"],["渡来人","C","ヒューマン","とらいじん"],["さるびあ丸","C","ジオ","さるびあまる"],["ペペロンチーノ","C","フード","ぺぺろんちーの"],["ポリプロピレン","C","サイエンス","ぽりぷろぴれん"],["サラエボ事件","C","ヒストリー","さらえぼじけん"],["クマンバチ","D","アニマル","くまんばち"],["県庁所在地","D","ジオ","けんちょうしょざいち"],["照り焼きチキン","D","フード","てりやきちきん"],["ねるねるねるね","D","フード","ねるねるねるね"],["スルメイカ","D","アニマル","するめいか"],["本質","X","コンセプト","ほんしつ"],["見える化","X","コンセプト","みえるか"],["自分ごと化","X","コンセプト","じぶんごとか"],["解像度","X","コンセプト","かいぞうど"]];
+const WORDS_BASE=[
+ ["パラボラアンテナ","S","サイエンス","ぱらぼらあんてな"],
+ ["ネスカフェアンバサダー","S","ヒューマン","ねすかふぇあんばさだー"],
+ ["にんじんしりしり","A","フード","にんじんしりしり"],
+ ["そぼろごはん","A","フード","そぼろごはん"],
+ ["ニシローランドゴリラ","A","アニマル","にしろーらんどごりら"],
+ ["毛むくじゃら","A","アニマル","けむくじゃら"],
+ ["九品仏","A","ジオ","くほんぶつ"],
+ ["けんちん汁","A","フード","けんちんじる"],
+ ["カムチャッカ半島","B","ジオ","かむちゃっかはんとう"],
+ ["タランチュラ","B","アニマル","たらんちゅら"],
+ ["ハシビロコウ","B","アニマル","はしびろこう"],
+ ["バルサミコ酢","B","フード","ばるさみこす"],
+ ["ピロリ菌","B","サイエンス","ぴろりきん"],
+ ["トリニダード・トバゴ","B","ジオ","とりにだーどとばご"],
+ ["カラメル色素","B","サイエンス","からめるしきそ"],
+ ["バビロン捕囚","C","ヒストリー","ばびろんほしゅう"],
+ ["鳥取砂丘","C","ジオ","とっとりさきゅう"],
+ ["プラシーボ効果","C","サイエンス","ぷらしーぼこうか"],
+ ["渡来人","C","ヒューマン","とらいじん"],
+ ["さるびあ丸","C","ジオ","さるびあまる"],
+ ["ペペロンチーノ","C","フード","ぺぺろんちーの"],
+ ["ポリプロピレン","C","サイエンス","ぽりぷろぴれん"],
+ ["サラエボ事件","C","ヒストリー","さらえぼじけん"],
+ ["クマンバチ","D","アニマル","くまんばち"],
+ ["県庁所在地","D","ジオ","けんちょうしょざいち"],
+ ["照り焼きチキン","D","フード","てりやきちきん"],
+ ["ねるねるねるね","D","フード","ねるねるねるね"],
+ ["スルメイカ","D","アニマル","するめいか"],
+ ["本質","X","コンセプト","ほんしつ"],
+ ["見える化","X","コンセプト","みえるか"],
+ ["自分ごと化","X","コンセプト","じぶんごとか"],
+ ["解像度","X","コンセプト","かいぞうど"]
+];
 const makeW=i=>makeWordObject(WORDS_BASE[i]);
 const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false,spAnnA:false,history:new Set()};
 
 const left =()=>state.A.team[state.A.i];
 const right =()=>state.B.team[state.B.i];
 
-function barRow(label,val,max){const pct=Math.min(100,(val/max)*100);return `<div class="barRow"><div class="barLabel">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="barVal">${val}</div></div>`;}
+function barRow(label,val,max){
+  const pct=Math.min(100,(val/max)*100);
+  return `<div class="barRow" style="display:flex;align-items:center;gap:4px;font-size:10px">
+    <div style="width:40px;color:#cbd5e1">${label}</div>
+    <div class="barBox"><div class="barFill" style="width:${pct}%"></div></div>
+    <div class="barVal" style="width:36px;text-align:right;color:#9ca3af">${val}</div>
+  </div>`;
+}
 
-function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" style="--typeC:${typeColor(w.type)}" data-type="${w.type}"><div class="head"><div>${w.name}</div><div style="color:var(--typeC)">${w.type}</div></div><div class="statGrid">${barRow('HP',w.maxhp,800)}${barRow('ATK',w.atk,120)}${barRow('DEF',w.def,120)}${barRow('EVA',w.eva,30)}</div></div>`;}
-function renderMini(side){const root=side==='A'?$('statsA'):$('statsB');root.innerHTML='';for(let i=0;i<3;i++){const idx=Number($(`${side}-${i}`).value)||0;root.innerHTML+=miniCard(idx);}}
+/* バトル用カード描画 */
+function renderCard(unit, role, opponent){
+  const sideSp = role === 'ally' ? state.A.sp : state.B.sp;
+  const skill = SKILLS[unit.name] || ['—','—'];
+  const imgFile = IMG[unit.name] || 'placeholder.png';
+
+  const pips = Array.from({length:6},(_,i)=>
+    `<div class="pip ${i<sideSp?'on':''}"></div>`
+  ).join('');
+
+  // 状態異常バッジ
+  const st = [];
+  if(unit.stun) st.push('<span class="stBadge">言葉狩り</span>');
+  if(unit.lock>0) st.push('<span class="stBadge">言論統制</span>');
+  if(unit.selfHurt>0) st.push('<span class="stBadge">ゲシュタルト崩壊</span>');
+  if(unit.doom>0) st.push('<span class="stBadge">文字化け</span>');
+  if(unit.eva60>0) st.push('<span class="stBadge">回避UP</span>');
+  if(unit.shield>0) st.push('<span class="stBadge">防御UP</span>');
+  if(unit.endure) st.push('<span class="stBadge">根性</span>');
+
+  return `
+  <div class="unit" data-rank="${unit.rank}" style="--typeColor:${typeColor(unit.type)}">
+    <div class="unitInner">
+      <div class="cardHeader">
+        <span class="typeIcon">${unit.type}</span>
+        <span class="cardName" id="nm-${role}">${unit.name}</span>
+        <button class="btnStat" onclick="window._sh('${unit.name}')">DETAIL</button>
+      </div>
+      <figure class="artArea">
+        <img class="mainImg" src="images/${imgFile}" alt="${unit.name}">
+      </figure>
+      <div class="midSection">
+        <div class="typeRow">
+          <div class="hpLabel">HP</div>
+          <div class="hpVal" id="hpnum-${role}">${unit.hp}</div>
+        </div>
+        <div class="hpBarBg">
+          <div class="hpBar high" id="hp-${role}" style="width:${(unit.hp/unit.maxhp)*100}%"></div>
+        </div>
+        <div class="statusRow">${st.join('')}</div>
+        <div class="bottomSection">
+          <div class="spRow">${pips}</div>
+          <div class="skillInfo">
+            <div class="skillN">${skill[0]}</div>
+            <div class="skillD">${skill[1]}</div>
+          </div>
+          <div class="footer">
+            <span>ATK ${unit.atk} / DEF ${unit.def} / EVA ${unit.eva}%</span>
+            <span style="font-size:9px;color:#e5e7eb">${unit.rank} / ${unit.type}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function miniCard(idx){
+  const w=makeW(idx);
+  return `
+  <div class="setupMini" style="--typeC:${typeColor(w.type)}" data-type="${w.type}">
+    <div class="head" style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+      <div>${w.name}</div>
+      <div style="color:var(--typeC)">${w.type}</div>
+    </div>
+    <div class="statGrid" style="display:flex;flex-direction:column;gap:4px">
+      ${barRow('HP',w.maxhp,800)}
+      ${barRow('ATK',w.atk,120)}
+      ${barRow('DEF',w.def,120)}
+      ${barRow('EVA',w.eva,30)}
+    </div>
+  </div>`;
+}
+function renderMini(side){
+  const root=side==='A'?$('statsA'):$('statsB');
+  root.innerHTML='';
+  for(let i=0;i<3;i++){
+    const idx=Number($(`${side}-${i}`).value)||0;
+    root.innerHTML+=miniCard(idx);
+  }
+}
 
 function uniqueRandom(n, sourceLen){
   const arr = []; const pool = Array.from({length: sourceLen}, (_, i) => i);
@@ -594,8 +810,28 @@ function uniqueRandom(n, sourceLen){
   }
   return arr;
 }
-function makeTeam(root,side){root.innerHTML='';for(let i=0;i<3;i++){const div=document.createElement('div');div.className='slot';const pill=document.createElement('span');pill.className='pill';pill.textContent='#'+(i+1);const sel=document.createElement('select');sel.id=`${side}-${i}`;WORDS_BASE.forEach((w,idx)=>{const o=document.createElement('option');o.value=idx;o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;sel.append(o);});sel.addEventListener('change',()=>{renderMini(side);});div.append(pill,sel);root.append(div);}const picks=uniqueRandom(3,WORDS_BASE.length);picks.forEach((v,i)=>$(`${side}-${i}`).value=v);renderMini(side);}
-const collect=side=>[0,1,2].map(i=>{const idx=Number($(`${side}-${i}`).value)||0;return {...makeW(idx),side};});
+function makeTeam(root,side){
+  root.innerHTML='';
+  for(let i=0;i<3;i++){
+    const div=document.createElement('div');div.className='slot';
+    const pill=document.createElement('span');pill.className='pill';pill.textContent='#'+(i+1);
+    const sel=document.createElement('select');sel.id=`${side}-${i}`;
+    WORDS_BASE.forEach((w,idx)=>{
+      const o=document.createElement('option');
+      o.value=idx;o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;
+      sel.append(o);
+    });
+    sel.addEventListener('change',()=>{renderMini(side);});
+    div.append(pill,sel);root.append(div);
+  }
+  const picks=uniqueRandom(3,WORDS_BASE.length);
+  picks.forEach((v,i)=>$(`${side}-${i}`).value=v);
+  renderMini(side);
+}
+const collect=side=>[0,1,2].map(i=>{
+  const idx=Number($(`${side}-${i}`).value)||0;
+  return {...makeW(idx),side};
+});
 
 function startRound(){
   state.remain=15; $('countNum').textContent=state.remain; clearInterval(state.timer);
@@ -613,7 +849,11 @@ function startRound(){
     }
   }, 1200);
 
-  state.timer=setInterval(()=>{if(state.busy)return; state.remain--; $('countNum').textContent=state.remain; if(state.remain<=0){pick(['G','C','P'][Math.floor(Math.random()*3)]);}},1000);
+  state.timer=setInterval(()=>{
+    if(state.busy)return;
+    state.remain--; $('countNum').textContent=state.remain;
+    if(state.remain<=0){pick(['G','C','P'][Math.floor(Math.random()*3)]);}
+  },1000);
 }
 
 async function cpuSwitchAction(nextIdx){
@@ -631,7 +871,11 @@ async function cpuSwitchAction(nextIdx){
   } catch(e){ console.error(e); startRound(); } finally { state.busy = false; lockInputs(false); }
 }
 
-function judge(a,b){if(a===b)return 0;if((a==='G'&&b==='C')||(a==='C'&&b==='P')||(a==='P'&&b==='G'))return 1;return -1;}
+function judge(a,b){
+  if(a===b)return 0;
+  if((a==='G'&&b==='C')||(a==='C'&&b==='P')||(a==='P'&&b==='G'))return 1;
+  return -1;
+}
 
 function baseDamage(att, def){
   let mult = typeMult(att.type, def.type);
@@ -642,76 +886,23 @@ function baseDamage(att, def){
 function checkAffinity(){
   const a = left(), b = right();
   const pairKey = `${a.name}:${b.name}`;
-  const setBadge = (el, m) => {
-    if(!el) return; el.className = 'affTag';
-    if(m>=1.5) { el.textContent='▲ 有利'; el.className='affTag adv show'; }
-    else if(m<=0.7) { el.textContent='▼ 不利'; el.className='affTag dis show'; }
-    else { el.className='affTag even'; }
-  };
-  const m1 = typeMult(a.type, b.type);
-  setBadge(qs('#affA'), m1);
-  setBadge(qs('#affB'), typeMult(b.type, a.type));
-
   if(!state.history.has(pairKey)){
     state.history.add(pairKey);
-    if(m1 >= 1.5) { showFloatingText('leftWrap', '相性有利!', 'adv'); log(`【有利】${a.name}は${b.name}に強い！`,'heal'); }
-    else if(m1 <= 0.7) { showFloatingText('leftWrap', '相性不利...', 'dis'); log(`【不利】${a.name}は${b.name}に弱い...`,'dmg'); }
+    const m1 = typeMult(a.type, b.type);
+    if(m1 >= 1.5) {
+      showFloatingText('leftWrap', '相性有利!', 'adv');
+      log(`【有利】${a.name}は${b.name}に強い！`,'heal');
+    }
+    else if(m1 <= 0.7) {
+      showFloatingText('leftWrap', '相性不利...', 'dis');
+      log(`【不利】${a.name}は${b.name}に弱い...`,'dmg');
+    }
   }
 }
 
-function renderCard(u,role,opp){
-  const sp=role==='ally'?state.A.sp:state.B.sp, tag=role==='ally'?'A':'B';
-  const owner=role==='ally'?'YOU':'CPU';
-  const img=IMG[u.name]?`<img src="images/${IMG[u.name]}" class="mainImg" onerror="this.style.display='none'">`:'<span style="font-size:40px">📦</span>';
-  const skill=(SKILLS[u.name]||['—','—']);
-  const pips=[...Array(6)].map((_,i)=>`<span class="pip ${i<sp?'on':''}"></span>`).join('');
-  let badges='';
-  if(u.lock>0) badges+=`<div class="stBadge">🔒交代不可</div>`;
-  if(u.doom>0) badges+=`<div class="stBadge">👾文字化け</div>`;
-  if(u.selfHurt>0) badges+=`<div class="stBadge">🌀崩壊</div>`;
-  
-  return `<div class="unit" style="--typeColor:${typeColor(u.type)}" data-rank="${u.rank}">
-    <div class="unitInner">
-      <div class="cardHeader"><span class="ownerBadge ${role}">${owner}</span><span class="typeIcon">${u.type}</span></div>
-      <div class="cardName" id="nm-${role}">${u.name}</div>
-      <div class="artArea" id="art-${role}">
-        ${img}
-        <div style="position:absolute;bottom:4px;right:4px;">
-           <span id="aff${tag}" class="affTag"></span>
-        </div>
-      </div>
-      
-      <div class="statsArea">
-         <div class="hpRow" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2px;font-family:'Teko'">
-            <span style="font-size:12px;color:#94a3b8;font-weight:700;line-height:1">HP</span>
-            <div style="font-size:16px;color:#fff;font-weight:600;line-height:0.9">
-              <span id="hpnum-${role}">${u.hp}</span>
-              <span style="font-size:10px;color:#94a3b8">/ ${u.maxhp}</span>
-            </div>
-         </div>
-         <div class="hpBarBg"><div class="hpBar" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div>
-         <div class="statusRow">${badges}</div>
-      </div>
-
-      <div class="bottomSection">
-        <div class="skillInfo">
-          <div class="skillN">技: ${skill[0]}</div>
-          <div class="skillD">${skill[1]}</div>
-        </div>
-        <div class="spRow">${pips}</div>
-        <div class="footer">
-           <span class="typeBadge" style="color:#94a3b8;font-size:10px">ATK:${u.atk} DEF:${u.def} EVA:${u.eva}%</span>
-           <button class="btnStat" onclick="window._sh('${u.name}')">詳細</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-/* 復活: 控えエリアの表示 */
+/* 控えエリアの表示 (YOU / CPU) */
 function buildBoxes(){
   const mk=(u,i,isActive)=>`<div class="resIcon ${u.hp<=0?'dead':''} ${isActive?'active':''}" onclick="window._sh('${u.name}')" style="border-color:${typeColor(u.type)}">${u.name.charAt(0)}</div>`;
-  
   const rAreaA = $('resA');
   if(rAreaA) {
     rAreaA.innerHTML=`
@@ -736,7 +927,11 @@ function renderSides(){
   $('leftWrap').innerHTML=renderCard(state.A.team[state.A.i],'ally',state.B.team[state.B.i]);
   $('rightWrap').innerHTML=renderCard(state.B.team[state.B.i],'enemy',state.A.team[state.A.i]);
   fitName(qs('#nm-ally')); fitName(qs('#nm-enemy'));
-  buildBoxes(); updateSPBtn(); updateHPUI('ally',left().hp,left().maxhp); updateHPUI('enemy',right().hp,right().maxhp); checkAffinity();
+  buildBoxes();
+  updateSPBtn();
+  updateHPUI('ally',left().hp,left().maxhp);
+  updateHPUI('enemy',right().hp,right().maxhp);
+  checkAffinity();
 }
 
 window._sh=(n)=>{
@@ -749,8 +944,10 @@ window._sh=(n)=>{
     </div>
     <div class="setupMini" style="margin-bottom:12px;background:rgba(0,0,0,0.3)">
       <div class="statGrid" style="gap:12px">
-        ${barRow('HP', u.hp, u.maxhp)} ${barRow('ATK', u.atk, 120)}
-        ${barRow('DEF', u.def, 120)} ${barRow('EVA', u.eva, 30)}
+        ${barRow('HP', u.hp, u.maxhp)}
+        ${barRow('ATK', u.atk, 120)}
+        ${barRow('DEF', u.def, 120)}
+        ${barRow('EVA', u.eva, 30)}
       </div>
     </div>
     <div style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;border:1px solid #444">
@@ -775,18 +972,44 @@ function spEffectPre(att,def,role,forcedName=null,mirrorMode=false){
     case '毛むくじゃら': mult=1.4; att.eva60=3; showFloatingText(role==='ally'?'leftWrap':'rightWrap','回避UP','buff'); break;
     case '九品仏': mult=1.6; att.shield=2; showFloatingText(role==='ally'?'leftWrap':'rightWrap','軽減','buff'); break;
     case 'けんちん汁': mult=1.2; notes.push('自己回復'); break;
-    case 'カムチャッカ半島': case 'ハシビロコウ': case 'バルサミコ酢': case 'バビロン捕囚': case 'ポリプロピレン': case 'クマンバチ': case '照り焼きチキン': def.lock=4; showFloatingText(role==='ally'?'rightWrap':'leftWrap','LOCKED','debuff'); break;
-    case 'タランチュラ': case 'トリニダード・トバゴ': case 'サラエボ事件': case 'さるびあ丸': def.stun=true; showFloatingText(role==='ally'?'rightWrap':'leftWrap','スタン','debuff'); break;
-    case 'ピロリ菌': case 'カラメル色素': case '鳥取砂丘': case 'プラシーボ効果': case 'ペペロンチーノ': case 'スルメイカ': case 'ねるねるねるね': def.selfHurt=3; showFloatingText(role==='ally'?'rightWrap':'leftWrap','崩壊','debuff'); break;
-    case '渡来人': case '県庁所在地': def.doom=3; showFloatingText(role==='ally'?'rightWrap':'leftWrap','文字化け','debuff'); break;
-    case '本質': case '見える化': case '自分ごと化': case '解像度':
-      if(!mirrorMode){ mult=2.0; skillTitle='鏡文字'; } break;
+    case 'カムチャッカ半島':
+    case 'ハシビロコウ':
+    case 'バルサミコ酢':
+    case 'バビロン捕囚':
+    case 'ポリプロピレン':
+    case 'クマンバチ':
+    case '照り焼きチキン':
+      def.lock=4; showFloatingText(role==='ally'?'rightWrap':'leftWrap','LOCKED','debuff'); break;
+    case 'タランチュラ':
+    case 'トリニダード・トバゴ':
+    case 'サラエボ事件':
+    case 'さるびあ丸':
+      def.stun=true; showFloatingText(role==='ally'?'rightWrap':'leftWrap','スタン','debuff'); break;
+    case 'ピロリ菌':
+    case 'カラメル色素':
+    case '鳥取砂丘':
+    case 'プラシーボ効果':
+    case 'ペペロンチーノ':
+    case 'スルメイカ':
+    case 'ねるねるねるね':
+      def.selfHurt=3; showFloatingText(role==='ally'?'rightWrap':'leftWrap','崩壊','debuff'); break;
+    case '渡来人':
+    case '県庁所在地':
+      def.doom=3; showFloatingText(role==='ally'?'rightWrap':'leftWrap','文字化け','debuff'); break;
+    case '本質':
+    case '見える化':
+    case '自分ごと化':
+    case '解像度':
+      if(!mirrorMode){ mult=2.0; skillTitle='鏡文字'; }
+      break;
   }
   return {mult,multiSeq,skillTitle,skillUser,notes};
 }
 async function spEffectPost(att,def,role,usedName){
   switch(usedName){
-    case 'パラボラアンテナ': if(role==='ally'){state.B.sp=0;}else{state.A.sp=0;} break;
+    case 'パラボラアンテナ':
+      if(role==='ally'){state.B.sp=0;}else{state.A.sp=0;}
+      break;
     case 'ネスカフェアンバサダー': {
       const team = (role==='ally'?state.A.team:state.B.team);
       team.forEach(u=>{ if(u.hp<u.maxhp){ u.hp=Math.min(u.maxhp,u.hp+60); } });
@@ -805,7 +1028,9 @@ async function spEffectPost(att,def,role,usedName){
 
 async function startOfAction(side){
   const me=side==='ally'?state.A.team[state.A.i]:state.B.team[state.B.i];
-  if(me.eva60>0)me.eva60--; if(me.atk13>0)me.atk13--; if(me.lock>0)me.lock--;
+  if(me.eva60>0)me.eva60--;
+  if(me.atk13>0)me.atk13--;
+  if(me.lock>0)me.lock--;
   if(me.doom>0){
     me.doom--;
     if(me.doom<=0){
@@ -813,7 +1038,8 @@ async function startOfAction(side){
       qs(side==='ally'?'#leftWrap .unit':'#rightWrap .unit').classList.add('fall');
       await delay(1000);
       log(`${me.name}は文字化けで倒れた！`,'highlight');
-      const ended=await handleKO(side); return false===ended;
+      const ended=await handleKO(side);
+      return false===ended;
     }
   }
   if(me.stun){
@@ -854,7 +1080,11 @@ async function doTurn(side){
   let mult=1, multi=null, skillTitle='通常攻撃', usedName=att.name;
   
   if(spUse){
-    if(side==='ally'){ state.A.sp=0; state.spOn=false; state.spAnnA=false; } else { state.B.sp=0; }
+    if(side==='ally'){
+      state.A.sp=0; state.spOn=false; state.spAnnA=false;
+    } else {
+      state.B.sp=0;
+    }
     
     if(['本質','見える化','自分ごと化','解像度'].includes(att.name)){
       const foe=(side==='ally'?state.B.team:state.A.team).filter(u=>u.rank!=='X'&&u.hp>0);
@@ -893,7 +1123,10 @@ async function doTurn(side){
     let m=dmgList[i];
     let base = baseDamage(att,def) * m;
     if(att.atk13>0) base *= 1.3;
-    if(def.shield>0){ base*=0.5; def.shield--; showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap','GUARD','buff'); }
+    if(def.shield>0){
+      base*=0.5; def.shield--;
+      showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap','GUARD','buff');
+    }
     
     let damage = Math.max(1, Math.floor(base));
     
@@ -968,10 +1201,17 @@ async function handleKO(side){
 
 const swModal=$('switchModal'), swGrid=$('switchGrid'), swDo=$('swDo'); let swIdx=null;
 function openSwitch(){
-  if(left().lock>0){ log('言論統制により交代不可！', 'highlight'); showFloatingText('leftWrap','LOCKED','debuff'); return; }
+  if(left().lock>0){
+    log('言論統制により交代不可！', 'highlight');
+    showFloatingText('leftWrap','LOCKED','debuff');
+    return;
+  }
   swGrid.innerHTML=''; swIdx=null; swDo.disabled=true;
   const idxs=[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0);
-  if(!idxs.length){ log('交代できる控えがいません'); return; }
+  if(!idxs.length){
+    log('交代できる控えがいません');
+    return;
+  }
   const enemy = right();
   
   idxs.forEach(i=>{
@@ -988,12 +1228,17 @@ function openSwitch(){
       <div class="head"><div>${u.name}</div></div>
       <div style="font-size:11px;font-weight:bold;${affClass};margin-bottom:4px">対 ${enemy.name}: ${affText}</div>
       <div class="statGrid">
-        ${barRow('HP',u.hp,u.maxhp)} ${barRow('ATK',u.atk,120)}
-        ${barRow('DEF',u.def,120)} ${barRow('EVA',u.eva,30)}
+        ${barRow('HP',u.hp,u.maxhp)}
+        ${barRow('ATK',u.atk,120)}
+        ${barRow('DEF',u.def,120)}
+        ${barRow('EVA',u.eva,30)}
       </div>
       <div style="font-size:10px;color:#ccc;margin-top:4px">必殺: ${skill[0]}</div>
     `;
-    div.onclick=()=>{ document.querySelectorAll('.selCard').forEach(e=>e.classList.remove('selected')); div.classList.add('selected'); swIdx=i; swDo.disabled=false; };
+    div.onclick=()=>{
+      document.querySelectorAll('.selCard').forEach(e=>e.classList.remove('selected'));
+      div.classList.add('selected'); swIdx=i; swDo.disabled=false;
+    };
     swGrid.appendChild(div);
   });
   swModal.classList.add('show');
@@ -1016,22 +1261,37 @@ swDo.onclick=async()=>{
 };
 
 const modals = ['switchModal','infoModal','rulesModal'];
-modals.forEach(id=>{ $(id).addEventListener('click', (e)=>{ if(e.target === $(id)) $(id).classList.remove('show'); }); });
+modals.forEach(id=>{
+  $(id).addEventListener('click', (e)=>{
+    if(e.target === $(id)) $(id).classList.remove('show');
+  });
+});
 
 document.addEventListener('DOMContentLoaded',()=>{
   makeTeam($('teamA'),'A'); makeTeam($('teamB'),'B');
   $('btnStart').onclick=async()=>{
-    state.A.team=collect('A'); state.B.team=collect('B'); state.A.i=0; state.B.i=0; state.A.sp=0; state.B.sp=0; state.spOn=false; state.spAnnA=false;
+    state.A.team=collect('A'); state.B.team=collect('B');
+    state.A.i=0; state.B.i=0;
+    state.A.sp=0; state.B.sp=0;
+    state.spOn=false; state.spAnnA=false;
     state.history=new Set();
-    $('battleLog').innerHTML=''; $('setup').style.display='none'; $('battle').style.display='block';
-    await preloadImgs([...state.A.team, ...state.B.team].map(u=>u.name));
+    $('battleLog').innerHTML='';
+    $('setup').style.display='none'; $('battle').style.display='block';
+    preloadImgs([...state.A.team, ...state.B.team].map(u=>u.name));
     renderSides(); 
     log('バトル開始！', 'highlight'); 
     checkAffinity();
     await delay(800); startRound();
   };
-  $('btnG').onclick=()=>pick('G'); $('btnC').onclick=()=>pick('C'); $('btnP').onclick=()=>pick('P');
-  $('btnSP').onclick=()=>{ if(!inputLocked && state.A.sp>=6){ state.spOn = !state.spOn; updateSPBtn(); }};
+  $('btnG').onclick=()=>pick('G');
+  $('btnC').onclick=()=>pick('C');
+  $('btnP').onclick=()=>pick('P');
+  $('btnSP').onclick=()=>{
+    if(!inputLocked && state.A.sp>=6){
+      state.spOn = !state.spOn;
+      updateSPBtn();
+    }
+  };
   
   $('btnRules').onclick=()=>$('rulesModal').classList.add('show');
   $('rulesClose').onclick=()=>$('rulesModal').classList.remove('show');
