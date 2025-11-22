@@ -3,39 +3,44 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v19.00 Bug-Free</title>
+<title>KOTOBA-BATTLE | v24.00 Resurrection</title>
   <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@500;800;900&family=Teko:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Teko:wght@500;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
   --bg: #020617; --text: #f1f5f9;
-  --glass: rgba(15, 23, 42, 0.8);
-  --border-color: rgba(255, 255, 255, 0.1);
+  --glass: rgba(15, 23, 42, 0.85);
+  --border-color: rgba(255, 255, 255, 0.15);
   
   --ally: #3b82f6; --enemy: #ef4444;
-  --hp: #10b981; --gauge: #eab308;
+  --hp: #10b981; --gauge: #fbbf24;
   
-  --t-ジオ:#38bdf8; --t-アニマル:#4ade80; --t-フード:#fbbf24; 
+  --t-ジオ:#38bdf8; --t-アニマル:#4ade80; --t-フード:#ffaa2b; 
   --t-コンセプト:#c084fc; --t-サイエンス:#22d3ee; --t-ヒストリー:#f472b6; --t-ヒューマン:#a3e635;
 
-  --glow-S: #ffd700; --glow-A: #e2e8f0; --glow-B: #3b82f6;
-  --glow-C: #10b981; --glow-D: #b45309; --glow-X: #d946ef;
+  /* レアリティ色 */
+  --r-A: #ffd700; /* 金 */
+  --r-B: #c0c0c0; /* 銀 */
+  --r-C: #64748b; /* 鼠 */
+  --r-D: #ffffff; /* 白 */
+  --r-X: #d946ef; /* 紫 */
 }
 
 *{box-sizing:border-box;-webkit-text-size-adjust:100%}
 html,body{height:100%;margin:0;overflow:hidden}
 body{
   background-color: var(--bg); color: var(--text);
-  font-family: 'M PLUS 1p', sans-serif; overflow-y: auto;
+  font-family: 'Noto Sans JP', sans-serif; overflow-y: auto;
   background-image: radial-gradient(circle at 50% 30%, #1e293b 0%, #020617 80%);
 }
 
+/* 背景アニメーション */
 .bg-anim {
   position: fixed; inset: 0; z-index: -1;
   background: 
@@ -47,8 +52,9 @@ body{
 }
 @keyframes gridMove { from { transform: translateY(0); } to { transform: translateY(40px); } }
 
-.container{max-width:800px;margin:0 auto;padding:8px;padding-bottom:140px}
+.container{max-width:800px;margin:0 auto;padding:8px;padding-bottom:160px}
 
+/* カード共通 */
 .card {
   background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color);
   border-radius: 12px; margin-bottom: 12px; backdrop-filter: blur(12px);
@@ -60,9 +66,10 @@ body{
 }
 .card .body { padding: 12px; }
 
+/* ボタン */
 .btn3d {
   appearance: none; border: none; cursor: pointer;
-  font-family: 'M PLUS 1p', sans-serif; font-weight: 800; font-size: 14px; color: #fff;
+  font-family: 'Noto Sans JP', sans-serif; font-weight: 800; font-size: 14px; color: #fff;
   padding: 10px 16px; border-radius: 8px; transition: .1s;
   display: inline-flex; justify-content: center; align-items: center; gap: 6px;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
@@ -74,13 +81,14 @@ body{
 .btn-ghost { background: linear-gradient(to bottom, #475569, #1e293b); box-shadow: 0 4px 0 #0f172a; border: 1px solid rgba(255,255,255,0.1); }
 .btnTiny { padding: 4px 8px; font-size: 10px; border-radius: 4px; background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: #cbd5e1; cursor: pointer; }
 
+/* 編成画面 */
 #setup { display: grid; gap: 12px; }
 #teamGrid { display: grid; gap: 8px; }
 @media(min-width:600px){ #teamGrid { grid-template-columns: 1fr 1fr; } }
 .slot { display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); }
 .pill { width: 20px; height: 20px; border-radius: 4px; background: #334155; color: #fff; font-weight: 800; font-size: 11px; display: grid; place-items: center; }
 .slot select { flex: 1; background: transparent; border: none; color: #fff; font-weight: 800; font-size: 13px; outline: none; }
-.slot select option { background: #0f172a; }
+.slot select option { background: #0f172a; color: #fff; }
 
 #statsGrid { display: grid; gap: 10px; }
 @media(min-width:720px){ #statsGrid { grid-template-columns: 1fr 1fr; } }
@@ -92,65 +100,80 @@ body{
 .barFill{height:100%;background:var(--hp);border-radius:3px}
 .val{font-size:10px;color:#9cb3de;width:28px;text-align:right;font-family:"Menlo",monospace}
 
+/* バトル画面 */
 .arena { display: grid; gap: 12px; transition: transform .1s; }
 .shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes shake{10%,90%{transform:translate(-2px,1px)}20%,80%{transform:translate(1px,-2px)}30%,50%,70%{transform:translate(-4px,2px)}40%,60%{transform:translate(4px,-2px)}}
 .vsrow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }
 .vsrow > div { min-width: 0; }
 
+/* === ユニットカード (枠線アニメーション完全版) === */
 .unit {
   position: relative; width: 100%; height: 100%; min-height: 320px;
   border-radius: 14px;
-  background: linear-gradient(160deg, #1e293b, var(--typeColor), #0f172a);
-  border: 3px solid #334155;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.5);
+  /* パディングで枠の太さを表現 */
+  padding: 3px; 
+  /* デフォルト背景 */
+  background: #334155;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
   display: flex; flex-direction: column; overflow: hidden;
-  transition: filter 0.5s, opacity 0.5s, transform 0.5s;
+  transition: filter 0.3s;
 }
-.unit::after {
-  content: ""; position: absolute; inset: 3px; border-radius: 11px; z-index: 0;
-  background: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 8px), radial-gradient(circle at top left, rgba(255,255,255,0.15), transparent 70%);
-  pointer-events: none;
-}
-.unit[data-rank="S"] { border-color: var(--glow-S); box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
-.unit[data-rank="S"]::before {
-  content: ""; position: absolute; inset: 0; z-index: 10; pointer-events: none;
-  background: linear-gradient(115deg, transparent 30%, rgba(255,215,0,0.4) 45%, rgba(255,255,255,0.7) 50%, transparent 55%);
-  background-size: 250% 250%; animation: shine 3.5s infinite linear; mix-blend-mode: overlay;
-}
-.unit[data-rank="A"] { border-color: var(--glow-A); }
-.unit[data-rank="B"] { border-color: var(--glow-B); }
-.unit[data-rank="X"] { border-color: var(--glow-X); }
 
-@keyframes shine{0%{background-position:200% 200%}100%{background-position:-50% -50%}}
+/* ランク別 動く背景（これが枠線に見える） */
+.unit[data-rank="S"] { background: linear-gradient(60deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); background-size: 300% 300%; animation: rainbowBorder 3s linear infinite; }
+.unit[data-rank="A"] { background: conic-gradient(from 0deg, #b8860b, #ffd700, #fff, #ffd700, #b8860b); animation: spinBorder 4s linear infinite; }
+.unit[data-rank="B"] { background: conic-gradient(from 0deg, #718096, #c0c0c0, #fff, #c0c0c0, #718096); animation: spinBorder 5s linear infinite; }
+
+/* 静止枠 */
+.unit[data-rank="C"] { background: var(--r-C); }
+.unit[data-rank="D"] { background: var(--r-D); }
+.unit[data-rank="X"] { background: var(--r-X); box-shadow: 0 0 15px var(--r-X); }
+
+@keyframes rainbowBorder { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+@keyframes spinBorder { from{background: conic-gradient(from 0deg, var(--c1), var(--c2), var(--c1));} to{background: conic-gradient(from 360deg, var(--c1), var(--c2), var(--c1));} }
+/* conic-gradientのアニメーションはJS無しでは重いので、擬似要素回転で代用 */
+.unit[data-rank="A"]::before, .unit[data-rank="B"]::before {
+  content:""; position:absolute; top:-50%; left:-50%; width:200%; height:200%; z-index:0;
+  animation: spin 3s linear infinite;
+}
+.unit[data-rank="A"]::before { background: conic-gradient(#b8860b, #ffd700, #fff, #ffd700, #b8860b); }
+.unit[data-rank="B"]::before { background: conic-gradient(#475569, #c0c0c0, #fff, #c0c0c0, #475569); }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+
+/* カードの中身（枠線の上に浮く） */
+.unitInner {
+  position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column;
+  background: linear-gradient(160deg, #1e293b, var(--typeColor), #0f172a);
+  border-radius: 11px; /* 外枠(14px) - padding(3px) */
+  padding: 4px; overflow: hidden;
+}
+
 .unit.fall { animation: fallDown 0.8s forwards; filter: grayscale(1) brightness(0.4); }
 @keyframes fallDown { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(80px) rotate(20deg); opacity: 0; } }
-
-.unitInner { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; padding: 4px; }
 
 .cardHeader {
   display: flex; justify-content: space-between; align-items: center;
   padding: 4px 8px; background: rgba(0,0,0,0.5); border-radius: 8px 8px 0 0;
-  border-bottom: 2px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 .cardName {
-  font-weight: 900; font-size: 16px; color: #fff;
+  font-weight: 900; font-size: 15px; color: #fff;
   text-shadow: 0 2px 4px #000; white-space: nowrap;
-  flex: 1; text-align: left; display: block; 
+  flex: 1; text-align: center; display: block; height: 24px; line-height: 24px;
 }
-.hpDisplay { display: flex; align-items: center; gap: 4px; font-family: 'Teko'; font-weight: 700; color: var(--hp); font-size: 16px; }
-.hpLabel { font-size: 10px; color: #94a3b8; }
 
 .artArea {
   position: relative; width: 100%; aspect-ratio: 4/3;
   margin: 0; border-radius: 0 0 8px 8px; overflow: hidden;
   background: radial-gradient(circle at center, rgba(255,255,255,0.1), rgba(0,0,0,0.6));
-  border: 2px solid rgba(255,255,255,0.2); border-top: none;
+  border: 1px solid rgba(255,255,255,0.1); border-top: none;
   display: flex; align-items: center; justify-content: center;
   box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
 }
 .mainImg {
-  max-height: 95%; max-width: 95%; width: auto; height: auto; object-fit: contain;
+  max-height: 95%; max-width: 95%; object-fit: contain;
   filter: drop-shadow(0 10px 20px rgba(0,0,0,0.7));
   animation: breathe 4s ease-in-out infinite alternate;
 }
@@ -158,19 +181,25 @@ body{
 .unit.hit .mainImg { animation: hit .4s ease; }
 @keyframes hit{10%,90%{transform:translate(-6px,0)}20%,80%{transform:translate(10px,0)}30%,50%,70%{transform:translate(-10px,0)}40%,60%{transform:translate(10px,0)}}
 
-.midSection { padding: 8px 6px; background: rgba(15, 23, 42, 0.6); margin-top: -4px; position: relative; z-index: 3; border-radius: 0 0 10px 10px; }
+.statsArea { padding: 4px; }
+
 .typeRow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.typeIcon { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: var(--typeColor); color: #0b0f1c; box-shadow: 0 2px 4px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3); }
-.affTag { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em; }
-.affTag.adv { background: #065f46; color: #34d399; border: 1px solid #10b981; }
-.affTag.dis { background: #7f1d1d; color: #fda4af; border: 1px solid #f43f5e; }
-.affTag.even { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+.typeIcon { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px; background: var(--typeColor); color: #0b0f1c; box-shadow: 0 2px 4px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3); }
+.ownerBadge { font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 4px; background: #020617; border: 1px solid #334155; color: #94a3b8; }
 
 .statusRow { display: flex; gap: 4px; min-height: 14px; margin-bottom: 4px; justify-content: flex-end; flex-wrap: wrap; }
 .stBadge { font-size: 9px; padding: 1px 4px; border-radius: 4px; background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
 
-.hpBarBg { width: 100%; height: 12px; background: #0f172a; border-radius: 6px; border: 2px solid #334155; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); margin-bottom: 8px; }
-.hpBar { height: 100%; background: linear-gradient(90deg, var(--hp), #34d399); width: 100%; transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 8px var(--hp); }
+.hpRow { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px; font-family: 'Teko'; }
+.hpLabel { font-size: 12px; color: #94a3b8; font-weight: 700; line-height: 1; }
+.hpVal { font-size: 16px; color: #fff; font-weight: 600; line-height: 0.9; }
+
+.hpBarBg { width: 100%; height: 10px; background: #0f172a; border-radius: 5px; border: 1px solid #334155; overflow: hidden; }
+.hpBar { height: 100%; width: 100%; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
+.hpBar.high { background: #10b981; box-shadow: 0 0 8px #10b981; }
+.hpBar.mid { background: #eab308; box-shadow: 0 0 8px #eab308; }
+.hpBar.low { background: #ef4444; box-shadow: 0 0 8px #ef4444; animation: pulseHP 0.5s infinite alternate; }
+@keyframes pulseHP { from { opacity: 1; } to { opacity: 0.6; } }
 
 .bottomSection { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 6px; }
 
@@ -178,29 +207,40 @@ body{
 .pip { width: 16px; height: 8px; background: #451a03; border: 1px solid #78350f; border-radius: 2px; transition: .3s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.5); }
 .pip.on { background: linear-gradient(to bottom, var(--gauge), #d97706); border-color: #fcd34d; box-shadow: 0 0 8px var(--gauge); }
 
-.skillInfo { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); flex: 1; }
-.skillN { font-size: 11px; font-weight: 900; color: #fcd34d; margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; }
-.skillD { font-size: 10px; line-height: 1.4; color: #cbd5e1; }
+.skillInfo { background: rgba(0,0,0,0.4); padding: 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); flex: 1; min-height: 50px; display:flex; flex-direction:column; justify-content:center; }
+.skillN { font-size: 11px; font-weight: 900; color: #fcd34d; margin-bottom: 2px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; }
+.skillD { font-size: 10px; line-height: 1.3; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 .footer { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94a3b8; font-family: 'Teko'; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; }
 .btnStat { appearance: none; border: none; background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #60a5fa; border-radius: 4px; padding: 2px 6px; font-size: 9px; font-weight: 800; cursor: pointer; transition: .2s; }
 .btnStat:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
 
+/* 操作パッド */
 .padCard {
   position: fixed; bottom: 0; left: 0; width: 100%; z-index: 50;
   background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.7); padding: 10px 16px 20px;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.8); padding: 10px 16px 20px;
   backdrop-filter: blur(12px);
 }
 @media(min-width: 800px) { .padCard { position: relative; border-radius: 20px; margin-top: 16px; background: var(--glass); padding: 20px; } }
 
-.padHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #94a3b8; font-size: 12px; font-family: 'Teko'; letter-spacing: 1px; }
-.timerVal { font-size: 20px; color: #fff; font-weight: 600; margin-left: 4px; }
+.padHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; color: #94a3b8; font-family: 'Teko'; letter-spacing: 1px; }
+.timerVal { font-size: 24px; color: #fff; font-weight: 600; margin-left: 4px; }
+
+/* 控えアイコン */
+.reserveMini { display: flex; gap: 6px; }
+.resIcon { 
+  width: 28px; height: 28px; border-radius: 4px; background: #1e293b; 
+  border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; 
+  cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;
+}
+.resIcon.dead { opacity: 0.3; filter: grayscale(1); cursor: default; border-color: #333 !important; }
+.resIcon.active { border-color: #fff !important; box-shadow: 0 0 6px #fff; transform: scale(1.1); z-index: 2; }
 
 .padInner { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; max-width: 600px; margin: 0 auto; }
-.rpsArea { display: flex; gap: 16px; }
+.rpsArea { display: flex; gap: 16px; justify-content: center; }
 .rps {
-  width: 60px; height: 60px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.15); cursor: pointer;
+  width: 64px; height: 64px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.15); cursor: pointer;
   display: grid; place-items: center; position: relative; top: 0; transition: all .1s;
   box-shadow: 0 8px 0 rgba(0,0,0,0.5), 0 12px 24px rgba(0,0,0,0.4);
 }
@@ -209,40 +249,70 @@ body{
 .rps.c { background: linear-gradient(145deg, #3b82f6, #1d4ed8); color: #fff; }
 .rps.p { background: linear-gradient(145deg, #22c55e, #15803d); color: #fff; }
 .rps:disabled { filter: grayscale(1); opacity: 0.4; cursor: not-allowed; top: 8px; box-shadow: none; }
-.emo { font-size: 28px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
+.emo { font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
 
-.sideBtns { display: flex; flex-direction: column; gap: 8px; width: 110px; }
+.sideBtns { display: flex; flex-direction: column; gap: 8px; width: 120px; }
 .cmdBtn {
-  width: 100%; padding: 8px 0; border-radius: 6px; font-weight: 800; font-size: 12px;
+  width: 100%; padding: 12px 0; border-radius: 8px; font-weight: 800; font-size: 13px;
   border: none; cursor: pointer; color: #fff; position: relative; top: 0; transition: .1s;
-  box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
-.cmdBtn:active:not([disabled]) { top: 3px; box-shadow: none; }
-.cmdBtn:disabled { opacity: 0.5; filter: grayscale(1); top: 3px; box-shadow: none; cursor: not-allowed; }
+.cmdBtn:active:not([disabled]) { top: 4px; box-shadow: none; }
+.cmdBtn:disabled { opacity: 0.5; top: 4px; box-shadow: none; cursor: not-allowed; filter: grayscale(1); }
 .btn-sp { background: linear-gradient(to bottom, #334155, #1e293b); color: #94a3b8; }
-.btn-sp.ready { background: linear-gradient(to bottom, #f59e0b, #d97706); color: #fff; animation: pulse 1s infinite; }
-.btn-sp.on { background: linear-gradient(to bottom, #ef4444, #b91c1c); color: #fff; }
+
+/* 必殺技ボタン点滅 (黄色<->赤) */
+.btn-sp.ready { 
+  background: #f59e0b; color: #fff;
+  animation: flashReady 0.15s infinite alternate; 
+  border: 2px solid #fff;
+}
+@keyframes flashReady { from { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; } to { background: #b91c1c; box-shadow: 0 0 25px #fbbf24; } }
+.btn-sp.on { background: linear-gradient(to bottom, #ef4444, #b91c1c); color: #fff; box-shadow: 0 0 15px #ef4444; animation: pulse 1s infinite; }
+@keyframes pulse { 0% { opacity:1; } 50% { opacity:0.8; } 100% { opacity:1; } }
 .btn-switch { background: linear-gradient(to bottom, #8b5cf6, #6d28d9); }
 
-@keyframes pulse { 0% { filter: brightness(1); } 100% { filter: brightness(1.2); } }
+.logWrapper {
+  border: 1px solid #334155; background: rgba(2, 6, 23, 0.8); border-radius: 8px; overflow: hidden; margin-bottom: 8px;
+}
+.logHeader {
+  background: #1e293b; color: #94a3b8; font-size: 10px; padding: 2px 8px; font-weight: 700; font-family: 'Orbitron'; border-bottom: 1px solid #334155;
+}
+.logContainer {
+  height: 80px; overflow-y: auto; padding: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 4px;
+}
+.logLine { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.logLine.highlight { color: #fbbf24; }
+.logLine.dmg { color: #fca5a5; }
+.logLine.heal { color: #6ee7b7; }
 
-.logContainer{height:80px;overflow-y:auto;margin-bottom:10px;font-size:11px;color:#94a3b8}
-.logLine{padding:2px 0} .logLine.highlight{color:#fbbf24} .logLine.heal{color:#4ade80} .logLine.dmg{color:#f87171}
+/* トースト (2.0秒) */
+.floatingText {
+  position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+  font-family: 'Teko', sans-serif; font-weight: 700; font-size: 48px;
+  color: #fff; letter-spacing: 1px; font-style: italic;
+  text-shadow: 3px 3px 0px rgba(0,0,0,1), 0 0 20px var(--glow-color, rgba(255,255,255,0.5));
+  pointer-events: none; z-index: 20; animation: popUp 2.0s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  white-space: nowrap;
+}
+.floatingText.dmg { color: #f43f5e; --glow-color: #f43f5e; }
+.floatingText.heal { color: #4ade80; --glow-color: #4ade80; }
+.floatingText.miss { color: #94a3b8; --glow-color: #94a3b8; font-size: 32px; }
+.floatingText.buff { color: #facc15; --glow-color: #facc15; font-size: 28px; }
+.floatingText.debuff { color: #c084fc; --glow-color: #c084fc; font-size: 28px; }
+.floatingText.adv { color: #10b981; font-size: 36px; --glow-color: #10b981; }
+.floatingText.dis { color: #f87171; font-size: 36px; --glow-color: #f87171; }
+@keyframes popUp { 
+  0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); } 
+  10% { opacity: 1; transform: translate(-50%, -30px) scale(1.2); } 
+  80% { opacity: 1; transform: translate(-50%, -30px) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, -80px) scale(1); } 
+}
 
-.floatingText{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-family:'Teko',sans-serif;font-weight:700;font-size:48px;color:#fff;letter-spacing:1px;font-style:italic;text-shadow:3px 3px 0px rgba(0,0,0,1),0 0 20px var(--glow-color,rgba(255,255,255,0.5));pointer-events:none;z-index:20;animation:popUp 1.2s cubic-bezier(0.175,0.885,0.32,1.275) forwards;white-space:nowrap}
-.floatingText.dmg{color:#f43f5e;--glow-color:#f43f5e}
-.floatingText.heal{color:#4ade80;--glow-color:#4ade80}
-.floatingText.miss{color:#94a3b8;--glow-color:#94a3b8;font-size:32px}
-.floatingText.buff{color:#facc15;--glow-color:#facc15;font-size:28px}
-.floatingText.debuff{color:#c084fc;--glow-color:#c084fc;font-size:28px}
-.floatingText.adv{color:#34d399;font-size:36px;--glow-color:#34d399}
-.floatingText.dis{color:#f87171;font-size:36px;--glow-color:#f87171}
-@keyframes popUp{0%{opacity:0;transform:translate(-50%,20px) scale(0.5)}20%{opacity:1;transform:translate(-50%,-30px) scale(1.2)}100%{opacity:0;transform:translate(-50%,-80px) scale(1)}}
-
-#jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
-#switchModal,#infoModal,#rulesModal,#result{background:rgba(0,0,0,0.8);pointer-events:auto;backdrop-filter:blur(8px)}
+#jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result,#statusModal{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
+#switchModal,#infoModal,#rulesModal,#result,#statusModal{background:rgba(0,0,0,0.8);pointer-events:auto;backdrop-filter:blur(8px)}
 #jankenOverlay.active{display:flex;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)}
-#switchModal.show,#infoModal.show,#rulesModal.show,#result.show{display:flex}
+#switchModal.show,#infoModal.show,#rulesModal.show,#result.show,#statusModal.show{display:flex}
 .jkWrap{display:flex;flex-direction:column;align-items:center;gap:24px}
 .jkHands{display:flex;gap:40px;align-items:center}
 .jkHand{font-size:80px;transition:transform .2s cubic-bezier(0.34,1.56,0.64,1);opacity:0;transform:scale(0)}
@@ -300,12 +370,20 @@ body{
       <div id="leftWrap"></div>
       <div id="rightWrap"></div>
     </div>
-    <div class="logContainer" id="battleLog"></div>
-    <div class="timer">TIME <span class="num" id="countNum">15</span></div>
-    <div style="height:160px"></div>
+    
+    <div class="logWrapper">
+      <div class="logHeader">BATTLE LOG</div>
+      <div class="logContainer" id="battleLog"></div>
+    </div>
+    
+    <div style="height:180px"></div>
   </div>
   
   <section class="padCard" id="pad">
+    <div class="padHead">
+      <div id="reserveArea" class="reserveMini"></div>
+      <div>TIME <span class="timerVal" id="countNum">15</span></div>
+    </div>
     <div class="padInner">
       <div class="rpsArea">
         <button class="rps g" id="btnG"><div class="emo">✊</div><div class="lbl">GU</div></button>
@@ -341,13 +419,25 @@ function preloadImgs(names){
 }
 
 function log(msg, type='normal'){
-  const c=$('battleLog'); const d=document.createElement('div');
-  d.className='logLine '+type; d.textContent=msg; c.appendChild(d); c.scrollTop=c.scrollHeight;
+  const c=$('battleLog');
+  if(!c) return;
+  const d=document.createElement('div');
+  let icon='';
+  if(type==='atk') icon='⚔️'; else if(type==='dmg') icon='💥'; else if(type==='heal') icon='💖'; else if(type==='sp') icon='✨'; else if(type==='miss') icon='💨';
+  d.className='logLine '+type; d.textContent=(icon?icon+' ':'')+msg; c.appendChild(d); c.scrollTop=c.scrollHeight;
 }
 
 function updateHPUI(role, val, max){
-  const bar = $(`hp-${role}`); const num = $(`hpnum-${role}`);
-  if(bar) bar.style.width = `${100 * val / max}%`;
+  const bar = $(`hp-${role}`);
+  const num = $(`hpnum-${role}`);
+  if(bar) {
+    const pct = (val/max)*100;
+    bar.style.width = `${pct}%`;
+    bar.className = 'hpBar';
+    if(pct > 50) bar.classList.add('high');
+    else if(pct > 20) bar.classList.add('mid');
+    else bar.classList.add('low');
+  }
   if(num) num.textContent = val;
 }
 
@@ -362,7 +452,7 @@ function fitName(el) {
 function showFloatingText(targetId, text, type){
   const wrap=$(targetId); if(!wrap)return;
   const el=document.createElement('div'); el.className='floatingText '+type; el.textContent=text;
-  wrap.appendChild(el); setTimeout(()=>el.remove(),1500);
+  wrap.appendChild(el); setTimeout(()=>el.remove(),2000);
 }
 
 async function showCutIn(skill, user){
@@ -390,12 +480,12 @@ function updateSPBtn(){
   const canPress=!inputLocked && ready && !state.busy;
   btn.disabled=!canPress;
   if(state.spOn){
-    btn.innerHTML='<span>✨</span> 必殺 ON'; btn.className='cmdBtn btn-sp on';
+    btn.innerHTML='<span>✨</span> 必殺 ON'; btn.classList.add('on'); btn.classList.remove('btnReady');
   } else {
     if(ready && !inputLocked) {
-      btn.innerHTML='<span>✨</span> PUSH!'; btn.className='cmdBtn btn-sp ready';
+      btn.innerHTML='<span>✨</span> PUSH!'; btn.classList.add('btnReady'); btn.classList.remove('on');
     } else {
-      btn.innerHTML='<span>✨</span> 必殺技'; btn.className='cmdBtn btn-sp';
+      btn.innerHTML='<span>SP</span> 必殺技'; btn.classList.remove('on','btnReady');
     }
   }
   if(ready && !state.spAnnA){ log('必殺ゲージMAX！', 'highlight'); state.spAnnA=true; }
@@ -453,7 +543,7 @@ function makeWordObject([name,rank,type,yomiH]){const y=toKatakana(yomiH||name);
 const SKILLS={
  "パラボラアンテナ":["妨害電波","威力2.2倍。相手の必殺ゲージを0にする。"],
  "ネスカフェアンバサダー":["一杯いかが","攻撃後、味方全員HP60回復。"],
- "にんじんしりしり":["なんくるないさー","威力1.6倍。次に受ける致命傷をHP1で耐える。"],
+ "にんじんしりしり":["なんくるないさー","威力1.6倍。次に受ける致命傷を1回だけHP1で耐える。"],
  "そぼろごはん":["そぼろ乱舞","3回連続攻撃（0.75→0.5→0.25倍）。"],
  "ニシローランドゴリラ":["マウンテンビート","威力1.5倍。次の2回、自分の攻撃1.3倍。"],
  "毛むくじゃら":["ムクジャララ","威力1.4倍。次の2回、回避率60%固定。"],
@@ -493,7 +583,7 @@ const right =()=>state.B.team[state.B.i];
 
 function barRow(label,val,max){const pct=Math.min(100,(val/max)*100);return `<div class="barRow"><div class="barLabel">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="barVal">${val}</div></div>`;}
 
-function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" data-type="${w.type}"><div class="head"><div>${w.name}</div><div style="color:${typeColor(w.type)}">${w.type}</div></div><div class="statGrid">${barRow('HP',w.maxhp,800)}${barRow('ATK',w.atk,120)}${barRow('DEF',w.def,120)}${barRow('EVA',w.eva,30)}</div></div>`;}
+function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" style="--typeC:${typeColor(w.type)}" data-type="${w.type}"><div class="head"><div>${w.name}</div><div style="color:var(--typeC)">${w.type}</div></div><div class="statGrid">${barRow('HP',w.maxhp,800)}${barRow('ATK',w.atk,120)}${barRow('DEF',w.def,120)}${barRow('EVA',w.eva,30)}</div></div>`;}
 function renderMini(side){const root=side==='A'?$('statsA'):$('statsB');root.innerHTML='';for(let i=0;i<3;i++){const idx=Number($(`${side}-${i}`).value)||0;root.innerHTML+=miniCard(idx);}}
 
 function uniqueRandom(n, sourceLen){
@@ -554,9 +644,9 @@ function checkAffinity(){
   const pairKey = `${a.name}:${b.name}`;
   const setBadge = (el, m) => {
     if(!el) return; el.className = 'affTag';
-    if(m>=1.5) { el.textContent='◎ 有利'; el.classList.add('adv'); }
-    else if(m<=0.7) { el.textContent='△ 不利'; el.classList.add('dis'); }
-    else { el.textContent='ー 等倍'; el.classList.add('even'); }
+    if(m>=1.5) { el.textContent='▲ 有利'; el.className='affTag adv show'; }
+    else if(m<=0.7) { el.textContent='▼ 不利'; el.className='affTag dis show'; }
+    else { el.className='affTag even'; }
   };
   const m1 = typeMult(a.type, b.type);
   setBadge(qs('#affA'), m1);
@@ -584,32 +674,69 @@ function renderCard(u,role,opp){
     <div class="unitInner">
       <div class="cardHeader"><span class="ownerBadge ${role}">${owner}</span><span class="typeIcon">${u.type}</span></div>
       <div class="cardName" id="nm-${role}">${u.name}</div>
-      <div class="affinityRow"><span id="aff${tag}" class="affTag"></span></div>
-      <div class="artArea" id="art-${role}">${img}</div>
-      <div class="statusRow">${badges}</div>
-      <div class="statRow"><span>HP</span><div class="hpBarBg"><div class="hpBar" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div></div>
-      <div style="text-align:right;font-size:10px;margin-bottom:6px"><span id="hpnum-${role}" class="num">${u.hp}</span> / ${u.maxhp}</div>
-      <div class="spRow">${pips}</div>
-      <div class="skillInfo"><div class="skillN">必殺: ${skill[0]}</div><div class="skillD">${skill[1]}</div></div>
-      <div class="footer"><span>ATK ${u.atk} / DEF ${u.def}</span><button class="btnStat" onclick="window._sh('${u.name}')">詳細</button></div>
+      <div class="artArea" id="art-${role}">
+        ${img}
+        <div style="position:absolute;bottom:4px;right:4px;">
+           <span id="aff${tag}" class="affTag"></span>
+        </div>
+      </div>
+      
+      <div class="statsArea">
+         <div class="hpRow" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2px;font-family:'Teko'">
+            <span style="font-size:12px;color:#94a3b8;font-weight:700;line-height:1">HP</span>
+            <div style="font-size:16px;color:#fff;font-weight:600;line-height:0.9">
+              <span id="hpnum-${role}">${u.hp}</span>
+              <span style="font-size:10px;color:#94a3b8">/ ${u.maxhp}</span>
+            </div>
+         </div>
+         <div class="hpBarBg"><div class="hpBar" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div>
+         <div class="statusRow">${badges}</div>
+      </div>
+
+      <div class="bottomSection">
+        <div class="skillInfo">
+          <div class="skillN">技: ${skill[0]}</div>
+          <div class="skillD">${skill[1]}</div>
+        </div>
+        <div class="spRow">${pips}</div>
+        <div class="footer">
+           <span class="typeBadge" style="color:#94a3b8;font-size:10px">ATK:${u.atk} DEF:${u.def} EVA:${u.eva}%</span>
+           <button class="btnStat" onclick="window._sh('${u.name}')">詳細</button>
+        </div>
+      </div>
     </div>
   </div>`;
 }
 
+/* 復活: 控えエリアの表示 */
 function buildBoxes(){
-  const mk=u=>`<div class="mini" data-type="${u.type}" onclick="window._sh('${u.name}')"><div class="head"><div>${u.name}</div><div style="color:${typeColor(u.type)}">${u.type}</div></div><div class="miniBarBg"><div class="miniBar" style="width:${Math.max(0,100*u.hp/u.maxhp)}%"></div></div></div>`;
-  // 修正: 要素がない場合は無視する安全策
-  const sixA = $('sixA'); if(sixA) sixA.innerHTML=state.A.team.map(mk).join('');
-  const sixB = $('sixB'); if(sixB) sixB.innerHTML=state.B.team.map(mk).join('');
+  const mk=(u,i,isActive)=>`<div class="resIcon ${u.hp<=0?'dead':''} ${isActive?'active':''}" onclick="window._sh('${u.name}')" style="border-color:${typeColor(u.type)}">${u.name.charAt(0)}</div>`;
+  
+  const rAreaA = $('resA');
+  if(rAreaA) {
+    rAreaA.innerHTML=`
+      <span class="resLabel" style="color:#4da6ff">YOU</span>
+      <div style="display:flex;gap:4px">
+        ${state.A.team.map((u,i)=>mk(u,i,i===state.A.i)).join('')}
+      </div>
+    `;
+  }
+  const rAreaB = $('resB');
+  if(rAreaB) {
+    rAreaB.innerHTML=`
+      <div style="display:flex;gap:4px">
+        ${state.B.team.map((u,i)=>mk(u,i,i===state.B.i)).join('')}
+      </div>
+      <span class="resLabel" style="color:#ff5c6c">CPU</span>
+    `;
+  }
 }
 
 function renderSides(){
   $('leftWrap').innerHTML=renderCard(state.A.team[state.A.i],'ally',state.B.team[state.B.i]);
   $('rightWrap').innerHTML=renderCard(state.B.team[state.B.i],'enemy',state.A.team[state.A.i]);
   fitName(qs('#nm-ally')); fitName(qs('#nm-enemy'));
-  // buildBoxes呼び出し (今回は要素がないので静かに無視される)
-  buildBoxes();
-  updateSPBtn(); checkAffinity();
+  buildBoxes(); updateSPBtn(); updateHPUI('ally',left().hp,left().maxhp); updateHPUI('enemy',right().hp,right().maxhp); checkAffinity();
 }
 
 window._sh=(n)=>{
