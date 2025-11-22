@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v28.00 Final Debugged</title>
-  <link rel="manifest" href="manifest.webmanifest">
+<title>KOTOBA-BATTLE | v30.00 Final Debug</title>
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 
@@ -24,8 +24,7 @@
   --t-ジオ:#38bdf8; --t-アニマル:#4ade80; --t-フード:#ffaa2b; 
   --t-コンセプト:#c084fc; --t-サイエンス:#22d3ee; --t-ヒストリー:#f472b6; --t-ヒューマン:#a3e635;
 
-  /* レアリティ色 (指定) */
-  --glow-S: transparent; /* Sは個別指定 */
+  /* レアリティ色 */
   --glow-A: #ffd700; /* 金 */
   --glow-B: #c0c0c0; /* 銀 */
   --glow-C: #64748b; /* 鼠 */
@@ -41,6 +40,7 @@ body{
   background-image: radial-gradient(circle at 50% 30%, #1e293b 0%, #020617 80%);
 }
 
+/* 背景アニメーション */
 .bg-anim {
   position: fixed; inset: 0; z-index: -1;
   background: 
@@ -65,6 +65,7 @@ body{
 }
 .card .body { padding: 12px; }
 
+/* ボタン */
 .btn3d {
   appearance: none; border: none; cursor: pointer;
   font-family: 'Noto Sans JP', sans-serif; font-weight: 800; font-size: 14px; color: #fff;
@@ -79,6 +80,7 @@ body{
 .btn-ghost { background: linear-gradient(to bottom, #475569, #1e293b); box-shadow: 0 4px 0 #0f172a; border: 1px solid rgba(255,255,255,0.1); }
 .btnTiny { padding: 4px 8px; font-size: 10px; border-radius: 4px; background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: #cbd5e1; cursor: pointer; }
 
+/* 編成画面 */
 #setup { display: grid; gap: 12px; }
 #teamGrid { display: grid; gap: 8px; }
 @media(min-width:600px){ #teamGrid { grid-template-columns: 1fr 1fr; } }
@@ -97,6 +99,12 @@ body{
 .barFill{height:100%;background:var(--hp);border-radius:3px}
 .val{font-size:10px;color:#9cb3de;width:28px;text-align:right;font-family:"Menlo",monospace}
 
+/* barRow 用（debug fix） */
+.barRow{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.barLabel{font-size:10px;color:#9cb3de;width:32px;text-align:right}
+.barVal{font-size:10px;color:#9cb3de;width:32px;text-align:right;font-family:"Menlo",monospace}
+
+/* バトル画面 */
 .arena { display: grid; gap: 12px; transition: transform .1s; }
 .shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes shake{10%,90%{transform:translate(-2px,1px)}20%,80%{transform:translate(1px,-2px)}30%,50%,70%{transform:translate(-4px,2px)}40%,60%{transform:translate(4px,-2px)}}
@@ -114,21 +122,28 @@ body{
   transition: filter 0.3s;
 }
 
-/* ランク別 枠線指定 */
+/* ランク別 枠線設定 */
+/* S: 虹色 */
 .unit[data-rank="S"] { 
   background: linear-gradient(60deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); 
   background-size: 300% 300%; 
   animation: rainbowBorder 3s linear infinite; 
 }
+/* A: 金色 (動く) */
 .unit[data-rank="A"] { background: conic-gradient(from 0deg, #b8860b, #ffd700, #fff, #ffd700, #b8860b); animation: spinBorder 4s linear infinite; }
+/* B: 銀色 (動く) */
 .unit[data-rank="B"] { background: conic-gradient(from 0deg, #718096, #c0c0c0, #fff, #c0c0c0, #718096); animation: spinBorder 5s linear infinite; }
-.unit[data-rank="C"] { background: var(--r-C); }
-.unit[data-rank="D"] { background: var(--r-D); }
-.unit[data-rank="X"] { background: var(--r-X); box-shadow: 0 0 15px var(--r-X); }
+/* C: 鼠色 (固定) */
+.unit[data-rank="C"] { background: var(--glow-C); }
+/* D: 白色 (固定) */
+.unit[data-rank="D"] { background: var(--glow-D); }
+/* X: 紫色 (固定) */
+.unit[data-rank="X"] { background: var(--glow-X); box-shadow: 0 0 15px var(--glow-X); }
 
 @keyframes rainbowBorder { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 @keyframes spinBorder { from{background: conic-gradient(from 0deg, var(--c1), var(--c2), var(--c1));} to{background: conic-gradient(from 360deg, var(--c1), var(--c2), var(--c1));} }
 
+/* 回転アニメーション用擬似要素 (A, B) */
 .unit[data-rank="A"]::before, .unit[data-rank="B"]::before {
   content:""; position:absolute; top:-50%; left:-50%; width:200%; height:200%; z-index:0;
   animation: spin 4s linear infinite;
@@ -137,12 +152,14 @@ body{
 .unit[data-rank="B"]::before { background: conic-gradient(#475569, #c0c0c0, #fff, #c0c0c0, #475569); }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
+/* カード本体 */
 .unitInner {
   position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column;
   background: linear-gradient(160deg, #1e293b, var(--typeColor), #0f172a);
   border-radius: 11px; padding: 4px; overflow: hidden;
 }
 
+/* Sランク表面キラキラ */
 .unit[data-rank="S"]::after {
   content: ""; position: absolute; inset: 0; z-index: 10; pointer-events: none;
   background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.4) 50%, transparent 55%);
@@ -213,7 +230,13 @@ body{
 .btnStat { appearance: none; border: none; background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #60a5fa; border-radius: 4px; padding: 2px 6px; font-size: 9px; font-weight: 800; cursor: pointer; transition: .2s; }
 .btnStat:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
 
-.padCard { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 50; background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155; box-shadow: 0 -4px 24px rgba(0,0,0,0.8); padding: 10px 16px 20px; backdrop-filter: blur(12px); }
+/* 操作パッド */
+.padCard {
+  position: fixed; bottom: 0; left: 0; width: 100%; z-index: 50;
+  background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.8); padding: 10px 16px 20px;
+  backdrop-filter: blur(12px);
+}
 @media(min-width: 800px) { .padCard { position: relative; border-radius: 20px; margin-top: 16px; background: var(--glass); padding: 20px; } }
 
 .padHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; color: #94a3b8; font-family: 'Teko'; letter-spacing: 1px; }
@@ -222,31 +245,48 @@ body{
 .reserveMini { display: flex; gap: 6px; }
 .resBox { display: flex; gap: 6px; align-items: center; }
 .resLabel { font-weight: 900; margin-right: 2px; font-family: 'Teko'; }
-.resIcon { width: 28px; height: 28px; border-radius: 4px; background: #1e293b; border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800; }
+.resIcon { 
+  width: 28px; height: 28px; border-radius: 4px; background: #1e293b; 
+  border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; 
+  cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;
+}
 .resIcon.dead { opacity: 0.3; filter: grayscale(1); cursor: default; border-color: #333 !important; }
 .resIcon.active { border-color: #fff !important; box-shadow: 0 0 6px #fff; transform: scale(1.1); z-index: 2; }
 
 .padInner { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; max-width: 600px; margin: 0 auto; }
 .rpsArea { display: flex; gap: 16px; justify-content: center; }
-.rps { width: 64px; height: 64px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.15); cursor: pointer; display: grid; place-items: center; position: relative; top: 0; transition: all .1s; box-shadow: 0 8px 0 rgba(0,0,0,0.5), 0 12px 24px rgba(0,0,0,0.4); }
+.rps {
+  width: 64px; height: 64px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.15); cursor: pointer;
+  display: grid; place-items: center; position: relative; top: 0; transition: all .1s;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.5), 0 12px 24px rgba(0,0,0,0.4);
+}
 .rps:active:not([disabled]) { top: 8px; box-shadow: none; }
 .rps.g { background: linear-gradient(145deg, #ef4444, #b91c1c); color: #fff; }
 .rps.c { background: linear-gradient(145deg, #3b82f6, #1d4ed8); color: #fff; }
 .rps.p { background: linear-gradient(145deg, #22c55e, #15803d); color: #fff; }
 .rps:disabled { filter: grayscale(1); opacity: 0.4; cursor: not-allowed; top: 8px; box-shadow: none; }
 .emo { font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
-.lbl { position: absolute; bottom: -20px; font-size: 10px; font-weight: 900; color: #94a3b8; font-family: 'Orbitron'; text-shadow: 0 1px 2px #000; }
 
 .sideBtns { display: flex; flex-direction: column; gap: 8px; width: 120px; }
-.cmdBtn { width: 100%; padding: 10px 0; border-radius: 8px; font-weight: 800; font-size: 13px; border: none; cursor: pointer; color: #fff; position: relative; top: 0; transition: .1s; box-shadow: 0 4px 0 rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.cmdBtn {
+  width: 100%; padding: 10px 0; border-radius: 8px; font-weight: 800; font-size: 13px;
+  border: none; cursor: pointer; color: #fff; position: relative; top: 0; transition: .1s;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
 .cmdBtn:active:not([disabled]) { top: 4px; box-shadow: none; }
 .cmdBtn:disabled { opacity: 0.5; top: 4px; box-shadow: none; cursor: not-allowed; filter: grayscale(1); }
 .btn-sp { background: linear-gradient(to bottom, #334155, #1e293b); color: #94a3b8; }
-.btn-sp.ready { background: #f59e0b; color: #fff; animation: flashReady 0.15s infinite alternate; border: 2px solid #fff; }
+.btn-switch { background: linear-gradient(to bottom, #8b5cf6, #6d28d9); }
+
+/* 必殺技ボタン点滅 (黄色<->赤) */
+.btn-sp.ready { 
+  background: #f59e0b; color: #fff;
+  animation: flashReady 0.2s infinite alternate; 
+  border: 2px solid #fff;
+}
 @keyframes flashReady { from { background: #f59e0b; box-shadow: 0 0 5px #f59e0b; } to { background: #b91c1c; box-shadow: 0 0 20px #ef4444; } }
 .btn-sp.on { background: linear-gradient(to bottom, #ef4444, #b91c1c); color: #fff; box-shadow: 0 0 15px #ef4444; animation: pulse 1s infinite; }
 @keyframes pulse { 0% { opacity:1; } 50% { opacity:0.8; } 100% { opacity:1; } }
-.btn-switch { background: linear-gradient(to bottom, #8b5cf6, #6d28d9); }
 
 .logWrapper { border: 1px solid #334155; background: rgba(2, 6, 23, 0.8); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
 .logHeader { background: #1e293b; color: #94a3b8; font-size: 10px; padding: 2px 8px; font-weight: 700; font-family: 'Orbitron'; border-bottom: 1px solid #334155; }
@@ -256,7 +296,15 @@ body{
 .logLine.dmg { color: #fca5a5; }
 .logLine.heal { color: #6ee7b7; }
 
-.floatingText { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); font-family: 'Teko', sans-serif; font-weight: 700; font-size: 48px; color: #fff; letter-spacing: 1px; font-style: italic; text-shadow: 3px 3px 0px rgba(0,0,0,1), 0 0 20px var(--glow-color, rgba(255,255,255,0.5)); pointer-events: none; z-index: 20; animation: popUp 2.0s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; white-space: nowrap; }
+/* トースト (2.0秒) */
+.floatingText {
+  position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+  font-family: 'Teko', sans-serif; font-weight: 700; font-size: 48px;
+  color: #fff; letter-spacing: 1px; font-style: italic;
+  text-shadow: 3px 3px 0px rgba(0,0,0,1), 0 0 20px var(--glow-color, rgba(255,255,255,0.5));
+  pointer-events: none; z-index: 20; animation: popUp 2.0s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  white-space: nowrap;
+}
 .floatingText.dmg { color: #f43f5e; --glow-color: #f43f5e; }
 .floatingText.heal { color: #4ade80; --glow-color: #4ade80; }
 .floatingText.miss { color: #94a3b8; --glow-color: #94a3b8; font-size: 32px; }
@@ -264,7 +312,12 @@ body{
 .floatingText.debuff { color: #c084fc; --glow-color: #c084fc; font-size: 28px; }
 .floatingText.adv { color: #10b981; font-size: 24px; border-color: #10b981; }
 .floatingText.dis { color: #f43f5e; font-size: 24px; border-color: #f43f5e; }
-@keyframes popUp { 0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); } 10% { opacity: 1; transform: translate(-50%, -30px) scale(1.2); } 80% { opacity: 1; transform: translate(-50%, -30px) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -80px) scale(1); } }
+@keyframes popUp { 
+  0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); } 
+  10% { opacity: 1; transform: translate(-50%, -30px) scale(1.2); } 
+  80% { opacity: 1; transform: translate(-50%, -30px) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, -80px) scale(1); } 
+}
 
 #jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result,#statusModal{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
 #switchModal,#infoModal,#rulesModal,#result,#statusModal{background:rgba(0,0,0,0.8);pointer-events:auto;backdrop-filter:blur(8px)}
@@ -290,6 +343,12 @@ body{
 .selCard{cursor:pointer;transition:.2s;border:1px solid transparent}
 .selCard:hover{background:#1e293b;transform:translateY(-2px)}
 .selCard.selected{border-color:#fcd34d;background:rgba(251,191,36,0.1)}
+.allStatsGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.asCol { display: flex; flex-direction: column; gap: 8px; }
+.asHead { text-align: center; font-weight: 900; margin-bottom: 4px; }
+.asCard { padding: 6px; border: 1px solid #334155; border-radius: 6px; background: rgba(30, 41, 59, 0.5); opacity: 0.6; display:flex; gap:8px; align-items:center; }
+.asCard.active { opacity: 1; border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+.asIcon { width:30px; height:30px; border-radius:4px; display:grid; place-items:center; color:#fff; font-weight:800; font-size:12px; }
 </style>
 </head>
 <body>
@@ -344,13 +403,15 @@ body{
     </div>
     <div class="padInner">
       <div class="rpsArea">
-        <button class="rps g" id="btnG"><div class="emo">✊</div><div class="lbl">GU</div></button>
-        <button class="rps c" id="btnC"><div class="emo">✌️</div><div class="lbl">CHOKI</div></button>
-        <button class="rps p" id="btnP"><div class="emo">🖐</div><div class="lbl">PA</div></button>
+        <button class="rps g" id="btnG"><div class="emo">✊</div></button>
+        <button class="rps c" id="btnC"><div class="emo">✌️</div></button>
+        <button class="rps p" id="btnP"><div class="emo">🖐</div></button>
       </div>
       <div class="sideBtns">
         <button class="cmdBtn btn-sp" id="btnSP" disabled>SP 必殺</button>
         <button class="cmdBtn btn-switch" id="btnSwitch">交代</button>
+        <!-- ★追加: 対戦状況ボタン -->
+        <button class="cmdBtn" id="btnStatus">状況</button>
       </div>
     </div>
   </section>
@@ -360,6 +421,7 @@ body{
 <div id="cutIn"><div class="cutInText" id="cutInName">SKILL</div><div class="cutInSub" id="cutInUser">User</div></div>
 <div id="switchModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">メンバー交代</h3><button class="btnTiny" id="swCancel">閉じる</button></div><div id="switchGrid"></div><button id="swDo" class="btn3d btn-primary" style="width:100%;margin-top:24px" disabled>このキャラに交代</button></div></div>
 <div id="infoModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">詳細ステータス</h3><button class="btnTiny" id="infoClose">閉じる</button></div><div id="infoBody"></div></div></div>
+<div id="statusModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">対戦状況</h3><button class="btnTiny" id="statusClose">閉じる</button></div><div id="statusBody" class="allStatsGrid"></div></div></div>
 <div id="rulesModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">ルール説明</h3><button class="btnTiny" id="rulesClose">閉じる</button></div><ul style="padding-left:20px;line-height:2;color:#cbd7f0;font-size:14px;list-style-type:square"><li>3体の「言葉」でチームを組んで戦うターン制バトル。</li><li>じゃんけんに<strong>勝つと攻撃</strong>、<strong>負けると防御</strong>。</li><li><strong>タイプ相性</strong>が重要（有利1.5倍 / 不利0.67倍）。</li><li>攻撃・被弾でゲージが溜まり、MAX(6)で<strong>必殺技</strong>発動！</li><li>相手チームを全員倒せば勝利！</li></ul></div></div>
 <div id="result"><div class="modalCard" style="text-align:center;padding:48px;background:rgba(15,23,42,0.95)"><h1 id="resTitle" style="color:#fff;margin:0 0 24px;font-size:56px;font-family:'Teko';text-shadow:0 0 30px rgba(255,255,255,0.6)">WIN</h1><p style="color:#94a3b8;font-size:14px;font-family:'Teko';letter-spacing:0.1em">RETURNING TO SETUP...</p></div></div>
 
@@ -539,10 +601,34 @@ const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn
 const left =()=>state.A.team[state.A.i];
 const right =()=>state.B.team[state.B.i];
 
-function barRow(label,val,max){const pct=Math.min(100,(val/max)*100);return `<div class="barRow"><div class="barLabel">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="barVal">${val}</div></div>`;}
+function barRow(label,val,max){
+  const pct=Math.min(100,(val/max)*100);
+  return `<div class="barRow"><div class="barLabel">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="barVal">${val}</div></div>`;
+}
 
-function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" style="--typeC:${typeColor(w.type)}" data-type="${w.type}"><div class="head"><div>${w.name}</div><div style="color:var(--typeC)">${w.type}</div></div><div class="statGrid">${barRow('HP',w.maxhp,800)}${barRow('ATK',w.atk,120)}${barRow('DEF',w.def,120)}${barRow('EVA',w.eva,30)}</div></div>`;}
-function renderMini(side){const root=side==='A'?$('statsA'):$('statsB');root.innerHTML='';for(let i=0;i<3;i++){const idx=Number($(`${side}-${i}`).value)||0;root.innerHTML+=miniCard(idx);}}
+function miniCard(idx){
+  const w=makeW(idx);
+  return `<div class="setupMini" style="--typeC:${typeColor(w.type)}" data-type="${w.type}">
+    <div class="head">
+      <div>${w.name}</div>
+      <div style="color:var(--typeC)">${w.type}</div>
+    </div>
+    <div class="statGrid">
+      ${barRow('HP',w.maxhp,800)}
+      ${barRow('ATK',w.atk,120)}
+      ${barRow('DEF',w.def,120)}
+      ${barRow('EVA',w.eva,30)}
+    </div>
+  </div>`;
+}
+function renderMini(side){
+  const root=side==='A'?$('statsA'):$('statsB');
+  root.innerHTML='';
+  for(let i=0;i<3;i++){
+    const idx=Number($(`${side}-${i}`).value)||0;
+    root.innerHTML+=miniCard(idx);
+  }
+}
 
 function uniqueRandom(n, sourceLen){
   const arr = []; const pool = Array.from({length: sourceLen}, (_, i) => i);
@@ -552,7 +638,33 @@ function uniqueRandom(n, sourceLen){
   }
   return arr;
 }
-function makeTeam(root,side){root.innerHTML='';for(let i=0;i<3;i++){const div=document.createElement('div');div.className='slot';const pill=document.createElement('span');pill.className='pill';pill.textContent='#'+(i+1);const sel=document.createElement('select');sel.id=`${side}-${i}`;WORDS_BASE.forEach((w,idx)=>{const o=document.createElement('option');o.value=idx;o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;sel.append(o);});sel.addEventListener('change',()=>{renderMini(side);});div.append(pill,sel);root.append(div);}const picks=uniqueRandom(3,WORDS_BASE.length);picks.forEach((v,i)=>$(`${side}-${i}`).value=v);renderMini(side);}
+function makeTeam(root,side){
+  root.innerHTML='';
+  for(let i=0;i<3;i++){
+    const div=document.createElement('div');div.className='slot';
+    const pill=document.createElement('span');pill.className='pill';pill.textContent='#'+(i+1);
+    const sel=document.createElement('select');sel.id=`${side}-${i}`;
+    WORDS_BASE.forEach((w,idx)=>{
+      const o=document.createElement('option');
+      o.value=idx;o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;
+      sel.append(o);
+    });
+    sel.addEventListener('change',()=>{ renderMini(side); });
+    div.append(pill,sel);root.append(div);
+  }
+  const picks=uniqueRandom(3,WORDS_BASE.length);
+  picks.forEach((v,i)=>$(`${side}-${i}`).value=v);
+  renderMini(side);
+}
+
+function randomizeTeam(side){
+  const picks=uniqueRandom(3,WORDS_BASE.length);
+  for(let i=0;i<3;i++){
+    $(`${side}-${i}`).value = picks[i];
+  }
+  renderMini(side);
+}
+
 const collect=side=>[0,1,2].map(i=>{const idx=Number($(`${side}-${i}`).value)||0;return {...makeW(idx),side};});
 
 function startRound(){
@@ -618,7 +730,7 @@ function checkAffinity(){
 }
 
 function renderCard(u,role,opp){
-  const sp=role==='ally'?state.A.sp:state.B.sp, tag=role==='ally'?'A':'B';
+  const sp=role==='ally'?state.A.sp:state.B.sp;
   const owner=role==='ally'?'YOU':'CPU';
   const img=IMG[u.name]?`<img src="images/${IMG[u.name]}" class="mainImg" onerror="this.style.display='none'">`:'<span style="font-size:40px">📦</span>';
   const skill=(SKILLS[u.name]||['—','—']);
@@ -634,9 +746,6 @@ function renderCard(u,role,opp){
       <div class="cardName" id="nm-${role}">${u.name}</div>
       <div class="artArea" id="art-${role}">
         ${img}
-        <div style="position:absolute;bottom:4px;right:4px;">
-           <span id="aff${tag}" class="affTag"></span>
-        </div>
       </div>
       
       <div class="statsArea">
@@ -666,7 +775,6 @@ function renderCard(u,role,opp){
   </div>`;
 }
 
-/* 復活: 控えエリアの表示 (YOU / CPU) */
 function buildBoxes(){
   const mk=(u,i,isActive)=>`<div class="resIcon ${u.hp<=0?'dead':''} ${isActive?'active':''}" onclick="window._sh('${u.name}')" style="border-color:${typeColor(u.type)}">${u.name.charAt(0)}</div>`;
   
@@ -695,6 +803,34 @@ function renderSides(){
   $('rightWrap').innerHTML=renderCard(state.B.team[state.B.i],'enemy',state.A.team[state.A.i]);
   fitName(qs('#nm-ally')); fitName(qs('#nm-enemy'));
   buildBoxes(); updateSPBtn(); updateHPUI('ally',left().hp,left().maxhp); updateHPUI('enemy',right().hp,right().maxhp); checkAffinity();
+}
+
+function showAllStatus(){
+  let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">`;
+  html+=`<div class="asCol"><div class="asHead" style="color:#4da6ff">YOU</div>`;
+  state.A.team.forEach((u,i)=>{
+     html+=`<div class="asCard ${i===state.A.i?'active':''}" style="border-color:${typeColor(u.type)}">
+       <div class="asIcon" style="background:${typeColor(u.type)}">${u.name.charAt(0)}</div>
+       <div>
+         <div style="font-size:11px;font-weight:bold">${u.name} ${u.hp<=0?'(DEAD)':''}</div>
+         <div style="font-size:10px">HP: ${u.hp}/${u.maxhp}</div>
+       </div>
+     </div>`;
+  });
+  html+=`</div>`;
+  html+=`<div class="asCol"><div class="asHead" style="color:#ff5c6c">CPU</div>`;
+  state.B.team.forEach((u,i)=>{
+     html+=`<div class="asCard ${i===state.B.i?'active':''}" style="border-color:${typeColor(u.type)}">
+       <div class="asIcon" style="background:${typeColor(u.type)}">${u.name.charAt(0)}</div>
+       <div>
+         <div style="font-size:11px;font-weight:bold">${u.name} ${u.hp<=0?'(DEAD)':''}</div>
+         <div style="font-size:10px">HP: ${u.hp}/${u.maxhp}</div>
+       </div>
+     </div>`;
+  });
+  html+=`</div></div>`;
+  $('statusBody').innerHTML=html;
+  $('statusModal').classList.add('show');
 }
 
 window._sh=(n)=>{
@@ -973,7 +1109,7 @@ swDo.onclick=async()=>{
   }
 };
 
-const modals = ['switchModal','infoModal','rulesModal'];
+const modals = ['switchModal','infoModal','rulesModal','statusModal'];
 modals.forEach(id=>{ $(id).addEventListener('click', (e)=>{ if(e.target === $(id)) $(id).classList.remove('show'); }); });
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -994,7 +1130,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('btnRules').onclick=()=>$('rulesModal').classList.add('show');
   $('rulesClose').onclick=()=>$('rulesModal').classList.remove('show');
   $('infoClose').onclick=()=>$('infoModal').classList.remove('show');
-  $('btnRand').onclick=()=>{makeTeam($('teamA'),'A');makeTeam($('teamB'),'B');};
+  $('statusClose').onclick=()=>$('statusModal').classList.remove('show');
+
+  const btnStatus = $('btnStatus');
+  if(btnStatus){ btnStatus.onclick = () => showAllStatus(); }
+
+  $('btnRand').onclick=()=>{ randomizeTeam('A'); randomizeTeam('B'); };
 });
 })();
 </script>
