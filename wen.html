@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v8.20 Logic Restored</title>
+<title>KOTOBA-BATTLE | v8.80 Logic Perfected</title>
   <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0b0f1c">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -14,7 +14,7 @@
   --panel:#10182b; --panel2:#0c1221; --border:#2a3d6b; --shadow:0 8px 32px rgba(0,0,0,.4);
   --ally:#4da6ff; --enemy:#ff5c6c;
   --hp:#4effa5; --hpBack:#0a2618;
-  --gauge:#ffd900; --gaugeBack:#3d2e00;
+  --gauge:#ffd900;
   --t-ジオ:#4d8aff; --t-アニマル:#00db84; --t-フード:#ffaa2b; --t-コンセプト:#b366ff; --t-サイエンス:#00e5ff; --t-ヒストリー:#ff5c87; --t-ヒューマン:#88f060;
 }
 
@@ -22,7 +22,7 @@
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}
 
-.container{max-width:1024px;margin:0 auto;padding:10px;padding-bottom:40px}
+.container{max-width:1024px;margin:0 auto;padding:10px;padding-bottom:60px}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
 .card h2{margin:0;padding:10px 16px;border-bottom:1px solid var(--border);font-size:15px;font-weight:800;letter-spacing:.05em;background:rgba(0,0,0,.2);display:flex;justify-content:space-between;align-items:center}
 .card .body{padding:12px}
@@ -44,10 +44,10 @@ button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:non
 @media(min-width:720px){#statsGrid{grid-template-columns:1fr 1fr}}
 .statsCol{display:grid;grid-template-rows:repeat(3,auto);gap:8px}
 
+/* 編成画面：全ステータス表示 */
 .setupMini{
   border:1px solid #2a3d6b; border-radius:8px; padding:8px; position:relative;
-  background:#11182b; box-shadow:0 2px 8px rgba(0,0,0,.3);
-  display:flex; flex-direction:column; gap:4px;
+  background:#11182b; box-shadow:0 2px 8px rgba(0,0,0,.3); display:flex; flex-direction:column; gap:4px;
 }
 .setupMini .head{display:flex;justify-content:space-between;font-weight:800;font-size:12px}
 .barLine{display:flex;align-items:center;gap:6px;height:10px}
@@ -62,12 +62,13 @@ button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:non
 .vsrow>div{min-width:0;background:transparent!important;box-shadow:none!important;border:none!important}
 
 .unit{
-  position:relative; width:100%; height:100%; min-height:210px;
+  position:relative; width:100%; height:100%; min-height:240px;
   border-radius:12px; padding:8px;
   background:#151b2e; border:1px solid #2a3d6b;
   display:flex; flex-direction:column;
   box-shadow:0 8px 20px rgba(0,0,0,.5);
   overflow:hidden;
+  transition: filter 0.5s, opacity 0.5s, transform 0.5s;
 }
 .unit[data-rank="S"]{ background:linear-gradient(145deg,#1a1a2e,#2e2138); border:1px solid #ffd700; box-shadow:0 0 10px rgba(255,215,0,.15), 0 8px 20px rgba(0,0,0,.5); }
 .unit[data-rank="S"]::before{
@@ -78,12 +79,32 @@ button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:non
 .unit[data-rank="A"]{ background:linear-gradient(145deg,#141e38,#242f4f); border:1px solid #e0c060; }
 @keyframes shine{0%{background-position:200% 200%}100%{background-position:-50% -50%}}
 
+/* 撃破アニメーション */
+.unit.fall {
+  animation: fallDown 0.8s forwards;
+  filter: grayscale(1) brightness(0.4);
+}
+@keyframes fallDown {
+  0% { transform: translateY(0) rotate(0); opacity: 1; }
+  30% { transform: translateY(10px) rotate(5deg); opacity: 1; }
+  100% { transform: translateY(50px) rotate(15deg); opacity: 0; }
+}
+
 .unitInner{position:relative; z-index:2; flex:1; display:flex; flex-direction:column}
 .cardHeader{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;min-height:18px}
 .ownerBadge{font-size:9px;font-weight:900;padding:2px 5px;border-radius:4px;background:#000;border:1px solid #444;color:#ccc;line-height:1}
 .ownerBadge.ally{color:var(--ally);border-color:var(--ally)}
 .ownerBadge.enemy{color:var(--enemy);border-color:var(--enemy)}
 .typeIcon{font-size:9px;font-weight:800;padding:2px 6px;border-radius:8px;background:var(--typeColor);color:#080b14;line-height:1}
+
+.affBadge{
+  position:absolute; top:8px; right:50%; transform:translateX(50%);
+  font-size:10px; font-weight:900; padding:2px 8px; border-radius:4px;
+  background:rgba(0,0,0,0.8); border:1px solid #fff; z-index:5;
+  box-shadow:0 2px 5px rgba(0,0,0,0.5);
+}
+.affBadge.adv{color:#4effa5; border-color:#4effa5}
+.affBadge.dis{color:#ff5c6c; border-color:#ff5c6c}
 
 .artArea{
   position:relative; width:100%; aspect-ratio:1.8/1; margin-bottom:6px;
@@ -97,8 +118,8 @@ button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:non
 
 .cardName{text-align:center; font-weight:900; font-size:14px; margin:0 0 6px; text-shadow:0 2px 0 #000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .statRow{display:grid; grid-template-columns:20px 1fr; gap:4px; align-items:center; margin-bottom:4px; font-size:10px; font-weight:700; color:#8ba0c0}
-.hpBarBg{height:6px; background:#06080e; border-radius:3px; border:1px solid #233562; overflow:hidden}
-.hpBar{height:100%; background:var(--hp); width:100%; transition:width .4s ease-out; box-shadow:0 0 6px var(--hp)}
+.hpBarBg{height:8px; background:#06080e; border-radius:4px; border:1px solid #233562; overflow:hidden}
+.hpBar{height:100%; background:var(--hp); width:100%; transition:width 1.2s cubic-bezier(0.25, 1, 0.5, 1); box-shadow:0 0 6px var(--hp)}
 .num{text-align:right; font-family:monospace; font-size:10px}
 
 .statusRow{display:flex;gap:2px;min-height:14px;margin-bottom:4px;justify-content:flex-end;flex-wrap:wrap}
@@ -109,9 +130,10 @@ button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:non
 
 .skillInfo{background:rgba(0,0,0,.3); padding:5px; border-radius:5px; border:1px solid rgba(255,255,255,.05); margin-top:auto}
 .skillN{font-size:9px; font-weight:800; color:#e0e6f0; margin-bottom:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.skillD{font-size:8px; line-height:1.2; color:#9aa5b8; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.skillD{font-size:8px; line-height:1.3; color:#9aa5b8; display:block}
+
 .footer{display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:9px; color:#677a99}
-.btnStat{background:transparent; border:1px solid #364a80; color:#8ba6d6; border-radius:4px; padding:1px 5px; font-size:8px; cursor:pointer}
+.btnStat{background:rgba(0,0,0,.4); border:1px solid #4da6ff; color:#4da6ff; border-radius:4px; padding:2px 8px; font-size:9px; font-weight:800; cursor:pointer}
 
 .padCard{position:relative; background:rgba(18,28,58,.95); border:1px solid #31457b; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.5); padding:10px}
 .padInner{display:grid;grid-template-columns:1fr;gap:10px}
@@ -145,6 +167,7 @@ button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:non
 .logLine.dmg{color:#ff9e9e; border-left-color:#ff5c6c}
 .logLine.heal{color:#9effc5; border-left-color:#4effa5}
 .logLine.sp{color:#fff; border-left-color:#a29bfe}
+.logLine.miss{color:#8ba6d6; border-left-color:#8ba6d6}
 
 #boxGrid{display:grid;gap:8px;grid-template-columns:1fr 1fr; margin-top:12px}
 .boxCol{background:#0e1424;border:1px solid #1f2b4d;border-radius:10px;padding:6px}
@@ -156,9 +179,7 @@ button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:non
 
 @media(max-width:600px){
   .container{padding:8px}
-  .unit{min-height:200px; padding:6px}
-  .cardName{font-size:13px}
-  .skillD{display:none}
+  .unit{min-height:220px; padding:6px}
   .rps{width:50px;height:50px}
   .emo{font-size:22px}
 }
@@ -192,7 +213,7 @@ button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:non
 .timer{text-align:center;font-weight:900;font-size:12px;color:#8ba6d6;margin-top:6px}
 .timer .num{font-size:20px;color:#fff}
 .floatingText{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-weight:900;font-size:28px;color:#fff;-webkit-text-stroke:1px #000;text-shadow:0 2px 5px rgba(0,0,0,.8);pointer-events:none;z-index:10;animation:floatUp .8s forwards}
-.floatingText.dmg{color:#ff5c6c}.floatingText.heal{color:#4effa5}
+.floatingText.dmg{color:#ff5c6c}.floatingText.heal{color:#4effa5}.floatingText.miss{color:#8ba6d6}.floatingText.buff{color:#ffa500;font-size:20px}.floatingText.debuff{color:#d066ff;font-size:20px}
 @keyframes floatUp{0%{opacity:0;transform:translate(-50%,0) scale(0.5)} 20%{opacity:1;transform:translate(-50%,-40px) scale(1.2)} 100%{opacity:0;transform:translate(-50%,-80px) scale(1)}}
 </style>
 </head>
@@ -254,8 +275,8 @@ button:disabled{opacity:0.4;cursor:not-allowed;filter:grayscale(1);transform:non
 <div id="jankenOverlay"><div class="jkWrap"><div class="jkResult" id="jkResult">WIN</div><div class="jkHands"><div class="jkHand" id="jkHandA">✊</div><div style="color:#fff;font-weight:900;font-size:20px">VS</div><div class="jkHand" id="jkHandB">✌️</div></div></div></div>
 <div id="cutIn"><div class="cutInText" id="cutInName">SKILL</div><div class="cutInSub" id="cutInUser">User</div></div>
 <div id="switchModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">交代</h3><button class="btnTiny" id="swCancel">閉じる</button></div><div id="switchGrid"></div><button id="swDo" class="primary" style="width:100%;margin-top:16px" disabled>決定</button></div></div>
-<div id="infoModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">詳細</h3><button class="btnTiny" onclick="$('infoModal').classList.remove('show')">閉じる</button></div><div id="infoBody"></div></div></div>
-<div id="rulesModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">ルール</h3><button class="btnTiny" onclick="$('rulesModal').classList.remove('show')">閉じる</button></div><ul style="padding-left:18px;line-height:1.6;color:#cbd7f0;font-size:13px"><li>3体の「言葉」でチームを組んで戦います。</li><li>じゃんけんに勝つと攻撃、負けると防御です。</li><li>タイプ相性（有利1.5倍、不利0.67倍）が重要です。</li><li>必殺ゲージが6溜まると、強力な必殺技が使えます。</li><li>相手チームを全員倒せば勝利です。</li></ul></div></div>
+<div id="infoModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">詳細</h3><button class="btnTiny" id="infoClose">閉じる</button></div><div id="infoBody"></div></div></div>
+<div id="rulesModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">ルール</h3><button class="btnTiny" id="rulesClose">閉じる</button></div><ul style="padding-left:18px;line-height:1.6;color:#cbd7f0;font-size:13px"><li>3体の「言葉」でチームを組んで戦います。</li><li>じゃんけんに勝つと攻撃、負けると防御です。</li><li>タイプ相性（有利1.5倍、不利0.67倍）が重要です。</li><li>必殺ゲージが6溜まると、強力な必殺技が使えます。</li><li>相手チームを全員倒せば勝利です。</li></ul></div></div>
 <div id="result"><div class="modalCard" style="text-align:center;padding:40px"><h1 id="resTitle" style="color:#fff;margin:0 0 20px;font-size:36px">WIN</h1><p style="color:#8ba6d6;font-size:12px">Returning to setup...</p></div></div>
 
 <script>
@@ -274,8 +295,16 @@ function preloadImgs(names){
 function log(msg, type='normal'){
   const c=$('battleLog'); const d=document.createElement('div');
   let icon='';
-  if(type==='atk') icon='⚔️ '; else if(type==='dmg') icon='💥 '; else if(type==='heal') icon='💖 '; else if(type==='sp') icon='✨ ';
+  if(type==='atk') icon='⚔️ '; else if(type==='dmg') icon='💥 '; else if(type==='heal') icon='💖 '; else if(type==='sp') icon='✨ '; else if(type==='miss') icon='💨 ';
   d.className='logLine '+type; d.textContent=icon+msg; c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+
+// 修正: 欠落していた関数を実装
+function updateHPUI(role, val, max){
+  const bar = $(`hp-${role}`);
+  const num = $(`hpnum-${role}`);
+  if(bar) bar.style.width = `${100 * val / max}%`;
+  if(num) num.textContent = val;
 }
 
 function showFloatingText(targetId, text, type){
@@ -334,13 +363,11 @@ async function playJankenAnim(myH, cpuH, res){
 const TYPES_RING=['ヒストリー','ジオ','コンセプト','サイエンス','アニマル','ヒューマン','フード'];
 const typeColor=t=>getComputedStyle(document.documentElement).getPropertyValue(`--t-${t}`)||'#7aa0ff';
 const typeMult=(atk,def)=>{const n=TYPES_RING.length,i=TYPES_RING.indexOf(atk),j=TYPES_RING.indexOf(def);if(i<0||j<0)return 1;const st=[(i+1)%n,(i+2)%n],wk=[(i-1+n)%n,(i-2+n)%n];if(st.includes(j))return 1.5;if(wk.includes(j))return 0.67;return 1;};
-const MAX={HP:800,ATK:120,DEF:120,EVA:20};
 const PRANK={S:170,A:165,B:160,C:150,D:145,X:150};
 const HP_BASE={S:560,A:540,B:520,C:500,D:480,X:500};
 
-/* 復旧: オリジナルのステータス計算ロジック */
+const toKatakana=(s)=>(s||"").replace(/[ぁ-ん]/g,ch=>String.fromCharCode(ch.charCodeAt(0)+0x60));
 const visualLen = (s)=> (s||"").replace(/[・\s]/g,"").length;
-const toKatakana = (s)=> (s||"").replace(/[ぁ-ん]/g, ch => String.fromCharCode(ch.charCodeAt(0)+0x60));
 const reKanaH = /[ぁ-ゟ]/g, reKanaK = /[゠-ヿー]/g, reKanji = /[一-龥々〆ヵヶ]/g;
 function countClass(name){const H=(name.match(reKanaH)||[]).length,K=(name.match(reKanaK)||[]).length,J=(name.match(reKanji)||[]).length;return{H,K,J,total:H+K+J};}
 const reSmallK = /[ァィゥェォャュョヮㇰ-ㇿ]/g, reSokuon=/ッ/g, reVoiced=/[ガ-ポヴ]/g, rePlosiveEnd=/[ツックキチテトプピペポカタ]$/;
@@ -367,47 +394,47 @@ function calcAttackDefense(name,yomiKatakana){
 function calcEvasion(name,T,rank){const cls=countClass(name);const hiraRatio=cls.total?(cls.H/cls.total):0;const rankAdj=({S:-1,A:-0.5,B:0,C:0.5,D:1,X:0})[rank]??0;let eva=10+8*hiraRatio-0.5*(T-5)+rankAdj;eva=Math.round(eva*10)/10;return Math.max(5,Math.min(35,eva));}
 function makeWordObject([name,rank,type,yomiH]){const y=toKatakana(yomiH||name);const {atkP,defP,T}=calcAttackDefense(name,y);const ATK=Math.round(PRANK[rank]*(atkP/100));const DEF=Math.round(PRANK[rank]*(defP/100));const HP=Math.round(HP_BASE[rank]+20*(T-5));const EVA=calcEvasion(name,T,rank);return {name,rank,type,yomi:y,maxhp:HP,hp:HP,atk:ATK,def:DEF,eva:EVA,shield:0,eva60:0,atk13:0,lock:0,doom:0,selfHurt:0,stun:false,endure:false};}
 
-/* 復旧: 完全なスキル定義と効果 */
 const SKILLS={
- "パラボラアンテナ":["妨害電波","この一撃は2.2倍である。さらに相手の必殺ゲージを0にする。"],
- "ネスカフェアンバサダー":["一杯いかが","通常攻撃のあと、味方全員のHPを60回復する（自分も60）。"],
- "にんじんしりしり":["なんくるないさー","この一撃は1.6倍である。次に受ける致命傷を1回だけHP1で耐える。"],
- "そぼろごはん":["そぼろ乱舞","3回連続で攻撃する（0.75→0.5→0.25倍）。相手を倒したら次の相手にも続く。"],
- "ニシローランドゴリラ":["マウンテンビート","この一撃は1.5倍である。さらに次の2回の自分の攻撃は1.3倍になる。"],
- "毛むくじゃら":["ムクジャララ","この一撃は1.4倍である。さらに次の2回の自分の攻撃のあいだ回避率が60%になる。"],
- "九品仏":["仏の顔も三度まで","この一撃は1.6倍である。さらに次の2回の相手からのダメージを半分にする。"],
- "けんちん汁":["長寿の秘訣","この一撃は1.2倍である。さらに自分のHPを150回復する。"],
- "カムチャッカ半島":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
- "タランチュラ":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
- "ハシビロコウ":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
- "バルサミコ酢":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
- "ピロリ菌":["ゲシュタルト崩壊","対象は次の3回の攻撃ターンのたび、33%で自分に100ダメージ。"],
- "トリニダード・トバゴ":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
- "カラメル色素":["ゲシュタルト崩壊","対象は次の3回の攻撃ターンのたび、33%で自分に100ダメージ。"],
- "バビロン捕囚":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
- "鳥取砂丘":["ゲシュタルト崩壊","対象は次の3回の攻撃ターンのたび、33%で自分に100ダメージ。"],
- "プラシーボ効果":["ゲシュタルト崩壊","対象は次の3回の攻撃ターンのたび、33%で自分に100ダメージ。"],
- "渡来人":["文字化け","3ターン後に自分が戦闘不能になる（交代で解除）。"],
- "さるびあ丸":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
- "ペペロンチーノ":["ゲシュタルト崩壊","対象は次の3回の攻撃ターンのたび、33%で自分に100ダメージ。"],
- "ポリプロピレン":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
- "サラエボ事件":["言葉狩り","相手は次の攻撃ターンに行動できない。"],
- "クマンバチ":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
- "県庁所在地":["文字化け","3ターン後に自分が戦闘不能になる（交代で解除）。"],
- "照り焼きチキン":["言論統制","相手は次の3回の自分の攻撃が終わるまで交代できない。"],
- "ねるねるねるね":["ゲシュタルト崩壊","対象は次の3回の攻撃ターンのたび、33%で自分に100ダメージ。"],
- "スルメイカ":["ゲシュタルト崩壊","対象は次の3回の攻撃ターンのたび、33%で自分に100ダメージ。"],
- "本質":["鏡文字","相手チームの必殺をコピーして使う（威力2倍）。"],
- "見える化":["鏡文字","相手チームの必殺をコピーして使う（威力2倍）。"],
- "自分ごと化":["鏡文字","相手チームの必殺をコピーして使う（威力2倍）。"],
- "解像度":["鏡文字","相手チームの必殺をコピーして使う（威力2倍）。"]
+ "パラボラアンテナ":["妨害電波","威力2.2倍。相手の必殺ゲージを0にする。"],
+ "ネスカフェアンバサダー":["一杯いかが","攻撃後、味方全員HP60回復。"],
+ "にんじんしりしり":["なんくるないさー","威力1.6倍。次に受ける致命傷をHP1で耐える。"],
+ "そぼろごはん":["そぼろ乱舞","3回連続攻撃（0.75→0.5→0.25倍）。"],
+ "ニシローランドゴリラ":["マウンテンビート","威力1.5倍。次の2回、自分の攻撃1.3倍。"],
+ "毛むくじゃら":["ムクジャララ","威力1.4倍。次の2回、回避率60%固定。"],
+ "九品仏":["仏の顔も三度まで","威力1.6倍。次の2回、被ダメージ半減。"],
+ "けんちん汁":["長寿の秘訣","威力1.2倍。自分HP150回復。"],
+ "カムチャッカ半島":["言論統制","相手は4ターン交代不可。"],
+ "タランチュラ":["言葉狩り","相手は次のターン行動不能。"],
+ "ハシビロコウ":["言論統制","相手は4ターン交代不可。"],
+ "バルサミコ酢":["言論統制","相手は4ターン交代不可。"],
+ "ピロリ菌":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
+ "トリニダード・トバゴ":["言葉狩り","相手は次のターン行動不能。"],
+ "カラメル色素":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
+ "バビロン捕囚":["言論統制","相手は4ターン交代不可。"],
+ "鳥取砂丘":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
+ "プラシーボ効果":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
+ "渡来人":["文字化け","相手は3ターン後に戦闘不能。"],
+ "さるびあ丸":["言葉狩り","相手は次のターン行動不能。"],
+ "ペペロンチーノ":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
+ "ポリプロピレン":["言論統制","相手は4ターン交代不可。"],
+ "サラエボ事件":["言葉狩り","相手は次のターン行動不能。"],
+ "クマンバチ":["言論統制","相手は4ターン交代不可。"],
+ "県庁所在地":["文字化け","相手は3ターン後に戦闘不能。"],
+ "照り焼きチキン":["言論統制","相手は4ターン交代不可。"],
+ "ねるねるねるね":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
+ "スルメイカ":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
+ "本質":["鏡文字","相手の必殺をコピー（威力2倍）。"],
+ "見える化":["鏡文字","相手の必殺をコピー（威力2倍）。"],
+ "自分ごと化":["鏡文字","相手の必殺をコピー（威力2倍）。"],
+ "解像度":["鏡文字","相手の必殺をコピー（威力2倍）。"]
 };
 const WORDS_BASE=[["パラボラアンテナ","S","サイエンス","ぱらぼらあんてな"],["ネスカフェアンバサダー","S","ヒューマン","ねすかふぇあんばさだー"],["にんじんしりしり","A","フード","にんじんしりしり"],["そぼろごはん","A","フード","そぼろごはん"],["ニシローランドゴリラ","A","アニマル","にしろーらんどごりら"],["毛むくじゃら","A","アニマル","けむくじゃら"],["九品仏","A","ジオ","くほんぶつ"],["けんちん汁","A","フード","けんちんじる"],["カムチャッカ半島","B","ジオ","かむちゃっかはんとう"],["タランチュラ","B","アニマル","たらんちゅら"],["ハシビロコウ","B","アニマル","はしびろこう"],["バルサミコ酢","B","フード","ばるさみこす"],["ピロリ菌","B","サイエンス","ぴろりきん"],["トリニダード・トバゴ","B","ジオ","とりにだーどとばご"],["カラメル色素","B","サイエンス","からめるしきそ"],["バビロン捕囚","C","ヒストリー","ばびろんほしゅう"],["鳥取砂丘","C","ジオ","とっとりさきゅう"],["プラシーボ効果","C","サイエンス","ぷらしーぼこうか"],["渡来人","C","ヒューマン","とらいじん"],["さるびあ丸","C","ジオ","さるびあまる"],["ペペロンチーノ","C","フード","ぺぺろんちーの"],["ポリプロピレン","C","サイエンス","ぽりぷろぴれん"],["サラエボ事件","C","ヒストリー","さらえぼじけん"],["クマンバチ","D","アニマル","くまんばち"],["県庁所在地","D","ジオ","けんちょうしょざいち"],["照り焼きチキン","D","フード","てりやきちきん"],["ねるねるねるね","D","フード","ねるねるねるね"],["スルメイカ","D","アニマル","するめいか"],["本質","X","コンセプト","ほんしつ"],["見える化","X","コンセプト","みえるか"],["自分ごと化","X","コンセプト","じぶんごとか"],["解像度","X","コンセプト","かいぞうど"]];
 const makeW=i=>makeWordObject(WORDS_BASE[i]);
 const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false,spAnnA:false};
 
+/* 修正: 全ステータス表示に対応 */
 function barRow(label,val,max){const pct=Math.min(100,(val/max)*100);return `<div class="barLine"><div class="val" style="width:20px;text-align:left">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="val">${val}</div></div>`;}
-function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" data-type="${w.type}"><div class="head"><div>${w.name}</div><div style="color:${typeColor(w.type)}">${w.type}</div></div>${barRow('HP',w.maxhp,800)}${barRow('ATK',w.atk,120)}</div>`;}
+function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" data-type="${w.type}"><div class="head"><div>${w.name}</div><div style="color:${typeColor(w.type)}">${w.type}</div></div>${barRow('HP',w.maxhp,800)}${barRow('ATK',w.atk,120)}${barRow('DEF',w.def,120)}${barRow('EVA',w.eva,30)}</div>`;}
 function renderMini(side){const root=side==='A'?$('statsA'):$('statsB');root.innerHTML='';for(let i=0;i<3;i++){const idx=Number($(`${side}-${i}`).value)||0;root.innerHTML+=miniCard(idx);}}
 function makeTeam(root,side){root.innerHTML='';for(let i=0;i<3;i++){const div=document.createElement('div');div.className='slot';const pill=document.createElement('span');pill.className='pill';pill.textContent='#'+(i+1);const sel=document.createElement('select');sel.id=`${side}-${i}`;WORDS_BASE.forEach((w,idx)=>{const o=document.createElement('option');o.value=idx;o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;sel.append(o);});sel.addEventListener('change',()=>{renderMini(side);});div.append(pill,sel);root.append(div);}const picks=Array.from({length:3},()=>Math.floor(Math.random()*WORDS_BASE.length));picks.forEach((v,i)=>$(`${side}-${i}`).value=v);renderMini(side);}
 const collect=side=>[0,1,2].map(i=>{const idx=Number($(`${side}-${i}`).value)||0;return {...makeW(idx),side};});
@@ -428,14 +455,22 @@ function renderCard(u,role,opp){
   const pips=[...Array(6)].map((_,i)=>`<span class="pip ${i<sp?'on':''}"></span>`).join('');
   let badges='';
   if(u.lock>0) badges+=`<div class="stBadge">🔒交代不可</div>`;
-  if(u.doom>0) badges+=`<div class="stBadge">👾文字化け</div>`;
-  if(u.selfHurt>0) badges+=`<div class="stBadge">🌀崩壊</div>`;
+  if(u.doom>0) badges+=`<div class="stBadge">👾文字化け(${u.doom})</div>`;
+  if(u.selfHurt>0) badges+=`<div class="stBadge">🌀崩壊(${u.selfHurt})</div>`;
   
+  const aff = typeMult(u.type, opp.type);
+  let affBadge = '';
+  if(aff >= 1.5) affBadge = `<div class="affBadge adv">有利</div>`;
+  else if(aff <= 0.7) affBadge = `<div class="affBadge dis">不利</div>`;
+
   return `<div class="unit" style="--typeColor:${typeColor(u.type)}" data-rank="${u.rank}">
     <div class="unitInner">
       <div class="cardHeader"><span class="ownerBadge ${role}">${owner}</span><span class="typeIcon">${u.type}</span></div>
       <div class="cardName">${u.name}</div>
-      <div class="artArea" id="art-${role}">${img}</div>
+      <div class="artArea" id="art-${role}">
+        ${img}
+        ${affBadge}
+      </div>
       <div class="statusRow">${badges}</div>
       <div class="statRow"><span>HP</span><div class="hpBarBg"><div class="hpBar" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div></div>
       <div style="text-align:right;font-size:10px;margin-bottom:6px"><span id="hpnum-${role}" class="num">${u.hp}</span> / ${u.maxhp}</div>
@@ -456,9 +491,29 @@ function renderSides(){
   $('rightWrap').innerHTML=renderCard(state.B.team[state.B.i],'enemy',state.A.team[state.A.i]);
   buildBoxes(); updateSPBtn();
 }
-window._sh=(n)=>{const u=[...state.A.team,...state.B.team].find(x=>x.name===n); if(u){$('infoTitle').innerHTML=`${u.name}`; $('infoBody').innerHTML=renderCard(u,'info','info'); $('infoModal').classList.add('show');}};
 
-/* 復旧: 必殺技分岐ロジック */
+window._sh=(n)=>{
+  const u=[...state.A.team,...state.B.team].find(x=>x.name===n); if(!u)return;
+  const skill = SKILLS[u.name]||['?','?'];
+  const html = `
+    <div style="text-align:center;margin-bottom:10px">
+      <h2 style="margin:0;color:${typeColor(u.type)}">${u.name}</h2>
+      <div style="font-size:12px;color:#ccc">Rank:${u.rank} / Type:${u.type}</div>
+    </div>
+    <div class="setupMini" style="margin-bottom:10px">
+      ${barRow('HP', u.hp, u.maxhp)}
+      ${barRow('ATK', u.atk, 120)}
+      ${barRow('DEF', u.def, 120)}
+      ${barRow('EVA', u.eva, 30)}
+    </div>
+    <div style="background:rgba(0,0,0,0.5);padding:10px;border-radius:8px;border:1px solid #444">
+      <div style="font-weight:bold;color:#ffd900;margin-bottom:4px">必殺技: ${skill[0]}</div>
+      <div style="font-size:12px;line-height:1.4;color:#ccc">${skill[1]}</div>
+    </div>
+  `;
+  $('infoBody').innerHTML=html; $('infoModal').classList.add('show');
+};
+
 function spEffectPre(att,def,role,forcedName=null,mirrorMode=false){
   let mult=1, multiSeq=null, skillTitle='通常攻撃', skillUser=att.name, notes=[];
   const useName=forcedName??att.name;
@@ -467,16 +522,16 @@ function spEffectPre(att,def,role,forcedName=null,mirrorMode=false){
   switch(useName){
     case 'パラボラアンテナ': mult=2.2; break;
     case 'ネスカフェアンバサダー': mult=1; notes.push('味方全員回復'); break;
-    case 'にんじんしりしり': mult=1.6; att.endure=true; break;
+    case 'にんじんしりしり': mult=1.6; att.endure=true; showFloatingText(role==='ally'?'leftWrap':'rightWrap','根性','buff'); break;
     case 'そぼろごはん': multiSeq=[0.75,0.5,0.25]; break;
-    case 'ニシローランドゴリラ': mult=1.5; att.atk13=2; break;
-    case '毛むくじゃら': mult=1.4; att.eva60=2; break;
-    case '九品仏': mult=1.6; att.shield=2; break;
+    case 'ニシローランドゴリラ': mult=1.5; att.atk13=3; showFloatingText(role==='ally'?'leftWrap':'rightWrap','ATK UP','buff'); break;
+    case '毛むくじゃら': mult=1.4; att.eva60=3; showFloatingText(role==='ally'?'leftWrap':'rightWrap','回避UP','buff'); break;
+    case '九品仏': mult=1.6; att.shield=2; showFloatingText(role==='ally'?'leftWrap':'rightWrap','軽減','buff'); break;
     case 'けんちん汁': mult=1.2; notes.push('自己回復'); break;
-    case 'カムチャッカ半島': case 'ハシビロコウ': case 'バルサミコ酢': case 'バビロン捕囚': case 'ポリプロピレン': case 'クマンバチ': case '照り焼きチキン': def.lock=3; break;
-    case 'タランチュラ': case 'トリニダード・トバゴ': case 'サラエボ事件': case 'さるびあ丸': def.stun=true; break;
-    case 'ピロリ菌': case 'カラメル色素': case '鳥取砂丘': case 'プラシーボ効果': case 'ペペロンチーノ': case 'スルメイカ': case 'ねるねるねるね': def.selfHurt=3; break;
-    case '渡来人': case '県庁所在地': def.doom=3; break;
+    case 'カムチャッカ半島': case 'ハシビロコウ': case 'バルサミコ酢': case 'バビロン捕囚': case 'ポリプロピレン': case 'クマンバチ': case '照り焼きチキン': def.lock=4; showFloatingText(role==='ally'?'rightWrap':'leftWrap','LOCKED','debuff'); break;
+    case 'タランチュラ': case 'トリニダード・トバゴ': case 'サラエボ事件': case 'さるびあ丸': def.stun=true; showFloatingText(role==='ally'?'rightWrap':'leftWrap','スタン','debuff'); break;
+    case 'ピロリ菌': case 'カラメル色素': case '鳥取砂丘': case 'プラシーボ効果': case 'ペペロンチーノ': case 'スルメイカ': case 'ねるねるねるね': def.selfHurt=3; showFloatingText(role==='ally'?'rightWrap':'leftWrap','崩壊','debuff'); break;
+    case '渡来人': case '県庁所在地': def.doom=3; showFloatingText(role==='ally'?'rightWrap':'leftWrap','文字化け','debuff'); break;
     case '本質': case '見える化': case '自分ごと化': case '解像度':
       if(!mirrorMode){ mult=2.0; skillTitle='鏡文字'; } break;
   }
@@ -485,19 +540,32 @@ function spEffectPre(att,def,role,forcedName=null,mirrorMode=false){
 async function spEffectPost(att,def,role,usedName){
   switch(usedName){
     case 'パラボラアンテナ': if(role==='ally'){state.B.sp=0;}else{state.A.sp=0;} break;
-    case 'ネスカフェアンバサダー': (role==='ally'?state.A.team:state.B.team).forEach(u=>u.hp=Math.min(u.maxhp,u.hp+60)); renderSides(); break;
-    case 'けんちん汁': att.hp=Math.min(att.maxhp,att.hp+150); renderSides(); break;
+    case 'ネスカフェアンバサダー': {
+      const team = (role==='ally'?state.A.team:state.B.team);
+      team.forEach(u=>{ if(u.hp<u.maxhp){ u.hp=Math.min(u.maxhp,u.hp+60); } });
+      showFloatingText(role==='ally'?'leftWrap':'rightWrap','+60','heal');
+      renderSides(); 
+      break;
+    }
+    case 'けんちん汁': {
+      att.hp=Math.min(att.maxhp,att.hp+150); 
+      showFloatingText(role==='ally'?'leftWrap':'rightWrap','+150','heal');
+      renderSides(); 
+      break;
+    }
   }
 }
 
-/* 復旧: ターン開始時処理 */
 async function startOfAction(side){
   const me=side==='ally'?state.A.team[state.A.i]:state.B.team[state.B.i];
-  if(me.shield>0)me.shield--; if(me.eva60>0)me.eva60--; if(me.atk13>0)me.atk13--; if(me.lock>0)me.lock--;
+  // 修正: shieldは減らさない(被弾時のみ)
+  if(me.eva60>0)me.eva60--; if(me.atk13>0)me.atk13--; if(me.lock>0)me.lock--;
   if(me.doom>0){
     me.doom--;
     if(me.doom<=0){
       me.hp=0; renderSides();
+      qs(side==='ally'?'#leftWrap .unit':'#rightWrap .unit').classList.add('fall');
+      await delay(1000);
       log(`${me.name}は文字化けで倒れた！`,'highlight');
       const ended=await handleKO(side); return false===ended;
     }
@@ -542,7 +610,6 @@ async function doTurn(side){
   if(spUse){
     if(side==='ally'){ state.A.sp=0; state.spOn=false; state.spAnnA=false; } else { state.B.sp=0; }
     
-    // 鏡文字判定
     if(['本質','見える化','自分ごと化','解像度'].includes(att.name)){
       const foe=(side==='ally'?state.B.team:state.A.team).filter(u=>u.rank!=='X'&&u.hp>0);
       if(foe.length){
@@ -565,52 +632,70 @@ async function doTurn(side){
     log(`${att.name}の攻撃`,'atk'); await delay(400);
   }
 
-  // 回避判定
   const eva=def.eva60>0?60:def.eva;
+  // 回避
   if(!spUse && Math.random()<(eva/100)){
-    log('攻撃を回避した！','highlight'); return false;
+    showFloatingText(side==='ally'?'rightWrap':'leftWrap', "MISS", "miss");
+    log('攻撃を回避した！','miss'); 
+    await delay(800);
+    return false;
   }
 
-  // 攻撃処理ループ
   let targetRole=side==='ally'?'enemy':'ally';
   const dmgList=(Array.isArray(multi)?multi:[mult]);
   
   for(let i=0; i<dmgList.length; i++){
     let m=dmgList[i];
     let damage=baseDamage(att,def)*m;
-    if(att.atk13>0) damage*=1.3; if(def.shield>0) damage*=0.5;
+    if(att.atk13>0) damage*=1.3; 
+    // シールド処理
+    if(def.shield>0){ damage*=0.5; def.shield--; showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap','GUARD','buff'); }
+    
     damage = Math.max(1, Math.floor(damage * (Math.random()*0.4+0.8)));
     
     def.hp=Math.max(0,def.hp-damage);
+    
+    // アニメーション
+    updateHPUI(targetRole, def.hp, def.maxhp);
+
     qs(targetRole==='enemy'?'#rightWrap .unit':'#leftWrap .unit').classList.add('hit');
     shakeScreen();
     showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap', `-${damage}`, 'dmg');
-    renderSides();
+    
     log(`${def.name}に ${damage} ダメージ`,'dmg');
-    await delay(600);
+    await delay(1200); 
     qs('.unit.hit')?.classList.remove('hit');
 
     if(def.hp<=0 && def.endure){
-      def.endure=false; def.hp=1; renderSides(); log('根性で耐えた！','highlight');
+      def.endure=false; def.hp=1; 
+      updateHPUI(targetRole, 1, def.maxhp);
+      showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap', '根性', 'buff');
+      log('根性で耐えた！','highlight');
     }
     else if(def.hp<=0){
+      qs(targetRole==='enemy'?'#rightWrap .unit':'#leftWrap .unit').classList.add('fall');
+      await delay(1000);
       log(`${def.name}は倒れた！`,'highlight');
       const ended=await handleKO(targetRole==='enemy'?'enemy':'ally');
       if(ended) return true;
-      // 連撃の途中で倒した場合、ターゲット更新
       if(i<dmgList.length-1){
         def=(side==='ally'?state.B.team[state.B.i]:state.A.team[state.A.i]);
       }
     }
   }
 
-  // 自傷
   if(att.selfHurt>0){
     att.selfHurt--;
     if(Math.random()<0.33){
       log('ゲシュタルト崩壊！','dmg');
-      att.hp=Math.max(0,att.hp-100); renderSides();
+      att.hp=Math.max(0,att.hp-100); 
+      const myRole=side==='ally'?'ally':'enemy';
+      updateHPUI(myRole, att.hp, att.maxhp);
+      showFloatingText(myRole==='ally'?'leftWrap':'rightWrap','-100','dmg');
+      
       if(att.hp<=0){
+        qs(myRole==='ally'?'#leftWrap .unit':'#rightWrap .unit').classList.add('fall');
+        await delay(1000);
         log(`${att.name}は自滅した`,'highlight');
         return await handleKO(side);
       }
@@ -643,6 +728,7 @@ async function handleKO(side){
 
 const swModal=$('switchModal'), swGrid=$('switchGrid'), swDo=$('swDo'); let swIdx=null;
 function openSwitch(){
+  if(left().lock>0){ log('言論統制により交代不可！', 'highlight'); showFloatingText('leftWrap','LOCKED','debuff'); return; }
   swGrid.innerHTML=''; swIdx=null; swDo.disabled=true;
   const idxs=[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0);
   if(!idxs.length){ log('交代できる控えがいません'); return; }
@@ -668,6 +754,9 @@ swDo.onclick=async()=>{
   startRound();
 };
 
+const modals = ['switchModal','infoModal','rulesModal'];
+modals.forEach(id=>{ $(id).addEventListener('click', (e)=>{ if(e.target === $(id)) $(id).classList.remove('show'); }); });
+
 document.addEventListener('DOMContentLoaded',()=>{
   makeTeam($('teamA'),'A'); makeTeam($('teamB'),'B');
   $('btnStart').onclick=async()=>{
@@ -678,7 +767,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
   $('btnG').onclick=()=>pick('G'); $('btnC').onclick=()=>pick('C'); $('btnP').onclick=()=>pick('P');
   $('btnSP').onclick=()=>{ if(!inputLocked && state.A.sp>=6){ state.spOn = !state.spOn; updateSPBtn(); }};
+  
   $('btnRules').onclick=()=>$('rulesModal').classList.add('show');
+  $('rulesClose').onclick=()=>$('rulesModal').classList.remove('show');
+  $('infoClose').onclick=()=>$('infoModal').classList.remove('show');
   $('btnRand').onclick=()=>{makeTeam($('teamA'),'A');makeTeam($('teamB'),'B');};
 });
 })();
