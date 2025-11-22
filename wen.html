@@ -99,11 +99,6 @@ body{
 .barFill{height:100%;background:var(--hp);border-radius:3px}
 .val{font-size:10px;color:#9cb3de;width:28px;text-align:right;font-family:"Menlo",monospace}
 
-/* barRow 用（debug fix） */
-.barRow{display:flex;align-items:center;gap:6px;margin-bottom:2px}
-.barLabel{font-size:10px;color:#9cb3de;width:32px;text-align:right}
-.barVal{font-size:10px;color:#9cb3de;width:32px;text-align:right;font-family:"Menlo",monospace}
-
 /* バトル画面 */
 .arena { display: grid; gap: 12px; transition: transform .1s; }
 .shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}
@@ -129,10 +124,14 @@ body{
   background-size: 300% 300%; 
   animation: rainbowBorder 3s linear infinite; 
 }
-/* A: 金色 (動く) */
-.unit[data-rank="A"] { background: conic-gradient(from 0deg, #b8860b, #ffd700, #fff, #ffd700, #b8860b); animation: spinBorder 4s linear infinite; }
-/* B: 銀色 (動く) */
-.unit[data-rank="B"] { background: conic-gradient(from 0deg, #718096, #c0c0c0, #fff, #c0c0c0, #718096); animation: spinBorder 5s linear infinite; }
+/* A: 金色（静止） */
+.unit[data-rank="A"] {
+  background: conic-gradient(from 0deg, #b8860b, #ffd700, #fff, #ffd700, #b8860b);
+}
+/* B: 銀色（静止） */
+.unit[data-rank="B"] {
+  background: conic-gradient(from 0deg, #718096, #c0c0c0, #fff, #c0c0c0, #718096);
+}
 /* C: 鼠色 (固定) */
 .unit[data-rank="C"] { background: var(--glow-C); }
 /* D: 白色 (固定) */
@@ -141,16 +140,6 @@ body{
 .unit[data-rank="X"] { background: var(--glow-X); box-shadow: 0 0 15px var(--glow-X); }
 
 @keyframes rainbowBorder { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-@keyframes spinBorder { from{background: conic-gradient(from 0deg, var(--c1), var(--c2), var(--c1));} to{background: conic-gradient(from 360deg, var(--c1), var(--c2), var(--c1));} }
-
-/* 回転アニメーション用擬似要素 (A, B) */
-.unit[data-rank="A"]::before, .unit[data-rank="B"]::before {
-  content:""; position:absolute; top:-50%; left:-50%; width:200%; height:200%; z-index:0;
-  animation: spin 4s linear infinite;
-}
-.unit[data-rank="A"]::before { background: conic-gradient(#b8860b, #ffd700, #fff, #ffd700, #b8860b); }
-.unit[data-rank="B"]::before { background: conic-gradient(#475569, #c0c0c0, #fff, #c0c0c0, #475569); }
-@keyframes spin { 100% { transform: rotate(360deg); } }
 
 /* カード本体 */
 .unitInner {
@@ -207,7 +196,7 @@ body{
 .stBadge { font-size: 9px; padding: 1px 4px; border-radius: 4px; background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
 
 .hpRow { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px; font-family: 'Teko'; }
-.hpLabel { font-size: 12px; color: #94a3b8; font-weight: 700; line-height: 1; }
+.hpLabel { font-size: 12px; color: #fff; font-weight: 700; line-height: 1; }
 .hpVal { font-size: 16px; color: #fff; font-weight: 600; line-height: 0.9; }
 
 .hpBarBg { width: 100%; height: 10px; background: #0f172a; border-radius: 5px; border: 1px solid #334155; overflow: hidden; }
@@ -276,9 +265,14 @@ body{
 .cmdBtn:active:not([disabled]) { top: 4px; box-shadow: none; }
 .cmdBtn:disabled { opacity: 0.5; top: 4px; box-shadow: none; cursor: not-allowed; filter: grayscale(1); }
 .btn-sp { background: linear-gradient(to bottom, #334155, #1e293b); color: #94a3b8; }
-.btn-switch { background: linear-gradient(to bottom, #8b5cf6, #6d28d9); }
 
-/* 必殺技ボタン点滅 (黄色<->赤) */
+@media(max-width:480px){
+  .padInner{grid-template-columns:1fr; gap:12px;}
+  .sideBtns{flex-direction:row; justify-content:center; width:auto;}
+  .sideBtns .cmdBtn{font-size:12px; padding:8px 10px;}
+  .rps{width:56px; height:56px;}
+}
+
 .btn-sp.ready { 
   background: #f59e0b; color: #fff;
   animation: flashReady 0.2s infinite alternate; 
@@ -287,6 +281,7 @@ body{
 @keyframes flashReady { from { background: #f59e0b; box-shadow: 0 0 5px #f59e0b; } to { background: #b91c1c; box-shadow: 0 0 20px #ef4444; } }
 .btn-sp.on { background: linear-gradient(to bottom, #ef4444, #b91c1c); color: #fff; box-shadow: 0 0 15px #ef4444; animation: pulse 1s infinite; }
 @keyframes pulse { 0% { opacity:1; } 50% { opacity:0.8; } 100% { opacity:1; } }
+.btn-switch { background: linear-gradient(to bottom, #8b5cf6, #6d28d9); }
 
 .logWrapper { border: 1px solid #334155; background: rgba(2, 6, 23, 0.8); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
 .logHeader { background: #1e293b; color: #94a3b8; font-size: 10px; padding: 2px 8px; font-weight: 700; font-family: 'Orbitron'; border-bottom: 1px solid #334155; }
@@ -319,10 +314,10 @@ body{
   100% { opacity: 0; transform: translate(-50%, -80px) scale(1); } 
 }
 
-#jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result,#statusModal{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
-#switchModal,#infoModal,#rulesModal,#result,#statusModal{background:rgba(0,0,0,0.8);pointer-events:auto;backdrop-filter:blur(8px)}
+#jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
+#switchModal,#infoModal,#rulesModal,#result{background:rgba(0,0,0,0.8);pointer-events:auto;backdrop-filter:blur(8px)}
 #jankenOverlay.active{display:flex;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)}
-#switchModal.show,#infoModal.show,#rulesModal.show,#result.show,#statusModal.show{display:flex}
+#switchModal.show,#infoModal.show,#rulesModal.show,#result.show{display:flex}
 .jkWrap{display:flex;flex-direction:column;align-items:center;gap:24px}
 .jkHands{display:flex;gap:40px;align-items:center}
 .jkHand{font-size:80px;transition:transform .2s cubic-bezier(0.34,1.56,0.64,1);opacity:0;transform:scale(0)}
@@ -339,16 +334,6 @@ body{
 @keyframes popIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
 .modalHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid #334155;padding-bottom:10px}
 .modalTitle{margin:0;font-size:18px;font-weight:900;color:#fff;font-family:'Noto Sans JP'}
-#switchGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.selCard{cursor:pointer;transition:.2s;border:1px solid transparent}
-.selCard:hover{background:#1e293b;transform:translateY(-2px)}
-.selCard.selected{border-color:#fcd34d;background:rgba(251,191,36,0.1)}
-.allStatsGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.asCol { display: flex; flex-direction: column; gap: 8px; }
-.asHead { text-align: center; font-weight: 900; margin-bottom: 4px; }
-.asCard { padding: 6px; border: 1px solid #334155; border-radius: 6px; background: rgba(30, 41, 59, 0.5); opacity: 0.6; display:flex; gap:8px; align-items:center; }
-.asCard.active { opacity: 1; border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
-.asIcon { width:30px; height:30px; border-radius:4px; display:grid; place-items:center; color:#fff; font-weight:800; font-size:12px; }
 </style>
 </head>
 <body>
@@ -410,8 +395,6 @@ body{
       <div class="sideBtns">
         <button class="cmdBtn btn-sp" id="btnSP" disabled>SP 必殺</button>
         <button class="cmdBtn btn-switch" id="btnSwitch">交代</button>
-        <!-- ★追加: 対戦状況ボタン -->
-        <button class="cmdBtn" id="btnStatus">状況</button>
       </div>
     </div>
   </section>
@@ -421,7 +404,6 @@ body{
 <div id="cutIn"><div class="cutInText" id="cutInName">SKILL</div><div class="cutInSub" id="cutInUser">User</div></div>
 <div id="switchModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">メンバー交代</h3><button class="btnTiny" id="swCancel">閉じる</button></div><div id="switchGrid"></div><button id="swDo" class="btn3d btn-primary" style="width:100%;margin-top:24px" disabled>このキャラに交代</button></div></div>
 <div id="infoModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">詳細ステータス</h3><button class="btnTiny" id="infoClose">閉じる</button></div><div id="infoBody"></div></div></div>
-<div id="statusModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">対戦状況</h3><button class="btnTiny" id="statusClose">閉じる</button></div><div id="statusBody" class="allStatsGrid"></div></div></div>
 <div id="rulesModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">ルール説明</h3><button class="btnTiny" id="rulesClose">閉じる</button></div><ul style="padding-left:20px;line-height:2;color:#cbd7f0;font-size:14px;list-style-type:square"><li>3体の「言葉」でチームを組んで戦うターン制バトル。</li><li>じゃんけんに<strong>勝つと攻撃</strong>、<strong>負けると防御</strong>。</li><li><strong>タイプ相性</strong>が重要（有利1.5倍 / 不利0.67倍）。</li><li>攻撃・被弾でゲージが溜まり、MAX(6)で<strong>必殺技</strong>発動！</li><li>相手チームを全員倒せば勝利！</li></ul></div></div>
 <div id="result"><div class="modalCard" style="text-align:center;padding:48px;background:rgba(15,23,42,0.95)"><h1 id="resTitle" style="color:#fff;margin:0 0 24px;font-size:56px;font-family:'Teko';text-shadow:0 0 30px rgba(255,255,255,0.6)">WIN</h1><p style="color:#94a3b8;font-size:14px;font-family:'Teko';letter-spacing:0.1em">RETURNING TO SETUP...</p></div></div>
 
@@ -601,35 +583,13 @@ const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn
 const left =()=>state.A.team[state.A.i];
 const right =()=>state.B.team[state.B.i];
 
-function barRow(label,val,max){
-  const pct=Math.min(100,(val/max)*100);
-  return `<div class="barRow"><div class="barLabel">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="barVal">${val}</div></div>`;
-}
+function barRow(label,val,max){const pct=Math.min(100,(val/max)*100);return `<div class="barRow"><div class="barLabel">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="barVal">${val}</div></div>`;}
 
-function miniCard(idx){
-  const w=makeW(idx);
-  return `<div class="setupMini" style="--typeC:${typeColor(w.type)}" data-type="${w.type}">
-    <div class="head">
-      <div>${w.name}</div>
-      <div style="color:var(--typeC)">${w.type}</div>
-    </div>
-    <div class="statGrid">
-      ${barRow('HP',w.maxhp,800)}
-      ${barRow('ATK',w.atk,120)}
-      ${barRow('DEF',w.def,120)}
-      ${barRow('EVA',w.eva,30)}
-    </div>
-  </div>`;
-}
-function renderMini(side){
-  const root=side==='A'?$('statsA'):$('statsB');
-  root.innerHTML='';
-  for(let i=0;i<3;i++){
-    const idx=Number($(`${side}-${i}`).value)||0;
-    root.innerHTML+=miniCard(idx);
-  }
-}
+// ★setupMiniにtype色
+function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" style="--typeC:${typeColor(w.type)}" data-type="${w.type}"><div class="head"><div>${w.name}</div><div style="color:var(--typeC)">${w.type}</div></div><div class="statGrid">${barRow('HP',w.maxhp,800)}${barRow('ATK',w.atk,120)}${barRow('DEF',w.def,120)}${barRow('EVA',w.eva,30)}</div></div>`;}
+function renderMini(side){const root=side==='A'?$('statsA'):$('statsB');root.innerHTML='';for(let i=0;i<3;i++){const idx=Number($(`${side}-${i}`).value)||0;root.innerHTML+=miniCard(idx);}}
 
+// ランダムユニーク
 function uniqueRandom(n, sourceLen){
   const arr = []; const pool = Array.from({length: sourceLen}, (_, i) => i);
   for(let i=0; i<n; i++){
@@ -657,6 +617,7 @@ function makeTeam(root,side){
   renderMini(side);
 }
 
+// ランダムボタン
 function randomizeTeam(side){
   const picks=uniqueRandom(3,WORDS_BASE.length);
   for(let i=0;i<3;i++){
@@ -730,7 +691,7 @@ function checkAffinity(){
 }
 
 function renderCard(u,role,opp){
-  const sp=role==='ally'?state.A.sp:state.B.sp;
+  const sp=role==='ally'?state.A.sp:state.B.sp, tag=role==='ally'?'A':'B';
   const owner=role==='ally'?'YOU':'CPU';
   const img=IMG[u.name]?`<img src="images/${IMG[u.name]}" class="mainImg" onerror="this.style.display='none'">`:'<span style="font-size:40px">📦</span>';
   const skill=(SKILLS[u.name]||['—','—']);
@@ -740,8 +701,7 @@ function renderCard(u,role,opp){
   if(u.doom>0) badges+=`<div class="stBadge">👾文字化け</div>`;
   if(u.selfHurt>0) badges+=`<div class="stBadge">🌀崩壊</div>`;
   
-  return `<div class="unit" style="--typeColor:${typeColor(u.type)}" data-rank="${u.rank}">
-    <div class="unitInner">
+  return `<div class="unit" style="--typeColor:${typeColor(u.type)}" data-rank="${u.rank}"><div class="unitInner">
       <div class="cardHeader"><span class="ownerBadge ${role}">${owner}</span><span class="typeIcon">${u.type}</span></div>
       <div class="cardName" id="nm-${role}">${u.name}</div>
       <div class="artArea" id="art-${role}">
@@ -750,10 +710,10 @@ function renderCard(u,role,opp){
       
       <div class="statsArea">
          <div class="hpRow" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2px;font-family:'Teko'">
-            <span style="font-size:12px;color:#94a3b8;font-weight:700;line-height:1">HP</span>
+            <span style="font-size:12px;color:#fff;font-weight:700;line-height:1">HP</span>
             <div style="font-size:16px;color:#fff;font-weight:600;line-height:0.9">
               <span id="hpnum-${role}">${u.hp}</span>
-              <span style="font-size:10px;color:#94a3b8">/ ${u.maxhp}</span>
+              <span style="font-size:10px;color:#fff">/ ${u.maxhp}</span>
             </div>
          </div>
          <div class="hpBarBg"><div class="hpBar" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div>
@@ -771,10 +731,10 @@ function renderCard(u,role,opp){
            <button class="btnStat" onclick="window._sh('${u.name}')">詳細</button>
         </div>
       </div>
-    </div>
-  </div>`;
+    </div></div>`;
 }
 
+/* 控えエリアの表示 */
 function buildBoxes(){
   const mk=(u,i,isActive)=>`<div class="resIcon ${u.hp<=0?'dead':''} ${isActive?'active':''}" onclick="window._sh('${u.name}')" style="border-color:${typeColor(u.type)}">${u.name.charAt(0)}</div>`;
   
@@ -803,34 +763,6 @@ function renderSides(){
   $('rightWrap').innerHTML=renderCard(state.B.team[state.B.i],'enemy',state.A.team[state.A.i]);
   fitName(qs('#nm-ally')); fitName(qs('#nm-enemy'));
   buildBoxes(); updateSPBtn(); updateHPUI('ally',left().hp,left().maxhp); updateHPUI('enemy',right().hp,right().maxhp); checkAffinity();
-}
-
-function showAllStatus(){
-  let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">`;
-  html+=`<div class="asCol"><div class="asHead" style="color:#4da6ff">YOU</div>`;
-  state.A.team.forEach((u,i)=>{
-     html+=`<div class="asCard ${i===state.A.i?'active':''}" style="border-color:${typeColor(u.type)}">
-       <div class="asIcon" style="background:${typeColor(u.type)}">${u.name.charAt(0)}</div>
-       <div>
-         <div style="font-size:11px;font-weight:bold">${u.name} ${u.hp<=0?'(DEAD)':''}</div>
-         <div style="font-size:10px">HP: ${u.hp}/${u.maxhp}</div>
-       </div>
-     </div>`;
-  });
-  html+=`</div>`;
-  html+=`<div class="asCol"><div class="asHead" style="color:#ff5c6c">CPU</div>`;
-  state.B.team.forEach((u,i)=>{
-     html+=`<div class="asCard ${i===state.B.i?'active':''}" style="border-color:${typeColor(u.type)}">
-       <div class="asIcon" style="background:${typeColor(u.type)}">${u.name.charAt(0)}</div>
-       <div>
-         <div style="font-size:11px;font-weight:bold">${u.name} ${u.hp<=0?'(DEAD)':''}</div>
-         <div style="font-size:10px">HP: ${u.hp}/${u.maxhp}</div>
-       </div>
-     </div>`;
-  });
-  html+=`</div></div>`;
-  $('statusBody').innerHTML=html;
-  $('statusModal').classList.add('show');
 }
 
 window._sh=(n)=>{
@@ -1109,7 +1041,7 @@ swDo.onclick=async()=>{
   }
 };
 
-const modals = ['switchModal','infoModal','rulesModal','statusModal'];
+const modals = ['switchModal','infoModal','rulesModal'];
 modals.forEach(id=>{ $(id).addEventListener('click', (e)=>{ if(e.target === $(id)) $(id).classList.remove('show'); }); });
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1130,11 +1062,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('btnRules').onclick=()=>$('rulesModal').classList.add('show');
   $('rulesClose').onclick=()=>$('rulesModal').classList.remove('show');
   $('infoClose').onclick=()=>$('infoModal').classList.remove('show');
-  $('statusClose').onclick=()=>$('statusModal').classList.remove('show');
-
-  const btnStatus = $('btnStatus');
-  if(btnStatus){ btnStatus.onclick = () => showAllStatus(); }
-
+  // ランダムボタン
   $('btnRand').onclick=()=>{ randomizeTeam('A'); randomizeTeam('B'); };
 });
 })();
