@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>KOTOBA-BATTLE | v30.50 Layout Fix</title>
+<title>KOTOBA-BATTLE | v30.60 Log Fix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -50,7 +50,7 @@ body{
 
 .container{ max-width:800px; margin:0 auto; padding:8px; }
 
-/* === レイアウト構成（Fix: overflow: hiddenで親枠を固定） === */
+/* === レイアウト構成 === */
 #battle {
   display: none;
   flex-direction: column;
@@ -60,16 +60,21 @@ body{
   max-width: 600px;
   margin: 0 auto;
   padding-bottom: env(safe-area-inset-bottom);
-  overflow: hidden; /* ★重要：中身が伸びても親枠は広げない */
+  overflow: hidden;
 }
 
 /* 1. アリーナ：画面の40% */
 .arena {
   height: 40dvh; 
   flex: 0 0 40dvh;
-  min-height: 0; /* 縮小許容 */
+  min-height: 0;
   display: flex; flex-direction: column; 
   gap: 4px; padding: 4px 4px 0;
+  
+  /* ★修正: はみ出したカードをカットし、Z-indexを管理 */
+  overflow: hidden; 
+  position: relative;
+  z-index: 1;
 }
 .vsrow {
   flex: 1; min-height: 0;
@@ -77,34 +82,37 @@ body{
 }
 .vsrow > div { min-width: 0; height: 100%; }
 
-/* 2. ログ：高さ固定（Fix: flex-shrink: 0 と height指定で固定） */
+/* 2. ログ：高さを固定し、前面に出す */
 .logWrapper { 
-  flex: 0 0 85px;  /* Flex内での占有サイズ */
-  height: 85px;    /* 実数での高さ固定 */
-  min-height: 85px; 
-  max-height: 85px;
+  flex: 0 0 85px;
+  height: 85px; min-height: 85px; max-height: 85px;
   
+  /* ★修正: カードより手前に表示し、影で境界を作る */
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.5);
+  margin-top: 2px; /* わずかな隙間 */
+
   border-top: 1px solid #334155; border-bottom: 1px solid #334155; 
-  background: rgba(2, 6, 23, 0.85); 
+  background: rgba(2, 6, 23, 0.95); 
   display: flex; flex-direction: column;
-  overflow: hidden; /* コンテナ自体は溢れさせない */
+  overflow: hidden;
 }
 .logHeader { background: #1e293b; color: #94a3b8; font-size: 10px; padding: 1px 8px; font-weight: 700; flex: 0 0 auto; }
 .logContainer { 
   flex: 1; 
-  overflow-y: auto; /* ★ここだけスクロールさせる */
+  overflow-y: auto; 
   padding: 4px 8px; font-size: 11px; 
   display: flex; flex-direction: column; gap: 2px; 
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain; /* スクロール連鎖防止 */
+  overscroll-behavior: contain;
 }
 .logLine { padding: 1px 0; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
 .logLine.highlight { color: #fbbf24; } .logLine.dmg { color: #fca5a5; } .logLine.heal { color: #6ee7b7; }
 
 /* 3. 控え帯 */
 .benchRow { 
-  flex: 0 0 28px; 
-  height: 28px;
+  flex: 0 0 28px; height: 28px;
   display:flex; align-items:center; justify-content:center; gap:8px; 
   width:100%; background: #0f172a; border-bottom: 1px solid #334155; 
   z-index: 10;
@@ -113,15 +121,15 @@ body{
 .resIcon { width: 20px; height: 20px; border-radius: 4px; background: #1e293b; border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; cursor: pointer; }
 .resIcon.active { border-color: #fff !important; transform: scale(1.1); z-index: 2; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
 
-/* 4. 操作パネル：残り全て */
+/* 4. 操作パネル */
 .padCard { 
-  flex: 1; 
-  min-height: 0; /* 中身が大きくても縮めるようにする保険 */
+  flex: 1; min-height: 0;
   background: rgba(15, 23, 42, 0.98); 
   padding: 8px 16px 16px; 
   display: flex; flex-direction: column; justify-content: center;
   box-shadow: 0 -4px 16px rgba(0,0,0,0.5); 
-  overflow: hidden; /* はみ出し防止 */
+  overflow: hidden;
+  position: relative; z-index: 5;
 }
 .padHead { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; font-size: 12px; color: #94a3b8; font-family: 'Teko'; flex: 0 0 auto; }
 .timerVal { font-size: 24px; color: #fff; font-weight: 600; margin-left: 6px; }
@@ -131,7 +139,6 @@ body{
 }
 .rpsArea { display: flex; gap: 20px; justify-content: center; align-items: center; flex: 0 0 auto; }
 
-/* ボタン大型化 */
 .rps { 
   width: 72px; height: 72px; 
   border-radius: 50%; border: 4px solid rgba(255,255,255,0.15); cursor: pointer; 
@@ -159,14 +166,13 @@ body{
 .btn-sp.on { background: linear-gradient(to bottom, #ef4444, #b91c1c); color: #fff; animation: pulse 1s infinite; }
 @keyframes flashReady { from { background: #f59e0b; box-shadow: 0 0 4px #f59e0b; } to { background: #b91c1c; box-shadow: 0 0 12px #ef4444; } }
 
-/* PC等の広い画面 */
 @media(min-width: 600px) {
   .padInner { flex-direction: row; gap: 32px; }
   .sideBtns { flex-direction: column; width: 120px; }
   .rps { width: 80px; height: 80px; }
 }
 
-/* === カードスタイル詳細 === */
+/* === カード詳細 === */
 .unit {
   position: relative; width: 100%; height: 100%; min-height: 0;
   border-radius: 8px; padding: 2px;
@@ -193,7 +199,6 @@ body{
   position: relative; z-index: 1;
 }
 
-/* ダメージ演出 */
 .unit.hit { animation: hitAnim 0.4s ease; filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
 @keyframes hitAnim{ 0%,100%{transform:translateX(0)} 15%,45%,75%{transform:translateX(-6px)} 30%,60%,90%{transform:translateX(6px)} }
 .shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}
@@ -239,7 +244,6 @@ body{
 .footer { display: flex; justify-content: space-between; align-items: center; font-size: 9px; color: #64748b; font-family: 'Teko'; padding: 0 4px; }
 .btnStat { border: 1px solid #3b82f6; color: #60a5fa; background: transparent; border-radius: 3px; padding: 0 4px; font-size: 9px; cursor: pointer; }
 
-/* 交代ハイライト */
 .selCard { transition: all 0.2s; cursor: pointer; }
 .selCard.selected { border: 2px solid #facc15 !important; box-shadow: 0 0 12px rgba(250, 204, 21, 0.6); background: rgba(250, 204, 21, 0.15); transform: scale(1.02); }
 
@@ -253,8 +257,6 @@ body{
 .jkHands{display:flex;gap:30px;align-items:center}
 .jkHand{font-size:70px;transition:transform .2s;opacity:0;transform:scale(0)}
 .jkHand.show{opacity:1;transform:scale(1)}
-
-/* 勝利時の手のアニメーション */
 .jkHand#jkHandA.win { transform: scale(1.4) rotate(-20deg) !important; filter: drop-shadow(0 0 20px #fcd34d); z-index: 10; }
 .jkHand#jkHandB.win { transform: scale(1.4) rotate(20deg) !important; filter: drop-shadow(0 0 20px #ef4444); z-index: 10; }
 .jkHand.lose { filter: grayscale(1) brightness(0.4); opacity: 0.5; transform: scale(0.8); }
@@ -268,7 +270,6 @@ body{
 .modalCard{width:min(400px,90vw);max-height:80vh;overflow-y:auto;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,0.8);animation:popIn 0.2s}
 @keyframes popIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
 
-/* セットアップ */
 .card { background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; }
 .card h2 { margin:0; padding:8px 12px; font-size:13px; font-weight:800; color: #e2e8f0; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
 .card .body { padding: 8px; }
