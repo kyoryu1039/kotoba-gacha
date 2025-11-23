@@ -3,8 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate v7</title>
+<title>ことばコレクションガチャ Ultimate v11</title>
 <meta name="theme-color" content="#0b0f1c">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
 
 <style>
 /* === Core Variables === */
@@ -12,6 +16,7 @@
   --bg: #0b0f1c; --panel: #141b2e; --edge: #2a3555;
   --ink: #eef2ff; --muted: #94a3b8;
   --gold: #ffd700; --amber:#ffbd63; --aqua: #63ead9; --blue:#8fb1ff; --gray:#94a3b8; --bad: #ff4d4d;
+  --spotify: #1DB954;
   --nav-height: 64px;
   --header-height: 50px;
   --safe-b: env(safe-area-inset-bottom, 20px);
@@ -19,7 +24,8 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
-  font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+  /* 1. Updated Font Family */
+  font-family: "Zen Kaku Gothic New", sans-serif;
   overflow: hidden; height: 100dvh; display: flex; flex-direction: column;
 }
 
@@ -160,7 +166,7 @@ header{
 .s-word { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
 .s-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
 
-/* === New Collection View Styles === */
+/* === 2. Collection View Improvements === */
 .coll-total-box {
   background: var(--panel); border: 1px solid var(--edge); border-radius: 12px;
   padding: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
@@ -171,62 +177,105 @@ header{
 .tier-section { margin-bottom: 24px; }
 .tier-header {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 6px; /* Tighten for progress bar */
 }
 .tier-title { font-size: 16px; font-weight: 900; display:flex; align-items:center; gap:6px; }
-.tier-counts { font-size: 12px; font-weight: 700; color: var(--muted); background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; }
+.tier-counts { font-size: 12px; font-weight: 700; color: var(--muted); }
+
+/* 3. Progress Bars */
+.tier-progress-track {
+  height: 4px; width: 100%; background: rgba(255,255,255,0.1);
+  border-radius: 2px; margin-bottom: 12px; overflow: hidden;
+}
+.tier-progress-fill {
+  height: 100%; width: 0%; transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
 .tier-reward {
   font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 12px;
   background: rgba(255,255,255,0.05); color: var(--muted);
-  display: flex; align-items: center; gap: 4px; transition: .3s;
+  display: flex; align-items: center; gap: 4px; transition: .2s; margin-right: 8px;
 }
 .tier-reward.unlocked {
   background: rgba(99, 234, 217, 0.15); color: var(--aqua); border: 1px solid var(--aqua);
-  box-shadow: 0 0 10px rgba(99,234,217,0.2);
+  box-shadow: 0 0 10px rgba(99,234,217,0.2); cursor: pointer;
 }
+.tier-reward.unlocked:active { transform: scale(0.95); background: rgba(99, 234, 217, 0.3); }
 
 .coll-item {
   aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 12px;
   background: rgba(255,255,255,0.03); display: flex; flex-direction: column;
   align-items: center; justify-content: center; text-align: center; padding: 4px;
-  font-size: 10px; font-weight: 700; cursor: pointer; transition: .2s; position: relative;
+  cursor: pointer; transition: .2s; position: relative;
+}
+.coll-item-name {
+  font-size: 9px; font-weight: 700; line-height: 1.25; width: 100%;
+  max-height: 2.5em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-all;
 }
 .coll-item.locked { opacity: 0.3; filter: grayscale(1); }
 .coll-grid-tier { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
 
-/* Tier Specific Colors */
+/* Tier Specific Colors (Text & Progress) */
 .tier-S .tier-title { color: var(--gold); }
+.tier-S .tier-progress-fill { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .tier-S .coll-item { border-color: rgba(255,215,0,0.3); }
+
 .tier-A .tier-title { color: var(--amber); }
+.tier-A .tier-progress-fill { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
 .tier-A .coll-item { border-color: rgba(255,189,99,0.3); }
+
 .tier-B .tier-title { color: var(--aqua); }
+.tier-B .tier-progress-fill { background: var(--aqua); box-shadow: 0 0 10px var(--aqua); }
 .tier-B .coll-item { border-color: rgba(99,234,217,0.3); }
+
 .tier-X .tier-title { color: var(--bad); }
+.tier-X .tier-progress-fill { background: var(--bad); box-shadow: 0 0 10px var(--bad); }
 .tier-X .coll-item { border-color: rgba(255,77,77,0.3); }
+
+.tier-C .tier-progress-fill, .tier-D .tier-progress-fill { background: var(--blue); }
 
 /* === Common UI === */
 .btn-play {
   background: transparent; border: 1px solid var(--aqua); color: var(--aqua);
   padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;
-  cursor: pointer; transition: .2s;
+  cursor: pointer; transition: .2s; display:flex; align-items:center; gap:6px;
 }
 .btn-play:active { background: rgba(99,234,217,0.1); transform: scale(0.95); }
 
+/* Spotify Button */
+.btn-spotify {
+  background: rgba(29, 185, 84, 0.1); border: 1px solid var(--spotify); color: var(--spotify);
+  width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; transition: .2s; text-decoration: none;
+}
+.btn-spotify:hover { background: var(--spotify); color: #fff; box-shadow: 0 0 10px rgba(29, 185, 84, 0.4); }
+.btn-spotify svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* === 2. Animated Navigation Bar === */
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; width: 100%; height: calc(var(--nav-height) + var(--safe-b));
   background: rgba(11, 15, 28, 0.95); backdrop-filter: blur(16px);
   border-top: 1px solid var(--edge);
   display: grid; grid-template-columns: repeat(5, 1fr);
   padding-bottom: var(--safe-b); z-index: 100;
+  position: relative; /* For absolute indicator */
 }
 .nav-btn {
   background: none; border: none; color: var(--muted);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; font-size: 9px; font-weight: 700; cursor: pointer; transition: .2s;
+  gap: 4px; font-size: 9px; font-weight: 700; cursor: pointer; transition: .2s; z-index: 2;
 }
 .nav-btn.active { color: var(--ink); }
 .nav-btn.active .icon { filter: grayscale(0) drop-shadow(0 0 5px var(--aqua)); transform: scale(1.1); }
+
+/* Sliding Indicator */
+#nav-indicator {
+  position: absolute; top: 0; left: 0; width: 20%; height: 100%;
+  background: radial-gradient(circle at 50% 0%, rgba(99, 234, 217, 0.15), transparent 70%);
+  border-top: 2px solid var(--aqua);
+  transition: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none; z-index: 1;
+}
 
 /* === Overlays === */
 #gacha-overlay {
@@ -239,7 +288,6 @@ header{
   animation:spin 1.5s linear infinite; position:absolute; transition: opacity 0.3s;
 }
 
-/* === Full Screen Ad Overlay === */
 #full-ad-overlay {
   position: fixed; inset: 0; z-index: 9999;
   background: #000;
@@ -255,19 +303,46 @@ header{
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* Info Styles */
-.infoLead{font-weight:900;font-size:16px;margin:6px 0 10px; color:var(--aqua)}
-.infoGrid{display:grid; gap:12px; }
-.infoBox{ border:1px solid var(--edge); border-radius:12px; padding:16px; background: rgba(255,255,255,0.03); }
-.infoBox h3{margin:0 0 8px; font-size:14px; color:var(--ink); font-weight: 800;}
-.infoSmall{color: #cbd5e1; font-size:12px; line-height:1.7;}
-
-/* Modal, Toast */
+/* === 4. Modal "Data Card" Design === */
 .cm-modal{position:fixed;inset:0;display:none;z-index:9998;align-items:center;justify-content:center}
 .cm-modal.show{display:flex}
 .cm-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
-.cm-dialog{position:relative;width:min(85vw,400px);background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:20px;box-shadow:0 20px 60px #000;}
-.cm-close{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;}
+
+.cm-dialog {
+  position:relative; width:min(85vw,400px);
+  background: rgba(20, 27, 46, 0.95); /* Darker, solid bg */
+  border: 1px solid var(--aqua);
+  border-radius: 4px; /* Sharper corners */
+  padding: 24px;
+  box-shadow: 0 0 30px rgba(99, 234, 217, 0.15);
+  background-image: 
+    linear-gradient(rgba(99, 234, 217, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 234, 217, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px; /* Grid pattern */
+}
+/* Corner Brackets */
+.cm-dialog::before {
+  content:""; position:absolute; top:-1px; left:-1px; width:20px; height:20px;
+  border-top:2px solid var(--aqua); border-left:2px solid var(--aqua);
+}
+.cm-dialog::after {
+  content:""; position:absolute; bottom:-1px; right:-1px; width:20px; height:20px;
+  border-bottom:2px solid var(--aqua); border-right:2px solid var(--aqua);
+}
+
+.cm-close { position:absolute; top:10px; right:10px; background:none; border:none; color:var(--aqua); font-size:20px; cursor:pointer; }
+.cm-title {
+  font-size: 20px; font-weight: 900; color: var(--aqua);
+  border-bottom: 1px solid rgba(99,234,217,0.3); padding-bottom: 8px; margin-bottom: 12px;
+  text-shadow: 0 0 8px rgba(99,234,217,0.4);
+}
+.cm-text { margin-top: 10px; font-size: 14px; line-height: 1.8; color: #eef2ff; min-height: 60px; }
+
+/* Typewriter Cursor */
+.cursor::after { content: "|"; animation: blink 1s step-start infinite; color: var(--aqua); }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Toast */
 #toast {
   position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
   background: rgba(11, 15, 28, 0.95); border: 1px solid var(--aqua); padding: 10px 20px;
@@ -275,6 +350,13 @@ header{
   opacity: 0; pointer-events: none; transition: .3s;
 }
 #toast.show { opacity: 1; top: 90px; }
+
+/* Info Styles */
+.infoLead{font-weight:900;font-size:16px;margin:6px 0 10px; color:var(--aqua)}
+.infoGrid{display:grid; gap:12px; }
+.infoBox{ border:1px solid var(--edge); border-radius:12px; padding:16px; background: rgba(255,255,255,0.03); }
+.infoBox h3{margin:0 0 8px; font-size:14px; color:var(--ink); font-weight: 800;}
+.infoSmall{color: #cbd5e1; font-size:12px; line-height:1.7;}
 
 /* BGM List */
 .track-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -325,7 +407,7 @@ header{
   </section>
 
   <section id="view-bgm" class="view">
-    <h2>音響設定</h2>
+    <h2>BGM</h2>
     <div class="panel-box">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <span style="font-size:12px; font-weight:700">マスター音量</span>
@@ -386,11 +468,11 @@ header{
 </div>
 
 <nav class="bottom-nav">
-  <button class="nav-btn active" onclick="switchTab('gacha')" id="tabGacha"><span class="icon">🔮</span><span>ガチャ</span></button>
-  <button class="nav-btn" onclick="switchTab('coll')" id="tabColl"><span class="icon">📖</span><span>図鑑</span></button>
-  <button class="nav-btn" onclick="switchTab('bgm')" id="tabBgm"><span class="icon">🎵</span><span>BGM</span></button>
-  <button class="nav-btn" onclick="switchTab('cpu')" id="tabCpu"><span class="icon">⚔️</span><span>対戦</span></button>
-  <button class="nav-btn" onclick="switchTab('info')" id="tabInfo"><span class="icon">⚙️</span><span>Info</span></button>
+  <div id="nav-indicator"></div> <button class="nav-btn active" onclick="switchTab('gacha', 0)" id="tabGacha"><span class="icon">🔮</span><span>ガチャ</span></button>
+  <button class="nav-btn" onclick="switchTab('coll', 1)" id="tabColl"><span class="icon">📖</span><span>図鑑</span></button>
+  <button class="nav-btn" onclick="switchTab('bgm', 2)" id="tabBgm"><span class="icon">🎵</span><span>BGM</span></button>
+  <button class="nav-btn" onclick="switchTab('cpu', 3)" id="tabCpu"><span class="icon">⚔️</span><span>対戦</span></button>
+  <button class="nav-btn" onclick="switchTab('info', 4)" id="tabInfo"><span class="icon">⚙️</span><span>Info</span></button>
 </nav>
 
 <div id="gacha-overlay">
@@ -413,8 +495,8 @@ header{
   <div class="cm-backdrop" id="cmBackdrop"></div>
   <div class="cm-dialog">
     <button class="cm-close" id="cmClose">×</button>
-    <div class="cm-title" id="cmTitle" style="font-size:18px; color:var(--aqua)"></div>
-    <div class="cm-text" id="cmText" style="margin-top:10px;"></div>
+    <div class="cm-title" id="cmTitle">TITLE</div>
+    <div class="cm-text" id="cmText"></div>
   </div>
 </div>
 
@@ -426,9 +508,9 @@ const icons={S:"🌟",A:"💎",B:"🔷",C:"🔹",D:"🔸",X:"❌"};
 const exp={"パラボラアンテナ":"声に出して読みたい日本語ランキング第1位。","ネスカフェアンバサダー":"誰もが人生で一度は就任してみたい憧れの肩書き。","にんじんしりしり":"沖縄のキッチンから届く、爽やかなくり返し言葉。","そぼろごはん":"口の中を体現したような語感。","ニシローランドゴリラ":"名前からビシビシと伝わってくる威厳。くれぐれもVIP待遇で。","毛むくじゃら":"毛は知ってるけど、むくじゃらって何なのさ。","九品仏":"難読地名が織りなすリズム。","けんちん汁":"響きだけで、もうあったかい。","カムチャッカ半島":"寒気と熱気が同居する極東の地へようこそ。","タランチュラ":"ファンシーなお菓子みたい。猛毒系スイーツ。","ハシビロコウ":"間抜けの鳥には間抜けな語感。","バルサミコ酢":"まるで呪文。","ピロリ菌":"可愛いふりしてわりとやるもんだね。","トリニダード・トバゴ":"容赦ない濁音とトの応酬。","カラメル色素":"おやつの記憶にラボの匂い。","バビロン捕囚":"いかにも捕まったぁって感じ。","鳥取砂丘":"荒野を子音が跳ね回る。","プラシーボ効果":"言葉に舐められている。","渡来人":"朝鮮半島からの挑戦。","さるびあ丸":"間の抜けた旅になりそう。","ペペロンチーノ":"唐辛子が躍動する口内。","ポリプロピレン":"半濁音の王様。","サラエボ事件":"さらっと始まったはずだったのに。","クマンバチ":"「ん」の妙。","県庁所在地":"堂々としてるよね。","照り焼きチキン":"甘辛ビートに乗っちゃって。","ねるねるねるね":"オセロだったら気持ちいい。","スルメイカ":"噛めば噛むほど味が出る名前。","本質":"たとえあったとしても、軽々しく口に出すような人は一生近づけないと思うんです。","見える化":"可視化って知ってますか。","自分ごと化":"「自分ごと」でも嫌なのに、「化」までつけられた日には…","解像度":"なるほど、ピクセル数が高まりました！"};
 
 const rewards={
-  S: {name:"金魚鉢", type:"BGM"},
-  A: {name:"九品仏奇譚", type:"BGM"},
-  B: {name:"ネコロジア", type:"BGM"}
+  S: {name:"金魚鉢", type:"BGM", id:"kingyobachi"},
+  A: {name:"九品仏奇譚", type:"BGM", id:"kuganebutsu"},
+  B: {name:"ネコロジア", type:"BGM", id:"necology"}
 };
 
 const storeSeen="kotoba_collection_seen_v4_7";
@@ -445,13 +527,15 @@ let isBgmOn=false;
 
 bgmPlayer.volume=parseFloat(volSlider.value);
 volSlider.addEventListener('input',()=>bgmPlayer.volume=parseFloat(volSlider.value));
-bgmBtn.onclick=()=>{
-  isBgmOn=!isBgmOn;
+
+function setBgmState(on){
+  isBgmOn = on;
   bgmBtn.textContent=isBgmOn?"ON":"OFF";
   bgmBtn.style.borderColor=isBgmOn?"var(--aqua)":"var(--edge)";
   bgmBtn.style.color=isBgmOn?"var(--aqua)":"var(--muted)";
   if(isBgmOn){bgmPlayer.play().catch(()=>{});}else{bgmPlayer.pause();}
-};
+}
+bgmBtn.onclick=()=>setBgmState(!isBgmOn);
 
 let audioCtx=null;
 function getCtx(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx;}
@@ -515,7 +599,8 @@ setupChargeBtn('btn-roll-1', 1);
 setupChargeBtn('btn-roll-5', 5);
 
 /* === GAME LOGIC === */
-function switchTab(id){
+// Updated switchTab with Indicator Logic
+function switchTab(id, idx){
   document.querySelectorAll('.view').forEach(v=>{v.classList.remove('active');});
   const target = document.getElementById(`view-${id}`);
   target.classList.add('active'); target.scrollTop = 0;
@@ -523,6 +608,11 @@ function switchTab(id){
   const btnId = 'tab'+id.charAt(0).toUpperCase()+id.slice(1);
   const btn = document.getElementById(btnId);
   if(btn) btn.classList.add('active');
+  
+  // Move Indicator
+  const indicator = document.getElementById('nav-indicator');
+  indicator.style.left = `${idx * 20}%`;
+
   sfxTap();
   if(id==='coll') renderCollection();
   if(id==='bgm') renderBGMList();
@@ -547,18 +637,17 @@ function shakeScreen(hard=false){
 const adOverlay = document.getElementById('full-ad-overlay');
 
 function onCloseMultiResult() {
-  // 20% Chance for Ad
   if (Math.random() < 0.2) {
     adOverlay.classList.add('active');
     sfxTap();
   } else {
-    closeOverlay(); // Normal Close
+    closeOverlay();
   }
 }
 
 function closeFullScreenAd() {
   adOverlay.classList.remove('active');
-  closeOverlay(); // Close main gacha results too
+  closeOverlay();
 }
 
 async function roll(count){
@@ -655,28 +744,29 @@ function confetti(){
   }
 }
 
-// === NEW COLLECTION RENDERER ===
+// === NEW COLLECTION RENDERER (With Progress) ===
 function renderCollection(){
   const cont = document.getElementById('coll-container'); cont.innerHTML="";
   let allTotal=0, allHave=0;
   
   tiers.forEach(t => {
-    // 1. Calculate Stats per Tier
     let tTotal=0, tHave=0;
     pools[t].forEach(w => { allTotal++; tTotal++; if(seen.has(w)) { allHave++; tHave++; } });
     
-    // 2. Build Section
+    const pct = tTotal === 0 ? 0 : (tHave / tTotal) * 100;
+
     const sect = document.createElement('div');
     sect.className = `tier-section tier-${t}`;
     
-    // Reward Logic
     let rewardHtml = "";
     if(rewards[t]){
       const isUl = tHave === tTotal && tTotal > 0;
-      rewardHtml = `<div class="tier-reward ${isUl?'unlocked':''}"><span>${isUl?'🎵':'🔒'}</span> ${rewards[t].name}</div>`;
+      const rewardName = isUl ? rewards[t].name : "？？？";
+      const clickAttr = isUl ? `onclick="playTrack('${rewards[t].id}')"` : "";
+      rewardHtml = `<div class="tier-reward ${isUl?'unlocked':''}" ${clickAttr}><span>${isUl?'🎵':'🔒'}</span> ${rewardName}</div>`;
     }
 
-    // Header
+    // Added Progress Bar
     sect.innerHTML = `
       <div class="tier-header">
         <div class="tier-title">${icons[t]} Rank ${t}</div>
@@ -685,6 +775,7 @@ function renderCollection(){
            <div class="tier-counts">${tHave}/${tTotal}</div>
         </div>
       </div>
+      <div class="tier-progress-track"><div class="tier-progress-fill" style="width:${pct}%"></div></div>
       <div class="coll-grid-tier"></div>
     `;
     
@@ -693,8 +784,7 @@ function renderCollection(){
       const el=document.createElement('div');
       const known=seen.has(w);
       el.className=`coll-item ${known?'':'locked'}`;
-      // Small visual fix: shorter text for grid
-      el.innerHTML=`<div style="color:${known?'inherit':'var(--muted)'}">${icons[t]}</div><div style="font-size:9px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;">${known?w:'???'}</div>`;
+      el.innerHTML=`<div style="color:${known?'inherit':'var(--muted)'}">${icons[t]}</div><div class="coll-item-name">${known?w:'???'}</div>`;
       if(known) el.onclick=()=>showModal(w, exp[w]);
       grid.appendChild(el);
     });
@@ -705,12 +795,26 @@ function renderCollection(){
   document.getElementById('coll-total-val').textContent = `${allHave} / ${allTotal}`;
 }
 
+// === Track Player Helper ===
+function playTrack(id){
+  selectedBGM = id;
+  localStorage.setItem(storeBGM, id);
+  const track = getTracks().find(t => t.id === id);
+  if(track){
+    bgmPlayer.src = track.src;
+    if(!isBgmOn) setBgmState(true);
+    bgmPlayer.play().catch(()=>{});
+    renderBGMList();
+    showToast(`♪ 再生中: ${track.name}`);
+  }
+}
+
 function hasTier(t){return pools[t].every(w=>seen.has(w));}
 function getTracks(){
   return [
     {id:"default",name:"ヒプナゴジア音頭",ul:true,src:"audio/Hypnagogiaondo.mp3"},
-    {id:"kingyobachi",name:"金魚鉢",ul:hasTier("S"),src:"audio/Kingyobachi.mp3",hint:"Sコンプ"},
-    {id:"kuganebutsu",name:"九品仏奇譚",ul:hasTier("A"),src:"audio/Kuhonbutsukitan.mp3",hint:"Aコンプ"},
+    {id:"kingyobachi",name:"金魚鉢",ul:hasTier("S"),src:"audio/Kingyobachi.mp3",hint:"Sコンプ", spotify:"https://open.spotify.com/intl-ja/track/1RtkBsTHAU4EFlUGrOBp3I?si=df763a0a3d8c427f"},
+    {id:"kuganebutsu",name:"九品仏奇譚",ul:hasTier("A"),src:"audio/Kuhonbutsukitan.mp3",hint:"Aコンプ", spotify:"https://open.spotify.com/intl-ja/track/6EsXFW2Wrnr1NCDaRv4yC0?si=33e729e10a9b4af0"},
     {id:"necology",name:"ネコロジア",ul:hasTier("B"),src:"audio/Nekologia.mp3",hint:"Bコンプ"},
     {id:"chorus",name:"金魚鉢(合唱)",ul:tiers.every(t=>hasTier(t)),src:"audio/Kingyobachi_chorus.mp3",hint:"全コンプ"}
   ];
@@ -719,7 +823,20 @@ function renderBGMList(){
   const list=document.getElementById('bgm-list'); list.innerHTML="";
   getTracks().forEach(t=>{
     const d=document.createElement('div'); d.className='track-row';
-    d.innerHTML=`<div class="track-info"><div class="track-name" style="color:${t.ul?'var(--ink)':'var(--muted)'}">${t.ul?t.name:'？？？'}</div><div class="track-status">${t.ul?'解放済':t.hint+'で解放'}</div></div><button class="btn-play" ${t.ul?'':'disabled'}>${selectedBGM===t.id?'再生中':'再生'}</button>`;
+    let spotLink = "";
+    if(t.ul && t.spotify) {
+      spotLink = `<a href="${t.spotify}" target="_blank" class="btn-spotify" aria-label="Spotifyで聴く"><svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg></a>`;
+    }
+    d.innerHTML=`
+      <div class="track-info">
+        <div class="track-name" style="color:${t.ul?'var(--ink)':'var(--muted)'}">${t.ul?t.name:'？？？'}</div>
+        <div class="track-status">${t.ul?'解放済':t.hint+'で解放'}</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        ${spotLink}
+        <button class="btn-play" ${t.ul?'':'disabled'}>${selectedBGM===t.id?'再生中':'再生'}</button>
+      </div>
+    `;
     if(t.ul){d.querySelector('button').onclick=()=>{selectedBGM=t.id; localStorage.setItem(storeBGM,t.id); bgmPlayer.src=t.src; if(isBgmOn) bgmPlayer.play(); renderBGMList();};}
     list.appendChild(d);
   });
@@ -728,8 +845,30 @@ const unlockedState={S:false,A:false,B:false};
 function tryUnlock(t){if(["S","A","B"].includes(t) && hasTier(t) && !unlockedState[t]){unlockedState[t]=true; showToast(`Rank ${t} コンプリート！BGM解放`);}}
 const toast=document.getElementById('toast');
 function showToast(msg){toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3000);}
+
+/* 4. Animated Typewriter Modal */
 const modal=document.getElementById('cmModal');
-function showModal(title, text){document.getElementById('cmTitle').textContent=title; document.getElementById('cmText').textContent=text||""; modal.classList.add('show');}
+let typeInterval = null;
+
+function showModal(title, text){
+  document.getElementById('cmTitle').textContent=title;
+  const txtEl = document.getElementById('cmText');
+  txtEl.textContent = "";
+  txtEl.className = "cm-text cursor";
+  
+  modal.classList.add('show');
+  
+  if(typeInterval) clearInterval(typeInterval);
+  let i = 0;
+  typeInterval = setInterval(()=>{
+    txtEl.textContent += text.charAt(i);
+    i++;
+    if(i >= text.length){
+      clearInterval(typeInterval);
+      txtEl.classList.remove("cursor");
+    }
+  }, 30);
+}
 document.getElementById('cmClose').onclick=()=>modal.classList.remove('show');
 document.getElementById('cmBackdrop').onclick=()=>modal.classList.remove('show');
 document.getElementById('btn-reset').onclick=()=>{if(confirm('本当にデータを初期化しますか？')) {seen.clear(); localStorage.setItem(storeSeen,"[]"); location.reload();}};
