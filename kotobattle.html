@@ -548,6 +548,8 @@ body{
 <audio id="bgm" src="audio/Hypnagogiaondo.mp3" loop></audio>
 <audio id="seHit" src="audio/hit.mp3"></audio>
 <audio id="seSkill" src="audio/skill.mp3"></audio>
+<!-- KO時のSE（ファイル名は必要に応じて変更してください） -->
+<audio id="seKO" src="audio/ko.mp3"></audio>
 
 <script>
 (()=>{
@@ -575,6 +577,7 @@ function playSE(type){
   let el = null;
   if(type === 'hit') el = $('seHit');
   else if(type === 'skill') el = $('seSkill');
+  else if(type === 'ko') el = $('seKO');
   if(el){
     try{
       el.currentTime = 0;
@@ -1295,6 +1298,9 @@ async function doTurn(side){
 }
 
 async function handleKO(side){
+  // KO時のサウンド
+  playSE('ko');
+
   const team = side==='ally' ? state.A.team : state.B.team;
   const survivors = team.map((u,i)=>({u,i})).filter(o=>o.u.hp>0);
 
