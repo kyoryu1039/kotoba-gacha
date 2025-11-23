@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v30.05 Final Debug</title>
+<title>KOTOBA-BATTLE | v30.07 BenchDock Fix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -21,8 +21,14 @@
   --ally: #3b82f6; --enemy: #ef4444;
   --hp: #10b981; --gauge: #eab308;
   
-  --t-ジオ:#38bdf8; --t-アニマル:#4ade80; --t-フード:#ffaa2b; 
-  --t-コンセプト:#c084fc; --t-サイエンス:#22d3ee; --t-ヒストリー:#f472b6; --t-ヒューマン:#a3e635;
+  /* タイプ色 */
+  --t-ジオ:#4f46e5; 
+  --t-アニマル:#4ade80; 
+  --t-フード:#ffaa2b; 
+  --t-コンセプト:#c084fc; 
+  --t-サイエンス:#22d3ee; 
+  --t-ヒストリー:#f472b6; 
+  --t-ヒューマン:#a3e635;
 
   --glow-A: #ffd700;
   --glow-B: #c0c0c0;
@@ -137,14 +143,12 @@ body{
   transition: filter 0.3s;
 }
 
-/* ランク別 枠線設定 */
+/* ランク別 枠線 */
 .unit[data-rank="S"] { 
   background: linear-gradient(60deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); 
   background-size: 300% 300%; 
   animation: rainbowBorder 3s linear infinite; 
 }
-
-/* Aランク */
 .unit[data-rank="A"] {
   position: relative;
   border: 1px solid #ffd700;
@@ -169,8 +173,6 @@ body{
   0%   { transform: translate(0,0); }
   100% { transform: translate(150%,150%); }
 }
-
-/* Bランク */
 .unit[data-rank="B"] {
   position: relative;
   border: 1px solid #e5e7eb;
@@ -195,25 +197,18 @@ body{
   0%   { transform: translate(0,0); }
   100% { transform: translate(150%,150%); }
 }
-
-/* Cランク */
 .unit[data-rank="C"] {
   background: #64748b;
   border: 1px solid #475569;
 }
-
-/* Dランク */
 .unit[data-rank="D"] {
   background: #ffffff;
   border: 1px solid #d1d5db;
 }
-
-/* Xランク */
 .unit[data-rank="X"] {
   background: #d946ef;
   border: 1px solid #9333ea;
 }
-
 @keyframes rainbowBorder { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
 /* カード本体 */
@@ -222,8 +217,6 @@ body{
   background: linear-gradient(160deg, #1e293b, var(--typeColor), #0f172a);
   border-radius: 11px; padding: 4px; overflow: hidden;
 }
-
-/* Sランク表面キラキラ */
 .unit[data-rank="S"]::after {
   content: ""; position: absolute; inset: 0; z-index: 10; pointer-events: none;
   background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.4) 50%, transparent 55%);
@@ -260,15 +253,15 @@ body{
 .mainImg {
   max-height: 95%; max-width: 95%; object-fit: contain;
   filter: drop-shadow(0 10px 20px rgba(0,0,0,0.7));
-  animation: breathe 4s ease-in-out infinite alternate;
+  animation: breathe 4s.ease-in-out infinite alternate;
 }
 @keyframes breathe { from { transform: scale(1); } to { transform: scale(1.04); } }
-.unit.hit .mainImg { animation: hit .4s ease; }
+.unit.hit .mainImg { animation: hit .4s.ease; }
 @keyframes hit{10%,90%{transform:translate(-6px,0)}20%,80%{transform:translate(10px,0)}30%,50%,70%{transform:translate(-10px,0)}40%,60%{transform:translate(10px,0)}}
 
 .statsArea { padding: 8px 6px 6px; background: rgba(15, 23, 42, 0.6); margin-top: -4px; position: relative; z-index: 3; border-radius: 0 0 10px 10px; }
 
-/* ★ HP 表示：シンプルな「HP  現在 / 最大」 */
+/* HP 表示 */
 .hpRow{
   display:flex;
   justify-content:space-between;
@@ -288,21 +281,9 @@ body{
   font-weight:700;
   color:#f9fafb;
 }
-.hpNum span{
-  line-height:1;
-}
-.hpCurr{
-  font-size:18px;
-}
-.hpSlash{
-  font-size:11px;
-  opacity:0.9;
-}
-.hpMax{
-  font-size:11px;
-  color:#e5e7eb;
-  opacity:0.9;
-}
+.hpCurr{font-size:18px;}
+.hpSlash{font-size:11px;opacity:0.9;}
+.hpMax{font-size:11px;color:#e5e7eb;opacity:0.9;}
 
 .statusRow { display: flex; gap: 4px; min-height: 14px; margin-top: 4px; justify-content: flex-end; flex-wrap: wrap; }
 .stBadge { font-size: 9px; padding: 1px 4px; border-radius: 4px; background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
@@ -327,16 +308,18 @@ body{
 .btnStat { appearance: none; border: none; background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #60a5fa; border-radius: 4px; padding: 2px 6px; font-size: 9px; font-weight: 800; cursor: pointer; transition: .2s; }
 .btnStat:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
 
-/* 操作パッド */
+/* 操作パッド（常にfixed） */
 .padCard {
   position: fixed; bottom: 0; left: 0; width: 100%; z-index: 50;
   background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155;
   box-shadow: 0 -4px 24px rgba(0,0,0,0.8); padding: 10px 16px 20px;
   backdrop-filter: blur(12px);
 }
+
+/* 800px以上でも位置は同じ（見た目だけ少し余裕） */
 @media(min-width: 800px) {
   .padCard {
-    position: relative; border-radius: 20px; margin-top: 16px; background: var(--glass); padding: 20px;
+    padding: 16px 24px 22px;
   }
 }
 
@@ -346,12 +329,11 @@ body{
 }
 .timerVal { font-size: 24px; color: #fff; font-weight: 600; margin-left: 4px; }
 
-/* 控え：横一列・パネル直上（固定表示） */
+/* 控え：横一列・パネル直上（位置はJSでドッキング） */
 .benchRow {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 132px;
   z-index: 60;
 
   display:flex;
@@ -367,11 +349,8 @@ body{
   border-radius:999px;
   border:1px solid #334155;
   box-shadow:0 8px 24px rgba(0,0,0,0.7);
-}
-@media(min-width:800px){
-  .benchRow{
-    bottom:170px;
-  }
+
+  bottom:0; /* 初期値。実際の位置はJSで上書き */
 }
 .benchRow::-webkit-scrollbar{height:4px}
 .benchRow::-webkit-scrollbar-thumb{background:#475569;border-radius:999px}
@@ -413,11 +392,9 @@ body{
 .cmdBtn:active:not([disabled]) { top: 4px; box-shadow: none; }
 .cmdBtn:disabled { opacity: 0.5; top: 4px; box-shadow: none; cursor: not-allowed; filter: grayscale(1); }
 
-/* SP ボタン */
+/* SP・交代ボタン */
 .btn-sp { background: linear-gradient(to bottom, #334155, #1e293b); color: #94a3b8; }
-
-/* ★ 交代ボタン：青系 */
-.btn-switch { background: linear-gradient(to.bottom, #0ea5e9, #0369a1); }
+.btn-switch { background: linear-gradient(to bottom, #334155, #1e293b); }
 
 @media(max-width:480px){
   .padCard{padding:8px 10px 14px;}
@@ -433,7 +410,7 @@ body{
   border: 2px solid #fff;
 }
 @keyframes flashReady { from { background: #f59e0b; box-shadow: 0 0 5px #f59e0b; } to { background: #b91c1c; box-shadow: 0 0 20px #ef4444; } }
-.btn-sp.on { background: linear-gradient(to.bottom, #ef4444, #b91c1c); color: #fff; box-shadow: 0 0 15px #ef4444; animation: pulse 1s infinite; }
+.btn-sp.on { background: linear-gradient(to bottom, #ef4444, #b91c1c); color: #fff; box-shadow: 0 0 15px #ef4444; animation: pulse 1s infinite; }
 @keyframes pulse { 0% { opacity:1; } 50% { opacity:0.8; } 100% { opacity:1; } }
 
 .logWrapper { border: 1px solid #334155; background: rgba(2, 6, 23, 0.8); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
@@ -444,13 +421,13 @@ body{
 .logLine.dmg { color: #fca5a5; }
 .logLine.heal { color: #6ee7b7; }
 
-/* トースト：フォントをキャラ名と同系 M PLUS に */
+/* トースト（控え・カードと同じ系フォント＋一段小さい） */
 .floatingText {
   position: absolute; 
   left: 50%; top: 22%; transform: translate(-50%, -50%);
   font-family: 'M PLUS 1p','Noto Sans JP',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   font-weight: 900;
-  font-size: 16px;
+  font-size: 14px;
   color: #e5e7eb;
   letter-spacing: 0.05em;
   pointer-events: none; 
@@ -498,11 +475,11 @@ body{
   background:linear-gradient(135deg,rgba(15,23,42,0.96),rgba(30,64,175,0.96));
 }
 
-/* 相性トーストは上部に小さく */
+/* 相性トーストは少し上に */
 .floatingText.advTop,
 .floatingText.disTop {
   top: 16%;
-  font-size: 14px;
+  font-size: 13px;
   padding:4px 10px;
 }
 .floatingText.advTop { 
@@ -602,7 +579,7 @@ body{
     <div style="height:180px"></div>
   </div>
 
-  <!-- 控え：パネル直上（固定表示） -->
+  <!-- 控え（位置はJSで pad の上端にドッキング） -->
   <div class="benchRow" id="benchRow"></div>
   
   <section class="padCard" id="pad">
@@ -650,7 +627,7 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
 function playBGM(){
   const a = $('bgm'); if(!a) return;
   if(a.paused){
-    a.volume = 0.25;
+    a.volume = 0.25; // 少し小さめ
     a.play().catch(()=>{});
   }
 }
@@ -773,7 +750,7 @@ function showFloatingText(targetId, text, type, opts = {}){
     const maxWidth = window.innerWidth * 0.8;
     let size = parseFloat(window.getComputedStyle(el).fontSize);
     let rect = el.getBoundingClientRect();
-    while(rect.width > maxWidth && size > 14){
+    while(rect.width > maxWidth && size > 12){
       size -= 2;
       el.style.fontSize = size + 'px';
       rect = el.getBoundingClientRect();
@@ -810,6 +787,38 @@ function lockInputs(on){
     if(el) el.disabled = on;
   });
   updateSPBtn();
+}
+
+/* === 控えの位置をパネルにドッキング（offsetParentバグ修正） === */
+function positionBenchRow(){
+  const bench = $('benchRow');
+  const pad   = $('pad');
+  const battle = $('battle');
+  if(!bench || !pad || !battle) return;
+
+  // バトル画面が非表示なら控えも隠す
+  const battleStyle = window.getComputedStyle(battle);
+  const battleVisible = battleStyle.display !== 'none';
+  if(!battleVisible){
+    bench.style.display = 'none';
+    return;
+  }
+
+  // pad が実際に表示されているか（fixed でも OK な判定）
+  const padStyle = window.getComputedStyle(pad);
+  const padVisible = padStyle.display !== 'none' && pad.offsetWidth > 0 && pad.offsetHeight > 0;
+
+  if(!padVisible){
+    bench.style.display = 'none';
+    return;
+  }
+
+  bench.style.display = 'flex';
+
+  const rect = pad.getBoundingClientRect();
+  const borderOffset = 1; // パネル上線とぴったり合わせる微調整
+  const bottomPx = window.innerHeight - rect.top + borderOffset;
+  bench.style.bottom = bottomPx + 'px';
 }
 
 /* ゲーム状態 */
@@ -1140,7 +1149,7 @@ function checkAffinity(){
   }
 }
 
-/* 控え横一列 */
+/* 控えアイコン */
 function buildBoxes(){
   const row = $('benchRow');
   if(!row) return;
@@ -1223,6 +1232,7 @@ function renderSides(){
   updateHPUI('ally',left().hp,left().maxhp);
   updateHPUI('enemy',right().hp,right().maxhp);
   checkAffinity();
+  positionBenchRow(); // ★ カード更新のたびに位置を再計算
 }
 
 /* 詳細モーダル */
@@ -1488,6 +1498,7 @@ function startRound(){
   state.busy=false;
   lockInputs(false);
   checkAffinity();
+  positionBenchRow();
 
   setTimeout(()=>{
     if(state.busy) return;
@@ -1591,6 +1602,7 @@ async function handleKO(side){
     $('result').classList.remove('show');
     $('battle').style.display='none';
     $('setup').style.display='grid';
+    positionBenchRow();
     return true;
   }
 
@@ -1709,6 +1721,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // セットアップ
   makeTeam($('teamA'),'A');
   makeTeam($('teamB'),'B');
+  positionBenchRow();
 
   $('btnStart').onclick = async () => {
     state.A.team = collect('A');
@@ -1806,6 +1819,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if(e.target === el) el.classList.remove('show');
     });
   });
+
+  // 画面サイズ変更・スクロールで控え位置を追従
+  window.addEventListener('resize', positionBenchRow);
+  window.addEventListener('scroll', positionBenchRow);
 });
 })(); 
 </script>
