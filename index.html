@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate v25</title>
+<title>ことばコレクションガチャ Ultimate v26</title>
 <meta name="theme-color" content="#0b0f1c">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,7 +51,6 @@ body {
   40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
-/* Flash Effect */
 .white-flash {
   position: fixed; inset: 0; background: white; z-index: 2000;
   pointer-events: none; opacity: 0; transition: opacity 0.1s ease-out;
@@ -113,13 +112,14 @@ header{
 .btn-summon:active { transform: scale(0.96); }
 .btn-summon.single { border-color: var(--blue); }
 .btn-summon.multi { border-color: var(--gold); }
-.btn-label { font-size: 16px; font-weight: 900; letter-spacing: 0.5px; color: #fff; z-index: 2; pointer-events: none; }
-.btn-sub { font-size: 10px; color:var(--muted); font-weight:700; z-index: 2; pointer-events: none; }
+.btn-label { font-size: 16px; font-weight: 900; letter-spacing: 0.5px; color: #fff; z-index: 3; pointer-events: none; }
+.btn-sub { font-size: 10px; color:var(--muted); font-weight:700; z-index: 3; pointer-events: none; }
 
-/* Gauge Animation */
+/* Gauge Animation (FIXED) */
 .btn-progress {
   position: absolute; bottom: 0; left: 0; height: 100%; width: 0%;
-  z-index: 1; mix-blend-mode: screen; opacity: 0.7;
+  z-index: 2; /* Above bg, below text */
+  opacity: 0.6; mix-blend-mode: normal; /* Fix visibility */
 }
 .btn-summon.single .btn-progress { background: var(--aqua); box-shadow: 0 0 20px var(--aqua); }
 .btn-summon.multi .btn-progress { background: var(--gold); box-shadow: 0 0 20px var(--gold); }
@@ -128,60 +128,54 @@ header{
 .btn-summon.single.charging .btn-progress { transition: width 0.6s linear; }
 .btn-summon.multi.charging .btn-progress { transition: width 1.0s linear; }
 
-/* === Card Design === */
+/* === Card Design (FIXED: Inner/Outer Wrapper for Badge) === */
 .card-stage {
   perspective: 1000px; display: flex; justify-content: center; align-items: center;
   width: 300px; height: 420px; position: relative;
 }
+/* Outer wrapper: Handles 3D rotate, Visible Overflow for Badge */
 .result-card {
-  width: 100%; height: 100%; padding: 24px 20px; border-radius: 20px;
-  background: rgba(16, 24, 45, 0.95); 
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.1); text-align: center; position: relative;
-  transform-style: preserve-3d; transform: scale(0.8); opacity: 0; transition: opacity .4s;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.4);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  overflow: hidden; 
+  width: 100%; height: 100%; position: relative;
+  text-align: center; transform-style: preserve-3d;
+  transform: scale(0.8); opacity: 0; transition: opacity .4s;
 }
 .result-card.show { transform: scale(1); opacity: 1; }
 
-/* Rarity Visuals */
-@keyframes pulseGold { 0%,100%{box-shadow:0 0 40px var(--gold);} 50%{box-shadow:0 0 80px var(--gold), 0 0 20px #fff;} }
-@keyframes pulseBad { 0%,100%{box-shadow:0 0 20px var(--bad);} 50%{box-shadow:0 0 50px var(--bad), inset 0 0 20px var(--bad);} }
+/* Inner wrapper: Handles Backgrounds, Borders, Clipping */
+.result-card-inner {
+  width: 100%; height: 100%; padding: 24px 20px; border-radius: 20px;
+  background: rgba(16, 24, 45, 0.95); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1); 
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  overflow: hidden; /* Clip internal effects */
+  position: absolute; top: 0; left: 0;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.4);
+}
 
-.result-card.S {
+/* Styles apply to INNER now */
+.result-card.S .result-card-inner {
   background: radial-gradient(circle at center, rgba(255, 215, 0, 0.2) 0%, rgba(20, 27, 46, 0.95) 80%);
   border: 2px solid var(--gold); animation: pulseGold 2s infinite;
 }
-.result-card.S::before {
-  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: conic-gradient(from 0deg, transparent 0%, rgba(255,215,0,0.1) 10%, transparent 20%, rgba(255,215,0,0.3) 50%, transparent 80%);
-  animation: rotateRays 6s linear infinite; z-index: 0; pointer-events: none;
-}
-@keyframes rotateRays { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-
-.result-card.A {
+.result-card.A .result-card-inner {
   background: radial-gradient(circle at center, rgba(255, 189, 99, 0.15) 0%, rgba(20, 27, 46, 0.95) 80%);
   border: 1px solid var(--amber); box-shadow: 0 0 40px rgba(255, 189, 99, 0.4);
 }
-.result-card.A::after {
-  content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
-  transform: skewX(-20deg); animation: shineSweep 2s infinite; z-index: 1; pointer-events: none;
-}
-@keyframes shineSweep { 0%{left:-100%;} 100%{left:200%;} }
-
-.result-card.B {
+.result-card.B .result-card-inner {
   background: radial-gradient(circle at center, rgba(99, 234, 217, 0.1) 0%, rgba(20, 27, 46, 0.95) 80%);
   border: 1px solid var(--aqua); box-shadow: 0 0 30px rgba(99, 234, 217, 0.25);
 }
-.result-card.C { border: 1px solid var(--blue); }
-.result-card.X {
+.result-card.C .result-card-inner { border: 1px solid var(--blue); }
+.result-card.X .result-card-inner {
   background: radial-gradient(circle at center, rgba(255, 77, 77, 0.15) 0%, #000 90%);
   border: 2px solid var(--bad); box-shadow: 0 0 30px rgba(255, 77, 77, 0.3); animation: pulseBad 0.2s infinite;
 }
-.result-card.D { border: 1px solid var(--gray); }
+.result-card.D .result-card-inner { border: 1px solid var(--gray); }
 
+@keyframes pulseGold { 0%,100%{box-shadow:0 0 40px var(--gold);} 50%{box-shadow:0 0 80px var(--gold), 0 0 20px #fff;} }
+@keyframes pulseBad { 0%,100%{box-shadow:0 0 20px var(--bad);} 50%{box-shadow:0 0 50px var(--bad), inset 0 0 20px var(--bad);} }
+
+/* Effects inside Inner */
 .holo-sheen {
   position: absolute; inset: 0; border-radius: 20px; pointer-events: none;
   background: linear-gradient(135deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 60%);
@@ -189,22 +183,38 @@ header{
 }
 .result-card.S .holo-sheen, .result-card.A .holo-sheen { opacity: 1; }
 
-.result-img-container {
-  width: 160px; height: 160px; margin-bottom: 16px; position: relative;
-  transform: translateZ(30px); display: flex; align-items: center; justify-content: center;
+.result-card.S .result-card-inner::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(255,215,0,0.1) 10%, transparent 20%, rgba(255,215,0,0.3) 50%, transparent 80%);
+  animation: rotateRays 6s linear infinite; z-index: 0; pointer-events: none;
 }
+@keyframes rotateRays { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+.result-card.A .result-card-inner::after {
+  content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg); animation: shineSweep 2s infinite; z-index: 1; pointer-events: none;
+}
+@keyframes shineSweep { 0%{left:-100%;} 100%{left:200%;} }
+
+/* Badge - Outside Inner */
+.badge {
+  position: absolute; top: -8px; right: -8px;
+  background: var(--bad); color: #fff; font-size: 11px; font-weight: 900;
+  padding: 6px 12px; border-radius: 12px; border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  transform: rotate(10deg) translateZ(50px); z-index: 100;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn{from{transform:scale(0) rotate(0deg)}to{transform:scale(1) rotate(10deg)}}
+
+/* Content */
+.result-img-container, .result-word, .result-desc, .result-rarity { position: relative; z-index: 2; }
+.result-img-container { width: 160px; height: 160px; margin-bottom: 16px; transform: translateZ(30px); display: flex; align-items: center; justify-content: center; }
 .result-img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
 .result-rarity { font-size: 48px; margin-bottom: 12px; transform: translateZ(30px); }
 .result-word { font-size: 24px; font-weight: 900; margin: 8px 0; line-height: 1.3; transform: translateZ(20px); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
 .result-desc { font-size: 13px; color: var(--muted); line-height: 1.7; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 8px; transform: translateZ(10px); }
-.badge {
-  position: absolute; top: -6px; right: -6px;
-  background: var(--bad); color: #fff; font-size: 10px; font-weight: 900;
-  padding: 4px 10px; border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(255, 77, 77, 0.4);
-  transform: rotate(10deg) translateZ(40px); z-index: 10;
-  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
 
 /* === Summary List === */
 .summary-container {
@@ -417,13 +427,11 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
 
   <section id="view-info" class="view">
     <h2>Information</h2>
-    
     <div class="panel-box" style="margin-bottom:16px">
       <h3 style="font-size:14px; margin-top:0">データ管理</h3>
       <button class="btn-play" style="width:100%; border-color:var(--bad); color:var(--bad); padding:10px;" id="btn-reset">コレクションを初期化</button>
       <button class="btn-play" style="width:100%; margin-top:10px;" id="btn-rates">排出率を表示</button>
     </div>
-
     <div class="infoLead">ことば募集＆スペシャルサンクス</div>
     <div class="infoGrid">
       <div class="infoBox">
@@ -436,14 +444,12 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
           ④「冷める言葉」・・・言われたら一気に聞く気が失せる言葉（例：本質、見える化、自分ごと化）<br>
         </div>
       </div>
-      
       <details class="infoBox">
         <summary>スペシャルサンクス</summary>
         <div class="infoSmall">
           制作には以下のAIを使用しました。<br>
           ・BGM作成：Suno AI<br>
-          ・コーディング・イラスト：Chat-GPT、Gemini<br>
-          <br>
+          ・コーディング・イラスト：Chat-GPT、Gemini<br><br>
           また、次の作品・クリエイターから多くの示唆を受けています。<br>
           ・音楽：The Gregory Brothers、水曜日のカンパネラ<br>
           ・ゲーム：にほんのあらそい、甲虫王者ムシキング、ポケットモンスター
@@ -713,13 +719,25 @@ async function roll(count){
     for(let i=0; i<count; i++){
       const {t, w, isNew} = results[i];
       const cardWrap = document.createElement('div'); cardWrap.className = 'card-stage';
-      const card=document.createElement('div'); card.className=`result-card ${t}`;
+      
+      // 1. Create Wrapper (Outer Card)
+      const card = document.createElement('div'); 
+      card.className=`result-card ${t}`;
       if(t==='X') document.body.classList.add('glitch-mode');
       
       const imgPath = wordImages[w] ? (IMAGE_BASE_URL + wordImages[w]) : '';
       const imgHtml = imgPath ? `<div class="result-img-container"><img src="${imgPath}" class="result-img" alt="${w}"></div>` : `<div class="result-rarity">${icons[t]}</div>`;
 
-      card.innerHTML=`<div class="holo-sheen"></div>${imgHtml}<div class="result-word">${w}</div><div class="result-desc">${exp[w]||""}</div>${isNew?'<div class="badge">NEW</div>':''}`;
+      // 2. Create Inner Content (Clipped)
+      card.innerHTML = `
+        <div class="result-card-inner">
+           <div class="holo-sheen"></div>
+           ${imgHtml}
+           <div class="result-word">${w}</div>
+           <div class="result-desc">${exp[w]||""}</div>
+        </div>
+        ${isNew ? '<div class="badge">NEW</div>' : ''}
+      `;
       
       if(t==='S' || t==='A') {
         cardWrap.addEventListener('mousemove', (e) => tiltCard(e, card));
@@ -904,6 +922,7 @@ function tryUnlock(t){
 const toast=document.getElementById('toast');
 function showToast(msg){toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3000);}
 
+/* Modal: Now accepts Tier to style border */
 const modal=document.getElementById('cmModal');
 let typeInterval = null;
 
@@ -936,7 +955,19 @@ function showModal(title, text, tier){
 }
 document.getElementById('cmClose').onclick=()=>modal.classList.remove('show');
 document.getElementById('cmBackdrop').onclick=()=>modal.classList.remove('show');
-document.getElementById('btn-reset').onclick=()=>{if(confirm('本当にデータを初期化しますか？')) {seen.clear(); localStorage.setItem(storeSeen,"[]"); location.reload();}};
+// FIX: Soft Reset instead of reload
+document.getElementById('btn-reset').onclick=()=>{
+  if(confirm('本当にデータを初期化しますか？')) {
+    seen.clear(); 
+    localStorage.setItem(storeSeen,"[]"); 
+    unlockedTiers.clear();
+    localStorage.setItem(storeUnlocked,"[]");
+    // Soft Reload UI
+    switchTab('gacha', 0);
+    renderCollection();
+    showToast("データを初期化しました");
+  }
+};
 document.getElementById('btn-rates').onclick=()=>{alert("排出率:\nS:2% A:8% B:20% C:30% D:30% X:10%");};
 const savedTrack = getTracks().find(t=>t.id===selectedBGM);
 if(savedTrack) bgmPlayer.src = savedTrack.src;
