@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>KOTOBA-BATTLE | v30.70 Final UI</title>
+<title>KOTOBA-BATTLE | v30.80 Toast Fix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -50,24 +50,24 @@ body{
 
 .container{ max-width:800px; margin:0 auto; padding:8px; }
 
-/* === レイアウト構成 (Flexboxで厳密に区分け) === */
+/* === レイアウト構成 === */
 #battle {
   display: none;
   flex-direction: column;
-  height: 100dvh;      /* 画面いっぱい */
+  height: 100dvh;
   max-height: 100dvh;
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
   padding-bottom: env(safe-area-inset-bottom);
   overflow: hidden;
-  gap: 2px;            /* 各要素の隙間 */
+  gap: 2px;
 }
 
-/* 1. アリーナ（カード）: 余ったスペースを全て使う */
+/* 1. アリーナ */
 .arena {
-  flex: 1;             /* ここが可変 */
-  min-height: 0;       /* 縮小を許可 */
+  flex: 1;
+  min-height: 0;
   display: flex; flex-direction: column; 
   padding: 4px 4px 0;
   position: relative; z-index: 1;
@@ -78,9 +78,9 @@ body{
 }
 .vsrow > div { min-width: 0; height: 100%; }
 
-/* 2. ログ: 固定高さ */
+/* 2. ログ */
 .logWrapper { 
-  flex: 0 0 90px;      /* 高さを90pxに固定 */
+  flex: 0 0 90px;
   height: 90px; min-height: 90px;
   border-top: 1px solid #334155; border-bottom: 1px solid #334155; 
   background: rgba(2, 6, 23, 0.9); 
@@ -96,7 +96,7 @@ body{
 .logLine { padding: 1px 0; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
 .logLine.highlight { color: #fbbf24; } .logLine.dmg { color: #fca5a5; } .logLine.heal { color: #6ee7b7; }
 
-/* 3. 控え帯: 固定高さ */
+/* 3. 控え帯 */
 .benchRow { 
   flex: 0 0 30px; height: 30px;
   display:flex; align-items:center; justify-content:center; gap:8px; 
@@ -107,11 +107,11 @@ body{
 .resIcon { width: 22px; height: 22px; border-radius: 4px; background: #1e293b; border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; cursor: pointer; }
 .resIcon.active { border-color: #fff !important; transform: scale(1.1); z-index: 2; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
 
-/* 4. 操作パネル: 固定高さ (無駄な余白を削除) */
+/* 4. 操作パネル */
 .padCard { 
-  flex: 0 0 auto;      /* 中身に合わせて高さを決める */
+  flex: 0 0 auto;
   background: rgba(15, 23, 42, 0.98); 
-  padding: 8px 16px 12px; /* 下の余白を少し削る */
+  padding: 8px 16px 12px;
   display: flex; flex-direction: column; justify-content: center;
   box-shadow: 0 -4px 16px rgba(0,0,0,0.5); 
   position: relative; z-index: 20;
@@ -125,7 +125,7 @@ body{
 .rpsArea { display: flex; gap: 20px; justify-content: center; align-items: center; flex: 0 0 auto; }
 
 .rps { 
-  width: 68px; height: 68px; /* 少しだけ小さくしてバランス調整 */
+  width: 68px; height: 68px;
   border-radius: 50%; border: 4px solid rgba(255,255,255,0.15); cursor: pointer; 
   display: grid; place-items: center; position: relative; top: 0; transition: all .1s; 
   box-shadow: 0 6px 0 rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.4); 
@@ -157,7 +157,7 @@ body{
   .rps { width: 80px; height: 80px; }
 }
 
-/* === カード詳細（比率調整） === */
+/* === カード詳細 === */
 .unit {
   position: relative; width: 100%; height: 100%; min-height: 0;
   border-radius: 8px; padding: 2px;
@@ -184,7 +184,6 @@ body{
   position: relative; z-index: 1;
 }
 
-/* ダメージ演出 */
 .unit.hit { animation: hitAnim 0.4s ease; filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
 @keyframes hitAnim{ 0%,100%{transform:translateX(0)} 15%,45%,75%{transform:translateX(-6px)} 30%,60%,90%{transform:translateX(6px)} }
 .shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}
@@ -197,12 +196,10 @@ body{
 .typeIcon { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: var(--typeColor); color: #0b0f1c; }
 .cardName { flex: 0 0 auto; font-weight: 900; font-size: 13px; color: #fff; text-shadow: 0 2px 4px #000; white-space: nowrap; text-align: center; height: 20px; line-height: 20px; }
 
-/* ★重要：画像エリアを「縮小可能」にし、テキストを優先する */
 .artArea {
   position: relative; width: 100%; 
-  flex: 1;             /* 基本は広がるが */
-  min-height: 0;       /* 必要なら0まで縮む */
-  
+  flex: 1;             
+  min-height: 0;       
   margin: 0; border-radius: 0 0 4px 4px; overflow: hidden;
   background: radial-gradient(circle at center, rgba(255,255,255,0.1), rgba(0,0,0,0.6));
   display: flex; align-items: center; justify-content: center;
@@ -225,18 +222,17 @@ body{
 .statusRow { display: flex; gap: 2px; min-height: 12px; margin-top: 2px; justify-content: flex-end; flex-wrap: wrap; }
 .stBadge { font-size: 8px; padding: 0 3px; border-radius: 3px; background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
 
-/* ★重要：テキストエリアの確保 */
 .bottomSection { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; padding: 2px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-top: 2px; }
 .skillInfo { 
   background: rgba(0,0,0,0.4); padding: 4px; border-radius: 4px; 
-  flex: 0 0 auto; /* 縮まない */
-  min-height: 45px; /* 2行分確保 */
+  flex: 0 0 auto; 
+  min-height: 45px;
   display:flex; flex-direction:column; justify-content:center; 
 }
 .skillN { font-size: 10px; font-weight: 900; color: #fcd34d; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .skillD { 
   font-size: 9px; line-height: 1.3; color: #cbd5e1; 
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; /* 2行で丸める */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .spRow { display: flex; gap: 2px; justify-content: center; height: 6px; margin: 2px 0; }
 .pip { width: 12px; height: 100%; background: #451a03; border: 1px solid #78350f; border-radius: 2px; }
@@ -277,10 +273,27 @@ body{
 .btn3d { appearance: none; border: none; font-family: 'Noto Sans JP'; font-weight: 800; font-size: 13px; color: #fff; padding: 8px 16px; border-radius: 6px; display: inline-flex; justify-content: center; align-items: center; gap: 4px; }
 .btn-primary { background: linear-gradient(to bottom, #3b82f6, #1d4ed8); box-shadow: 0 3px 0 #1e3a8a; }
 .btn-ghost { background: linear-gradient(to bottom, #475569, #1e293b); box-shadow: 0 3px 0 #0f172a; border: 1px solid rgba(255,255,255,0.1); }
-.floatingText { position: absolute; left: 50%; top: 25%; transform: translate(-50%, -50%); font-family: 'M PLUS 1p'; font-weight: 900; font-size: 14px; color: #e5e7eb; pointer-events: none; z-index: 20; animation: popUp 1.4s forwards; white-space: pre-wrap; text-align:center; padding:4px 10px; border-radius:20px; background: rgba(15,23,42,0.9); box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 1px solid rgba(148,163,184,0.5); }
+
+/* トースト（アニメーション修正: 2.2sかけてしっかり表示） */
+.floatingText { 
+  position: absolute; left: 50%; top: 25%; transform: translate(-50%, -50%); 
+  font-family: 'M PLUS 1p'; font-weight: 900; font-size: 14px; color: #e5e7eb; 
+  pointer-events: none; z-index: 100; 
+  animation: popUp 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; /* 時間とイージング変更 */
+  white-space: pre-wrap; text-align:center; padding:4px 10px; border-radius:20px; 
+  background: rgba(15,23,42,0.9); box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 1px solid rgba(148,163,184,0.5); 
+}
 .floatingText.dmg { color:#fecaca; border-color:#fca5a5; background:rgba(69, 10, 10, 0.9); }
 .floatingText.heal { color:#bbf7d0; border-color:#4ade80; background:rgba(5, 46, 22, 0.9); }
-@keyframes popUp { 0% { opacity: 0; transform: translate(-50%, -4px) scale(0.9); } 15% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -20px) scale(0.95); } }
+
+/* パッと出て、しばらく留まり、最後に消える */
+@keyframes popUp { 
+  0% { opacity: 0; transform: translate(-50%, 4px) scale(0.9); } 
+  10% { opacity: 1; transform: translate(-50%, -2px) scale(1); }  /* すぐ表示 */
+  75% { opacity: 1; transform: translate(-50%, -6px) scale(1); }  /* ここまでキープ */
+  100% { opacity: 0; transform: translate(-50%, -16px) scale(0.95); } /* 最後に消える */
+}
+
 .slot { display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 4px;}
 .pill { width: 18px; height: 18px; border-radius: 4px; background: #334155; color: #fff; font-weight: 800; font-size: 10px; display: grid; place-items: center; }
 .slot select { flex: 1; background: transparent; border: none; color: #fff; font-weight: 800; font-size: 12px; }
@@ -426,11 +439,11 @@ function fitName(el){
   if(len > 10) el.style.fontSize = '10px'; else if(len > 7) el.style.fontSize = '11px'; else el.style.fontSize = '13px';
 }
 
-/* トースト: 4秒に変更 */
+/* トースト表示時間：2.2秒に変更 */
 function showFloatingText(targetId, text, type, opts = {}){
   const wrap = $(targetId); if(!wrap) return;
   const el = document.createElement('div'); el.className = 'floatingText ' + type; el.textContent = text;
-  wrap.appendChild(el); setTimeout(() => el.remove(), opts.duration || 4000);
+  wrap.appendChild(el); setTimeout(() => el.remove(), opts.duration || 2200);
 }
 
 async function showCutIn(skill, user){
@@ -649,7 +662,6 @@ function renderSides(){
   checkAffinity();
 }
 
-/* 詳細画面: HPバーをMaxHP表示に修正 */
 window._sh = (n)=>{
   const u = [...state.A.team,...state.B.team].find(x=>x.name===n); if(!u) return;
   const skill = SKILLS[u.name] || ['?','?'];
