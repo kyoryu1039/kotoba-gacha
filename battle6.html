@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>KOTOBA-BATTLE | v30.90 Toast Fix</title>
+<title>KOTOBA-BATTLE | v31.0 Visual Update</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -106,6 +106,7 @@ body{
 .benchLabel{ font-weight:900; font-family:'Teko'; font-size:10px; color:#64748b; }
 .resIcon { width: 22px; height: 22px; border-radius: 4px; background: #1e293b; border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; cursor: pointer; }
 .resIcon.active { border-color: #fff !important; transform: scale(1.1); z-index: 2; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
+.resIcon.dead { filter: grayscale(1); opacity: 0.5; border-color: #475569 !important; }
 
 /* 4. 操作パネル */
 .padCard { 
@@ -179,9 +180,42 @@ body{
 
 .unitInner {
   flex: 1; display: flex; flex-direction: column;
-  background: linear-gradient(160deg, #1e293b, var(--typeColor), #0f172a);
+  /* 走査線とグラデーションの合成 */
+  background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.25) 50%), linear-gradient(160deg, #1e293b, var(--typeColor), #0f172a);
+  background-size: 100% 4px, cover;
   border-radius: 6px; padding: 3px; overflow: hidden; height: 100%;
   position: relative; z-index: 1;
+}
+
+/* 状態異常の視覚化 */
+.st-locked { filter: grayscale(0.9) brightness(0.8); }
+.st-locked::after { 
+  content: "🔒"; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); 
+  font-size: 48px; text-shadow: 0 4px 10px #000; opacity: 0.9; z-index: 10;
+}
+
+.st-doom { animation: glitchSkew 0.25s infinite; position: relative; }
+.st-doom::before {
+  content: "⚠"; position: absolute; top: 8px; right: 8px; font-size: 24px; color: #d946ef; 
+  animation: flash 0.4s infinite; z-index: 5; text-shadow: 0 0 5px #d946ef;
+}
+@keyframes glitchSkew { 
+  0% { transform: skew(0deg); } 20% { transform: skew(-2deg); } 
+  40% { transform: skew(2deg); } 100% { transform: skew(0deg); } 
+}
+
+.st-poison { 
+  animation: pulsePurple 1.5s infinite; 
+  box-shadow: inset 0 0 20px #a855f7; border: 1px solid #a855f7;
+}
+@keyframes pulsePurple { 
+  0% { box-shadow: inset 0 0 0 rgba(168,85,247,0); } 
+  50% { box-shadow: inset 0 0 30px rgba(168,85,247,0.7); } 
+  100% { box-shadow: inset 0 0 0 rgba(168,85,247,0); } 
+}
+
+.st-buff { 
+  box-shadow: inset 0 0 15px #fbbf24; border: 1px solid #fcd34d; 
 }
 
 .unit.hit { animation: hitAnim 0.4s ease; filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
@@ -198,8 +232,8 @@ body{
 
 .artArea {
   position: relative; width: 100%; 
-  flex: 1;             
-  min-height: 0;       
+  flex: 1;              
+  min-height: 0;        
   margin: 0; border-radius: 0 0 4px 4px; overflow: hidden;
   background: radial-gradient(circle at center, rgba(255,255,255,0.1), rgba(0,0,0,0.6));
   display: flex; align-items: center; justify-content: center;
@@ -217,8 +251,14 @@ body{
 .hpNum{ display:flex; align-items:baseline; gap:1px; font-weight:700; color:#f9fafb; font-size:14px; }
 .hpSlash,.hpMax{ font-size:10px; color:#9ca3af; }
 .hpBarBg { width: 100%; height: 6px; background: #0f172a; border-radius: 3px; border: 1px solid #334155; overflow: hidden; }
-.hpBar { height: 100%; width: 100%; transition: width 0.5s; }
-.hpBar.high { background: #10b981; } .hpBar.mid { background: #eab308; } .hpBar.low { background: #ef4444; }
+/* HPバーに光沢を追加 */
+.hpBar { 
+  height: 100%; width: 100%; transition: width 0.5s; 
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 100%);
+}
+.hpBar.high { background-color: #10b981; box-shadow: 0 0 6px #10b981; } 
+.hpBar.mid { background-color: #eab308; box-shadow: 0 0 6px #eab308; } 
+.hpBar.low { background-color: #ef4444; box-shadow: 0 0 6px #ef4444; }
 .statusRow { display: flex; gap: 2px; min-height: 12px; margin-top: 2px; justify-content: flex-end; flex-wrap: wrap; }
 .stBadge { font-size: 8px; padding: 0 3px; border-radius: 3px; background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
 
@@ -259,10 +299,37 @@ body{
 
 .jkResult{font-family:'Teko';font-size:70px;font-weight:700;color:#fff;text-shadow:0 8px 24px #000;opacity:0;transform:translateY(20px);transition:all .3s}
 .jkResult.show{opacity:1;transform:translateY(0)}
-#cutIn{background:linear-gradient(90deg,transparent,rgba(30,58,138,0.95) 20%,rgba(30,58,138,0.95) 80%,transparent);height:100px;border-top:1px solid #60a5fa;border-bottom:1px solid #60a5fa;flex-direction:column;transform:scaleY(0);transition:.2s}
-#cutIn.show{display:flex;transform:scaleY(1)}
-.cutInText{font-size:32px;font-weight:900;color:#fff;font-style:italic;letter-spacing:0.1em}
-.cutInSub{font-size:12px;color:#93c5fd;font-weight:700;}
+
+/* 強化されたカットイン演出 */
+#cutIn {
+  background: linear-gradient(135deg, rgba(2,6,23,0.95) 0%, rgba(37,99,235,0.9) 45%, rgba(59,130,246,1) 50%, rgba(37,99,235,0.9) 55%, rgba(2,6,23,0.95) 100%);
+  border: none;
+  border-top: 3px solid #fff;
+  border-bottom: 3px solid #fff;
+  height: 140px;
+  transform: scaleX(0) skewX(-20deg);
+  transform-origin: center;
+  flex-direction: column;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+  justify-content: center;
+}
+#cutIn.show {
+  transform: scaleX(1) skewX(-20deg);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.cutInText {
+  font-size: 48px; font-weight: 900; color: #fff; font-style: italic; letter-spacing: 0.05em;
+  transform: skewX(20deg); /* 親のskewを打ち消す */
+  text-shadow: 4px 4px 0 #000, 0 0 20px rgba(255,255,255,0.5);
+  -webkit-text-stroke: 1px #fff;
+}
+.cutInSub {
+  font-size: 16px; color: #fff; font-weight: 700;
+  transform: skewX(20deg);
+  background: #000; padding: 2px 8px; margin-top: -5px; z-index: 10;
+  box-shadow: 4px 4px 0 rgba(255,255,255,0.2);
+}
+
 .modalCard{width:min(400px,90vw);max-height:80vh;overflow-y:auto;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,0.8);animation:popIn 0.2s}
 @keyframes popIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
 
@@ -274,23 +341,29 @@ body{
 .btn-primary { background: linear-gradient(to bottom, #3b82f6, #1d4ed8); box-shadow: 0 3px 0 #1e3a8a; }
 .btn-ghost { background: linear-gradient(to bottom, #475569, #1e293b); box-shadow: 0 3px 0 #0f172a; border: 1px solid rgba(255,255,255,0.1); }
 
-/* トースト調整 (1.5秒) */
+/* トースト調整: 派手なポップアップ */
 .floatingText { 
   position: absolute; left: 50%; top: 25%; transform: translate(-50%, -50%); 
-  font-family: 'M PLUS 1p'; font-weight: 900; font-size: 14px; color: #e5e7eb; 
+  font-family: 'Teko', sans-serif; font-weight: 700; font-size: 48px; color: #fff; 
   pointer-events: none; z-index: 100; 
-  animation: popUp 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  white-space: pre-wrap; text-align:center; padding:4px 10px; border-radius:20px; 
-  background: rgba(15,23,42,0.9); box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 1px solid rgba(148,163,184,0.5); 
+  animation: popBounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  white-space: nowrap; text-align:center; padding: 0;
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.8);
+  background: transparent; border: none; box-shadow: none;
 }
-.floatingText.dmg { color:#fecaca; border-color:#fca5a5; background:rgba(69, 10, 10, 0.9); }
-.floatingText.heal { color:#bbf7d0; border-color:#4ade80; background:rgba(5, 46, 22, 0.9); }
+.floatingText.dmg { 
+  color: #fff; -webkit-text-stroke: 1.5px #ef4444; filter: drop-shadow(0 0 5px #b91c1c); 
+}
+.floatingText.heal { 
+  color: #fff; -webkit-text-stroke: 1.5px #10b981; filter: drop-shadow(0 0 5px #047857); 
+}
+/* MISS等は少し小さく */
+.floatingText.miss { font-size: 32px; color: #94a3b8; -webkit-text-stroke: 1px #475569; }
 
-@keyframes popUp { 
-  0% { opacity: 0; transform: translate(-50%, 4px) scale(0.9); } 
-  10% { opacity: 1; transform: translate(-50%, -2px) scale(1); } 
-  75% { opacity: 1; transform: translate(-50%, -6px) scale(1); } 
-  100% { opacity: 0; transform: translate(-50%, -16px) scale(0.95); } 
+@keyframes popBounce { 
+  0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); } 
+  40% { opacity: 1; transform: translate(-50%, -40px) scale(1.3); } 
+  100% { opacity: 0; transform: translate(-50%, -80px) scale(1); } 
 }
 
 .slot { display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 4px;}
@@ -640,8 +713,15 @@ function renderCard(u,role){
   const pips = [...Array(6)].map((_,i)=>`<span class="pip ${i<sp?'on':''}"></span>`).join('');
   let badges = ''; if(u.lock>0) badges += `<div class="stBadge">🔒LOCKED</div>`;
   if(u.doom>0) badges += `<div class="stBadge">👾文字化け</div>`; if(u.selfHurt>0) badges += `<div class="stBadge">🌀崩壊</div>`;
+  
+  // 状態異常に応じたクラスを付与
+  let stClass = '';
+  if(u.lock>0) stClass += ' st-locked';
+  if(u.doom>0) stClass += ' st-doom';
+  if(u.selfHurt>0) stClass += ' st-poison';
+  if(u.atk13>0 || u.shield>0) stClass += ' st-buff';
 
-  return `<div class="unit" style="--typeColor:${typeColor(u.type)}" data-rank="${u.rank}"><div class="unitInner">
+  return `<div class="unit" style="--typeColor:${typeColor(u.type)}" data-rank="${u.rank}"><div class="unitInner ${stClass}">
       <div class="cardHeader"><span class="ownerBadge ${role}">${owner}</span><span class="typeIcon">${u.type}</span></div>
       <div class="cardName" id="nm-${role}">${u.name}</div>
       <div class="artArea" id="art-${role}">${img}</div>
