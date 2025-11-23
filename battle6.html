@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>KOTOBA-BATTLE | v35.00 Polished</title>
+<title>KOTOBA-BATTLE | v36.00 Detail Fix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -170,23 +170,35 @@ body::after {
   display: flex; flex-direction: column;
   border: 1px solid #334155;
 }
-/* ランク別演出 (少し控えめに復活) */
-.unit[data-rank="S"] { border: 1px solid #d8b4fe; background: linear-gradient(135deg, #4c1d95, #581c87); box-shadow: 0 0 10px rgba(168, 85, 247, 0.15); }
+/* Sランク演出強化：神々しく */
+.unit[data-rank="S"] { 
+  border: 1px solid #a855f7; 
+  background: linear-gradient(135deg, #4c1d95, #2e1065);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 0 30px rgba(192, 38, 211, 0.2); 
+  animation: rainbowGlow 6s infinite alternate;
+}
 .unit[data-rank="S"]::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 10;
-  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.2) 45%, rgba(255,255,255,0.05) 50%, transparent 60%);
-  background-size: 200% 200%; mix-blend-mode: overlay; animation: shine 4s infinite;
+  background: linear-gradient(125deg, transparent 20%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.4) 60%, transparent 80%);
+  background-size: 200% 200%; mix-blend-mode: overlay; animation: shine 3.5s infinite;
+  opacity: 0.7;
 }
-.unit[data-rank="A"] { border: 1px solid #fde047; background: linear-gradient(135deg, #713f12, #854d0e); }
+@keyframes rainbowGlow {
+  0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); border-color: #a855f7; }
+  100% { box-shadow: 0 0 25px rgba(236, 72, 153, 0.6); border-color: #f472b6; }
+}
+
+/* Aランク：金ピカ */
+.unit[data-rank="A"] { border: 1px solid #fde047; background: linear-gradient(135deg, #713f12, #854d0e); box-shadow: 0 0 10px rgba(234, 179, 8, 0.3); }
 .unit[data-rank="A"]::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 10;
-  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
-  background-size: 250% 250%; animation: shine 6s infinite;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
+  background-size: 250% 250%; animation: shine 5s infinite;
 }
 .unit[data-rank="B"] { border: 1px solid #94a3b8; background: #334155; }
 .unit[data-rank="C"] { border: 1px solid #475569; background: #1e293b; }
 .unit[data-rank="D"] { border: 1px solid #334155; background: #0f172a; }
-.unit[data-rank="X"] { border: 1px solid #ff00ff; background: #2e1065; }
+.unit[data-rank="X"] { border: 1px solid #ff00ff; background: #2e1065; animation: glitchBorder 0.2s infinite; }
 
 @keyframes shine { 0% { background-position: 200% 200%; } 100% { background-position: -100% -100%; } }
 
@@ -576,20 +588,20 @@ const SKILLS = {
   "ネスカフェアンバサダー":["一杯いかが","攻撃後、味方全員HP60回復。"],
   "にんじんしりしり":["なんくるないさー","威力1.6倍。致命傷を1回HP1で耐える。"],
   "そぼろごはん":["そぼろ乱舞","3回連続攻撃（0.75→0.5→0.25倍）。"],
-  "ニシローランドゴリラ":["マウンテンビート","威力1.5倍。次の2回、自分攻撃1.3倍。"],
-  "毛むくじゃら":["ムクジャララ","威力1.4倍。次の2回、回避率60%固定。"],
-  "九品仏":["仏の顔も三度まで","威力1.6倍。次の2回、被ダメ半減。"],
+  "ニシローランドゴリラ":["マウンテンビート","威力1.5倍。3ターンの間、自分攻撃1.3倍。"],
+  "毛むくじゃら":["ムクジャララ","威力1.4倍。3ターンの間、回避率60%固定。"],
+  "九品仏":["仏の顔も三度まで","威力1.6倍。次の被弾2回まで被ダメ半減。"],
   "けんちん汁":["長寿の秘訣","威力1.2倍。自分HP150回復。"],
-  "カムチャッカ半島":["言論統制","相手は4ターン交代不可。"], "タランチュラ":["言葉狩り","相手は次のターン行動不能。"],
-  "ハシビロコウ":["言論統制","相手は4ターン交代不可。"], "バルサミコ酢":["言論統制","相手は4ターン交代不可。"],
-  "ピロリ菌":["ゲシュタルト崩壊","相手に自傷効果（3T）。"], "トリニダード・トバゴ":["言葉狩り","相手は次ターン行動不能。"],
-  "カラメル色素":["ゲシュタルト崩壊","相手に自傷効果（3T）。"], "バビロン捕囚":["言論統制","相手は4ターン交代不可。"],
-  "鳥取砂丘":["ゲシュタルト崩壊","相手に自傷効果（3T）。"], "プラシーボ効果":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
-  "渡来人":["文字化け","相手は3ターン後に戦闘不能。"], "さるびあ丸":["言葉狩り","相手は次ターン行動不能。"],
-  "ペペロンチーノ":["ゲシュタルト崩壊","相手に自傷効果（3T）。"], "ポリプロピレン":["言論統制","相手は4ターン交代不可。"],
-  "サラエボ事件":["言葉狩り","相手は次ターン行動不能。"], "クマンバチ":["言論統制","相手は4ターン交代不可。"],
-  "県庁所在地":["文字化け","相手は3ターン後に戦闘不能。"], "照り焼きチキン":["言論統制","相手は4ターン交代不可。"],
-  "ねるねるねるね":["ゲシュタルト崩壊","相手に自傷効果（3T）。"], "スルメイカ":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
+  "カムチャッカ半島":["言論統制","相手：4ターンの間、交代封印。"], "タランチュラ":["言葉狩り","相手：次のターン行動不能。"],
+  "ハシビロコウ":["言論統制","相手：4ターンの間、交代封印。"], "バルサミコ酢":["言論統制","相手：4ターンの間、交代封印。"],
+  "ピロリ菌":["ゲシュタルト崩壊","相手：3ターンの間、自傷効果。"], "トリニダード・トバゴ":["言葉狩り","相手：次のターン行動不能。"],
+  "カラメル色素":["ゲシュタルト崩壊","相手：3ターンの間、自傷効果。"], "バビロン捕囚":["言論統制","相手：4ターンの間、交代封印。"],
+  "鳥取砂丘":["ゲシュタルト崩壊","相手：3ターンの間、自傷効果。"], "プラシーボ効果":["ゲシュタルト崩壊","相手：3ターンの間、自傷効果。"],
+  "渡来人":["文字化け","相手：3ターン経過後に即死。"], "さるびあ丸":["言葉狩り","相手：次のターン行動不能。"],
+  "ペペロンチーノ":["ゲシュタルト崩壊","相手：3ターンの間、自傷効果。"], "ポリプロピレン":["言論統制","相手：4ターンの間、交代封印。"],
+  "サラエボ事件":["言葉狩り","相手：次のターン行動不能。"], "クマンバチ":["言論統制","相手：4ターンの間、交代封印。"],
+  "県庁所在地":["文字化け","相手：3ターン経過後に即死。"], "照り焼きチキン":["言論統制","相手：4ターンの間、交代封印。"],
+  "ねるねるねるね":["ゲシュタルト崩壊","相手：3ターンの間、自傷効果。"], "スルメイカ":["ゲシュタルト崩壊","相手：3ターンの間、自傷効果。"],
   "本質":["鏡文字","相手の必殺をコピー（威力2倍）。"], "見える化":["鏡文字","相手の必殺をコピー（威力2倍）。"],
   "自分ごと化":["鏡文字","相手の必殺をコピー（威力2倍）。"], "解像度":["鏡文字","相手の必殺をコピー（威力2倍）。"]
 };
@@ -780,7 +792,10 @@ async function startOfAction(side){
   const me = side==='ally'?state.A.team[state.A.i]:state.B.team[state.B.i];
   const myWrap = side==='ally'?'leftWrap':'rightWrap';
   
-  if(me.eva60>0) me.eva60--; if(me.atk13>0) me.atk13--; if(me.lock>0) me.lock--;
+  if(me.eva60>0){ me.eva60--; if(me.eva60===0) showFloatingText(myWrap, '回避UP終了', 'info'); }
+  if(me.atk13>0){ me.atk13--; if(me.atk13===0) showFloatingText(myWrap, '攻撃UP終了', 'info'); }
+  if(me.lock>0){ me.lock--; if(me.lock===0) showFloatingText(myWrap, 'ロック解除', 'info'); }
+  
   if(me.doom>0){
     me.doom--; if(me.doom<=0){
       me.hp=0; renderSides(); showFloatingText(myWrap,'文字化けで倒れた…','dmg',{duration:2200});
@@ -831,7 +846,11 @@ async function doTurn(side){
   let targetRole = side==='ally'?'enemy':'ally'; const dmgList = (Array.isArray(multi)?multi:[mult]);
   for(let i=0;i<dmgList.length;i++){
     let m = dmgList[i]; let base = baseDamage(att,def)*m; if(att.atk13>0) base *= 1.3;
-    if(def.shield>0){ base *= 0.5; def.shield--; showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap','GUARD','heal'); }
+    if(def.shield>0){ 
+      base *= 0.5; def.shield--; 
+      showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap','GUARD','heal'); 
+      if(def.shield===0) setTimeout(()=>showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap','軽減終了','info'), 500);
+    }
     let damage = Math.max(1,Math.floor(base)); def.hp = Math.max(0,def.hp-damage); updateHPUI(targetRole,def.hp,def.maxhp);
     playSE('hit'); qs(targetRole==='enemy'?'#rightWrap .unit':'#leftWrap .unit').classList.add('hit'); shakeScreen();
     showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap',`-${damage}`,'dmg'); log(`${def.name}に ${damage} ダメージ`,'dmg');
@@ -848,10 +867,18 @@ async function doTurn(side){
   if(att.selfHurt>0){
     att.selfHurt--;
     if(Math.random()<0.33){
-      log('ゲシュタルト崩壊！','dmg'); att.hp = Math.max(0,att.hp-100); const myRole = side==='ally'?'ally':'enemy'; updateHPUI(myRole,att.hp,att.maxhp);
-      showFloatingText(myRole==='ally'?'leftWrap':'rightWrap','-100 (崩壊)','dmg');
-      if(att.hp<=0){ showFloatingText(myRole==='ally'?'leftWrap':'rightWrap','崩壊で自滅','dmg',{duration:2200}); qs(myRole==='ally'?'#leftWrap .unit':'#rightWrap .unit').classList.add('fall'); await delay(1000); log(`${att.name}は自滅した`,'highlight'); return await handleKO(side); }
+      log('ゲシュタルト崩壊！','dmg'); 
+      const myRole = side==='ally'?'ally':'enemy'; 
+      const myWrap = myRole==='ally'?'leftWrap':'rightWrap';
+      playSE('hit'); shakeScreen();
+      showFloatingText(myWrap,'⚠️崩壊ダメージ！','warn');
+      await delay(600);
+      att.hp = Math.max(0,att.hp-100); updateHPUI(myRole,att.hp,att.maxhp);
+      showFloatingText(myWrap,'-100','dmg');
+      
+      if(att.hp<=0){ showFloatingText(myWrap,'崩壊で自滅','dmg',{duration:2200}); qs(myRole==='ally'?'#leftWrap .unit':'#rightWrap .unit').classList.add('fall'); await delay(1000); log(`${att.name}は自滅した`,'highlight'); return await handleKO(side); }
     }
+    if(att.selfHurt===0) setTimeout(()=>showFloatingText(side==='ally'?'leftWrap':'rightWrap','崩壊解除','info'), 1000);
   }
   if(spUse) await spEffectPost(att,def,side,usedName);
   return false;
