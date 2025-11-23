@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>KOTOBA-BATTLE | v37.00 Friendly Update</title>
+<title>KOTOBA-BATTLE | v40.00 Type Rollback Fixed</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -16,7 +16,7 @@
 :root{
   --bg: #050505; --text: #e2e8f0;
   --primary: #3b82f6; --accent: #f59e0b;
-  /* タイプ色 */
+  /* タイプ色 (v37以前の明るいネオンカラー) */
   --t-ジオ:#6366f1; --t-アニマル:#22c55e; --t-フード:#f59e0b; 
   --t-コンセプト:#d946ef; --t-サイエンス:#06b6d4; --t-ヒストリー:#ec4899; --t-ヒューマン:#84cc16;
 }
@@ -30,7 +30,7 @@ body{
   overflow: hidden;
 }
 
-/* CRT走査線エフェクト */
+/* CRT走査線 */
 body::after {
   content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
   background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
@@ -55,7 +55,7 @@ body::after {
   overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 
-/* === レイアウト構成 === */
+/* === レイアウト === */
 #battle {
   display: none; flex-direction: column;
   height: 100dvh; max-height: 100dvh; width: 100%; max-width: 600px;
@@ -63,7 +63,7 @@ body::after {
   overflow: hidden; gap: 4px;
 }
 
-/* 通知エリア (新設: システムメッセージをここにスタック表示) */
+/* 通知エリア */
 #toastArea {
   position: absolute; top: 60px; left: 0; width: 100%;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -73,7 +73,7 @@ body::after {
   font-family: 'M PLUS 1p'; font-weight: 900; font-size: 14px; color: #fff;
   background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.3);
   padding: 4px 12px; border-radius: 4px;
-  animation: slideInFade 3s forwards;
+  animation: slideInFade 3.5s forwards;
   text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   max-width: 90%; white-space: nowrap;
 }
@@ -87,12 +87,12 @@ body::after {
   100% { opacity: 0; transform: translateY(-20px); }
 }
 
-/* 1. アリーナ */
+/* アリーナ */
 .arena { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 4px; position: relative; z-index: 1; }
 .vsrow { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: stretch; perspective: 800px; }
 .vsrow > div { min-width: 0; height: 100%; display: flex; flex-direction: column; }
 
-/* 2. ログ */
+/* ログ */
 .logWrapper { 
   flex: 0 0 90px; height: 90px; min-height: 90px;
   border-top: 1px solid #1e293b; border-bottom: 1px solid #1e293b; 
@@ -113,7 +113,7 @@ body::after {
 .logLine.highlight { color: #f59e0b; } 
 .logLine.dmg { color: #f87171; } .logLine.heal { color: #34d399; }
 
-/* 3. 控え帯 */
+/* 控え帯 */
 .benchRow { 
   flex: 0 0 40px; height: 40px;
   display:flex; align-items:center; justify-content:center; gap:8px; 
@@ -124,15 +124,15 @@ body::after {
 .resIcon { 
   width: 32px; height: 32px; 
   background: #1e293b; border: 2px solid #334155; border-radius: 4px;
-  color: #fff; font-size: 10px; font-weight: 900;
+  color: #fff; font-size: 12px; font-weight: 900;
   display: grid; place-items: center; cursor: pointer; transition: 0.2s;
   position: relative;
 }
-.resIcon[data-type] { background: var(--typeC); color: #000; border-color: rgba(255,255,255,0.5); text-shadow: none; }
+.resIcon[data-type] { background: var(--typeC); color: #fff; border-color: rgba(255,255,255,0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 .resIcon.dead { filter: grayscale(1) brightness(0.3); border-color: #334155; color: #64748b; }
 .resIcon.active { transform: scale(1.15); z-index: 2; box-shadow: 0 0 10px #fff; border-color: #fff; }
 
-/* 4. 操作パネル */
+/* 操作パネル */
 .padCard { 
   flex: 0 0 auto; background: rgba(5, 5, 5, 0.95); 
   padding: 8px 16px 12px; display: flex; flex-direction: column; justify-content: center;
@@ -190,7 +190,7 @@ body::after {
   display: flex; flex-direction: column;
   border: 1px solid #334155;
 }
-/* Sランク: 神々しいオーラ */
+/* Sランク演出 */
 .unit[data-rank="S"] { 
   border: 1px solid #a855f7; 
   background: linear-gradient(135deg, #4c1d95, #2e1065);
@@ -207,8 +207,6 @@ body::after {
   0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); border-color: #a855f7; }
   100% { box-shadow: 0 0 25px rgba(236, 72, 153, 0.6); border-color: #f472b6; }
 }
-
-/* Aランク */
 .unit[data-rank="A"] { border: 1px solid #fde047; background: linear-gradient(135deg, #713f12, #854d0e); box-shadow: 0 0 10px rgba(234, 179, 8, 0.3); }
 .unit[data-rank="A"]::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 10;
@@ -237,18 +235,27 @@ body::after {
 .ownerBadge.ally { color: #60a5fa; }
 .ownerBadge.enemy { color: #fca5a5; }
 
-.typeIcon { font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 2px; background: var(--typeColor); color: #000; }
-
-.cardName { 
-  flex: 0 0 auto; font-weight: 900; font-size: 13px; color: #fff; 
-  text-shadow: 0 1px 2px #000; 
-  white-space: nowrap; text-align: center; height: 22px; line-height: 22px; 
+/* タイプアイコン (元のデザイン: カード右上) */
+.typeIcon { 
+  font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 0; 
+  background: var(--typeColor); color: #000; 
+  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); 
+  text-shadow: none; letter-spacing: normal; 
 }
 
-/* 相性アイコン */
-.affIcon { font-size: 10px; margin-left: 4px; border-radius: 2px; padding: 0 3px; }
-.affIcon.good { background: #22c55e; color: #000; }
-.affIcon.bad { background: #ef4444; color: #fff; }
+.cardName { 
+  flex: 0 0 auto; font-weight: 900; font-size: 14px; color: #fff; 
+  text-shadow: 0 1px 2px #000; 
+  white-space: nowrap; text-align: center; height: 24px; line-height: 24px; 
+  background: linear-gradient(90deg, transparent, rgba(var(--typeColor), 0.2), transparent);
+  letter-spacing: 0.05em; margin-top: 2px;
+}
+
+/* 相性表示 (名前直下) */
+.subInfo { height: 16px; display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 2px; }
+.affTag { font-size: 10px; padding: 0 6px; border-radius: 3px; color: #fff; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); }
+.affTag.good { background: #16a34a; border-color: #4ade80; }
+.affTag.bad { background: #dc2626; border-color: #f87171; }
 
 .artArea {
   position: relative; width: 100%; flex: 1; min-height: 0; margin: 0; 
@@ -332,7 +339,7 @@ body::after {
 .modalCard{
   width:min(400px,90vw);max-height:80vh;overflow-y:auto;
   background:#0f172a; border:1px solid #334155; border-radius: 12px;
-  padding:16px;box-shadow:0 10px 40px rgba(0,0,0,0.8); animation:popIn 0.2s;
+  padding:16px;box-shadow:0 10px 40px rgba(0,0,0,0.8); animation:popIn 0.2s; z-index: 300;
 }
 .modalHead{ display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:16px; }
 
@@ -519,7 +526,8 @@ function log(msg, type = 'normal'){
 function updateHPUI(role, val, max){
   const bar = $(`hp-${role}`); const num = $(`hpnum-${role}`);
   if(bar){
-    const pct = (val / max) * 100; bar.style.width = `${pct}%`;
+    const pct = (val / max) * 100; bar.style.width = `${pct}%`; bar.className = 'hpBar';
+    if(pct > 50) bar.classList.add('high'); else if(pct > 20) bar.classList.add('mid'); else bar.classList.add('low');
   }
   if(num) num.textContent = val;
 }
@@ -529,7 +537,19 @@ function fitName(el){
   if(len > 10) el.style.fontSize = '10px'; else if(len > 7) el.style.fontSize = '11px'; else el.style.fontSize = '13px';
 }
 
-/* 通知エリアへの追加 (Stack) */
+/* トースト */
+function showFloatingText(targetId, text, type, opts = {}){
+  const wrap = $(targetId); if(!wrap) return;
+  const el = document.createElement('div'); 
+  el.className = 'floatingText ' + type; 
+  el.textContent = text;
+  const rndX = (Math.random() - 0.5) * 40;
+  const rndY = (Math.random() - 0.5) * 30;
+  el.style.transform = `translate(calc(-50% + ${rndX}px), ${rndY}px)`;
+  wrap.appendChild(el); setTimeout(() => el.remove(), opts.duration || 3000);
+}
+
+/* 通知エリア */
 function showSysToast(text, type='info') {
   const area = $('toastArea'); if(!area) return;
   const el = document.createElement('div');
@@ -539,13 +559,12 @@ function showSysToast(text, type='info') {
   setTimeout(()=>el.remove(), 3500);
 }
 
-/* 数値演出 (Floating) */
+/* 数値演出 */
 function showDamageText(targetId, text, type) {
   const wrap = $(targetId); if(!wrap) return;
   const el = document.createElement('div');
   el.className = `floatingText ${type}`;
   el.textContent = text;
-  // 散らし
   const rndX = (Math.random() - 0.5) * 60;
   const rndY = (Math.random() - 0.5) * 20;
   el.style.transform = `translate(calc(-50% + ${rndX}px), ${rndY}px)`;
@@ -567,7 +586,6 @@ function lockInputs(on){
   inputLocked = on; const p = $('pad'); if(p) p.style.opacity = on ? 0.6 : 1;
   ['btnG','btnC','btnP','btnSwitch'].forEach(id => { const el = $(id); if(el) el.disabled = on; });
   updateSPBtn();
-  // ガイド表示
   const msg = $('padMsg');
   if(msg) {
     if(on) msg.textContent = '';
@@ -620,7 +638,6 @@ function makeWordObject([name,rank,type,yomiH]){
           shield:0,eva60:0,atk13:0,lock:0,doom:0,selfHurt:0,stun:false,endure:false};
 }
 
-/* スキル説明修正 */
 const SKILLS = {
   "パラボラアンテナ":["妨害電波","威力2.2倍。相手の必殺ゲージを0にする。"],
   "ネスカフェアンバサダー":["一杯いかが","攻撃後、味方全員HP60回復。"],
@@ -756,17 +773,17 @@ function renderCard(u,role){
   let badges = ''; if(u.lock>0) badges += `<div class="stBadge">🔒LOCKED</div>`;
   if(u.doom>0) badges += `<div class="stBadge">👾文字化け</div>`; if(u.selfHurt>0) badges += `<div class="stBadge">🌀崩壊</div>`;
 
-  // 相性表示
   let affTag = '';
   if(role==='enemy'){
      const m = typeMult(left().type, u.type);
-     if(m>=1.5) affTag = `<span class="affIcon good">有利</span>`;
-     else if(m<=0.7) affTag = `<span class="affIcon bad">不利</span>`;
+     if(m>=1.5) affTag = `<span class="affTag good">有利</span>`;
+     else if(m<=0.7) affTag = `<span class="affTag bad">不利</span>`;
   }
 
   return `<div class="unit" style="--typeColor:${typeColor(u.type)}" data-rank="${u.rank}"><div class="unitInner">
       <div class="cardHeader"><span class="ownerBadge ${role}">${owner}</span><span class="typeIcon">${u.type}</span></div>
-      <div class="cardName" id="nm-${role}">${u.name}${affTag}</div>
+      <div class="cardName" id="nm-${role}">${u.name}</div>
+      <div class="subInfo">${affTag}</div>
       <div class="artArea" id="art-${role}">${img}</div>
       <div class="statsArea">
         <div class="hpRow"><span class="hpLabel">HP</span><div class="hpNum"><span class="hpCurr" id="hpnum-${role}">${u.hp}</span><span class="hpSlash">/</span><span class="hpMax">${u.maxhp}</span></div></div>
@@ -792,7 +809,6 @@ function spEffectPre(att,def,role,forcedName=null,mirrorMode=false){
   let mult=1, multiSeq=null, skillTitle='通常攻撃', skillUser=att.name, notes=[];
   const useName=forcedName ?? att.name; const [title] = (SKILLS[useName]||['—','—']); skillTitle=title;
   
-  // トーストの出し分け
   const notify = (txt, type='info') => showSysToast(txt, type);
   const debuff = (txt) => showSysToast(txt, 'warn');
 
@@ -947,13 +963,11 @@ async function animateSwitch(side, callback) {
     unit.style.opacity = '0';
   }
   await delay(300);
-  callback(); // ここで renderSides() などを呼ぶ
-  // 新しい要素取得
+  callback(); 
   const newUnit = wrap.querySelector('.unit');
   if(newUnit) {
     newUnit.style.opacity = '0';
     newUnit.style.transform = 'translateX(' + (side==='ally' ? '-50px' : '50px') + ')';
-    // reflow
     void newUnit.offsetWidth;
     newUnit.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s';
     newUnit.style.opacity = '1';
@@ -1035,6 +1049,34 @@ function openForceSwitch(indices){
   });
   swModal.classList.add('show');
 }
+
+// グローバルスコープに_sh関数を定義 (重要修正)
+window._sh = (n) => {
+  const u = [...state.A.team, ...state.B.team].find(x => x.name === n);
+  if (!u) return;
+  const skill = SKILLS[u.name] || ['?', '?'];
+  const modalBody = document.getElementById('infoBody');
+  if (modalBody) {
+    modalBody.innerHTML = `
+      <div style="text-align:center;margin-bottom:8px">
+        <h2 style="margin:0;color:${typeColor(u.type)};font-size:18px;font-family:'M PLUS 1p'">${u.name}</h2>
+        <div style="font-size:10px;color:#94a3b8">[${u.rank}/${u.type}]</div>
+      </div>
+      <div class="setupMini" style="margin-bottom:8px;background:rgba(0,0,0,0.3);--typeC:${typeColor(u.type)}">
+        <div class="statGrid">
+          ${barRow('HP', u.maxhp, 800)}
+          ${barRow('ATK', u.atk, 120)}
+          ${barRow('DEF', u.def, 120)}
+          ${barRow('EVA', u.eva, 30)}
+        </div>
+      </div>
+      <div style="background:rgba(30, 41, 59, 0.6);padding:8px;border-radius:6px;border-left:3px solid ${typeColor(u.type)}">
+        <div style="font-weight:bold;color:#fcd34d;font-size:12px;margin-bottom:4px">技: ${skill[0]}</div>
+        <div style="font-size:11px;color:#cbd5e1;line-height:1.4">${skill[1]}</div>
+      </div>`;
+    document.getElementById('infoModal').classList.add('show');
+  }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
   makeTeam($('teamA'),'A'); makeTeam($('teamB'),'B');
