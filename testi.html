@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate v15</title>
+<title>ことばコレクションガチャ Ultimate v18</title>
 <meta name="theme-color" content="#0b0f1c">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -117,10 +117,10 @@ header{
 /* === Card Design === */
 .card-stage {
   perspective: 1000px; display: flex; justify-content: center; align-items: center;
-  width: 300px; height: 400px; position: relative;
+  width: 300px; height: 420px; position: relative;
 }
 .result-card {
-  width: 100%; height: 100%; padding: 32px 24px; border-radius: 20px;
+  width: 100%; height: 100%; padding: 24px 20px; border-radius: 20px;
   background: rgba(16, 24, 45, 0.95); backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.1); text-align: center; position: relative;
   transform-style: preserve-3d; transform: scale(0.8); opacity: 0; transition: opacity .4s;
@@ -139,9 +139,20 @@ header{
 .result-card.B { border: 1px solid var(--aqua); }
 .result-card.C { border: 1px solid var(--blue); }
 .result-card.X { border: 2px solid var(--bad); }
+
+/* Images */
+.result-img-container {
+  width: 160px; height: 160px; margin-bottom: 16px; position: relative;
+  transform: translateZ(30px);
+  display: flex; align-items: center; justify-content: center;
+}
+.result-img {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+}
 .result-rarity { font-size: 48px; margin-bottom: 12px; transform: translateZ(30px); }
-.result-word { font-size: 26px; font-weight: 900; margin: 12px 0; line-height: 1.3; transform: translateZ(20px); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-.result-desc { font-size: 13px; color: var(--muted); line-height: 1.7; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 12px; transform: translateZ(10px); }
+.result-word { font-size: 24px; font-weight: 900; margin: 8px 0; line-height: 1.3; transform: translateZ(20px); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+.result-desc { font-size: 13px; color: var(--muted); line-height: 1.7; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 8px; transform: translateZ(10px); }
 .badge {
   position: absolute; top: -6px; right: -6px;
   background: var(--bad); color: #fff; font-size: 10px; font-weight: 900;
@@ -159,15 +170,16 @@ header{
   -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
 }
 .summary-card {
-  display: flex; align-items: flex-start; gap: 12px;
+  display: flex; align-items: center; gap: 12px;
   background: rgba(20, 27, 46, 0.9); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px; padding: 12px; text-align: left;
+  border-radius: 12px; padding: 10px; text-align: left;
 }
 .summary-card.S { border-color: var(--gold); background: rgba(255, 215, 0, 0.1); }
-.s-icon { font-size: 24px; flex-shrink: 0; }
+.s-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.s-img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .s-content { flex: 1; }
-.s-word { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
-.s-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.s-word { font-size: 13px; font-weight: 800; color: var(--ink); margin-bottom: 2px; }
+.s-desc { font-size: 10px; color: var(--muted); line-height: 1.4; }
 
 /* === Collection View === */
 .coll-total-box {
@@ -204,19 +216,39 @@ header{
 }
 .tier-reward.unlocked:active { transform: scale(0.95); background: rgba(99, 234, 217, 0.3); }
 
+/* === FIXED: Collection Item Layout (Issue 1) === */
 .coll-item {
-  aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 12px;
-  background: rgba(255,255,255,0.03); display: flex; flex-direction: column;
-  align-items: center; justify-content: center; text-align: center; padding: 4px;
-  cursor: pointer; transition: .2s; position: relative;
+  aspect-ratio: 0.8; /* Changed from 1 to 0.8 (Taller) */
+  border: 1px solid var(--edge); border-radius: 12px;
+  background: rgba(255,255,255,0.03); 
+  display: flex; flex-direction: column; justify-content: space-between; /* Distribute */
+  text-align: center; padding: 6px;
+  cursor: pointer; transition: .2s; position: relative; overflow: hidden;
 }
-.coll-item-name {
-  font-size: 9px; font-weight: 700; line-height: 1.25; width: 100%;
-  max-height: 2.5em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-all;
+.coll-item-img-box {
+  height: 65%; width: 100%; /* Fixed height percentage */
+  display: flex; align-items: center; justify-content: center;
 }
-.coll-item.locked { opacity: 0.3; filter: grayscale(1); }
-.coll-grid-tier { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
+.coll-img { 
+  max-width: 100%; max-height: 100%; 
+  object-fit: contain; transition: .2s; 
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); 
+}
+.coll-item.locked .coll-img { display: none; }
+.coll-icon-locked { font-size: 24px; opacity: 0.3; }
 
+.coll-item-name {
+  height: 35%; width: 100%; /* Remaining space for text */
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; line-height: 1.2; 
+  overflow: hidden; word-break: break-all;
+  color: var(--ink);
+}
+.coll-item.locked .coll-item-name { color: var(--muted); }
+
+.coll-grid-tier { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+
+/* Tier Colors */
 .tier-S .tier-title { color: var(--gold); }
 .tier-S .tier-progress-fill { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .tier-S .coll-item { border-color: rgba(255,215,0,0.3); }
@@ -231,7 +263,7 @@ header{
 .tier-X .coll-item { border-color: rgba(255,77,77,0.3); }
 .tier-C .tier-progress-fill, .tier-D .tier-progress-fill { background: var(--blue); }
 
-/* === CPU Battle Mode Styles (Simple & Cool) === */
+/* === CPU Battle Mode Styles === */
 .cyber-grid {
   position: absolute; inset: -50%; width: 200%; height: 200%;
   background-image: 
@@ -372,6 +404,7 @@ header{
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
+  display: flex; flex-direction: column; align-items: center;
 }
 .cm-dialog::before, .cm-dialog::after {
   content:""; position:absolute; width:20px; height:20px; border-color: var(--target-color, var(--aqua));
@@ -383,9 +416,10 @@ header{
 .cm-title {
   font-size: 20px; font-weight: 900; color: var(--target-color, var(--aqua));
   border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 12px;
-  text-shadow: 0 0 8px rgba(0,0,0,0.5);
+  text-shadow: 0 0 8px rgba(0,0,0,0.5); width: 100%; text-align: left;
 }
-.cm-text { margin-top: 10px; font-size: 14px; line-height: 1.8; color: #eef2ff; min-height: 60px; }
+.cm-img { max-width: 120px; max-height: 120px; object-fit: contain; margin: 10px 0; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+.cm-text { width: 100%; margin-top: 10px; font-size: 14px; line-height: 1.8; color: #eef2ff; min-height: 40px; text-align: left; }
 .cursor::after { content: "|"; animation: blink 1s step-start infinite; color: var(--target-color, var(--aqua)); }
 @keyframes blink { 50% { opacity: 0; } }
 
@@ -479,48 +513,41 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
 
   <section id="view-cpu" class="view">
     <div class="cyber-grid"></div>
-    
     <div class="cpu-interface">
       <div class="cpu-status">CONNECTION ESTABLISHED</div>
       <div class="cpu-main-text">KOTOBA BATTLE</div>
-      
       <button class="btn-battle-large" onclick="window.open('https://kyoryu1039.github.io/kotoba-gacha/kotobattle')">
         <span class="label">START</span>
       </button>
-      
       <div class="cpu-footer-text">Make Sense Out of Nonsense</div>
     </div>
   </section>
 
   <section id="view-info" class="view">
     <h2>Information</h2>
-    
     <div class="panel-box" style="margin-bottom:16px">
       <h3 style="font-size:14px; margin-top:0">データ管理</h3>
       <button class="btn-play" style="width:100%; border-color:var(--bad); color:var(--bad); padding:10px;" id="btn-reset">コレクションを初期化</button>
       <button class="btn-play" style="width:100%; margin-top:10px;" id="btn-rates">排出率を表示</button>
     </div>
-
     <div class="infoLead">ことば募集＆スペシャルサンクス</div>
     <div class="infoGrid">
       <div class="infoBox">
         <h3>ことば募集中！</h3>
         <div class="infoSmall">
           以下のカテゴリーで「これは！」という言葉を募集中です。<br>
-          ①「声に出して読みたい言葉」・・・思わず声に出して読みたくなるリズミカルな言葉（例：パラボラアンテナ、バルサミコ酢、中京大中京）<br>
-          ②「キメラ言葉」・・・どこを見ればいいのか分からないので、迷子になり立ち尽くしてしまう言葉（例：ペリカンマンゴー、ナポレオンフィッシュ、熱川バナナワニ園）<br>
-          ③「知ってるつもり言葉」・・・聞いたことはあるし何となくはわかるけど、誰も正しく説明できない言葉（例：ピロティ、ラプソディ、コンコース）<br>
-          ④「冷める言葉」・・・言われたら一気に聞く気が失せる言葉（例：本質、見える化、自分ごと化）<br>
+          ①「声に出して読みたい言葉」<br>
+          ②「キメラ言葉」<br>
+          ③「知ってるつもり言葉」<br>
+          ④「冷める言葉」
         </div>
       </div>
-      
       <details class="infoBox">
         <summary>スペシャルサンクス</summary>
         <div class="infoSmall">
           制作には以下のAIを使用しました。<br>
           ・BGM作成：Suno AI<br>
-          ・コーディング・イラスト：Chat-GPT、Gemini<br>
-          <br>
+          ・コーディング・イラスト：Chat-GPT、Gemini<br><br>
           また、次の作品・クリエイターから多くの示唆を受けています。<br>
           ・音楽：The Gregory Brothers、水曜日のカンパネラ<br>
           ・ゲーム：にほんのあらそい、甲虫王者ムシキング、ポケットモンスター
@@ -560,11 +587,49 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
   <div class="cm-dialog">
     <button class="cm-close" id="cmClose">×</button>
     <div class="cm-title" id="cmTitle">TITLE</div>
+    <img src="" class="cm-img" id="cmImg">
     <div class="cm-text" id="cmText"></div>
   </div>
 </div>
 
 <script>
+/* === IMAGE DATA === */
+const IMAGE_BASE_URL = "https://raw.githubusercontent.com/kyoryu1039/kotoba-gacha/main/images/";
+const wordImages = {
+  "パラボラアンテナ":"parabola_antenna.png",
+  "ネスカフェアンバサダー":"nescafe_ambassador.png",
+  "にんじんしりしり":"ninjin_shirishiri.png",
+  "そぼろごはん":"soboro_gohan.png",
+  "ニシローランドゴリラ":"western_lowland_gorilla.png",
+  "毛むくじゃら":"kemukujara.png",
+  "九品仏":"kuhonbutsu.png",
+  "けんちん汁":"kenchin_jiru.png",
+  "カムチャッカ半島":"kamchatka_peninsula.png",
+  "タランチュラ":"tarantula.png",
+  "ハシビロコウ":"shoebill.png",
+  "バルサミコ酢":"balsamic_vinegar.png",
+  "ピロリ菌":"helicobacter_pylori.png",
+  "トリニダード・トバゴ":"trinidad_and_tobago.png",
+  "カラメル色素":"caramel_color.png",
+  "バビロン捕囚":"babylonian_captivity.png",
+  "鳥取砂丘":"tottori_sand_dunes.png",
+  "プラシーボ効果":"placebo_effect.png",
+  "渡来人":"torai_jin.png",
+  "さるびあ丸":"sarubia_maru.png",
+  "ペペロンチーノ":"peperoncino.png",
+  "ポリプロピレン":"polypropylene.png",
+  "サラエボ事件":"sarajevo_incident.png",
+  "クマンバチ":"kumabachi.png",
+  "県庁所在地":"prefectural_capital.png",
+  "照り焼きチキン":"teriyaki_chicken.png",
+  "ねるねるねるね":"nerunerunerune.png",
+  "スルメイカ":"surume_ika.png",
+  "本質":"essence.png",
+  "見える化":"mieruka.png",
+  "自分ごと化":"jibungotoka.png",
+  "解像度":"resolution.png"
+};
+
 /* === DATA === */
 const pools={S:["パラボラアンテナ","ネスカフェアンバサダー"],A:["にんじんしりしり","そぼろごはん","ニシローランドゴリラ","毛むくじゃら","九品仏","けんちん汁"],B:["カムチャッカ半島","タランチュラ","ハシビロコウ","バルサミコ酢","ピロリ菌","トリニダード・トバゴ","カラメル色素"],C:["バビロン捕囚","鳥取砂丘","プラシーボ効果","渡来人","さるびあ丸","ペペロンチーノ","ポリプロピレン","サラエボ事件"],D:["クマンバチ","県庁所在地","照り焼きチキン","ねるねるねるね","スルメイカ"],X:["本質","見える化","自分ごと化","解像度"]};
 const probs={S:.02,A:.08,B:.20,C:.30,D:.30,X:.10};
@@ -580,7 +645,9 @@ const rewards={
 
 const storeSeen="kotoba_collection_seen_v4_7";
 const storeBGM="kotoba_bgm_selected_v4_7";
+const storeUnlocked="kotoba_unlocked_tiers_v4_7";
 const seen=new Set(JSON.parse(localStorage.getItem(storeSeen)||"[]"));
+const unlockedTiers=new Set(JSON.parse(localStorage.getItem(storeUnlocked)||"[]"));
 let selectedBGM=localStorage.getItem(storeBGM)||"default";
 const tiers=["S","A","B","C","D","X"];
 
@@ -700,6 +767,16 @@ function onCloseMultiResult() {
 }
 function closeFullScreenAd() { adOverlay.classList.remove('active'); closeOverlay(); }
 
+// Helper: Preload Image
+function preloadImage(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = url;
+    img.onload = resolve;
+    img.onerror = resolve;
+  });
+}
+
 async function roll(count){
   if(isBgmOn && bgmPlayer.paused) bgmPlayer.play().catch(()=>{});
   shakeScreen(true);
@@ -710,20 +787,38 @@ async function roll(count){
   const waitShow = count > 1 ? 800 : 1400;
 
   try {
+    // 1. Pre-calculate results
     const results = [];
     for(let i=0;i<count;i++){
-      await new Promise(r=>setTimeout(r, waitRoll)); 
-      try { tone(200+i*50,0.1,'square'); } catch(e){}
-      const t=pickTier(); const w=pickWord(t);
+      const t=pickTier();
+      const w=pickWord(t);
       const isNew=!seen.has(w);
       if(isNew){ seen.add(w); localStorage.setItem(storeSeen,JSON.stringify([...seen])); }
       results.push({t, w, isNew});
+    }
+
+    // 2. Preload Images (Issue Fix 2)
+    const imgPromises = results.map(r => {
+      if(wordImages[r.w]) return preloadImage(IMAGE_BASE_URL + wordImages[r.w]);
+      return Promise.resolve();
+    });
+    await Promise.all(imgPromises);
+
+    // 3. Animate Results
+    for(let i=0; i<count; i++){
+      await new Promise(r=>setTimeout(r, waitRoll)); 
+      try { tone(200+i*50,0.1,'square'); } catch(e){}
+      
+      const {t, w, isNew} = results[i];
       
       const cardWrap = document.createElement('div'); cardWrap.className = 'card-stage';
       const card=document.createElement('div'); card.className=`result-card ${t}`;
       if(t==='X') document.body.classList.add('glitch-mode');
       
-      card.innerHTML=`<div class="holo-sheen"></div><div class="result-rarity">${icons[t]}</div><div class="result-word">${w}</div><div class="result-desc">${exp[w]||""}</div>${isNew?'<div class="badge">NEW</div>':''}`;
+      const imgPath = wordImages[w] ? (IMAGE_BASE_URL + wordImages[w]) : '';
+      const imgHtml = imgPath ? `<div class="result-img-container"><img src="${imgPath}" class="result-img" alt="${w}"></div>` : `<div class="result-rarity">${icons[t]}</div>`;
+
+      card.innerHTML=`<div class="holo-sheen"></div>${imgHtml}<div class="result-word">${w}</div><div class="result-desc">${exp[w]||""}</div>${isNew?'<div class="badge">NEW</div>':''}`;
       
       if(t==='S' || t==='A') {
         cardWrap.addEventListener('mousemove', (e) => tiltCard(e, card));
@@ -747,10 +842,11 @@ async function roll(count){
       closeOverlay();
     } else {
       summonCircle.style.display = 'none';
+      // FIXED: Use simple div for button container to prevent stretching (Issue 3)
       resCont.innerHTML = `
         <h3 style="margin-bottom:10px; color:var(--aqua)">RESULTS</h3>
         <div class="summary-container"></div>
-        <div class="result-card show" style="background:none;box-shadow:none;border:none;padding:0; margin-top:10px; display:flex; justify-content:center;">
+        <div style="margin-top:20px; display:flex; justify-content:center; width:100%;">
           <button class="btn-summon single" onclick="onCloseMultiResult()"><div class="btn-label">閉じる</div></button>
         </div>
       `;
@@ -758,8 +854,11 @@ async function roll(count){
       results.forEach(r => {
         const d = document.createElement('div');
         d.className = `summary-card ${r.t}`;
+        const rImg = wordImages[r.w] ? (IMAGE_BASE_URL + wordImages[r.w]) : null;
+        const iconHtml = rImg ? `<div class="s-icon"><img src="${rImg}" class="s-img"></div>` : `<div class="s-icon">${icons[r.t]}</div>`;
+        
         d.innerHTML = `
-          <div class="s-icon">${icons[r.t]}</div>
+          ${iconHtml}
           <div class="s-content"><div class="s-word">${r.w}</div><div class="s-desc">${exp[r.w] || ""}</div></div>
           ${r.isNew ? '<div class="badge" style="top:-4px;right:-4px;font-size:9px;">NEW</div>' : ''}
         `;
@@ -836,7 +935,13 @@ function renderCollection(){
       const el=document.createElement('div');
       const known=seen.has(w);
       el.className=`coll-item ${known?'':'locked'}`;
-      el.innerHTML=`<div style="color:${known?'inherit':'var(--muted)'}">${icons[t]}</div><div class="coll-item-name">${known?w:'???'}</div>`;
+      
+      const imgPath = (known && wordImages[w]) ? (IMAGE_BASE_URL + wordImages[w]) : null;
+      const contentHtml = imgPath 
+        ? `<div class="coll-item-img-box"><img src="${imgPath}" class="coll-img" loading="lazy"></div>` 
+        : `<div class="coll-item-img-box coll-icon-locked">${icons[t]}</div>`;
+
+      el.innerHTML=`${contentHtml}<div class="coll-item-name">${known?w:'???'}</div>`;
       if(known) el.onclick=()=>showModal(w, exp[w], t); // Pass Tier
       grid.appendChild(el);
     });
@@ -888,8 +993,18 @@ function renderBGMList(){
     list.appendChild(d);
   });
 }
-const unlockedState={S:false,A:false,B:false};
-function tryUnlock(t){if(["S","A","B"].includes(t) && hasTier(t) && !unlockedState[t]){unlockedState[t]=true; showToast(`Rank ${t} コンプリート！BGM解放`);}}
+
+// Issue 3 Fix: Check persistent unlocked state
+function tryUnlock(t){
+  if(["S","A","B"].includes(t) && hasTier(t) && !unlockedTiers.has(t)){
+    unlockedTiers.add(t);
+    localStorage.setItem(storeUnlocked, JSON.stringify([...unlockedTiers]));
+    showToast(`Rank ${t} コンプリート！BGM解放`);
+    renderCollection(); // Refresh to show unlocked BGM in header
+    renderBGMList();
+  }
+}
+
 const toast=document.getElementById('toast');
 function showToast(msg){toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3000);}
 
@@ -900,6 +1015,15 @@ let typeInterval = null;
 function showModal(title, text, tier){
   document.getElementById('cmTitle').textContent=title;
   const txtEl = document.getElementById('cmText');
+  const imgEl = document.getElementById('cmImg');
+  
+  if(wordImages[title]) {
+    imgEl.src = IMAGE_BASE_URL + wordImages[title];
+    imgEl.style.display = 'block';
+  } else {
+    imgEl.style.display = 'none';
+  }
+
   txtEl.textContent = "";
   txtEl.className = "cm-text cursor";
   
