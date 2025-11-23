@@ -1,4 +1,4 @@
-<!doctype html>
+<!doctype html> 
 <html lang="ja">
 <head>
 <meta charset="utf-8">
@@ -299,11 +299,12 @@ body{
 }
 .timerVal { font-size: 24px; color: #fff; font-weight: 600; margin-left: 4px; }
 
-/* 控え表示：横一列・パネル直上固定（スマホ対応） */
+/* 控え表示：横一列・常に1行（狭い時は横スクロール） */
 .benchRow {
   display:flex;
+  flex-wrap:nowrap;
   align-items:center;
-  gap:6px;
+  gap:4px;
   margin-bottom:8px;
   padding:4px 0;
   overflow-x:auto;
@@ -316,9 +317,12 @@ body{
   font-family:'Teko';
   font-size:11px;
   flex:0 0 auto;
+  white-space:nowrap;
 }
 .resIcon { 
-  width: 26px; height: 26px; border-radius: 4px; background: #1e293b; 
+  width: 22px;
+  height: 22px;
+  border-radius: 4px; background: #1e293b; 
   border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; 
   cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;
   flex:0 0 auto;
@@ -376,12 +380,12 @@ body{
 .logLine.dmg { color: #fca5a5; }
 .logLine.heal { color: #6ee7b7; }
 
-/* トースト：フォント＆位置調整 */
+/* トースト：フォント＆サイズ調整 */
 .floatingText {
   position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
-  font-family: 'M PLUS 1p','Noto Sans JP',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-family: 'Noto Sans JP', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 700;
-  font-size: 26px;
+  font-size: 22px;
   color: #fff; letter-spacing: 0.04em;
   text-shadow:
     -2px -2px 0 rgba(0,0,0,0.9),
@@ -402,16 +406,23 @@ body{
 /* 種類別 */
 .floatingText.dmg { color: #f97373; --glow-color: #f97373; }
 .floatingText.heal { color: #4ade80; --glow-color: #4ade80; }
-.floatingText.miss { color: #e5e7eb; --glow-color: #9ca3af; font-size: 22px; }
-.floatingText.buff { color: #facc15; --glow-color: #facc15; font-size: 22px; }
-.floatingText.debuff { color: #c4b5fd; --glow-color: #a855f7; font-size: 22px; }
+.floatingText.miss { color: #e5e7eb; --glow-color: #9ca3af; }
+.floatingText.buff { color: #facc15; --glow-color: #facc15; }
+.floatingText.debuff { color: #c4b5fd; --glow-color: #a855f7; }
 .floatingText.info { color:#e5e7eb; --glow-color:#38bdf8; }
+
+/* MISS・BUFF系はさらに少し小さめ */
+.floatingText.miss,
+.floatingText.buff,
+.floatingText.debuff {
+  font-size: 20px;
+}
 
 /* 相性トーストは上部に小さく */
 .floatingText.advTop,
 .floatingText.disTop {
   top: 16%;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 /* 相性有利・不利色 */
