@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate v4</title>
+<title>ことばコレクションガチャ Ultimate v7</title>
 <meta name="theme-color" content="#0b0f1c">
 
 <style>
@@ -23,7 +23,7 @@ body {
   overflow: hidden; height: 100dvh; display: flex; flex-direction: column;
 }
 
-/* === Idea H: CRT / Scanline Effects === */
+/* === Visual Effects === */
 .crt-overlay {
   position: fixed; inset: 0; pointer-events: none; z-index: 999;
   background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
@@ -33,13 +33,10 @@ body {
   position: fixed; inset: 0; pointer-events: none; z-index: 999;
   background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
 }
-
-/* === Backgrounds === */
 .bg-ambient {
   position: fixed; inset: 0; z-index: -1;
   background: radial-gradient(circle at 50% -20%, #1e2a4a, #0b0f1c 70%);
 }
-/* Screen Shake */
 .shake-small { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
 .shake-hard { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; transform-origin: center; }
 @keyframes shake {
@@ -59,7 +56,6 @@ body {
 }
 .view.active { opacity: 1; transform: scale(1); pointer-events: auto; }
 
-/* === Header === */
 header{
   height: var(--header-height);
   flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -69,19 +65,16 @@ header{
 .title{font-weight:900; font-size:16px; letter-spacing:1px; text-shadow: 0 0 10px rgba(99,234,217,0.3);}
 .ver{font-size:9px; color:#000; background:var(--aqua); border-radius:4px; padding:2px 5px; font-weight:900}
 
-/* === Gacha Machine (Updated Layout) === */
+/* === Gacha Machine === */
 .machine-container {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 280px; position: relative;
-  /* Fix: Push orb down to avoid ad overlap */
-  padding-top: 80px; 
+  min-height: 280px; position: relative; padding-top: 20px; 
 }
 .core-orb {
   width: 140px; height: 140px; border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), var(--aqua) 20%, transparent 60%);
   box-shadow: 0 0 50px rgba(99,234,217,0.3), inset 0 0 20px rgba(99,234,217,0.5);
-  position: relative; z-index: 2;
-  transition: transform 0.1s, box-shadow 0.1s;
+  position: relative; z-index: 2; transition: transform 0.1s, box-shadow 0.1s;
 }
 .core-orb.charging {
   animation: pulseCharge 0.1s infinite;
@@ -95,7 +88,6 @@ header{
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Buttons & Charge */
 .machine-actions { width: 100%; display: flex; justify-content: center; gap: 16px; margin-top: 24px; padding-bottom: 20px; }
 .btn-summon {
   flex: 1; max-width: 160px; position: relative;
@@ -113,8 +105,7 @@ header{
 .btn-sub { font-size: 10px; color:var(--muted); font-weight:700; z-index: 2; pointer-events: none; }
 .btn-progress {
   position: absolute; bottom: 0; left: 0; height: 100%; width: 0%;
-  background: rgba(255,255,255,0.2); z-index: 1;
-  transition: width 0.1s linear;
+  background: rgba(255,255,255,0.2); z-index: 1; transition: width 0.1s linear;
 }
 .btn-summon.charging .btn-progress { width: 100%; transition: width 1s linear; }
 
@@ -169,15 +160,50 @@ header{
 .s-word { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
 .s-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
 
-/* === Info Page Styles (Fixed) === */
-.infoLead{font-weight:900;font-size:16px;margin:6px 0 10px; color:var(--aqua)}
-.infoGrid{display:grid; gap:12px; }
-.infoBox{
-  border:1px solid var(--edge); border-radius:12px; padding:16px;
-  background: rgba(255,255,255,0.03); /* Lighter bg for visibility */
+/* === New Collection View Styles === */
+.coll-total-box {
+  background: var(--panel); border: 1px solid var(--edge); border-radius: 12px;
+  padding: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
 }
-.infoBox h3{margin:0 0 8px; font-size:14px; color:var(--ink); font-weight: 800;}
-.infoSmall{color: #cbd5e1; font-size:12px; line-height:1.7;} /* Lighter text color */
+.coll-total-label { font-size: 12px; color: var(--muted); font-weight: 700; }
+.coll-total-val { font-size: 20px; color: var(--ink); font-weight: 900; }
+
+.tier-section { margin-bottom: 24px; }
+.tier-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.tier-title { font-size: 16px; font-weight: 900; display:flex; align-items:center; gap:6px; }
+.tier-counts { font-size: 12px; font-weight: 700; color: var(--muted); background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; }
+
+.tier-reward {
+  font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 12px;
+  background: rgba(255,255,255,0.05); color: var(--muted);
+  display: flex; align-items: center; gap: 4px; transition: .3s;
+}
+.tier-reward.unlocked {
+  background: rgba(99, 234, 217, 0.15); color: var(--aqua); border: 1px solid var(--aqua);
+  box-shadow: 0 0 10px rgba(99,234,217,0.2);
+}
+
+.coll-item {
+  aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 12px;
+  background: rgba(255,255,255,0.03); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; padding: 4px;
+  font-size: 10px; font-weight: 700; cursor: pointer; transition: .2s; position: relative;
+}
+.coll-item.locked { opacity: 0.3; filter: grayscale(1); }
+.coll-grid-tier { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
+
+/* Tier Specific Colors */
+.tier-S .tier-title { color: var(--gold); }
+.tier-S .coll-item { border-color: rgba(255,215,0,0.3); }
+.tier-A .tier-title { color: var(--amber); }
+.tier-A .coll-item { border-color: rgba(255,189,99,0.3); }
+.tier-B .tier-title { color: var(--aqua); }
+.tier-B .coll-item { border-color: rgba(99,234,217,0.3); }
+.tier-X .tier-title { color: var(--bad); }
+.tier-X .coll-item { border-color: rgba(255,77,77,0.3); }
 
 /* === Common UI === */
 .btn-play {
@@ -186,14 +212,6 @@ header{
   cursor: pointer; transition: .2s;
 }
 .btn-play:active { background: rgba(99,234,217,0.1); transform: scale(0.95); }
-.coll-item {
-  aspect-ratio: 1; border: 1px solid var(--edge); border-radius: 12px;
-  background: rgba(255,255,255,0.03); display: flex; flex-direction: column;
-  align-items: center; justify-content: center; text-align: center; padding: 4px;
-  font-size: 11px; font-weight: 700; cursor: pointer; transition: .2s;
-}
-.coll-item.locked { opacity: 0.3; filter: grayscale(1); }
-#coll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
 
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; width: 100%; height: calc(var(--nav-height) + var(--safe-b));
@@ -210,7 +228,7 @@ header{
 .nav-btn.active { color: var(--ink); }
 .nav-btn.active .icon { filter: grayscale(0) drop-shadow(0 0 5px var(--aqua)); transform: scale(1.1); }
 
-/* Overlays */
+/* === Overlays === */
 #gacha-overlay {
   position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.95);
   display: none; align-items: center; justify-content: center; flex-direction: column;
@@ -220,6 +238,29 @@ header{
   width:200px; height:200px; border:2px solid var(--aqua); border-radius:50%;
   animation:spin 1.5s linear infinite; position:absolute; transition: opacity 0.3s;
 }
+
+/* === Full Screen Ad Overlay === */
+#full-ad-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #000;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  animation: fadeIn 0.4s ease;
+}
+#full-ad-overlay.active { display: flex; }
+#full-ad-overlay img {
+  width: 100%; max-width: 400px; height: auto;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Info Styles */
+.infoLead{font-weight:900;font-size:16px;margin:6px 0 10px; color:var(--aqua)}
+.infoGrid{display:grid; gap:12px; }
+.infoBox{ border:1px solid var(--edge); border-radius:12px; padding:16px; background: rgba(255,255,255,0.03); }
+.infoBox h3{margin:0 0 8px; font-size:14px; color:var(--ink); font-weight: 800;}
+.infoSmall{color: #cbd5e1; font-size:12px; line-height:1.7;}
 
 /* Modal, Toast */
 .cm-modal{position:fixed;inset:0;display:none;z-index:9998;align-items:center;justify-content:center}
@@ -234,25 +275,6 @@ header{
   opacity: 0; pointer-events: none; transition: .3s;
 }
 #toast.show { opacity: 1; top: 90px; }
-
-/* === Modified Ad Banner === */
-.ad-float {
-  position: fixed;
-  top: 60px; /* Header is ~50px, so 10px below header */
-  left: 50%; transform: translateX(-50%); /* Centered */
-  width: 260px; /* Smaller */
-  border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.35);
-  overflow: hidden; animation: popIn .22s ease-out both; z-index: 50;
-}
-.ad-float img { display:block; width:100%; height:auto; }
-.ad-close {
-  position:absolute; top:4px; right:4px;
-  width:28px; height:28px; /* Slightly smaller button for smaller ad */
-  border:none; border-radius:50%; background:rgba(0,0,0,.6); color:#fff;
-  font-weight:700; font-size:14px; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-}
-@keyframes popIn{from{transform:translate(-50%, -10px);opacity:0}to{transform:translate(-50%, 0);opacity:1}}
 
 /* BGM List */
 .track-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -272,13 +294,6 @@ header{
   <div class="title">ことばコレクションガチャ</div>
   <div class="ver">Ultimate</div>
 </header>
-
-<div class="ad-float">
-  <a href="nekologia.html" target="_blank" rel="noopener">
-    <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
-  </a>
-  <button class="ad-close" aria-label="閉じる">×</button>
-</div>
 
 <div id="app">
   <section id="view-gacha" class="view active">
@@ -302,8 +317,11 @@ header{
   </section>
 
   <section id="view-coll" class="view">
-    <h2 style="justify-content:space-between">図鑑 <span id="coll-stats" style="font-size:11px; color:var(--muted)"></span></h2>
-    <div id="coll-grid"></div>
+    <div class="coll-total-box">
+      <div class="coll-total-label">TOTAL COLLECTION</div>
+      <div class="coll-total-val" id="coll-total-val">0 / 0</div>
+    </div>
+    <div id="coll-container"></div>
   </section>
 
   <section id="view-bgm" class="view">
@@ -336,7 +354,8 @@ header{
   </section>
 
   <section id="view-info" class="view">
-    <h2>Information</h2> <div class="infoLead">ことば募集＆スペシャルサンクス</div>
+    <h2>Information</h2>
+    <div class="infoLead">ことば募集＆スペシャルサンクス</div>
     <div class="infoGrid">
       <div class="infoBox">
         <h3>ことば募集中！</h3>
@@ -358,7 +377,6 @@ header{
         </div>
       </div>
     </div>
-
     <div class="panel-box" style="margin-top:16px">
       <h3 style="font-size:14px; margin-top:0">データ管理</h3>
       <button class="btn-play" style="width:100%; border-color:var(--bad); color:var(--bad); padding:10px;" id="btn-reset">コレクションを初期化</button>
@@ -370,12 +388,22 @@ header{
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="switchTab('gacha')" id="tabGacha"><span class="icon">🔮</span><span>ガチャ</span></button>
   <button class="nav-btn" onclick="switchTab('coll')" id="tabColl"><span class="icon">📖</span><span>図鑑</span></button>
-  <button class="nav-btn" onclick="switchTab('bgm')" id="tabBgm"><span class="icon">🎵</span><span>BGM</span></button> <button class="nav-btn" onclick="switchTab('cpu')" id="tabCpu"><span class="icon">⚔️</span><span>対戦</span></button>
-  <button class="nav-btn" onclick="switchTab('info')" id="tabInfo"><span class="icon">⚙️</span><span>Info</span></button> </nav>
+  <button class="nav-btn" onclick="switchTab('bgm')" id="tabBgm"><span class="icon">🎵</span><span>BGM</span></button>
+  <button class="nav-btn" onclick="switchTab('cpu')" id="tabCpu"><span class="icon">⚔️</span><span>対戦</span></button>
+  <button class="nav-btn" onclick="switchTab('info')" id="tabInfo"><span class="icon">⚙️</span><span>Info</span></button>
+</nav>
 
 <div id="gacha-overlay">
   <div class="summon-circle"></div>
   <div id="res-container" style="z-index:10; perspective: 1000px; display:flex; flex-direction:column; align-items:center; gap:16px; width:100%"></div>
+</div>
+
+<div id="full-ad-overlay">
+  <div style="color:var(--muted); font-size:12px; margin-bottom:12px; letter-spacing:2px; font-weight:700;">SPONSORED</div>
+  <a href="nekologia.html" target="_blank" rel="noopener">
+    <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
+  </a>
+  <button class="btn-play" style="margin-top:24px; border-color:white; color:white; padding:10px 30px; font-size:14px;" onclick="closeFullScreenAd()">× 閉じる</button>
 </div>
 
 <div id="toast">Message</div>
@@ -396,6 +424,12 @@ const pools={S:["パラボラアンテナ","ネスカフェアンバサダー"],
 const probs={S:.02,A:.08,B:.20,C:.30,D:.30,X:.10};
 const icons={S:"🌟",A:"💎",B:"🔷",C:"🔹",D:"🔸",X:"❌"};
 const exp={"パラボラアンテナ":"声に出して読みたい日本語ランキング第1位。","ネスカフェアンバサダー":"誰もが人生で一度は就任してみたい憧れの肩書き。","にんじんしりしり":"沖縄のキッチンから届く、爽やかなくり返し言葉。","そぼろごはん":"口の中を体現したような語感。","ニシローランドゴリラ":"名前からビシビシと伝わってくる威厳。くれぐれもVIP待遇で。","毛むくじゃら":"毛は知ってるけど、むくじゃらって何なのさ。","九品仏":"難読地名が織りなすリズム。","けんちん汁":"響きだけで、もうあったかい。","カムチャッカ半島":"寒気と熱気が同居する極東の地へようこそ。","タランチュラ":"ファンシーなお菓子みたい。猛毒系スイーツ。","ハシビロコウ":"間抜けの鳥には間抜けな語感。","バルサミコ酢":"まるで呪文。","ピロリ菌":"可愛いふりしてわりとやるもんだね。","トリニダード・トバゴ":"容赦ない濁音とトの応酬。","カラメル色素":"おやつの記憶にラボの匂い。","バビロン捕囚":"いかにも捕まったぁって感じ。","鳥取砂丘":"荒野を子音が跳ね回る。","プラシーボ効果":"言葉に舐められている。","渡来人":"朝鮮半島からの挑戦。","さるびあ丸":"間の抜けた旅になりそう。","ペペロンチーノ":"唐辛子が躍動する口内。","ポリプロピレン":"半濁音の王様。","サラエボ事件":"さらっと始まったはずだったのに。","クマンバチ":"「ん」の妙。","県庁所在地":"堂々としてるよね。","照り焼きチキン":"甘辛ビートに乗っちゃって。","ねるねるねるね":"オセロだったら気持ちいい。","スルメイカ":"噛めば噛むほど味が出る名前。","本質":"たとえあったとしても、軽々しく口に出すような人は一生近づけないと思うんです。","見える化":"可視化って知ってますか。","自分ごと化":"「自分ごと」でも嫌なのに、「化」までつけられた日には…","解像度":"なるほど、ピクセル数が高まりました！"};
+
+const rewards={
+  S: {name:"金魚鉢", type:"BGM"},
+  A: {name:"九品仏奇譚", type:"BGM"},
+  B: {name:"ネコロジア", type:"BGM"}
+};
 
 const storeSeen="kotoba_collection_seen_v4_7";
 const storeBGM="kotoba_bgm_selected_v4_7";
@@ -509,6 +543,24 @@ function shakeScreen(hard=false){
   if(navigator.vibrate) navigator.vibrate(hard ? 200 : 50);
 }
 
+// === NEW AD LOGIC ===
+const adOverlay = document.getElementById('full-ad-overlay');
+
+function onCloseMultiResult() {
+  // 20% Chance for Ad
+  if (Math.random() < 0.2) {
+    adOverlay.classList.add('active');
+    sfxTap();
+  } else {
+    closeOverlay(); // Normal Close
+  }
+}
+
+function closeFullScreenAd() {
+  adOverlay.classList.remove('active');
+  closeOverlay(); // Close main gacha results too
+}
+
 async function roll(count){
   if(isBgmOn && bgmPlayer.paused) bgmPlayer.play().catch(()=>{});
   shakeScreen(true);
@@ -554,12 +606,11 @@ async function roll(count){
       closeOverlay();
     } else {
       summonCircle.style.display = 'none';
-      // Fix: Centered Close Button
       resCont.innerHTML = `
         <h3 style="margin-bottom:10px; color:var(--aqua)">RESULTS</h3>
         <div class="summary-container"></div>
         <div class="result-card show" style="background:none;box-shadow:none;border:none;padding:0; margin-top:10px; display:flex; justify-content:center;">
-          <button class="btn-summon single" onclick="closeOverlay()"><div class="btn-label">閉じる</div></button>
+          <button class="btn-summon single" onclick="onCloseMultiResult()"><div class="btn-label">閉じる</div></button>
         </div>
       `;
       const grid = resCont.querySelector('.summary-container');
@@ -603,22 +654,57 @@ function confetti(){
     overlay.appendChild(s);
   }
 }
+
+// === NEW COLLECTION RENDERER ===
 function renderCollection(){
-  const grid=document.getElementById('coll-grid'); grid.innerHTML="";
-  let total=0, have=0;
-  tiers.forEach(t=>{
-    pools[t].forEach(w=>{
-      total++; if(seen.has(w)) have++;
+  const cont = document.getElementById('coll-container'); cont.innerHTML="";
+  let allTotal=0, allHave=0;
+  
+  tiers.forEach(t => {
+    // 1. Calculate Stats per Tier
+    let tTotal=0, tHave=0;
+    pools[t].forEach(w => { allTotal++; tTotal++; if(seen.has(w)) { allHave++; tHave++; } });
+    
+    // 2. Build Section
+    const sect = document.createElement('div');
+    sect.className = `tier-section tier-${t}`;
+    
+    // Reward Logic
+    let rewardHtml = "";
+    if(rewards[t]){
+      const isUl = tHave === tTotal && tTotal > 0;
+      rewardHtml = `<div class="tier-reward ${isUl?'unlocked':''}"><span>${isUl?'🎵':'🔒'}</span> ${rewards[t].name}</div>`;
+    }
+
+    // Header
+    sect.innerHTML = `
+      <div class="tier-header">
+        <div class="tier-title">${icons[t]} Rank ${t}</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+           ${rewardHtml}
+           <div class="tier-counts">${tHave}/${tTotal}</div>
+        </div>
+      </div>
+      <div class="coll-grid-tier"></div>
+    `;
+    
+    const grid = sect.querySelector('.coll-grid-tier');
+    pools[t].forEach(w => {
       const el=document.createElement('div');
       const known=seen.has(w);
       el.className=`coll-item ${known?'':'locked'}`;
-      el.innerHTML=`<div style="color:${known?'var(--aqua)':'inherit'}">${icons[t]}</div><div>${known?w:'???'}</div>`;
+      // Small visual fix: shorter text for grid
+      el.innerHTML=`<div style="color:${known?'inherit':'var(--muted)'}">${icons[t]}</div><div style="font-size:9px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%;">${known?w:'???'}</div>`;
       if(known) el.onclick=()=>showModal(w, exp[w]);
       grid.appendChild(el);
     });
+    
+    cont.appendChild(sect);
   });
-  document.getElementById('coll-stats').textContent=`${have}/${total}`;
+  
+  document.getElementById('coll-total-val').textContent = `${allHave} / ${allTotal}`;
 }
+
 function hasTier(t){return pools[t].every(w=>seen.has(w));}
 function getTracks(){
   return [
@@ -646,7 +732,6 @@ const modal=document.getElementById('cmModal');
 function showModal(title, text){document.getElementById('cmTitle').textContent=title; document.getElementById('cmText').textContent=text||""; modal.classList.add('show');}
 document.getElementById('cmClose').onclick=()=>modal.classList.remove('show');
 document.getElementById('cmBackdrop').onclick=()=>modal.classList.remove('show');
-document.querySelector('.ad-close')?.addEventListener('click',()=>{document.querySelector('.ad-float')?.remove();});
 document.getElementById('btn-reset').onclick=()=>{if(confirm('本当にデータを初期化しますか？')) {seen.clear(); localStorage.setItem(storeSeen,"[]"); location.reload();}};
 document.getElementById('btn-rates').onclick=()=>{alert("排出率:\nS:2% A:8% B:20% C:30% D:30% X:10%");};
 const savedTrack = getTracks().find(t=>t.id===selectedBGM);
