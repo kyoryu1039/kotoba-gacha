@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>KOTOBA-BATTLE | v30.80 Toast Fix</title>
+<title>KOTOBA-BATTLE | v30.90 Toast Fix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -274,24 +274,23 @@ body{
 .btn-primary { background: linear-gradient(to bottom, #3b82f6, #1d4ed8); box-shadow: 0 3px 0 #1e3a8a; }
 .btn-ghost { background: linear-gradient(to bottom, #475569, #1e293b); box-shadow: 0 3px 0 #0f172a; border: 1px solid rgba(255,255,255,0.1); }
 
-/* トースト（アニメーション修正: 2.2sかけてしっかり表示） */
+/* トースト調整 (1.5秒) */
 .floatingText { 
   position: absolute; left: 50%; top: 25%; transform: translate(-50%, -50%); 
   font-family: 'M PLUS 1p'; font-weight: 900; font-size: 14px; color: #e5e7eb; 
   pointer-events: none; z-index: 100; 
-  animation: popUp 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; /* 時間とイージング変更 */
+  animation: popUp 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   white-space: pre-wrap; text-align:center; padding:4px 10px; border-radius:20px; 
   background: rgba(15,23,42,0.9); box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 1px solid rgba(148,163,184,0.5); 
 }
 .floatingText.dmg { color:#fecaca; border-color:#fca5a5; background:rgba(69, 10, 10, 0.9); }
 .floatingText.heal { color:#bbf7d0; border-color:#4ade80; background:rgba(5, 46, 22, 0.9); }
 
-/* パッと出て、しばらく留まり、最後に消える */
 @keyframes popUp { 
   0% { opacity: 0; transform: translate(-50%, 4px) scale(0.9); } 
-  10% { opacity: 1; transform: translate(-50%, -2px) scale(1); }  /* すぐ表示 */
-  75% { opacity: 1; transform: translate(-50%, -6px) scale(1); }  /* ここまでキープ */
-  100% { opacity: 0; transform: translate(-50%, -16px) scale(0.95); } /* 最後に消える */
+  10% { opacity: 1; transform: translate(-50%, -2px) scale(1); } 
+  75% { opacity: 1; transform: translate(-50%, -6px) scale(1); } 
+  100% { opacity: 0; transform: translate(-50%, -16px) scale(0.95); } 
 }
 
 .slot { display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 4px;}
@@ -439,11 +438,15 @@ function fitName(el){
   if(len > 10) el.style.fontSize = '10px'; else if(len > 7) el.style.fontSize = '11px'; else el.style.fontSize = '13px';
 }
 
-/* トースト表示時間：2.2秒に変更 */
+/* トースト：重複防止ロジック + 1.5秒 */
 function showFloatingText(targetId, text, type, opts = {}){
   const wrap = $(targetId); if(!wrap) return;
+  // 重複防止：既存のトーストがあれば削除
+  const existing = wrap.querySelectorAll('.floatingText');
+  existing.forEach(e => e.remove());
+
   const el = document.createElement('div'); el.className = 'floatingText ' + type; el.textContent = text;
-  wrap.appendChild(el); setTimeout(() => el.remove(), opts.duration || 2200);
+  wrap.appendChild(el); setTimeout(() => el.remove(), opts.duration || 1500);
 }
 
 async function showCutIn(skill, user){
@@ -864,7 +867,13 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btnStart').onclick = async () => {
     state.A.team = collect('A'); state.B.team = collect('B'); state.A.i = 0; state.B.i = 0; state.A.sp = 0; state.B.sp = 0; state.spOn = false; state.spAnnA = false; state.history = new Set(); state.suppressAffToastOnce = false;
     $('battleLog').innerHTML = ''; $('setup').style.display = 'none'; $('battle').style.display = 'flex';
-    playBGM(); preloadImgs([...state.A.team,...state.B.team].map(u=>u.name)); renderSides(); log('バトル開始！','highlight'); showFloatingText('leftWrap','バトル開始！','heal',{duration:1800}); checkAffinity(); await delay(800); startRound();
+    playBGM(); preloadImgs([...state.A.team,...state.B.team].map(u=>u.name)); renderSides(); log('バトル開始！','highlight'); 
+    
+    // 開幕調整: バトル開始表示 → 1秒待機 → 相性判定 (重ならないように)
+    showFloatingText('leftWrap','バトル開始！','heal',{duration:1800}); 
+    await delay(1000);
+    checkAffinity(); 
+    await delay(800); startRound();
   };
   $('btnG').onclick = () => pick('G'); $('btnC').onclick = () => pick('C'); $('btnP').onclick = () => pick('P');
   $('btnSP').onclick = () => { if(!inputLocked && state.A.sp>=6){ state.spOn = !state.spOn; updateSPBtn(); } };
