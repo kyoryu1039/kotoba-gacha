@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>KOTOBA-BATTLE | v41.00 Aura Fix</title>
+<title>KOTOBA-BATTLE | v42.00 Design Bright Fix</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,9 +14,9 @@
 
 <style>
 :root{
-  --bg: #050505; --text: #e2e8f0;
+  --bg: #020617; --text: #f1f5f9;
   --primary: #3b82f6; --accent: #f59e0b;
-  /* タイプ色 (v37以前の明るいネオンカラー) */
+  /* タイプ色 */
   --t-ジオ:#6366f1; --t-アニマル:#22c55e; --t-フード:#f59e0b; 
   --t-コンセプト:#d946ef; --t-サイエンス:#06b6d4; --t-ヒストリー:#ec4899; --t-ヒューマン:#84cc16;
 }
@@ -26,7 +26,7 @@ html,body{ height:100%; margin:0; padding:0; overscroll-behavior: none; }
 body{
   background-color: var(--bg); color: var(--text);
   font-family: 'Noto Sans JP', sans-serif;
-  background-image: radial-gradient(circle at 50% 30%, #111827 0%, #000000 80%);
+  background-image: radial-gradient(circle at 50% 30%, #1e293b 0%, #020617 80%);
   overflow: hidden;
 }
 
@@ -95,21 +95,21 @@ body::after {
 /* ログ */
 .logWrapper { 
   flex: 0 0 90px; height: 90px; min-height: 90px;
-  border-top: 1px solid #1e293b; border-bottom: 1px solid #1e293b; 
-  background: rgba(0, 0, 0, 0.9); 
+  border-top: 1px solid #334155; border-bottom: 1px solid #334155; 
+  background: rgba(2, 6, 23, 0.9); 
   display: flex; flex-direction: column; position: relative; z-index: 10;
   font-family: 'Consolas', monospace;
 }
 .logHeader { 
-  background: #0f172a; color: #64748b; font-size: 10px; padding: 2px 8px; 
-  font-weight: 700; flex: 0 0 auto; letter-spacing: 1px; border-bottom: 1px solid #1e293b;
+  background: #1e293b; color: #94a3b8; font-size: 10px; padding: 2px 8px; 
+  font-weight: 700; flex: 0 0 auto; letter-spacing: 1px; border-bottom: 1px solid #334155;
 }
 .logContainer { 
   flex: 1; overflow-y: auto; padding: 4px 8px; font-size: 11px; 
   display: flex; flex-direction: column; gap: 2px; 
   -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
 }
-.logLine { padding: 1px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); flex-shrink: 0; color: #94a3b8; }
+.logLine { padding: 1px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); flex-shrink: 0; color: #cbd5e1; }
 .logLine.highlight { color: #f59e0b; } 
 .logLine.dmg { color: #f87171; } .logLine.heal { color: #34d399; }
 
@@ -117,10 +117,10 @@ body::after {
 .benchRow { 
   flex: 0 0 40px; height: 40px;
   display:flex; align-items:center; justify-content:center; gap:8px; 
-  width:100%; background: rgba(2, 6, 23, 0.95); border-top: 1px solid #1e293b;
+  width:100%; background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155;
   z-index: 10;
 }
-.benchLabel{ font-weight:700; font-family:'Orbitron'; font-size:9px; color:#475569; letter-spacing: 1px; }
+.benchLabel{ font-weight:700; font-family:'Orbitron'; font-size:9px; color:#64748b; letter-spacing: 1px; }
 .resIcon { 
   width: 32px; height: 32px; 
   background: #1e293b; border: 2px solid #334155; border-radius: 4px;
@@ -128,17 +128,17 @@ body::after {
   display: grid; place-items: center; cursor: pointer; transition: 0.2s;
   position: relative;
 }
-.resIcon[data-type] { background: var(--typeC); color: #fff; border-color: rgba(255,255,255,0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+.resIcon[data-type] { background: var(--typeC); color: #fff; border-color: rgba(255,255,255,0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 .resIcon.dead { filter: grayscale(1) brightness(0.3); border-color: #334155; color: #64748b; }
 .resIcon.active { transform: scale(1.15); z-index: 2; box-shadow: 0 0 10px #fff; border-color: #fff; }
 
 /* 操作パネル */
 .padCard { 
-  flex: 0 0 auto; background: rgba(5, 5, 5, 0.95); 
+  flex: 0 0 auto; background: rgba(15, 23, 42, 0.95); 
   padding: 8px 16px 12px; display: flex; flex-direction: column; justify-content: center;
-  border-top: 2px solid #1e293b; position: relative; z-index: 20;
+  border-top: 2px solid #334155; position: relative; z-index: 20;
 }
-.padHead { display: flex; justify-content: center; align-items: center; margin-bottom: 6px; font-size: 11px; color: #64748b; font-family: 'Orbitron'; flex: 0 0 auto; }
+.padHead { display: flex; justify-content: center; align-items: center; margin-bottom: 6px; font-size: 11px; color: #94a3b8; font-family: 'Orbitron'; flex: 0 0 auto; }
 .timerVal { font-size: 24px; color: #38bdf8; font-weight: 700; margin-left: 8px; text-shadow: 0 0 10px #38bdf8; }
 
 .padInner { display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; }
@@ -188,49 +188,40 @@ body::after {
   border-radius: 6px; padding: 2px;
   background: #1e293b; 
   display: flex; flex-direction: column;
-  border: 1px solid #334155;
+  border: 2px solid #334155;
 }
-/* Sランク演出 */
-.unit[data-rank="S"] { 
-  border: 1px solid #a855f7; 
-  background: linear-gradient(135deg, #4c1d95, #2e1065);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 0 30px rgba(192, 38, 211, 0.2); 
-  animation: rainbowGlow 6s infinite alternate;
-}
-.unit[data-rank="S"]::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 10;
-  background: linear-gradient(125deg, transparent 20%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.4) 60%, transparent 80%);
-  background-size: 200% 200%; mix-blend-mode: overlay; animation: shine 3.5s infinite;
-  opacity: 0.7;
-}
-@keyframes rainbowGlow {
-  0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); border-color: #a855f7; }
-  100% { box-shadow: 0 0 25px rgba(236, 72, 153, 0.6); border-color: #f472b6; }
-}
-.unit[data-rank="A"] { border: 1px solid #fde047; background: linear-gradient(135deg, #713f12, #854d0e); box-shadow: 0 0 10px rgba(234, 179, 8, 0.3); }
-.unit[data-rank="A"]::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 10;
-  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
-  background-size: 250% 250%; animation: shine 5s infinite;
-}
-.unit[data-rank="B"] { border: 1px solid #94a3b8; background: #334155; }
-.unit[data-rank="C"] { border: 1px solid #475569; background: #1e293b; }
-.unit[data-rank="D"] { border: 1px solid #334155; background: #0f172a; }
-.unit[data-rank="X"] { border: 1px solid #ff00ff; background: #2e1065; animation: glitchBorder 0.2s infinite; }
 
-@keyframes shine { 0% { background-position: 200% 200%; } 100% { background-position: -100% -100%; } }
+/* ランク別枠線 & エフェクト */
+.unit[data-rank="S"] { 
+  border-color: #c084fc; 
+  box-shadow: 0 0 20px rgba(192, 132, 252, 0.4), inset 0 0 20px rgba(192, 132, 252, 0.2);
+  background: linear-gradient(135deg, #2e1065 0%, #4c1d95 100%);
+  animation: borderPulseS 3s infinite alternate;
+}
+@keyframes borderPulseS { 0% { border-color: #c084fc; } 100% { border-color: #e879f9; } }
+
+.unit[data-rank="A"] { 
+  border-color: #facc15;
+  box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+  background: linear-gradient(135deg, #422006 0%, #713f12 100%);
+}
+
+.unit[data-rank="B"] { border-color: #94a3b8; background: #1e293b; }
+.unit[data-rank="C"] { border-color: #78716c; background: #1c1917; }
+.unit[data-rank="D"] { border-color: #475569; background: #0f172a; }
+.unit[data-rank="X"] { border-color: #ff00ff; background: #2e1065; animation: glitchBorder 0.2s infinite; }
 
 .unitInner {
   flex: 1; display: flex; flex-direction: column;
-  /* 修正: タイプ色をうっすらグラデーションで入れる */
-  background: linear-gradient(160deg, #0f172a 50%, var(--typeColor) 200%);
+  /* オーラのようなグラデーション背景 */
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.9) 100%);
   border-radius: 4px; overflow: hidden; height: 100%; position: relative; z-index: 1;
 }
-/* インナー発光 */
+/* インナーグロー (タイプ色) */
 .unitInner::before {
   content:""; position:absolute; inset:0; pointer-events:none;
   box-shadow: inset 0 0 20px var(--typeColor);
-  opacity: 0.2; z-index: 2;
+  opacity: 0.3; z-index: 2;
 }
 
 .cardHeader { 
@@ -238,27 +229,24 @@ body::after {
   padding: 4px 8px; background: rgba(0,0,0,0.4); 
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.ownerBadge { font-family: 'Orbitron'; font-size: 9px; padding: 1px 4px; background: #0f172a; color: #94a3b8; border-radius: 2px; }
-.ownerBadge.ally { color: #60a5fa; }
-.ownerBadge.enemy { color: #fca5a5; }
+.ownerBadge { font-family: 'Orbitron'; font-size: 9px; padding: 1px 4px; background: #0f172a; color: #94a3b8; border-radius: 2px; border: 1px solid #334155; }
+.ownerBadge.ally { color: #60a5fa; border-color: #1e40af; }
+.ownerBadge.enemy { color: #fca5a5; border-color: #991b1b; }
 
-/* タイプアイコン (元のデザイン: カード右上) */
 .typeIcon { 
   font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 0; 
   background: var(--typeColor); color: #000; 
   clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); 
-  text-shadow: none; letter-spacing: normal; 
 }
 
 .cardName { 
   flex: 0 0 auto; font-weight: 900; font-size: 14px; color: #fff; 
-  text-shadow: 0 1px 2px #000; 
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
   white-space: nowrap; text-align: center; height: 24px; line-height: 24px; 
-  background: linear-gradient(90deg, transparent, rgba(var(--typeColor), 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--typeColor), 0.3), transparent);
   letter-spacing: 0.05em; margin-top: 2px;
 }
 
-/* 相性表示 (名前直下) */
 .subInfo { height: 16px; display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 2px; position:relative; z-index:5; }
 .affTag { font-size: 10px; padding: 0 6px; border-radius: 3px; color: #fff; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); }
 .affTag.good { background: #16a34a; border-color: #4ade80; }
@@ -267,16 +255,27 @@ body::after {
 .artArea {
   position: relative; width: 100%; flex: 1; min-height: 0; margin: 0; 
   display: flex; align-items: center; justify-content: center;
-  overflow: hidden; background: radial-gradient(circle, rgba(255,255,255,0.05), transparent);
+  overflow: hidden;
+  /* キャラ背景のオーラ */
+  background: radial-gradient(circle, var(--typeColor) 0%, transparent 70%);
+  opacity: 0.9; 
 }
+/* 暗くならないようにブレンド調整 */
+.artArea::before {
+  content:''; position: absolute; inset:0;
+  background: radial-gradient(circle, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 100%);
+  z-index: 0;
+}
+
 .mainImg {
   max-height: 85%; max-width: 85%; width: auto; height: auto;
-  object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+  object-fit: contain; filter: drop-shadow(0 0 15px var(--typeColor));
   transform: none !important; animation: none !important;
+  z-index: 1;
 }
 
 .statsArea { 
-  flex: 0 0 auto; padding: 6px; background: rgba(0, 0, 0, 0.6); 
+  flex: 0 0 auto; padding: 6px; background: rgba(15, 23, 42, 0.9); 
   position: relative; z-index: 3; border-top: 1px solid rgba(255,255,255,0.1); 
 }
 .hpRow{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2px; font-family:'Teko'; }
@@ -284,7 +283,6 @@ body::after {
 .hpNum{ display:flex; align-items:baseline; gap:1px; font-weight:700; color:#fff; font-size:16px; letter-spacing: 1px; }
 .hpSlash,.hpMax{ font-size:12px; color:#64748b; }
 
-/* HPバー：単色青 */
 .hpBarBg { width: 100%; height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; }
 .hpBar { 
   height: 100%; width: 100%; transition: width 0.3s; 
@@ -296,7 +294,7 @@ body::after {
 
 .bottomSection { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; padding: 4px; background: rgba(0,0,0,0.2); margin-top: 1px; }
 .skillInfo { 
-  background: rgba(30, 41, 59, 0.4); padding: 4px; border-radius: 4px;
+  background: rgba(30, 41, 59, 0.6); padding: 4px; border-radius: 4px;
   flex: 0 0 auto; min-height: 40px; display:flex; flex-direction:column; justify-content:center; 
   border-left: 3px solid var(--typeColor);
 }
@@ -1057,7 +1055,7 @@ function openForceSwitch(indices){
   swModal.classList.add('show');
 }
 
-// グローバルスコープに_sh関数を定義 (重要修正)
+// グローバルスコープに_sh関数を定義
 window._sh = (n) => {
   const u = [...state.A.team, ...state.B.team].find(x => x.name === n);
   if (!u) return;
