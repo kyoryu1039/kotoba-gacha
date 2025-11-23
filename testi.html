@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate</title>
+<title>ことばコレクションガチャ Ultimate v4</title>
 <meta name="theme-color" content="#0b0f1c">
 
 <style>
@@ -13,6 +13,7 @@
   --ink: #eef2ff; --muted: #94a3b8;
   --gold: #ffd700; --amber:#ffbd63; --aqua: #63ead9; --blue:#8fb1ff; --gray:#94a3b8; --bad: #ff4d4d;
   --nav-height: 64px;
+  --header-height: 50px;
   --safe-b: env(safe-area-inset-bottom, 20px);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -38,7 +39,7 @@ body {
   position: fixed; inset: 0; z-index: -1;
   background: radial-gradient(circle at 50% -20%, #1e2a4a, #0b0f1c 70%);
 }
-/* Idea F: Screen Shake Classes */
+/* Screen Shake */
 .shake-small { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
 .shake-hard { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; transform-origin: center; }
 @keyframes shake {
@@ -60,26 +61,28 @@ body {
 
 /* === Header === */
 header{
+  height: var(--header-height);
   flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px; border-bottom: 1px solid var(--edge);
+  padding: 0 12px; border-bottom: 1px solid var(--edge);
   background: rgba(11, 15, 28, 0.8); backdrop-filter: blur(12px); z-index: 10;
 }
 .title{font-weight:900; font-size:16px; letter-spacing:1px; text-shadow: 0 0 10px rgba(99,234,217,0.3);}
 .ver{font-size:9px; color:#000; background:var(--aqua); border-radius:4px; padding:2px 5px; font-weight:900}
 
-/* === Gacha Machine (Updated for Charge) === */
+/* === Gacha Machine (Updated Layout) === */
 .machine-container {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
   min-height: 280px; position: relative;
+  /* Fix: Push orb down to avoid ad overlap */
+  padding-top: 80px; 
 }
 .core-orb {
   width: 140px; height: 140px; border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), var(--aqua) 20%, transparent 60%);
   box-shadow: 0 0 50px rgba(99,234,217,0.3), inset 0 0 20px rgba(99,234,217,0.5);
   position: relative; z-index: 2;
-  transition: transform 0.1s, box-shadow 0.1s; /* For charge anim */
+  transition: transform 0.1s, box-shadow 0.1s;
 }
-/* Charging State */
 .core-orb.charging {
   animation: pulseCharge 0.1s infinite;
   box-shadow: 0 0 80px rgba(99,234,217,0.8), inset 0 0 40px rgba(255,255,255,0.8);
@@ -92,8 +95,8 @@ header{
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Idea A: Charge Buttons */
-.machine-actions { width: 100%; display: flex; justify-content: center; gap: 16px; margin-top: 24px; }
+/* Buttons & Charge */
+.machine-actions { width: 100%; display: flex; justify-content: center; gap: 16px; margin-top: 24px; padding-bottom: 20px; }
 .btn-summon {
   flex: 1; max-width: 160px; position: relative;
   background: linear-gradient(160deg, #1e293b, #0f172a);
@@ -108,8 +111,6 @@ header{
 .btn-summon.multi { border-color: var(--gold); }
 .btn-label { font-size: 16px; font-weight: 900; letter-spacing: 0.5px; color: #fff; z-index: 2; pointer-events: none; }
 .btn-sub { font-size: 10px; color:var(--muted); font-weight:700; z-index: 2; pointer-events: none; }
-
-/* Charge Progress Bar inside Button */
 .btn-progress {
   position: absolute; bottom: 0; left: 0; height: 100%; width: 0%;
   background: rgba(255,255,255,0.2); z-index: 1;
@@ -117,42 +118,30 @@ header{
 }
 .btn-summon.charging .btn-progress { width: 100%; transition: width 1s linear; }
 
-/* === Card Design (Idea D: 3D Hologram) === */
-.card-stage {
-  perspective: 1000px;
-  display: flex; justify-content: center; align-items: center;
-}
+/* === Card Design === */
+.card-stage { perspective: 1000px; display: flex; justify-content: center; align-items: center; }
 .result-card {
   width: 300px; padding: 32px 24px; border-radius: 20px;
-  background: rgba(16, 24, 45, 0.95);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.1);
-  text-align: center; position: relative;
-  transform-style: preserve-3d; /* For 3D tilt */
-  transform: scale(0.8); opacity: 0; transition: transform .1s, opacity .4s;
+  background: rgba(16, 24, 45, 0.95); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1); text-align: center; position: relative;
+  transform-style: preserve-3d; transform: scale(0.8); opacity: 0; transition: transform .1s, opacity .4s;
   box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.4);
 }
 .result-card.show { transform: scale(1); opacity: 1; }
-
-/* Holographic Overlay */
 .holo-sheen {
   position: absolute; inset: 0; border-radius: 20px; pointer-events: none;
   background: linear-gradient(135deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 60%);
-  background-size: 300% 300%;
-  opacity: 0; mix-blend-mode: overlay; z-index: 5;
+  background-size: 300% 300%; opacity: 0; mix-blend-mode: overlay; z-index: 5;
 }
 .result-card.S .holo-sheen, .result-card.A .holo-sheen { opacity: 1; }
-
 .result-card.S { border: 2px solid var(--gold); box-shadow: 0 0 50px rgba(255, 215, 0, 0.3); }
 .result-card.A { border: 1px solid var(--amber); }
 .result-card.B { border: 1px solid var(--aqua); }
 .result-card.C { border: 1px solid var(--blue); }
 .result-card.X { border: 2px solid var(--bad); }
-
 .result-rarity { font-size: 48px; margin-bottom: 12px; transform: translateZ(30px); }
 .result-word { font-size: 26px; font-weight: 900; margin: 12px 0; line-height: 1.3; transform: translateZ(20px); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
 .result-desc { font-size: 13px; color: var(--muted); line-height: 1.7; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 12px; transform: translateZ(10px); }
-
 .badge {
   position: absolute; top: -6px; right: -6px;
   background: var(--bad); color: #fff; font-size: 10px; font-weight: 900;
@@ -164,7 +153,7 @@ header{
 
 /* === Summary List === */
 .summary-container {
-  width: 100%; max-width: 360px; max-height: 60vh; overflow-y: auto;
+  width: 100%; max-width: 360px; max-height: 55vh; overflow-y: auto;
   display: flex; flex-direction: column; gap: 10px; padding: 10px;
   mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
@@ -179,6 +168,16 @@ header{
 .s-content { flex: 1; }
 .s-word { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
 .s-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+/* === Info Page Styles (Fixed) === */
+.infoLead{font-weight:900;font-size:16px;margin:6px 0 10px; color:var(--aqua)}
+.infoGrid{display:grid; gap:12px; }
+.infoBox{
+  border:1px solid var(--edge); border-radius:12px; padding:16px;
+  background: rgba(255,255,255,0.03); /* Lighter bg for visibility */
+}
+.infoBox h3{margin:0 0 8px; font-size:14px; color:var(--ink); font-weight: 800;}
+.infoSmall{color: #cbd5e1; font-size:12px; line-height:1.7;} /* Lighter text color */
 
 /* === Common UI === */
 .btn-play {
@@ -222,7 +221,7 @@ header{
   animation:spin 1.5s linear infinite; position:absolute; transition: opacity 0.3s;
 }
 
-/* Modal, Toast, Info, Ad (Standard) */
+/* Modal, Toast */
 .cm-modal{position:fixed;inset:0;display:none;z-index:9998;align-items:center;justify-content:center}
 .cm-modal.show{display:flex}
 .cm-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
@@ -235,10 +234,32 @@ header{
   opacity: 0; pointer-events: none; transition: .3s;
 }
 #toast.show { opacity: 1; top: 90px; }
-.ad-float{position:fixed;right:16px;bottom:calc(var(--nav-height) + var(--safe-b) + 16px);z-index:150;width:min(90vw,300px);border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.35);overflow:hidden;animation:popIn .22s ease-out both}
-.ad-float img{display:block;width:100%;height:auto}
-.ad-close{position:absolute; top:6px; right:6px; width:36px; height:36px; border:none; border-radius:50%; background:rgba(0,0,0,.6); color:#fff; font-weight:700; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
-@keyframes popIn{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
+/* === Modified Ad Banner === */
+.ad-float {
+  position: fixed;
+  top: 60px; /* Header is ~50px, so 10px below header */
+  left: 50%; transform: translateX(-50%); /* Centered */
+  width: 260px; /* Smaller */
+  border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.35);
+  overflow: hidden; animation: popIn .22s ease-out both; z-index: 50;
+}
+.ad-float img { display:block; width:100%; height:auto; }
+.ad-close {
+  position:absolute; top:4px; right:4px;
+  width:28px; height:28px; /* Slightly smaller button for smaller ad */
+  border:none; border-radius:50%; background:rgba(0,0,0,.6); color:#fff;
+  font-weight:700; font-size:14px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+@keyframes popIn{from{transform:translate(-50%, -10px);opacity:0}to{transform:translate(-50%, 0);opacity:1}}
+
+/* BGM List */
+.track-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.track-row:last-child { border-bottom: none; }
+.track-info { display: flex; flex-direction: column; gap: 4px; }
+.track-name { font-size: 14px; font-weight: 700; transition: color .2s; }
+.track-status { font-size: 10px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -251,6 +272,13 @@ header{
   <div class="title">ことばコレクションガチャ</div>
   <div class="ver">Ultimate</div>
 </header>
+
+<div class="ad-float">
+  <a href="nekologia.html" target="_blank" rel="noopener">
+    <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
+  </a>
+  <button class="ad-close" aria-label="閉じる">×</button>
+</div>
 
 <div id="app">
   <section id="view-gacha" class="view active">
@@ -308,8 +336,30 @@ header{
   </section>
 
   <section id="view-info" class="view">
-    <h2>設定 & 情報</h2>
-    <div class="panel-box">
+    <h2>Information</h2> <div class="infoLead">ことば募集＆スペシャルサンクス</div>
+    <div class="infoGrid">
+      <div class="infoBox">
+        <h3>ことば募集中！</h3>
+        <div class="infoSmall">
+          以下のカテゴリーで「これは！」という言葉を募集中です。<br>
+          ①「声に出して読みたい言葉」・・・思わず声に出して読みたくなるリズミカルな言葉（例：パラボラアンテナ、バルサミコ酢、中京大中京）<br>
+          ②「キメラ言葉」・・・どこを見ればいいのか分からないので、迷子になり立ち尽くしてしまう言葉（例：ペリカンマンゴー、ナポレオンフィッシュ、熱川バナナワニ園）<br>
+          ③「知ってるつもり言葉」・・・聞いたことはあるし何となくはわかるけど、誰も正しく説明できない言葉（例：ピロティ、ラプソディ、コンコース）<br>
+          ④「冷める言葉」・・・言われたら一気に聞く気が失せる言葉（例：本質、見える化、自分ごと化）<br>
+        </div>
+      </div>
+      <div class="infoBox">
+        <h3>スペシャルサンクス</h3>
+        <div class="infoSmall">
+          制作には以下のAIを使用しました。<br>
+          ・BGM作成：Suno AI<br>
+          ・コーディング・イラスト：Chat-GPT<br>
+          ・アイデア提供：Chat-GPT、Gemini<br>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-box" style="margin-top:16px">
       <h3 style="font-size:14px; margin-top:0">データ管理</h3>
       <button class="btn-play" style="width:100%; border-color:var(--bad); color:var(--bad); padding:10px;" id="btn-reset">コレクションを初期化</button>
       <button class="btn-play" style="width:100%; margin-top:10px;" id="btn-rates">排出率を表示</button>
@@ -317,20 +367,11 @@ header{
   </section>
 </div>
 
-<div class="ad-float">
-  <a href="nekologia.html" target="_blank" rel="noopener">
-    <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
-  </a>
-  <button class="ad-close" aria-label="閉じる">×</button>
-</div>
-
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="switchTab('gacha')" id="tabGacha"><span class="icon">🔮</span><span>ガチャ</span></button>
   <button class="nav-btn" onclick="switchTab('coll')" id="tabColl"><span class="icon">📖</span><span>図鑑</span></button>
-  <button class="nav-btn" onclick="switchTab('bgm')" id="tabBgm"><span class="icon">🎵</span><span>音響</span></button>
-  <button class="nav-btn" onclick="switchTab('cpu')" id="tabCpu"><span class="icon">⚔️</span><span>対戦</span></button>
-  <button class="nav-btn" onclick="switchTab('info')" id="tabInfo"><span class="icon">⚙️</span><span>設定</span></button>
-</nav>
+  <button class="nav-btn" onclick="switchTab('bgm')" id="tabBgm"><span class="icon">🎵</span><span>BGM</span></button> <button class="nav-btn" onclick="switchTab('cpu')" id="tabCpu"><span class="icon">⚔️</span><span>対戦</span></button>
+  <button class="nav-btn" onclick="switchTab('info')" id="tabInfo"><span class="icon">⚙️</span><span>Info</span></button> </nav>
 
 <div id="gacha-overlay">
   <div class="summon-circle"></div>
@@ -362,7 +403,7 @@ const seen=new Set(JSON.parse(localStorage.getItem(storeSeen)||"[]"));
 let selectedBGM=localStorage.getItem(storeBGM)||"default";
 const tiers=["S","A","B","C","D","X"];
 
-/* === AUDIO SYSTEM (Enhanced) === */
+/* === AUDIO SYSTEM === */
 const bgmPlayer=document.getElementById('bgm-player');
 const bgmBtn=document.getElementById('btn-bgm-toggle');
 const volSlider=document.getElementById('vol-slider');
@@ -382,13 +423,12 @@ let audioCtx=null;
 function getCtx(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx;}
 function tone(f,d,t='triangle'){const c=getCtx();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(0.05,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);o.start();o.stop(c.currentTime+d+0.05);}
 
-// Charge Sound (Rising Pitch)
 let chargeOsc=null, chargeGain=null;
 function startChargeSound(){
   const c=getCtx(); if(!c)return;
   chargeOsc=c.createOscillator(); chargeGain=c.createGain();
   chargeOsc.type='sawtooth'; chargeOsc.frequency.setValueAtTime(100,c.currentTime);
-  chargeOsc.frequency.exponentialRampToValueAtTime(800,c.currentTime+1); // Rise
+  chargeOsc.frequency.exponentialRampToValueAtTime(800,c.currentTime+1);
   chargeGain.gain.setValueAtTime(0.05,c.currentTime);
   chargeOsc.connect(chargeGain); chargeGain.connect(c.destination);
   chargeOsc.start();
@@ -405,30 +445,24 @@ function sfxTap(){tone(800,0.05);}
 function sfxRare(){tone(600,0.1,'sine');setTimeout(()=>tone(1200,0.3,'square'),100);}
 function sfxGlitch(){tone(100,0.1,'sawtooth');setTimeout(()=>tone(50,0.1,'sawtooth'),100);}
 
-/* === CHARGE LOGIC (Idea A) === */
+/* === CHARGE LOGIC === */
 function setupChargeBtn(id, count){
   const btn = document.getElementById(id);
   let timer = null;
-  
   const start = (e) => {
     e.preventDefault();
     if(overlay.classList.contains('active')) return;
     btn.classList.add('charging');
-    document.getElementById('coreOrb').classList.add('charging'); // Idea A: Orb reaction
+    document.getElementById('coreOrb').classList.add('charging');
     startChargeSound();
-    
-    // Idea F: Mild haptic
     if(navigator.vibrate) navigator.vibrate(50);
-
     timer = setTimeout(() => {
-      // CHARGE COMPLETE
       stopChargeSound();
       btn.classList.remove('charging');
       document.getElementById('coreOrb').classList.remove('charging');
-      roll(count); // Fire!
-    }, 1000); // 1s charge time
+      roll(count);
+    }, 1000);
   };
-
   const cancel = (e) => {
     if(timer){
       clearTimeout(timer); timer=null;
@@ -437,14 +471,12 @@ function setupChargeBtn(id, count){
       stopChargeSound();
     }
   };
-
   btn.addEventListener('mousedown', start);
   btn.addEventListener('touchstart', start);
   btn.addEventListener('mouseup', cancel);
   btn.addEventListener('mouseleave', cancel);
   btn.addEventListener('touchend', cancel);
 }
-
 setupChargeBtn('btn-roll-1', 1);
 setupChargeBtn('btn-roll-5', 5);
 
@@ -469,19 +501,17 @@ const summonCircle = document.querySelector('.summon-circle');
 function pickTier(){const r=Math.random();let a=0;for(const k of tiers){a+=probs[k];if(r<a)return k;}return "D";}
 function pickWord(t){const a=pools[t];return a[Math.floor(Math.random()*a.length)];}
 
-// Idea F: Shake function
 function shakeScreen(hard=false){
   const app = document.getElementById('app');
   app.classList.remove('shake-small','shake-hard');
-  void app.offsetWidth; // trigger reflow
+  void app.offsetWidth;
   app.classList.add(hard ? 'shake-hard' : 'shake-small');
   if(navigator.vibrate) navigator.vibrate(hard ? 200 : 50);
 }
 
 async function roll(count){
   if(isBgmOn && bgmPlayer.paused) bgmPlayer.play().catch(()=>{});
-  
-  shakeScreen(true); // Fire Shake!
+  shakeScreen(true);
   overlay.classList.add('active'); resCont.innerHTML="";
   summonCircle.style.display = 'block';
 
@@ -493,39 +523,28 @@ async function roll(count){
     for(let i=0;i<count;i++){
       await new Promise(r=>setTimeout(r, waitRoll)); 
       try { tone(200+i*50,0.1,'square'); } catch(e){}
-      
-      const t=pickTier();
-      const w=pickWord(t);
+      const t=pickTier(); const w=pickWord(t);
       const isNew=!seen.has(w);
       if(isNew){ seen.add(w); localStorage.setItem(storeSeen,JSON.stringify([...seen])); }
       results.push({t, w, isNew});
       
-      // Render Card
-      const cardWrap = document.createElement('div');
-      cardWrap.className = 'card-stage';
-      const card=document.createElement('div');
-      card.className=`result-card ${t}`;
+      const cardWrap = document.createElement('div'); cardWrap.className = 'card-stage';
+      const card=document.createElement('div'); card.className=`result-card ${t}`;
       if(t==='X') document.body.classList.add('glitch-mode');
       
-      // Idea D: Holographic Sheen added
       card.innerHTML=`<div class="holo-sheen"></div><div class="result-rarity">${icons[t]}</div><div class="result-word">${w}</div><div class="result-desc">${exp[w]||""}</div>${isNew?'<div class="badge">NEW</div>':''}`;
-      
-      // Idea D: 3D Tilt Effect for Single view
       if(t==='S' || t==='A') {
         document.addEventListener('mousemove', (e) => tiltCard(e, card));
         if(window.DeviceOrientationEvent) window.addEventListener('deviceorientation', (e) => tiltCardMobile(e, card));
       }
-
       cardWrap.appendChild(card);
       resCont.innerHTML=""; resCont.appendChild(cardWrap);
       
       if(t==='S'){ try{sfxRare(); confetti(); shakeScreen(true);}catch(e){} }
       else if(t==='X'){ try{sfxGlitch();}catch(e){} }
       else { try{sfxTap();}catch(e){} }
-      
       setTimeout(()=>card.classList.add('show'),50);
       tryUnlock(t);
-      
       await new Promise(r=>setTimeout(r, waitShow));
       document.body.classList.remove('glitch-mode');
     }
@@ -535,10 +554,11 @@ async function roll(count){
       closeOverlay();
     } else {
       summonCircle.style.display = 'none';
+      // Fix: Centered Close Button
       resCont.innerHTML = `
         <h3 style="margin-bottom:10px; color:var(--aqua)">RESULTS</h3>
         <div class="summary-container"></div>
-        <div class="result-card show" style="background:none;box-shadow:none;border:none;padding:0; margin-top:10px;">
+        <div class="result-card show" style="background:none;box-shadow:none;border:none;padding:0; margin-top:10px; display:flex; justify-content:center;">
           <button class="btn-summon single" onclick="closeOverlay()"><div class="btn-label">閉じる</div></button>
         </div>
       `;
@@ -554,34 +574,24 @@ async function roll(count){
         grid.appendChild(d);
       });
     }
-
-  } catch(e) {
-    console.error(e);
-    closeOverlay();
-  }
+  } catch(e) { console.error(e); closeOverlay(); }
 }
 
-// Idea D: Tilt Logic
 function tiltCard(e, card) {
   const rect = card.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  const cx = rect.width / 2;
-  const cy = rect.height / 2;
-  const dx = (x - cx) / cx;
-  const dy = (y - cy) / cy;
+  const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+  const cx = rect.width / 2; const cy = rect.height / 2;
+  const dx = (x - cx) / cx; const dy = (y - cy) / cy;
   card.style.transform = `scale(1) rotateY(${dx * 15}deg) rotateX(${-dy * 15}deg)`;
   const sheen = card.querySelector('.holo-sheen');
   if(sheen) sheen.style.backgroundPosition = `${50 + (dx * 50)}% ${50 + (dy * 50)}%`;
 }
 function tiltCardMobile(e, card) {
-  const dx = e.gamma / 45; // Tilt left/right
-  const dy = e.beta / 45;  // Tilt up/down
+  const dx = e.gamma / 45; const dy = e.beta / 45;
   card.style.transform = `scale(1) rotateY(${dx * 15}deg) rotateX(${-dy * 15}deg)`;
 }
 
 function closeOverlay(){ overlay.classList.remove('active'); sfxTap(); }
-
 function confetti(){
   const colors=['#ffd700','#63ead9','#ff4d4d'];
   for(let i=0;i<30;i++){
@@ -593,7 +603,6 @@ function confetti(){
     overlay.appendChild(s);
   }
 }
-
 function renderCollection(){
   const grid=document.getElementById('coll-grid'); grid.innerHTML="";
   let total=0, have=0;
@@ -610,7 +619,6 @@ function renderCollection(){
   });
   document.getElementById('coll-stats').textContent=`${have}/${total}`;
 }
-
 function hasTier(t){return pools[t].every(w=>seen.has(w));}
 function getTracks(){
   return [
@@ -625,60 +633,22 @@ function renderBGMList(){
   const list=document.getElementById('bgm-list'); list.innerHTML="";
   getTracks().forEach(t=>{
     const d=document.createElement('div'); d.className='track-row';
-    d.innerHTML=`
-      <div class="track-info">
-        <div class="track-name" style="color:${t.ul?'var(--ink)':'var(--muted)'}">${t.ul?t.name:'？？？'}</div>
-        <div class="track-status">${t.ul?'解放済':t.hint+'で解放'}</div>
-      </div>
-      <button class="btn-play" ${t.ul?'':'disabled'}>${selectedBGM===t.id?'再生中':'再生'}</button>
-    `;
-    if(t.ul){
-      d.querySelector('button').onclick=()=>{
-        selectedBGM=t.id; localStorage.setItem(storeBGM,t.id);
-        bgmPlayer.src=t.src; if(isBgmOn) bgmPlayer.play();
-        renderBGMList();
-      };
-    }
+    d.innerHTML=`<div class="track-info"><div class="track-name" style="color:${t.ul?'var(--ink)':'var(--muted)'}">${t.ul?t.name:'？？？'}</div><div class="track-status">${t.ul?'解放済':t.hint+'で解放'}</div></div><button class="btn-play" ${t.ul?'':'disabled'}>${selectedBGM===t.id?'再生中':'再生'}</button>`;
+    if(t.ul){d.querySelector('button').onclick=()=>{selectedBGM=t.id; localStorage.setItem(storeBGM,t.id); bgmPlayer.src=t.src; if(isBgmOn) bgmPlayer.play(); renderBGMList();};}
     list.appendChild(d);
   });
 }
-
 const unlockedState={S:false,A:false,B:false};
-function tryUnlock(t){
-  if(["S","A","B"].includes(t) && hasTier(t) && !unlockedState[t]){
-    unlockedState[t]=true;
-    showToast(`Rank ${t} コンプリート！BGM解放`);
-  }
-}
-
+function tryUnlock(t){if(["S","A","B"].includes(t) && hasTier(t) && !unlockedState[t]){unlockedState[t]=true; showToast(`Rank ${t} コンプリート！BGM解放`);}}
 const toast=document.getElementById('toast');
-function showToast(msg){
-  toast.textContent=msg; toast.classList.add('show');
-  setTimeout(()=>toast.classList.remove('show'),3000);
-}
-
+function showToast(msg){toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3000);}
 const modal=document.getElementById('cmModal');
-function showModal(title, text){
-  document.getElementById('cmTitle').textContent=title;
-  document.getElementById('cmText').textContent=text||"";
-  modal.classList.add('show');
-}
+function showModal(title, text){document.getElementById('cmTitle').textContent=title; document.getElementById('cmText').textContent=text||""; modal.classList.add('show');}
 document.getElementById('cmClose').onclick=()=>modal.classList.remove('show');
 document.getElementById('cmBackdrop').onclick=()=>modal.classList.remove('show');
-
-document.querySelector('.ad-close')?.addEventListener('click',()=>{
-  document.querySelector('.ad-float')?.remove();
-});
-
-document.getElementById('btn-reset').onclick=()=>{
-  if(confirm('本当にデータを初期化しますか？')) {
-    seen.clear(); localStorage.setItem(storeSeen,"[]"); location.reload();
-  }
-};
-document.getElementById('btn-rates').onclick=()=>{
-  alert("排出率:\nS:2% A:8% B:20% C:30% D:30% X:10%");
-};
-
+document.querySelector('.ad-close')?.addEventListener('click',()=>{document.querySelector('.ad-float')?.remove();});
+document.getElementById('btn-reset').onclick=()=>{if(confirm('本当にデータを初期化しますか？')) {seen.clear(); localStorage.setItem(storeSeen,"[]"); location.reload();}};
+document.getElementById('btn-rates').onclick=()=>{alert("排出率:\nS:2% A:8% B:20% C:30% D:30% X:10%");};
 const savedTrack = getTracks().find(t=>t.id===selectedBGM);
 if(savedTrack) bgmPlayer.src = savedTrack.src;
 </script>
