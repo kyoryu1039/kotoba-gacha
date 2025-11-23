@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v30.00 Final Debug</title>
+<title>KOTOBA-BATTLE | v30.01 Final Debug</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Teko:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Teko:wght@500;700&family=M+PLUS+1p:wght@700&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -24,12 +24,11 @@
   --t-ジオ:#38bdf8; --t-アニマル:#4ade80; --t-フード:#ffaa2b; 
   --t-コンセプト:#c084fc; --t-サイエンス:#22d3ee; --t-ヒストリー:#f472b6; --t-ヒューマン:#a3e635;
 
-  /* レアリティ色 */
-  --glow-A: #ffd700; /* 金 */
-  --glow-B: #c0c0c0; /* 銀 */
-  --glow-C: #64748b; /* 鼠 */
-  --glow-D: #ffffff; /* 白 */
-  --glow-X: #d946ef; /* 紫 */
+  --glow-A: #ffd700;
+  --glow-B: #c0c0c0;
+  --glow-C: #64748b;
+  --glow-D: #ffffff;
+  --glow-X: #d946ef;
 }
 
 *{box-sizing:border-box;-webkit-text-size-adjust:100%}
@@ -94,6 +93,11 @@ body{
 .statsCol { display: grid; gap: 8px; }
 .setupMini { border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; background: rgba(30, 41, 59, 0.6); display: flex; flex-direction: column; gap: 4px;}
 
+.barRow{margin:2px 0;display:grid;grid-template-columns:40px 1fr 36px;align-items:center;gap:4px;font-size:10px}
+.barLabel{color:#9ca3af}
+.barBox{height:6px;background:#020617;border-radius:3px;overflow:hidden}
+.barFill{height:100%;background:var(--hp);}
+
 /* 交代モーダルで選択中のカードの枠を強調 */
 .selCard {
   cursor: pointer;
@@ -105,11 +109,6 @@ body{
               0 0 16px rgba(250, 204, 21, .8);
   transform: translateY(-2px);
 }
-
-.barLine{display:flex;align-items:center;gap:6px;height:10px}
-.barBox{flex:1;height:5px;background:#060912;border-radius:3px;overflow:hidden}
-.barFill{height:100%;background:var(--hp);border-radius:3px}
-.val{font-size:10px;color:#9cb3de;width:28px;text-align:right;font-family:"Menlo",monospace}
 
 /* バトル画面 */
 .arena { display: grid; gap: 12px; transition: transform .1s; }
@@ -130,14 +129,13 @@ body{
 }
 
 /* ランク別 枠線設定 */
-/* S: 虹色 */
 .unit[data-rank="S"] { 
   background: linear-gradient(60deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); 
   background-size: 300% 300%; 
   animation: rainbowBorder 3s linear infinite; 
 }
 
-/* ==== Aランク（回転しないキラキラ） ==== */
+/* Aランク */
 .unit[data-rank="A"] {
   position: relative;
   border: 1px solid #ffd700;
@@ -163,7 +161,7 @@ body{
   100% { transform: translate(150%,150%); }
 }
 
-/* ==== Bランク（回転しないキラキラ・銀） ==== */
+/* Bランク */
 .unit[data-rank="B"] {
   position: relative;
   border: 1px solid #e5e7eb;
@@ -189,19 +187,19 @@ body{
   100% { transform: translate(150%,150%); }
 }
 
-/* ★ Cランク（カード色と近い“濃いグレー枠” → Bとの差が明確） */
+/* Cランク */
 .unit[data-rank="C"] {
   background: #64748b;
   border: 1px solid #475569;
 }
 
-/* ★ Dランク（白カード＋自然な薄めグレー枠） */
+/* Dランク */
 .unit[data-rank="D"] {
   background: #ffffff;
   border: 1px solid #d1d5db;
 }
 
-/* ★ Xランク（紫＋控えめなダークパープル枠）*/
+/* Xランク */
 .unit[data-rank="X"] {
   background: #d946ef;
   border: 1px solid #9333ea;
@@ -232,6 +230,9 @@ body{
   padding: 4px 8px; background: rgba(0,0,0,0.5); border-radius: 8px 8px 0 0;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
+.ownerBadge { font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 4px; background: #020617; border: 1px solid #334155; color: #94a3b8; letter-spacing: 0.05em; }
+.typeIcon { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: var(--typeColor); color: #0b0f1c; box-shadow: 0 2px 4px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3); }
+
 .cardName {
   font-weight: 900; font-size: 15px; color: #fff;
   text-shadow: 0 2px 4px #000; white-space: nowrap;
@@ -255,17 +256,9 @@ body{
 .unit.hit .mainImg { animation: hit .4s ease; }
 @keyframes hit{10%,90%{transform:translate(-6px,0)}20%,80%{transform:translate(10px,0)}30%,50%,70%{transform:translate(-10px,0)}40%,60%{transform:translate(10px,0)}}
 
-.midSection { padding: 8px 6px; background: rgba(15, 23, 42, 0.6); margin-top: -4px; position: relative; z-index: 3; border-radius: 0 0 10px 10px; }
-.typeRow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.typeIcon { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: var(--typeColor); color: #0b0f1c; box-shadow: 0 2px 4px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3); }
-.ownerBadge { font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 4px; background: #020617; border: 1px solid #334155; color: #94a3b8; letter-spacing: 0.05em; }
-
-.statusRow { display: flex; gap: 4px; min-height: 14px; margin-bottom: 4px; justify-content: flex-end; flex-wrap: wrap; }
+.statsArea { padding: 8px 6px 6px; background: rgba(15, 23, 42, 0.6); margin-top: -4px; position: relative; z-index: 3; border-radius: 0 0 10px 10px; }
+.statusRow { display: flex; gap: 4px; min-height: 14px; margin-top: 4px; justify-content: flex-end; flex-wrap: wrap; }
 .stBadge { font-size: 9px; padding: 1px 4px; border-radius: 4px; background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
-
-.hpRow { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px; font-family: 'Teko'; }
-.hpLabel { font-size: 12px; color: #fff; font-weight: 700; line-height: 1; }
-.hpVal { font-size: 16px; color: #fff; font-weight: 600; line-height: 0.9; }
 
 .hpBarBg { width: 100%; height: 10px; background: #0f172a; border-radius: 5px; border: 1px solid #334155; overflow: hidden; }
 .hpBar { height: 100%; width: 100%; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s; }
@@ -306,43 +299,29 @@ body{
 }
 .timerVal { font-size: 24px; color: #fff; font-weight: 600; margin-left: 4px; }
 
-/* 控え表示：タッチパネル直上に横一列 */
+/* 控え表示：横一列・パネル直上固定（スマホ対応） */
 .benchRow {
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  gap:6px;
   margin-bottom:8px;
-  gap:8px;
+  padding:4px 0;
+  overflow-x:auto;
+  scrollbar-width:thin;
 }
-.benchSide{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  flex:1;
-}
+.benchRow::-webkit-scrollbar{height:4px}
+.benchRow::-webkit-scrollbar-thumb{background:#475569;border-radius:999px}
 .benchLabel{
   font-weight:900;
   font-family:'Teko';
   font-size:11px;
+  flex:0 0 auto;
 }
-@media(max-width:480px){
-  .padCard{padding:8px 10px 14px;}
-  .benchRow{
-    flex-wrap:wrap;
-    row-gap:4px;
-  }
-  .benchSide{
-    justify-content:center;
-    flex:1 1 100%;
-  }
-}
-
-.reserveMini { display: flex; gap: 6px; }
-.resBox { display: flex; gap: 6px; align-items: center; }
 .resIcon { 
-  width: 28px; height: 28px; border-radius: 4px; background: #1e293b; 
+  width: 26px; height: 26px; border-radius: 4px; background: #1e293b; 
   border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; 
   cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;
+  flex:0 0 auto;
 }
 .resIcon.dead { opacity: 0.3; filter: grayscale(1); cursor: default; border-color: #333 !important; }
 .resIcon.active { border-color: #fff !important; box-shadow: 0 0 6px #fff; transform: scale(1.1); z-index: 2; }
@@ -370,8 +349,10 @@ body{
 .cmdBtn:active:not([disabled]) { top: 4px; box-shadow: none; }
 .cmdBtn:disabled { opacity: 0.5; top: 4px; box-shadow: none; cursor: not-allowed; filter: grayscale(1); }
 .btn-sp { background: linear-gradient(to bottom, #334155, #1e293b); color: #94a3b8; }
+.btn-switch { background: linear-gradient(to bottom, #8b5cf6, #6d28d9); }
 
 @media(max-width:480px){
+  .padCard{padding:8px 10px 14px;}
   .padInner{grid-template-columns:1fr; gap:12px;}
   .sideBtns{flex-direction:row; justify-content:center; width:auto;}
   .sideBtns .cmdBtn{font-size:12px; padding:8px 10px;}
@@ -386,22 +367,22 @@ body{
 @keyframes flashReady { from { background: #f59e0b; box-shadow: 0 0 5px #f59e0b; } to { background: #b91c1c; box-shadow: 0 0 20px #ef4444; } }
 .btn-sp.on { background: linear-gradient(to bottom, #ef4444, #b91c1c); color: #fff; box-shadow: 0 0 15px #ef4444; animation: pulse 1s infinite; }
 @keyframes pulse { 0% { opacity:1; } 50% { opacity:0.8; } 100% { opacity:1; } }
-.btn-switch { background: linear-gradient(to bottom, #8b5cf6, #6d28d9); }
 
 .logWrapper { border: 1px solid #334155; background: rgba(2, 6, 23, 0.8); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
-.logHeader { background: #1e293b; color: #94a3b8; font-size: 10px; padding: 2px 8px; font-weight: 700; font-family: 'Orbitron'; border-bottom: 1px solid #334155; }
+.logHeader { background: #1e293b; color: #94a3b8; font-size: 10px; padding: 2px 8px; font-weight: 700; font-family: 'Orbitron', 'Noto Sans JP', sans-serif; border-bottom: 1px solid #334155; }
 .logContainer { height: 80px; overflow-y: auto; padding: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 4px; }
 .logLine { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .logLine.highlight { color: #fbbf24; }
 .logLine.dmg { color: #fca5a5; }
 .logLine.heal { color: #6ee7b7; }
 
-/* トースト（2秒・自動文字サイズ調整） */
+/* トースト：フォント＆位置調整 */
 .floatingText {
   position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
-  font-family: 'Teko', sans-serif; font-weight: 700;
-  font-size: 32px;
-  color: #fff; letter-spacing: 1px; font-style: italic;
+  font-family: 'M PLUS 1p','Noto Sans JP',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  color: #fff; letter-spacing: 0.04em;
   text-shadow:
     -2px -2px 0 rgba(0,0,0,0.9),
      2px -2px 0 rgba(0,0,0,0.9),
@@ -417,19 +398,30 @@ body{
   border-radius:6px;
   background:rgba(15,23,42,0.6);
 }
+
+/* 種類別 */
 .floatingText.dmg { color: #f97373; --glow-color: #f97373; }
 .floatingText.heal { color: #4ade80; --glow-color: #4ade80; }
-.floatingText.miss { color: #e5e7eb; --glow-color: #9ca3af; font-size: 24px; }
-.floatingText.buff { color: #facc15; --glow-color: #facc15; font-size: 24px; }
-.floatingText.debuff { color: #c4b5fd; --glow-color: #a855f7; font-size: 24px; }
-.floatingText.adv { color: #10b981; font-size: 22px; --glow-color:#34d399; }
-.floatingText.dis { color: #f97373; font-size: 22px; --glow-color:#f97373; }
-.floatingText.info { color:#e5e7eb; --glow-color:#38bdf8; font-size:26px; }
+.floatingText.miss { color: #e5e7eb; --glow-color: #9ca3af; font-size: 22px; }
+.floatingText.buff { color: #facc15; --glow-color: #facc15; font-size: 22px; }
+.floatingText.debuff { color: #c4b5fd; --glow-color: #a855f7; font-size: 22px; }
+.floatingText.info { color:#e5e7eb; --glow-color:#38bdf8; }
+
+/* 相性トーストは上部に小さく */
+.floatingText.advTop,
+.floatingText.disTop {
+  top: 16%;
+  font-size: 18px;
+}
+
+/* 相性有利・不利色 */
+.floatingText.advTop { color:#4ade80; --glow-color:#34d399; }
+.floatingText.disTop { color:#f97373; --glow-color:#f97373; }
 
 @keyframes popUp { 
   0% { opacity: 0; transform: translate(-50%, 20px) scale(0.7); } 
-  10% { opacity: 1; transform: translate(-50%, -10px) scale(1.1); } 
-  80% { opacity: 1; transform: translate(-50%, -10px) scale(1.05); }
+  10% { opacity: 1; transform: translate(-50%, -10px) scale(1.05); } 
+  80% { opacity: 1; transform: translate(-50%, -10px) scale(1.02); }
   100% { opacity: 0; transform: translate(-50%, -40px) scale(1); } 
 }
 
@@ -517,11 +509,8 @@ body{
       <div style="flex:1"></div>
     </div>
 
-    <!-- 控え：タッチパネル直上に常時表示 -->
-    <div class="benchRow">
-      <div id="benchA" class="benchSide"></div>
-      <div id="benchB" class="benchSide"></div>
-    </div>
+    <!-- 控え：横一列・パネル直上固定 -->
+    <div class="benchRow" id="benchRow"></div>
 
     <div class="padInner">
       <div class="rpsArea">
@@ -548,12 +537,10 @@ body{
 <audio id="bgm" src="audio/Hypnagogiaondo.mp3" loop></audio>
 <audio id="seHit" src="audio/hit.mp3"></audio>
 <audio id="seSkill" src="audio/skill.mp3"></audio>
-<!-- KO時のSE（ファイル名は必要に応じて変更してください） -->
 <audio id="seKO" src="audio/ko.mp3"></audio>
 
 <script>
 (()=>{
-// strict モード
 'use strict';
 const $=id=>document.getElementById(id);
 const qs=(s,el=document)=>el.querySelector(s);
@@ -563,7 +550,7 @@ const delay=ms=>new Promise(r=>setTimeout(r,ms));
 function playBGM(){
   const a = $('bgm'); if(!a) return;
   if(a.paused){
-    a.volume = 0.7;
+    a.volume = 0.25; // ★ 音量をさらに下げた
     a.play().catch(()=>{});
   }
 }
@@ -836,8 +823,8 @@ const WORDS_BASE=[
 ];
 const makeW=i=>makeWordObject(WORDS_BASE[i]);
 
-const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false,spAnnA:false,history:new Set()};
-let forceSwitch=false; // 死亡時の強制交代フラグ
+const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false,spAnnA:false,history:new Set(),suppressAffToastOnce:false};
+let forceSwitch=false;
 
 const left =()=>state.A.team[state.A.i];
 const right =()=>state.B.team[state.B.i];
@@ -847,11 +834,13 @@ function barRow(label,val,max){
   return `<div class="barRow"><div class="barLabel">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="barVal">${val}</div></div>`;
 }
 
-/* setupMiniにtype色 */
+/* setupMini */
 function miniCard(idx){
   const w=makeW(idx);
   return `<div class="setupMini" style="--typeC:${typeColor(w.type)}" data-type="${w.type}">
-  <div class="head"><div>${w.name}</div><div style="color:var(--typeC)">${w.type}</div></div>
+  <div class="head" style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+    <div>${w.name}</div><div style="color:var(--typeC)">${w.type}</div>
+  </div>
   <div class="statGrid">
     ${barRow('HP',w.maxhp,800)}
     ${barRow('ATK',w.atk,120)}
@@ -870,10 +859,10 @@ function renderMini(side){
 
 /* ランダムユニーク選択 */
 function uniqueRandom(n, sourceLen){
-  const arr = []; const pool = Array.from({length: sourceLen}, (_, i) => i);
-  for(let i=0; i<n; i++){
-    const idx = Math.floor(Math.random() * pool.length);
-    arr.push(pool[idx]); pool.splice(idx, 1);
+  const arr=[]; const pool=Array.from({length:sourceLen},(_,i)=>i);
+  for(let i=0;i<n;i++){
+    const idx=Math.floor(Math.random()*pool.length);
+    arr.push(pool[idx]); pool.splice(idx,1);
   }
   return arr;
 }
@@ -896,7 +885,6 @@ function makeTeam(root,side){
   renderMini(side);
 }
 
-// ランダムボタン
 function randomizeTeam(side){
   const picks=uniqueRandom(3,WORDS_BASE.length);
   for(let i=0;i<3;i++){
@@ -940,7 +928,9 @@ async function cpuSwitchAction(nextIdx){
   state.busy = true; clearInterval(state.timer); lockInputs(true);
   try {
     log('CPUが交代を選択！', 'highlight'); await delay(1000);
-    state.B.i = nextIdx; state.B.sp = 0; renderSides();
+    state.B.i = nextIdx; state.B.sp = 0;
+    state.suppressAffToastOnce = true; // 交代直後の相性トースト抑制
+    renderSides();
     showFloatingText('rightWrap',`交代！\nゆけ、${right().name}`,'info',{duration:2200});
     log(`相手は ${right().name} に交代した！`, 'highlight'); await delay(1000);
     log('相手の隙だ！攻撃のチャンス！', 'highlight');
@@ -960,28 +950,43 @@ function baseDamage(att, def){
   return val * (Math.random() * 0.4 + 0.8);
 }
 
+/* 相性表示＋トースト（交代直後一回だけ抑制） */
 function checkAffinity(){
   const a = left(), b = right();
   const pairKey = `${a.name}:${b.name}`;
+  const m1 = typeMult(a.type, b.type);
+  const m2 = typeMult(b.type, a.type);
+
   const setBadge = (el, m) => {
     if(!el) return; el.className = 'affTag';
-    if(m>=1.5) { el.textContent='▲ 有利'; el.className='affTag adv show'; }
-    else if(m<=0.7) { el.textContent='▼ 不利'; el.className='affTag dis show'; }
+    if(m>=1.5){ el.textContent='▲ 有利'; el.className='affTag adv show'; }
+    else if(m<=0.7){ el.textContent='▼ 不利'; el.className='affTag dis show'; }
     else { el.className='affTag even'; }
   };
-  const m1 = typeMult(a.type, b.type);
   setBadge(qs('#affA'), m1);
-  setBadge(qs('#affB'), typeMult(b.type, a.type));
+  setBadge(qs('#affB'), m2);
+
+  // 交代直後一回だけ相性トーストを抑制
+  if(state.suppressAffToastOnce){
+    state.suppressAffToastOnce = false;
+    return;
+  }
 
   if(!state.history.has(pairKey)){
     state.history.add(pairKey);
-    if(m1 >= 1.5) { showFloatingText('leftWrap', '相性有利!', 'adv'); log(`【有利】${a.name}は${b.name}に強い！`,'heal'); }
-    else if(m1 <= 0.7) { showFloatingText('leftWrap', '相性不利...', 'dis'); log(`【不利】${a.name}は${b.name}に弱い...`,'dmg'); }
+    if(m1 >= 1.5) {
+      showFloatingText('leftWrap', '相性有利!', 'advTop');
+      log(`【有利】${a.name}は${b.name}に強い！`,'heal');
+    } else if(m1 <= 0.7) {
+      showFloatingText('leftWrap', '相性不利...', 'disTop');
+      log(`【不利】${a.name}は${b.name}に弱い...`,'dmg');
+    }
   }
 }
 
+/* カード描画 */
 function renderCard(u,role,opp){
-  const sp=role==='ally'?state.A.sp:state.B.sp, tag=role==='ally'?'A':'B';
+  const sp=role==='ally'?state.A.sp:state.B.sp;
   const owner=role==='ally'?'YOU':'CPU';
   const img=IMG[u.name]?`<img src="images/${IMG[u.name]}" class="mainImg" onerror="this.style.display='none'">`:'<span style="font-size:40px">📦</span>';
   const skill=(SKILLS[u.name]||['—','—']);
@@ -1025,8 +1030,11 @@ function renderCard(u,role,opp){
     </div></div>`;
 }
 
-/* 控えエリアの表示（タッチパネル直上） */
+/* 控えエリアの表示：横一列 */
 function buildBoxes(){
+  const row = $('benchRow');
+  if(!row) return;
+
   const mk=(u,i,isActive)=>`
     <div class="resIcon ${u.hp<=0?'dead':''} ${isActive?'active':''}"
          onclick="window._sh('${u.name}')"
@@ -1034,20 +1042,16 @@ function buildBoxes(){
       ${u.name.charAt(0)}
     </div>`;
 
-  const a = $('benchA');
-  const b = $('benchB');
-  if(a){
-    a.innerHTML = `
-      <span class="benchLabel" style="color:#4da6ff">YOU</span>
-      ${state.A.team.map((u,i)=>mk(u,i,i===state.A.i)).join('')}
-    `;
-  }
-  if(b){
-    b.innerHTML = `
-      ${state.B.team.map((u,i)=>mk(u,i,i===state.B.i)).join('')}
-      <span class="benchLabel" style="color:#ff5c6c">CPU</span>
-    `;
-  }
+  const leftIcons = state.A.team.map((u,i)=>mk(u,i,i===state.A.i)).join('');
+  const rightIcons = state.B.team.map((u,i)=>mk(u,i,i===state.B.i)).join('');
+
+  row.innerHTML = `
+    <span class="benchLabel" style="color:#4da6ff">YOU</span>
+    ${leftIcons}
+    <span class="benchLabel" style="color:#9ca3af">VS</span>
+    ${rightIcons}
+    <span class="benchLabel" style="color:#ff5c6c">CPU</span>
+  `;
 }
 
 function renderSides(){
@@ -1082,7 +1086,7 @@ window._sh=(n)=>{
 function spEffectPre(att,def,role,forcedName=null,mirrorMode=false){
   let mult=1, multiSeq=null, skillTitle='通常攻撃', skillUser=att.name, notes=[];
   const useName=forcedName??att.name;
-  const [title,desc]=(SKILLS[useName]||['—','—']);
+  const [title] = (SKILLS[useName]||['—','—']);
   skillTitle=title;
   switch(useName){
     case 'パラボラアンテナ': mult=2.2; break;
@@ -1201,7 +1205,7 @@ async function doTurn(side){
   
   if(spUse){
     if(side==='ally'){ state.A.sp=0; state.spOn=false; state.spAnnA=false; } else { state.B.sp=0; }
-    playSE('skill'); // 必殺発動SE
+    playSE('skill');
 
     if(['本質','見える化','自分ごと化','解像度'].includes(att.name)){
       const foe=(side==='ally'?state.B.team:state.A.team).filter(u=>u.rank!=='X'&&u.hp>0);
@@ -1247,7 +1251,7 @@ async function doTurn(side){
     def.hp=Math.max(0,def.hp-damage);
     updateHPUI(targetRole, def.hp, def.maxhp);
 
-    playSE('hit'); // ダメージ時SE
+    playSE('hit');
 
     qs(targetRole==='enemy'?'#rightWrap .unit':'#leftWrap .unit').classList.add('hit');
     shakeScreen();
@@ -1298,7 +1302,6 @@ async function doTurn(side){
 }
 
 async function handleKO(side){
-  // KO時のサウンド
   playSE('ko');
 
   const team = side==='ally' ? state.A.team : state.B.team;
@@ -1315,10 +1318,10 @@ async function handleKO(side){
     return true;
   }
 
-  // CPU側：従来通り自動交代
   if(side==='enemy'){
     state.B.i = survivors[0].i;
     state.B.sp=0;
+    state.suppressAffToastOnce = true;
     renderSides();
     showFloatingText('rightWrap',`交代！\nゆけ、${team[state.B.i].name}`,'info',{duration:2200});
     log(`相手は ${team[state.B.i].name} を繰り出した`, 'highlight');
@@ -1327,7 +1330,6 @@ async function handleKO(side){
     return true;
   }
 
-  // プレイヤー側：控えから選択させる（強制交代）
   forceSwitch = true;
   openForceSwitch(survivors.map(o=>o.i));
   return true;
@@ -1338,7 +1340,7 @@ const swModal=$('switchModal'), swGrid=$('switchGrid'), swDo=$('swDo'); let swId
 
 function openSwitch(){
   if(left().lock>0){ log('言論統制により交代不可！', 'highlight'); showFloatingText('leftWrap','LOCKED','debuff'); return; }
-  forceSwitch = false; // 手動交代
+  forceSwitch = false;
   swGrid.innerHTML=''; swIdx=null; swDo.disabled=true;
   const idxs=[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0);
   if(!idxs.length){ log('交代できる控えがいません'); return; }
@@ -1373,7 +1375,6 @@ function openSwitch(){
   swModal.classList.add('show');
 }
 
-// 死亡時強制交代用
 function openForceSwitch(indices){
   swGrid.innerHTML=''; swIdx=null; swDo.disabled=true;
   const enemy = right();
@@ -1418,17 +1419,16 @@ swDo.onclick=async()=>{
 
   const newUnit = state.A.team[swIdx];
   state.A.i=swIdx; state.A.sp=0; state.spOn=false;
+  state.suppressAffToastOnce = true; // ★ 交代直後は相性トーストを抑制
   renderSides();
   showFloatingText('leftWrap',`交代！\nゆけ、${newUnit.name}`,'info',{duration:2200});
   log(`${newUnit.name} に交代！`, 'highlight');
 
   if(forceSwitch){
-    // 死亡後の強制交代：相手の追撃なしで新ラウンド
     forceSwitch = false;
     await delay(600);
     startRound();
   } else {
-    // 通常の手動交代：相手の攻撃ターン
     await delay(500); 
     const ended = await doTurn('enemy');
     if(!ended) {
@@ -1438,9 +1438,8 @@ swDo.onclick=async()=>{
   }
 };
 
-// モーダルの背景クリックで閉じる（既存）
-const modals = ['switchModal','infoModal','rulesModal'];
-modals.forEach(id=>{
+/* モーダルの背景クリックで閉じる */
+['switchModal','infoModal','rulesModal'].forEach(id=>{
   $(id).addEventListener('click', (e)=>{
     if(e.target === $(id)) $(id).classList.remove('show');
   });
@@ -1448,15 +1447,15 @@ modals.forEach(id=>{
 
 document.addEventListener('DOMContentLoaded',()=>{
   makeTeam($('teamA'),'A'); makeTeam($('teamB'),'B');
+
   $('btnStart').onclick=async()=>{
     state.A.team=collect('A'); state.B.team=collect('B'); state.A.i=0; state.B.i=0; state.A.sp=0; state.B.sp=0; state.spOn=false; state.spAnnA=false;
-    state.history=new Set();
+    state.history=new Set(); state.suppressAffToastOnce=false;
     $('battleLog').innerHTML='';
     $('setup').style.display='none';
     $('battle').style.display='block';
 
-    playBGM(); // BGM開始
-
+    playBGM();
     await preloadImgs([...state.A.team, ...state.B.team].map(u=>u.name));
     renderSides(); 
     log('バトル開始！', 'highlight');
@@ -1464,18 +1463,19 @@ document.addEventListener('DOMContentLoaded',()=>{
     checkAffinity();
     await delay(800); startRound();
   };
-  $('btnG').onclick=()=>pick('G'); $('btnC').onclick=()=>pick('C'); $('btnP').onclick=()=>pick('P');
+
+  $('btnG').onclick=()=>pick('G');
+  $('btnC').onclick=()=>pick('C');
+  $('btnP').onclick=()=>pick('P');
   $('btnSP').onclick=()=>{
     if(!inputLocked && state.A.sp>=6){
       state.spOn = !state.spOn;
       updateSPBtn();
     }
   };
-  
   $('btnRules').onclick=()=>$('rulesModal').classList.add('show');
   $('rulesClose').onclick=()=>$('rulesModal').classList.remove('show');
   $('infoClose').onclick=()=>$('infoModal').classList.remove('show');
-  // ランダムボタン
   $('btnRand').onclick=()=>{ randomizeTeam('A'); randomizeTeam('B'); };
 });
 })();
