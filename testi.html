@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate v11</title>
+<title>ことばコレクションガチャ Ultimate v15</title>
 <meta name="theme-color" content="#0b0f1c">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,6 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
-  /* 1. Updated Font Family */
   font-family: "Zen Kaku Gothic New", sans-serif;
   overflow: hidden; height: 100dvh; display: flex; flex-direction: column;
 }
@@ -116,13 +115,17 @@ header{
 .btn-summon.charging .btn-progress { width: 100%; transition: width 1s linear; }
 
 /* === Card Design === */
-.card-stage { perspective: 1000px; display: flex; justify-content: center; align-items: center; }
+.card-stage {
+  perspective: 1000px; display: flex; justify-content: center; align-items: center;
+  width: 300px; height: 400px; position: relative;
+}
 .result-card {
-  width: 300px; padding: 32px 24px; border-radius: 20px;
+  width: 100%; height: 100%; padding: 32px 24px; border-radius: 20px;
   background: rgba(16, 24, 45, 0.95); backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.1); text-align: center; position: relative;
-  transform-style: preserve-3d; transform: scale(0.8); opacity: 0; transition: transform .1s, opacity .4s;
+  transform-style: preserve-3d; transform: scale(0.8); opacity: 0; transition: opacity .4s;
   box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.4);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
 }
 .result-card.show { transform: scale(1); opacity: 1; }
 .holo-sheen {
@@ -166,7 +169,7 @@ header{
 .s-word { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
 .s-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
 
-/* === 2. Collection View Improvements === */
+/* === Collection View === */
 .coll-total-box {
   background: var(--panel); border: 1px solid var(--edge); border-radius: 12px;
   padding: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
@@ -177,12 +180,11 @@ header{
 .tier-section { margin-bottom: 24px; }
 .tier-header {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 6px; /* Tighten for progress bar */
+  margin-bottom: 6px; 
 }
 .tier-title { font-size: 16px; font-weight: 900; display:flex; align-items:center; gap:6px; }
 .tier-counts { font-size: 12px; font-weight: 700; color: var(--muted); }
 
-/* 3. Progress Bars */
 .tier-progress-track {
   height: 4px; width: 100%; background: rgba(255,255,255,0.1);
   border-radius: 2px; margin-bottom: 12px; overflow: hidden;
@@ -215,24 +217,84 @@ header{
 .coll-item.locked { opacity: 0.3; filter: grayscale(1); }
 .coll-grid-tier { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
 
-/* Tier Specific Colors (Text & Progress) */
 .tier-S .tier-title { color: var(--gold); }
 .tier-S .tier-progress-fill { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .tier-S .coll-item { border-color: rgba(255,215,0,0.3); }
-
 .tier-A .tier-title { color: var(--amber); }
 .tier-A .tier-progress-fill { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
 .tier-A .coll-item { border-color: rgba(255,189,99,0.3); }
-
 .tier-B .tier-title { color: var(--aqua); }
 .tier-B .tier-progress-fill { background: var(--aqua); box-shadow: 0 0 10px var(--aqua); }
 .tier-B .coll-item { border-color: rgba(99,234,217,0.3); }
-
 .tier-X .tier-title { color: var(--bad); }
 .tier-X .tier-progress-fill { background: var(--bad); box-shadow: 0 0 10px var(--bad); }
 .tier-X .coll-item { border-color: rgba(255,77,77,0.3); }
-
 .tier-C .tier-progress-fill, .tier-D .tier-progress-fill { background: var(--blue); }
+
+/* === CPU Battle Mode Styles (Simple & Cool) === */
+.cyber-grid {
+  position: absolute; inset: -50%; width: 200%; height: 200%;
+  background-image: 
+    linear-gradient(transparent 0%, var(--bg) 100%),
+    linear-gradient(0deg, rgba(99,234,217,0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,234,217,0.2) 1px, transparent 1px);
+  background-size: 40px 40px;
+  transform: perspective(500px) rotateX(60deg);
+  animation: gridMove 1s linear infinite;
+  z-index: -1; pointer-events: none; opacity: 0.5;
+}
+@keyframes gridMove {
+  0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+  100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
+}
+
+.cpu-interface {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  position: relative; z-index: 2; padding-bottom: 40px;
+}
+
+.cpu-status {
+  font-size: 10px; letter-spacing: 4px; color: var(--aqua); opacity: 0.7;
+  margin-bottom: 12px; text-shadow: 0 0 10px rgba(99,234,217,0.5);
+  animation: blink 2s infinite;
+}
+
+.cpu-main-text {
+  font-size: 32px; font-weight: 900; color: #fff;
+  letter-spacing: 2px; margin-bottom: 60px;
+  text-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+.btn-battle-large {
+  background: transparent; border: 2px solid var(--aqua);
+  color: var(--aqua); padding: 16px 60px;
+  border-radius: 4px; cursor: pointer; position: relative;
+  transition: .3s cubic-bezier(0.25, 1, 0.5, 1);
+  overflow: hidden;
+}
+.btn-battle-large .label {
+  font-size: 18px; font-weight: 900; letter-spacing: 4px; position: relative; z-index: 2;
+}
+.btn-battle-large::before {
+  content: ""; position: absolute; inset: 0; background: var(--aqua);
+  transform: scaleX(0); transform-origin: left; transition: transform .3s ease; z-index: 1;
+}
+.btn-battle-large:active { transform: scale(0.95); }
+.btn-battle-large:active::before { transform: scaleX(1); }
+.btn-battle-large:active .label { color: var(--bg); }
+
+.btn-battle-large { animation: pulseAqua 3s infinite; }
+@keyframes pulseAqua {
+  0% { box-shadow: 0 0 0 0 rgba(99, 234, 217, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(99, 234, 217, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 234, 217, 0); }
+}
+
+.cpu-footer-text {
+  position: absolute; bottom: 40px; width: 100%; text-align: center;
+  font-size: 10px; color: var(--muted); opacity: 0.5; letter-spacing: 1px;
+}
 
 /* === Common UI === */
 .btn-play {
@@ -242,7 +304,6 @@ header{
 }
 .btn-play:active { background: rgba(99,234,217,0.1); transform: scale(0.95); }
 
-/* Spotify Button */
 .btn-spotify {
   background: rgba(29, 185, 84, 0.1); border: 1px solid var(--spotify); color: var(--spotify);
   width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -251,14 +312,14 @@ header{
 .btn-spotify:hover { background: var(--spotify); color: #fff; box-shadow: 0 0 10px rgba(29, 185, 84, 0.4); }
 .btn-spotify svg { width: 16px; height: 16px; fill: currentColor; }
 
-/* === 2. Animated Navigation Bar === */
+/* === Navigation === */
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; width: 100%; height: calc(var(--nav-height) + var(--safe-b));
   background: rgba(11, 15, 28, 0.95); backdrop-filter: blur(16px);
   border-top: 1px solid var(--edge);
   display: grid; grid-template-columns: repeat(5, 1fr);
   padding-bottom: var(--safe-b); z-index: 100;
-  position: relative; /* For absolute indicator */
+  position: relative;
 }
 .nav-btn {
   background: none; border: none; color: var(--muted);
@@ -267,14 +328,11 @@ header{
 }
 .nav-btn.active { color: var(--ink); }
 .nav-btn.active .icon { filter: grayscale(0) drop-shadow(0 0 5px var(--aqua)); transform: scale(1.1); }
-
-/* Sliding Indicator */
 #nav-indicator {
   position: absolute; top: 0; left: 0; width: 20%; height: 100%;
   background: radial-gradient(circle at 50% 0%, rgba(99, 234, 217, 0.15), transparent 70%);
   border-top: 2px solid var(--aqua);
-  transition: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  pointer-events: none; z-index: 1;
+  transition: 0.3s cubic-bezier(0.25, 1, 0.5, 1); pointer-events: none; z-index: 1;
 }
 
 /* === Overlays === */
@@ -290,56 +348,45 @@ header{
 
 #full-ad-overlay {
   position: fixed; inset: 0; z-index: 9999;
-  background: #000;
-  display: none; flex-direction: column; align-items: center; justify-content: center;
-  animation: fadeIn 0.4s ease;
+  background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.4s ease;
 }
 #full-ad-overlay.active { display: flex; }
 #full-ad-overlay img {
   width: 100%; max-width: 400px; height: auto;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-  border-top: 1px solid rgba(255,255,255,0.1);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* === 4. Modal "Data Card" Design === */
+/* === Modal Design === */
 .cm-modal{position:fixed;inset:0;display:none;z-index:9998;align-items:center;justify-content:center}
 .cm-modal.show{display:flex}
 .cm-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
 
 .cm-dialog {
   position:relative; width:min(85vw,400px);
-  background: rgba(20, 27, 46, 0.95); /* Darker, solid bg */
-  border: 1px solid var(--aqua);
-  border-radius: 4px; /* Sharper corners */
-  padding: 24px;
+  background: rgba(20, 27, 46, 0.95);
+  border: 1px solid var(--target-color, var(--aqua));
+  border-radius: 4px; padding: 24px;
   box-shadow: 0 0 30px rgba(99, 234, 217, 0.15);
   background-image: 
-    linear-gradient(rgba(99, 234, 217, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99, 234, 217, 0.03) 1px, transparent 1px);
-  background-size: 20px 20px; /* Grid pattern */
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
-/* Corner Brackets */
-.cm-dialog::before {
-  content:""; position:absolute; top:-1px; left:-1px; width:20px; height:20px;
-  border-top:2px solid var(--aqua); border-left:2px solid var(--aqua);
+.cm-dialog::before, .cm-dialog::after {
+  content:""; position:absolute; width:20px; height:20px; border-color: var(--target-color, var(--aqua));
 }
-.cm-dialog::after {
-  content:""; position:absolute; bottom:-1px; right:-1px; width:20px; height:20px;
-  border-bottom:2px solid var(--aqua); border-right:2px solid var(--aqua);
-}
+.cm-dialog::before { top:-1px; left:-1px; border-top:2px solid; border-left:2px solid; }
+.cm-dialog::after { bottom:-1px; right:-1px; border-bottom:2px solid; border-right:2px solid; }
 
-.cm-close { position:absolute; top:10px; right:10px; background:none; border:none; color:var(--aqua); font-size:20px; cursor:pointer; }
+.cm-close { position:absolute; top:10px; right:10px; background:none; border:none; color:var(--target-color, var(--aqua)); font-size:20px; cursor:pointer; }
 .cm-title {
-  font-size: 20px; font-weight: 900; color: var(--aqua);
-  border-bottom: 1px solid rgba(99,234,217,0.3); padding-bottom: 8px; margin-bottom: 12px;
-  text-shadow: 0 0 8px rgba(99,234,217,0.4);
+  font-size: 20px; font-weight: 900; color: var(--target-color, var(--aqua));
+  border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 12px;
+  text-shadow: 0 0 8px rgba(0,0,0,0.5);
 }
 .cm-text { margin-top: 10px; font-size: 14px; line-height: 1.8; color: #eef2ff; min-height: 60px; }
-
-/* Typewriter Cursor */
-.cursor::after { content: "|"; animation: blink 1s step-start infinite; color: var(--aqua); }
+.cursor::after { content: "|"; animation: blink 1s step-start infinite; color: var(--target-color, var(--aqua)); }
 @keyframes blink { 50% { opacity: 0; } }
 
 /* Toast */
@@ -357,6 +404,15 @@ header{
 .infoBox{ border:1px solid var(--edge); border-radius:12px; padding:16px; background: rgba(255,255,255,0.03); }
 .infoBox h3{margin:0 0 8px; font-size:14px; color:var(--ink); font-weight: 800;}
 .infoSmall{color: #cbd5e1; font-size:12px; line-height:1.7;}
+
+/* Accordion for Special Thanks */
+details.infoBox { cursor: pointer; transition: background .2s; }
+details.infoBox:hover { background: rgba(255,255,255,0.05); }
+summary { font-size: 14px; font-weight: 800; color: var(--ink); outline: none; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font-weight: 900; color: var(--aqua); margin-left: 10px; transition: .3s; }
+details[open] summary::after { transform: rotate(45deg); color: var(--bad); }
+details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
 
 /* BGM List */
 .track-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -422,21 +478,29 @@ header{
   </section>
 
   <section id="view-cpu" class="view">
-    <h2>ことばバトル</h2>
-    <div class="panel-box" style="text-align:center;">
-      <div style="font-size:40px; margin-bottom:10px;">⚔️</div>
-      <h3 style="margin:0 0 10px; color:var(--aqua)">CPU対戦モード</h3>
-      <p style="font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:20px;">
-        外部サイト「KOTOBA BATTLE」へ移動します。
-      </p>
-      <button class="btn-summon single" style="width:100%; max-width:200px; margin:0 auto;" onclick="window.open('https://kyoryu1039.github.io/kotoba-gacha/kotobattle')">
-        <span class="btn-label">対戦を開始</span>
+    <div class="cyber-grid"></div>
+    
+    <div class="cpu-interface">
+      <div class="cpu-status">CONNECTION ESTABLISHED</div>
+      <div class="cpu-main-text">KOTOBA BATTLE</div>
+      
+      <button class="btn-battle-large" onclick="window.open('https://kyoryu1039.github.io/kotoba-gacha/kotobattle')">
+        <span class="label">START</span>
       </button>
+      
+      <div class="cpu-footer-text">Make Sense Out of Nonsense</div>
     </div>
   </section>
 
   <section id="view-info" class="view">
     <h2>Information</h2>
+    
+    <div class="panel-box" style="margin-bottom:16px">
+      <h3 style="font-size:14px; margin-top:0">データ管理</h3>
+      <button class="btn-play" style="width:100%; border-color:var(--bad); color:var(--bad); padding:10px;" id="btn-reset">コレクションを初期化</button>
+      <button class="btn-play" style="width:100%; margin-top:10px;" id="btn-rates">排出率を表示</button>
+    </div>
+
     <div class="infoLead">ことば募集＆スペシャルサンクス</div>
     <div class="infoGrid">
       <div class="infoBox">
@@ -449,26 +513,26 @@ header{
           ④「冷める言葉」・・・言われたら一気に聞く気が失せる言葉（例：本質、見える化、自分ごと化）<br>
         </div>
       </div>
-      <div class="infoBox">
-        <h3>スペシャルサンクス</h3>
+      
+      <details class="infoBox">
+        <summary>スペシャルサンクス</summary>
         <div class="infoSmall">
           制作には以下のAIを使用しました。<br>
           ・BGM作成：Suno AI<br>
-          ・コーディング・イラスト：Chat-GPT<br>
-          ・アイデア提供：Chat-GPT、Gemini<br>
+          ・コーディング・イラスト：Chat-GPT、Gemini<br>
+          <br>
+          また、次の作品・クリエイターから多くの示唆を受けています。<br>
+          ・音楽：The Gregory Brothers、水曜日のカンパネラ<br>
+          ・ゲーム：にほんのあらそい、甲虫王者ムシキング、ポケットモンスター
         </div>
-      </div>
-    </div>
-    <div class="panel-box" style="margin-top:16px">
-      <h3 style="font-size:14px; margin-top:0">データ管理</h3>
-      <button class="btn-play" style="width:100%; border-color:var(--bad); color:var(--bad); padding:10px;" id="btn-reset">コレクションを初期化</button>
-      <button class="btn-play" style="width:100%; margin-top:10px;" id="btn-rates">排出率を表示</button>
+      </details>
     </div>
   </section>
 </div>
 
 <nav class="bottom-nav">
-  <div id="nav-indicator"></div> <button class="nav-btn active" onclick="switchTab('gacha', 0)" id="tabGacha"><span class="icon">🔮</span><span>ガチャ</span></button>
+  <div id="nav-indicator"></div>
+  <button class="nav-btn active" onclick="switchTab('gacha', 0)" id="tabGacha"><span class="icon">🔮</span><span>ガチャ</span></button>
   <button class="nav-btn" onclick="switchTab('coll', 1)" id="tabColl"><span class="icon">📖</span><span>図鑑</span></button>
   <button class="nav-btn" onclick="switchTab('bgm', 2)" id="tabBgm"><span class="icon">🎵</span><span>BGM</span></button>
   <button class="nav-btn" onclick="switchTab('cpu', 3)" id="tabCpu"><span class="icon">⚔️</span><span>対戦</span></button>
@@ -505,6 +569,7 @@ header{
 const pools={S:["パラボラアンテナ","ネスカフェアンバサダー"],A:["にんじんしりしり","そぼろごはん","ニシローランドゴリラ","毛むくじゃら","九品仏","けんちん汁"],B:["カムチャッカ半島","タランチュラ","ハシビロコウ","バルサミコ酢","ピロリ菌","トリニダード・トバゴ","カラメル色素"],C:["バビロン捕囚","鳥取砂丘","プラシーボ効果","渡来人","さるびあ丸","ペペロンチーノ","ポリプロピレン","サラエボ事件"],D:["クマンバチ","県庁所在地","照り焼きチキン","ねるねるねるね","スルメイカ"],X:["本質","見える化","自分ごと化","解像度"]};
 const probs={S:.02,A:.08,B:.20,C:.30,D:.30,X:.10};
 const icons={S:"🌟",A:"💎",B:"🔷",C:"🔹",D:"🔸",X:"❌"};
+const tierColors={S:"var(--gold)", A:"var(--amber)", B:"var(--aqua)", C:"var(--blue)", D:"var(--gray)", X:"var(--bad)"};
 const exp={"パラボラアンテナ":"声に出して読みたい日本語ランキング第1位。","ネスカフェアンバサダー":"誰もが人生で一度は就任してみたい憧れの肩書き。","にんじんしりしり":"沖縄のキッチンから届く、爽やかなくり返し言葉。","そぼろごはん":"口の中を体現したような語感。","ニシローランドゴリラ":"名前からビシビシと伝わってくる威厳。くれぐれもVIP待遇で。","毛むくじゃら":"毛は知ってるけど、むくじゃらって何なのさ。","九品仏":"難読地名が織りなすリズム。","けんちん汁":"響きだけで、もうあったかい。","カムチャッカ半島":"寒気と熱気が同居する極東の地へようこそ。","タランチュラ":"ファンシーなお菓子みたい。猛毒系スイーツ。","ハシビロコウ":"間抜けの鳥には間抜けな語感。","バルサミコ酢":"まるで呪文。","ピロリ菌":"可愛いふりしてわりとやるもんだね。","トリニダード・トバゴ":"容赦ない濁音とトの応酬。","カラメル色素":"おやつの記憶にラボの匂い。","バビロン捕囚":"いかにも捕まったぁって感じ。","鳥取砂丘":"荒野を子音が跳ね回る。","プラシーボ効果":"言葉に舐められている。","渡来人":"朝鮮半島からの挑戦。","さるびあ丸":"間の抜けた旅になりそう。","ペペロンチーノ":"唐辛子が躍動する口内。","ポリプロピレン":"半濁音の王様。","サラエボ事件":"さらっと始まったはずだったのに。","クマンバチ":"「ん」の妙。","県庁所在地":"堂々としてるよね。","照り焼きチキン":"甘辛ビートに乗っちゃって。","ねるねるねるね":"オセロだったら気持ちいい。","スルメイカ":"噛めば噛むほど味が出る名前。","本質":"たとえあったとしても、軽々しく口に出すような人は一生近づけないと思うんです。","見える化":"可視化って知ってますか。","自分ごと化":"「自分ごと」でも嫌なのに、「化」までつけられた日には…","解像度":"なるほど、ピクセル数が高まりました！"};
 
 const rewards={
@@ -599,7 +664,6 @@ setupChargeBtn('btn-roll-1', 1);
 setupChargeBtn('btn-roll-5', 5);
 
 /* === GAME LOGIC === */
-// Updated switchTab with Indicator Logic
 function switchTab(id, idx){
   document.querySelectorAll('.view').forEach(v=>{v.classList.remove('active');});
   const target = document.getElementById(`view-${id}`);
@@ -608,11 +672,8 @@ function switchTab(id, idx){
   const btnId = 'tab'+id.charAt(0).toUpperCase()+id.slice(1);
   const btn = document.getElementById(btnId);
   if(btn) btn.classList.add('active');
-  
-  // Move Indicator
   const indicator = document.getElementById('nav-indicator');
   indicator.style.left = `${idx * 20}%`;
-
   sfxTap();
   if(id==='coll') renderCollection();
   if(id==='bgm') renderBGMList();
@@ -633,22 +694,11 @@ function shakeScreen(hard=false){
   if(navigator.vibrate) navigator.vibrate(hard ? 200 : 50);
 }
 
-// === NEW AD LOGIC ===
 const adOverlay = document.getElementById('full-ad-overlay');
-
 function onCloseMultiResult() {
-  if (Math.random() < 0.2) {
-    adOverlay.classList.add('active');
-    sfxTap();
-  } else {
-    closeOverlay();
-  }
+  if (Math.random() < 0.2) { adOverlay.classList.add('active'); sfxTap(); } else { closeOverlay(); }
 }
-
-function closeFullScreenAd() {
-  adOverlay.classList.remove('active');
-  closeOverlay();
-}
+function closeFullScreenAd() { adOverlay.classList.remove('active'); closeOverlay(); }
 
 async function roll(count){
   if(isBgmOn && bgmPlayer.paused) bgmPlayer.play().catch(()=>{});
@@ -674,8 +724,10 @@ async function roll(count){
       if(t==='X') document.body.classList.add('glitch-mode');
       
       card.innerHTML=`<div class="holo-sheen"></div><div class="result-rarity">${icons[t]}</div><div class="result-word">${w}</div><div class="result-desc">${exp[w]||""}</div>${isNew?'<div class="badge">NEW</div>':''}`;
+      
       if(t==='S' || t==='A') {
-        document.addEventListener('mousemove', (e) => tiltCard(e, card));
+        cardWrap.addEventListener('mousemove', (e) => tiltCard(e, card));
+        cardWrap.addEventListener('mouseleave', () => resetCardTilt(card));
         if(window.DeviceOrientationEvent) window.addEventListener('deviceorientation', (e) => tiltCardMobile(e, card));
       }
       cardWrap.appendChild(card);
@@ -726,6 +778,9 @@ function tiltCard(e, card) {
   const sheen = card.querySelector('.holo-sheen');
   if(sheen) sheen.style.backgroundPosition = `${50 + (dx * 50)}% ${50 + (dy * 50)}%`;
 }
+function resetCardTilt(card){
+  card.style.transform = `scale(1) rotateY(0) rotateX(0)`;
+}
 function tiltCardMobile(e, card) {
   const dx = e.gamma / 45; const dy = e.beta / 45;
   card.style.transform = `scale(1) rotateY(${dx * 15}deg) rotateX(${-dy * 15}deg)`;
@@ -744,7 +799,7 @@ function confetti(){
   }
 }
 
-// === NEW COLLECTION RENDERER (With Progress) ===
+/* === COLLECTION & MODAL === */
 function renderCollection(){
   const cont = document.getElementById('coll-container'); cont.innerHTML="";
   let allTotal=0, allHave=0;
@@ -752,9 +807,7 @@ function renderCollection(){
   tiers.forEach(t => {
     let tTotal=0, tHave=0;
     pools[t].forEach(w => { allTotal++; tTotal++; if(seen.has(w)) { allHave++; tHave++; } });
-    
     const pct = tTotal === 0 ? 0 : (tHave / tTotal) * 100;
-
     const sect = document.createElement('div');
     sect.className = `tier-section tier-${t}`;
     
@@ -766,7 +819,6 @@ function renderCollection(){
       rewardHtml = `<div class="tier-reward ${isUl?'unlocked':''}" ${clickAttr}><span>${isUl?'🎵':'🔒'}</span> ${rewardName}</div>`;
     }
 
-    // Added Progress Bar
     sect.innerHTML = `
       <div class="tier-header">
         <div class="tier-title">${icons[t]} Rank ${t}</div>
@@ -785,27 +837,22 @@ function renderCollection(){
       const known=seen.has(w);
       el.className=`coll-item ${known?'':'locked'}`;
       el.innerHTML=`<div style="color:${known?'inherit':'var(--muted)'}">${icons[t]}</div><div class="coll-item-name">${known?w:'???'}</div>`;
-      if(known) el.onclick=()=>showModal(w, exp[w]);
+      if(known) el.onclick=()=>showModal(w, exp[w], t); // Pass Tier
       grid.appendChild(el);
     });
-    
     cont.appendChild(sect);
   });
-  
   document.getElementById('coll-total-val').textContent = `${allHave} / ${allTotal}`;
 }
 
-// === Track Player Helper ===
 function playTrack(id){
-  selectedBGM = id;
-  localStorage.setItem(storeBGM, id);
+  selectedBGM = id; localStorage.setItem(storeBGM, id);
   const track = getTracks().find(t => t.id === id);
   if(track){
     bgmPlayer.src = track.src;
     if(!isBgmOn) setBgmState(true);
     bgmPlayer.play().catch(()=>{});
-    renderBGMList();
-    showToast(`♪ 再生中: ${track.name}`);
+    renderBGMList(); showToast(`♪ 再生中: ${track.name}`);
   }
 }
 
@@ -846,16 +893,20 @@ function tryUnlock(t){if(["S","A","B"].includes(t) && hasTier(t) && !unlockedSta
 const toast=document.getElementById('toast');
 function showToast(msg){toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3000);}
 
-/* 4. Animated Typewriter Modal */
+/* Modal: Now accepts Tier to style border */
 const modal=document.getElementById('cmModal');
 let typeInterval = null;
 
-function showModal(title, text){
+function showModal(title, text, tier){
   document.getElementById('cmTitle').textContent=title;
   const txtEl = document.getElementById('cmText');
   txtEl.textContent = "";
   txtEl.className = "cm-text cursor";
   
+  // Set Dynamic Color
+  const targetColor = tierColors[tier] || 'var(--aqua)';
+  document.querySelector('.cm-dialog').style.setProperty('--target-color', targetColor);
+
   modal.classList.add('show');
   
   if(typeInterval) clearInterval(typeInterval);
@@ -863,10 +914,7 @@ function showModal(title, text){
   typeInterval = setInterval(()=>{
     txtEl.textContent += text.charAt(i);
     i++;
-    if(i >= text.length){
-      clearInterval(typeInterval);
-      txtEl.classList.remove("cursor");
-    }
+    if(i >= text.length){ clearInterval(typeInterval); txtEl.classList.remove("cursor"); }
   }, 30);
 }
 document.getElementById('cmClose').onclick=()=>modal.classList.remove('show');
