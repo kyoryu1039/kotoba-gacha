@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v30.08 BenchBand</title>
+<title>KOTOBA-BATTLE | v30.09 BenchDock</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -167,7 +167,7 @@ body{
      rgba(255,255,255,0.35) 50%,
      transparent 60%
   );
-  animation: shineA 3.5s.ease-in-out infinite;
+  animation: shineA 3.5s ease-in-out infinite;
 }
 @keyframes shineA {
   0%   { transform: translate(0,0); }
@@ -191,7 +191,7 @@ body{
     rgba(255,255,255,0.25) 50%,
     transparent 60%
   );
-  animation: shineB 4.2s.ease-in-out infinite;
+  animation: shineB 4.2s ease-in-out infinite;
 }
 @keyframes shineB {
   0%   { transform: translate(0,0); }
@@ -253,10 +253,10 @@ body{
 .mainImg {
   max-height: 95%; max-width: 95%; object-fit: contain;
   filter: drop-shadow(0 10px 20px rgba(0,0,0,0.7));
-  animation: breathe 4s.ease-in-out infinite alternate;
+  animation: breathe 4s ease-in-out infinite alternate;
 }
 @keyframes breathe { from { transform: scale(1); } to { transform: scale(1.04); } }
-.unit.hit .mainImg { animation: hit .4s.ease; }
+.unit.hit .mainImg { animation: hit .4s ease; }
 @keyframes hit{10%,90%{transform:translate(-6px,0)}20%,80%{transform:translate(10px,0)}30%,50%,70%{transform:translate(-10px,0)}40%,60%{transform:translate(10px,0)}}
 
 .statsArea { padding: 8px 6px 6px; background: rgba(15, 23, 42, 0.6); margin-top: -4px; position: relative; z-index: 3; border-radius: 0 0 10px 10px; }
@@ -316,7 +316,6 @@ body{
   backdrop-filter: blur(12px);
 }
 
-/* 800px以上でも位置は同じ（見た目だけ少し余裕） */
 @media(min-width: 800px) {
   .padCard {
     padding: 16px 24px 22px;
@@ -329,7 +328,7 @@ body{
 }
 .timerVal { font-size: 24px; color: #fff; font-weight: 600; margin-left: 4px; }
 
-/* === 控え：パネルの上に細い帯として重ねる === */
+/* === 控え：パネルの「上に乗る」帯 === */
 .benchRow {
   position: fixed;
   left: 50%;
@@ -339,12 +338,13 @@ body{
   display:flex;
   flex-wrap:nowrap;
   align-items:center;
-  gap:6px;
-  padding:4px 10px;
+  justify-content:center;
+  gap:8px;
+  padding:4px 14px;
 
-  max-width:640px;
+  max-width:480px;
   width:calc(100% - 32px);
-  height:30px;
+  height:32px;
 
   background:rgba(15,23,42,0.98);
   border-radius:10px;
@@ -354,7 +354,7 @@ body{
   overflow-x:auto;
   scrollbar-width:none;
 
-  bottom:0; /* 初期値。実際のY位置はJSで更新（パネルと少し重なる） */
+  bottom:0; /* 実際の位置はJSでパネル上端に合わせる */
 }
 .benchRow::-webkit-scrollbar{display:none}
 
@@ -426,7 +426,7 @@ body{
 .logLine.dmg { color: #fca5a5; }
 .logLine.heal { color: #6ee7b7; }
 
-/* トースト（控え・カードと同じ系フォント＋一段小さい） */
+/* トースト */
 .floatingText {
   position: absolute; 
   left: 50%; top: 22%; transform: translate(-50%, -50%);
@@ -448,7 +448,6 @@ body{
   border: 1px solid rgba(148,163,184,0.9);
 }
 
-/* 種類別 */
 .floatingText.dmg { 
   color:#fecaca; 
   border-color:#fca5a5;
@@ -584,7 +583,7 @@ body{
     <div style="height:180px"></div>
   </div>
 
-  <!-- 控え（パネルと少し重なる帯） -->
+  <!-- 控え帯（パネルの上に乗る） -->
   <div class="benchRow" id="benchRow"></div>
   
   <section class="padCard" id="pad">
@@ -601,7 +600,7 @@ body{
         <button class="rps p" id="btnP"><div class="emo">🖐</div></button>
       </div>
       <div class="sideBtns">
-        <button class="cmdBtn btn-sp" id="btnSP" disabled>SP 必殺</button>
+        <button class="cmdBtn btn-sp" id="btnSP" disabled>必殺技</button>
         <button class="cmdBtn btn-switch" id="btnSwitch">交代</button>
       </div>
     </div>
@@ -794,7 +793,7 @@ function lockInputs(on){
   updateSPBtn();
 }
 
-/* === 控えの位置をパネルにドッキング（少し重ねる） === */
+/* === 控え帯をパネル上端にドッキング === */
 function positionBenchRow(){
   const bench = $('benchRow');
   const pad   = $('pad');
@@ -820,8 +819,9 @@ function positionBenchRow(){
 
   const rect = pad.getBoundingClientRect();
   const padTopFromBottom = window.innerHeight - rect.top;
-  const overlap = 6; // 帯の下辺がパネル内に 6px くらい食い込む
-  let bottomPx = padTopFromBottom - overlap;
+
+  // ベンチ帯の「下辺」がパネルの「上辺」にぴったり乗るように
+  let bottomPx = padTopFromBottom;
   if(bottomPx < 0) bottomPx = 0;
   bench.style.bottom = bottomPx + 'px';
 }
@@ -1087,14 +1087,14 @@ function updateSPBtn(){
   btn.disabled = !canPress;
 
   if(state.spOn){
-    btn.innerHTML = '<span>✨</span> 必殺 ON';
+    btn.innerHTML = '<span>✨</span> 必殺ON';
     btn.className = 'cmdBtn btn-sp on';
   }else{
     if(ready && !inputLocked){
-      btn.innerHTML = '<span>✨</span> PUSH!';
+      btn.innerHTML = '<span>✨</span> 必殺技';
       btn.className = 'cmdBtn btn-sp ready';
     }else{
-      btn.innerHTML = '<span>SP</span> 必殺技';
+      btn.innerHTML = '<span>必殺技</span>';
       btn.className = 'cmdBtn btn-sp';
     }
   }
