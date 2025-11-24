@@ -1,11 +1,11 @@
-<!doctype html> 
+<!doctype html>  
 <html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>KOTOBA-BATTLE | v40.00 Type Rollback Fixed</title>
+<title>KOTOBA-BATTLE | v45.00 Final Layout Fix</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,9 +14,9 @@
 
 <style>
 :root{
-  --bg: #050505; --text: #e2e8f0;
+  --bg: #020617; --text: #f1f5f9;
   --primary: #3b82f6; --accent: #f59e0b;
-  /* タイプ色 (v37以前の明るいネオンカラー) */
+  /* タイプ色 */
   --t-ジオ:#6366f1; --t-アニマル:#22c55e; --t-フード:#f59e0b; 
   --t-コンセプト:#d946ef; --t-サイエンス:#06b6d4; --t-ヒストリー:#ec4899; --t-ヒューマン:#84cc16;
 }
@@ -26,7 +26,7 @@ html,body{ height:100%; margin:0; padding:0; overscroll-behavior: none; }
 body{
   background-color: var(--bg); color: var(--text);
   font-family: 'Noto Sans JP', sans-serif;
-  background-image: radial-gradient(circle at 50% 30%, #111827 0%, #000000 80%);
+  background-image: radial-gradient(circle at 50% 30%, #1e293b 0%, #020617 80%);
   overflow: hidden;
 }
 
@@ -87,29 +87,43 @@ body::after {
   100% { opacity: 0; transform: translateY(-20px); }
 }
 
-/* アリーナ */
-.arena { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 4px; position: relative; z-index: 1; }
-.vsrow { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: stretch; perspective: 800px; }
-.vsrow > div { min-width: 0; height: 100%; display: flex; flex-direction: column; }
+/* アリーナ (ログ被り対策: padding-bottomを調整し、下に境界線を追加) */
+.arena { 
+  flex: 1; min-height: 0; display: flex; flex-direction: column; 
+  padding: 6px 6px 6px 6px;  /* ★ 20px → 6px に縮小 */
+  position: relative; z-index: 1; 
+  border-bottom: 1px solid #0f172a;  /* ★ アリーナとログの区切り線 */
+}
+.vsrow { 
+  flex: 1; min-height: 0; 
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; 
+  align-items: stretch; perspective: 800px; 
+}
+.vsrow > div { 
+  min-width: 0; height: 100%; 
+  display: flex; flex-direction: column;
+  padding-bottom: 8px;  /* ★ カードの下を少し空けて高さを抑える */
+}
 
 /* ログ */
 .logWrapper { 
   flex: 0 0 90px; height: 90px; min-height: 90px;
-  border-top: 1px solid #1e293b; border-bottom: 1px solid #1e293b; 
-  background: rgba(0, 0, 0, 0.9); 
+  border-top: 1px solid #334155; border-bottom: 1px solid #334155; 
+  background: rgba(2, 6, 23, 0.95); 
   display: flex; flex-direction: column; position: relative; z-index: 10;
   font-family: 'Consolas', monospace;
+  margin-top: 6px;  /* ★ カードとの間にスキマ */
 }
 .logHeader { 
-  background: #0f172a; color: #64748b; font-size: 10px; padding: 2px 8px; 
-  font-weight: 700; flex: 0 0 auto; letter-spacing: 1px; border-bottom: 1px solid #1e293b;
+  background: #1e293b; color: #94a3b8; font-size: 10px; padding: 2px 8px; 
+  font-weight: 700; flex: 0 0 auto; letter-spacing: 1px; border-bottom: 1px solid #334155;
 }
 .logContainer { 
   flex: 1; overflow-y: auto; padding: 4px 8px; font-size: 11px; 
   display: flex; flex-direction: column; gap: 2px; 
   -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
 }
-.logLine { padding: 1px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); flex-shrink: 0; color: #94a3b8; }
+.logLine { padding: 1px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); flex-shrink: 0; color: #cbd5e1; }
 .logLine.highlight { color: #f59e0b; } 
 .logLine.dmg { color: #f87171; } .logLine.heal { color: #34d399; }
 
@@ -117,10 +131,10 @@ body::after {
 .benchRow { 
   flex: 0 0 40px; height: 40px;
   display:flex; align-items:center; justify-content:center; gap:8px; 
-  width:100%; background: rgba(2, 6, 23, 0.95); border-top: 1px solid #1e293b;
+  width:100%; background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155;
   z-index: 10;
 }
-.benchLabel{ font-weight:700; font-family:'Orbitron'; font-size:9px; color:#475569; letter-spacing: 1px; }
+.benchLabel{ font-weight:700; font-family:'Orbitron'; font-size:9px; color:#64748b; letter-spacing: 1px; }
 .resIcon { 
   width: 32px; height: 32px; 
   background: #1e293b; border: 2px solid #334155; border-radius: 4px;
@@ -134,11 +148,11 @@ body::after {
 
 /* 操作パネル */
 .padCard { 
-  flex: 0 0 auto; background: rgba(5, 5, 5, 0.95); 
+  flex: 0 0 auto; background: rgba(15, 23, 42, 0.95); 
   padding: 8px 16px 12px; display: flex; flex-direction: column; justify-content: center;
-  border-top: 2px solid #1e293b; position: relative; z-index: 20;
+  border-top: 2px solid #334155; position: relative; z-index: 20;
 }
-.padHead { display: flex; justify-content: center; align-items: center; margin-bottom: 6px; font-size: 11px; color: #64748b; font-family: 'Orbitron'; flex: 0 0 auto; }
+.padHead { display: flex; justify-content: center; align-items: center; margin-bottom: 6px; font-size: 11px; color: #94a3b8; font-family: 'Orbitron'; flex: 0 0 auto; }
 .timerVal { font-size: 24px; color: #38bdf8; font-weight: 700; margin-left: 8px; text-shadow: 0 0 10px #38bdf8; }
 
 .padInner { display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; }
@@ -188,54 +202,93 @@ body::after {
   border-radius: 6px; padding: 2px;
   background: #1e293b; 
   display: flex; flex-direction: column;
-  border: 1px solid #334155;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  /* デフォルト枠線設定（太さを3pxに統一） */
+  border-width: 3px;
+  border-style: solid;
+  border-color: #334155;
 }
-/* Sランク演出 */
-.unit[data-rank="S"] { 
-  border: 1px solid #a855f7; 
-  background: linear-gradient(135deg, #4c1d95, #2e1065);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.5), 0 0 30px rgba(192, 38, 211, 0.2); 
-  animation: rainbowGlow 6s infinite alternate;
+
+/* Sランク: 真・虹色グラデーション + 強力な輝き */
+.unit[data-rank="S"] {
+  border-color: transparent; 
+  background-image: linear-gradient(#1e293b, #1e293b), 
+                    linear-gradient(120deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+  background-size: 100% 100%, 300% 300%;
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.3);
+  animation: rainbowBorder 3s linear infinite;
+}
+@keyframes rainbowBorder {
+  0% { background-position: 0 0, 0% 50%; }
+  100% { background-position: 0 0, 100% 50%; }
 }
 .unit[data-rank="S"]::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 10;
-  background: linear-gradient(125deg, transparent 20%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.4) 60%, transparent 80%);
-  background-size: 200% 200%; mix-blend-mode: overlay; animation: shine 3.5s infinite;
-  opacity: 0.7;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.3) 55%, transparent 70%);
+  background-size: 250% 250%;
+  mix-blend-mode: overlay;
+  animation: shine 4s infinite;
+  opacity: 0.8;
+  border-radius: 4px;
 }
-@keyframes rainbowGlow {
-  0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); border-color: #a855f7; }
-  100% { box-shadow: 0 0 25px rgba(236, 72, 153, 0.6); border-color: #f472b6; }
+
+/* Aランク: 金色 */
+.unit[data-rank="A"] {
+  border-color: transparent;
+  background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(135deg, #b45309, #facc15, #b45309);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.4);
 }
-.unit[data-rank="A"] { border: 1px solid #fde047; background: linear-gradient(135deg, #713f12, #854d0e); box-shadow: 0 0 10px rgba(234, 179, 8, 0.3); }
 .unit[data-rank="A"]::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 10;
-  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
-  background-size: 250% 250%; animation: shine 5s infinite;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+  background-size: 250% 250%;
+  animation: shine 6s infinite;
+  opacity: 0.6;
+  border-radius: 4px;
 }
-.unit[data-rank="B"] { border: 1px solid #94a3b8; background: #334155; }
-.unit[data-rank="C"] { border: 1px solid #475569; background: #1e293b; }
-.unit[data-rank="D"] { border: 1px solid #334155; background: #0f172a; }
-.unit[data-rank="X"] { border: 1px solid #ff00ff; background: #2e1065; animation: glitchBorder 0.2s infinite; }
+
+/* Bランク: 銀色 */
+.unit[data-rank="B"] {
+  border-color: transparent;
+  background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(135deg, #64748b, #cbd5e1, #64748b);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  box-shadow: 0 0 8px rgba(148, 163, 184, 0.4);
+}
+
+/* C/D/Xランク: 太さを3pxに統一して明示 */
+.unit[data-rank="C"] { border-color: #a85b26; }
+.unit[data-rank="D"] { border-color: #64748b; }
+.unit[data-rank="X"] { border-color: #d946ef; animation: glitchBorder 0.2s infinite; }
 
 @keyframes shine { 0% { background-position: 200% 200%; } 100% { background-position: -100% -100%; } }
 
+
 .unitInner {
   flex: 1; display: flex; flex-direction: column;
-  background: rgba(15, 23, 42, 0.6);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.6) 100%);
   border-radius: 4px; overflow: hidden; height: 100%; position: relative; z-index: 1;
+}
+.unitInner::before {
+  content:""; position:absolute; inset:0; pointer-events:none;
+  box-shadow: inset 0 -10px 40px -10px var(--typeColor);
+  opacity: 0.5; z-index: 2;
 }
 
 .cardHeader { 
   flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; 
-  padding: 4px 8px; background: rgba(0,0,0,0.4); 
+  padding: 4px 8px; background: rgba(0,0,0,0.6); 
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  position: relative; z-index: 2;
 }
-.ownerBadge { font-family: 'Orbitron'; font-size: 9px; padding: 1px 4px; background: #0f172a; color: #94a3b8; border-radius: 2px; }
-.ownerBadge.ally { color: #60a5fa; }
-.ownerBadge.enemy { color: #fca5a5; }
+.ownerBadge { font-family: 'Orbitron'; font-size: 9px; padding: 1px 4px; background: #0f172a; color: #94a3b8; border-radius: 2px; border: 1px solid #334155; }
+.ownerBadge.ally { color: #60a5fa; border-color: #1e40af; }
+.ownerBadge.enemy { color: #fca5a5; border-color: #991b1b; }
 
-/* タイプアイコン (元のデザイン: カード右上) */
 .typeIcon { 
   font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 0; 
   background: var(--typeColor); color: #000; 
@@ -245,14 +298,14 @@ body::after {
 
 .cardName { 
   flex: 0 0 auto; font-weight: 900; font-size: 14px; color: #fff; 
-  text-shadow: 0 1px 2px #000; 
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
   white-space: nowrap; text-align: center; height: 24px; line-height: 24px; 
-  background: linear-gradient(90deg, transparent, rgba(var(--typeColor), 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--typeColor), 0.3), transparent);
   letter-spacing: 0.05em; margin-top: 2px;
+  position: relative; z-index: 2;
 }
 
-/* 相性表示 (名前直下) */
-.subInfo { height: 16px; display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 2px; }
+.subInfo { height: 16px; display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 2px; position:relative; z-index:5; }
 .affTag { font-size: 10px; padding: 0 6px; border-radius: 3px; color: #fff; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); }
 .affTag.good { background: #16a34a; border-color: #4ade80; }
 .affTag.bad { background: #dc2626; border-color: #f87171; }
@@ -260,16 +313,26 @@ body::after {
 .artArea {
   position: relative; width: 100%; flex: 1; min-height: 0; margin: 0; 
   display: flex; align-items: center; justify-content: center;
-  overflow: hidden; background: radial-gradient(circle, rgba(255,255,255,0.05), transparent);
+  overflow: hidden;
+  /* オーラ */
+  background: radial-gradient(circle, var(--typeColor) 0%, transparent 70%);
+  opacity: 0.9; 
 }
+.artArea::before {
+  content:''; position: absolute; inset:0;
+  background: radial-gradient(circle, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 100%);
+  z-index: 0;
+}
+
 .mainImg {
   max-height: 85%; max-width: 85%; width: auto; height: auto;
-  object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+  object-fit: contain; filter: drop-shadow(0 0 15px var(--typeColor));
   transform: none !important; animation: none !important;
+  z-index: 1;
 }
 
 .statsArea { 
-  flex: 0 0 auto; padding: 6px; background: rgba(0, 0, 0, 0.6); 
+  flex: 0 0 auto; padding: 6px; background: rgba(15, 23, 42, 0.9); 
   position: relative; z-index: 3; border-top: 1px solid rgba(255,255,255,0.1); 
 }
 .hpRow{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:2px; font-family:'Teko'; }
@@ -277,7 +340,6 @@ body::after {
 .hpNum{ display:flex; align-items:baseline; gap:1px; font-weight:700; color:#fff; font-size:16px; letter-spacing: 1px; }
 .hpSlash,.hpMax{ font-size:12px; color:#64748b; }
 
-/* HPバー：単色青 */
 .hpBarBg { width: 100%; height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; }
 .hpBar { 
   height: 100%; width: 100%; transition: width 0.3s; 
@@ -287,9 +349,9 @@ body::after {
 .statusRow { display: flex; gap: 2px; min-height: 14px; margin-top: 2px; justify-content: flex-end; flex-wrap: wrap; }
 .stBadge { font-size: 9px; padding: 0 4px; background: #450a0a; color: #fca5a5; border: 1px solid #991b1b; border-radius: 2px; }
 
-.bottomSection { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; padding: 4px; background: rgba(0,0,0,0.2); margin-top: 1px; }
+.bottomSection { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; padding: 4px; background: rgba(0,0,0,0.2); margin-top: 1px; z-index: 3; }
 .skillInfo { 
-  background: rgba(30, 41, 59, 0.4); padding: 4px; border-radius: 4px;
+  background: rgba(30, 41, 59, 0.6); padding: 4px; border-radius: 4px;
   flex: 0 0 auto; min-height: 40px; display:flex; flex-direction:column; justify-content:center; 
   border-left: 3px solid var(--typeColor);
 }
@@ -311,7 +373,7 @@ body::after {
 
 /* 共通UI・モーダル */
 #jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
-#switchModal,#infoModal,#rulesModal,#result{background:rgba(0,0,0,0.8);pointer-events:auto;backdrop-filter:blur(4px)}
+#switchModal,#infoModal,#rulesModal,#result{background:rgba(0,0,0,0.85);pointer-events:auto;backdrop-filter:blur(4px)}
 #jankenOverlay.active{display:flex;background:rgba(0,0,0,0.3)}
 #cutIn.show,#switchModal.show,#infoModal.show,#rulesModal.show,#result.show{display:flex}
 
@@ -476,7 +538,7 @@ body::after {
 <audio id="seKO" src="audio/ko.mp3"></audio>
 
 <script>
-(()=> {
+(() => {
 'use strict';
 const $ = id => document.getElementById(id);
 const qs = (s, el = document) => el.querySelector(s);
@@ -1050,7 +1112,7 @@ function openForceSwitch(indices){
   swModal.classList.add('show');
 }
 
-// グローバルスコープに_sh関数を定義 (重要修正)
+// グローバルスコープに_sh関数を定義
 window._sh = (n) => {
   const u = [...state.A.team, ...state.B.team].find(x => x.name === n);
   if (!u) return;
@@ -1110,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(forceSwitch){ 
         forceSwitch = false; 
         await delay(600); 
-        startRound(); // 修正: 強制交代後、確実に次のラウンドを開始
+        startRound(); 
       }else{ 
         await delay(500); 
         const ended = await doTurn('enemy'); 
@@ -1126,3 +1188,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+```
