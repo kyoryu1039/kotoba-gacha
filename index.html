@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="ja">
 <head>
 <meta charset="utf-8">
@@ -293,6 +293,15 @@ header{
 .tier-X .coll-item { border-color: rgba(255,77,77,0.3); }
 .tier-C .tier-progress-fill, .tier-D .tier-progress-fill { background: var(--blue); }
 
+/* ★ ここから：枚数表示の色をバーと揃える ★ */
+.tier-S .tier-counts, .tier-S .coll-item-count { color: var(--gold); }
+.tier-A .tier-counts, .tier-A .coll-item-count { color: var(--amber); }
+.tier-B .tier-counts, .tier-B .coll-item-count { color: var(--aqua); }
+.tier-C .tier-counts, .tier-C .coll-item-count,
+.tier-D .tier-counts, .tier-D .coll-item-count { color: var(--blue); }
+.tier-X .tier-counts, .tier-X .coll-item-count { color: var(--bad); }
+/* ★ ここまで追加 ★ */
+
 /* === CPU Battle Mode Styles === */
 .cyber-grid { position: absolute; inset: -50%; width: 200%; height: 200%; background-image: linear-gradient(transparent 0%, var(--bg) 100%), linear-gradient(0deg, rgba(99,234,217,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(99,234,217,0.2) 1px, transparent 1px); background-size: 40px 40px; transform: perspective(500px) rotateX(60deg); animation: gridMove 1s linear infinite; z-index: -1; pointer-events: none; opacity: 0.5; }
 @keyframes gridMove { 0% { transform: perspective(500px) rotateX(60deg) translateY(0); } 100% { transform: perspective(500px) rotateX(60deg) translateY(40px); } }
@@ -570,7 +579,8 @@ const storeChorusClaimed="kotoba_chorus_claimed_v1";
 const seen=new Set(JSON.parse(localStorage.getItem(storeSeen)||"[]"));
 const unlockedTiers=new Set(JSON.parse(localStorage.getItem(storeUnlocked)||"[]"));
 const pullCounts=JSON.parse(localStorage.getItem(storePullCounts)||"{}");
-const chorusClaimed = localStorage.getItem(storeChorusClaimed) === 'true';
+/* ★ chorusClaimed を let にして、後で更新できるように変更 ★ */
+let chorusClaimed = localStorage.getItem(storeChorusClaimed) === 'true';
 
 let selectedBGM=localStorage.getItem(storeBGM)||"default";
 const tiers=["S","A","B","C","D","X"];
@@ -833,15 +843,15 @@ function checkFullCompletion() {
     tiers.forEach(t => { pools[t].forEach(() => allWords++); });
 
     if (seen.size === allWords && !chorusClaimed) {
-        // 1. Mark claimed
+        // 1. Mark claimed inメモリ & localStorage
+        chorusClaimed = true;
         localStorage.setItem(storeChorusClaimed, 'true');
         
-        // 2. Play Audio
-        playTrack('chorus');
-        
-        // 3. Announce & Confetti burst for 3 seconds
+        // 2. BGMは切り替えず、そのまま流し続ける
+        //    → トーストと紙吹雪だけにする
         showToast("★★ 全ての実体化を確認しました！ ★★");
         
+        // 3. Confetti burst for 3 seconds
         const confettiDuration = 3000;
         const confettiInterval = setInterval(() => {
             confetti(); 
@@ -1008,6 +1018,7 @@ document.getElementById('btn-reset').onclick=()=>{
     localStorage.setItem(storeUnlocked,"[]");
     localStorage.removeItem(storePullCounts); // FIXED: Clear pull counts
     localStorage.removeItem(storeChorusClaimed); // Clear chorus claim flag
+    chorusClaimed = false; // ★ フラグもリセット
 
     switchTab('gacha', 0);
     renderCollection();
