@@ -480,6 +480,15 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
           ・ゲーム：にほんのあらそい、甲虫王者ムシキング、ポケットモンスター
         </div>
       </details>
+      <!-- ★ 追加：どうしても眠れない夜に聞く話 -->
+      <div class="infoBox">
+        <h3>どうしても眠れない夜に聞く話</h3>
+        <div class="infoSmall">
+          眠れない夜にだけ、そっと再生してください。<br>
+          <button class="btn-play" style="margin-top:8px;" id="btn-story">▶ 再生</button>
+        </div>
+      </div>
+      <!-- ★ 追加ここまで -->
     </div>
   </section>
 </div>
@@ -589,10 +598,21 @@ const tiers=["S","A","B","C","D","X"];
 const bgmPlayer=document.getElementById('bgm-player');
 const bgmBtn=document.getElementById('btn-bgm-toggle');
 const volSlider=document.getElementById('vol-slider');
+
+/* ★ 追加：眠れない夜用ストーリー音源 ★ */
+const storyPlayer = new Audio('audio/story.mp3');
+storyPlayer.loop = false;
+/* ★ 追加ここまで ★ */
+
 let isBgmOn=false;
 
 bgmPlayer.volume=parseFloat(volSlider.value);
-volSlider.addEventListener('input',()=>bgmPlayer.volume=parseFloat(volSlider.value));
+storyPlayer.volume=bgmPlayer.volume;
+volSlider.addEventListener('input',()=>{
+  const v=parseFloat(volSlider.value);
+  bgmPlayer.volume=v;
+  storyPlayer.volume=v;
+});
 
 function setBgmState(on){
   isBgmOn = on;
@@ -1028,6 +1048,29 @@ document.getElementById('btn-reset').onclick=()=>{
 document.getElementById('btn-rates').onclick=()=>{alert("排出率:\nS:2% A:8% B:20% C:30% D:30% X:10%");};
 const savedTrack = getTracks().find(t=>t.id===selectedBGM);
 if(savedTrack) bgmPlayer.src = savedTrack.src;
+
+/* ★ 追加：どうしても眠れない夜に聞く話 再生ロジック ★ */
+const storyBtn = document.getElementById('btn-story');
+if(storyBtn){
+  storyBtn.addEventListener('click',()=>{
+    sfxTap();
+    if(storyPlayer.paused){
+      // ストーリー再生時はBGMを止める
+      if(isBgmOn){ setBgmState(false); }
+      storyPlayer.currentTime = 0;
+      storyPlayer.play().catch(()=>{});
+      storyBtn.textContent = '■ 停止';
+    }else{
+      storyPlayer.pause();
+      storyPlayer.currentTime = 0;
+      storyBtn.textContent = '▶ 再生';
+    }
+  });
+  storyPlayer.addEventListener('ended',()=>{
+    storyBtn.textContent = '▶ 再生';
+  });
+}
+/* ★ 追加ここまで ★ */
 </script>
 </body>
 </html>
