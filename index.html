@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate v26</title>
+<title>ことばコレクションガチャ Ultimate v27</title>
 <meta name="theme-color" content="#0b0f1c">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,8 @@
 /* === Core Variables === */
 :root {
   --bg: #0b0f1c; --panel: #141b2e; --edge: #2a3555;
-  --ink: #eef2ff; --muted: #94a3b8;
+  --ink: #FFFFFF; /* FIXED: Enforced White Font */
+  --muted: #94a3b8;
   --gold: #ffd700; --amber:#ffbd63; --aqua: #63ead9; --blue:#8fb1ff; --gray:#94a3b8; --bad: #ff4d4d;
   --spotify: #1DB954;
   --nav-height: 64px;
@@ -51,6 +52,7 @@ body {
   40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
+/* Flash Effect */
 .white-flash {
   position: fixed; inset: 0; background: white; z-index: 2000;
   pointer-events: none; opacity: 0; transition: opacity 0.1s ease-out;
@@ -115,11 +117,10 @@ header{
 .btn-label { font-size: 16px; font-weight: 900; letter-spacing: 0.5px; color: #fff; z-index: 3; pointer-events: none; }
 .btn-sub { font-size: 10px; color:var(--muted); font-weight:700; z-index: 3; pointer-events: none; }
 
-/* Gauge Animation (FIXED) */
+/* Gauge Animation */
 .btn-progress {
   position: absolute; bottom: 0; left: 0; height: 100%; width: 0%;
-  z-index: 2; /* Above bg, below text */
-  opacity: 0.6; mix-blend-mode: normal; /* Fix visibility */
+  z-index: 2; opacity: 0.6; mix-blend-mode: normal;
 }
 .btn-summon.single .btn-progress { background: var(--aqua); box-shadow: 0 0 20px var(--aqua); }
 .btn-summon.multi .btn-progress { background: var(--gold); box-shadow: 0 0 20px var(--gold); }
@@ -128,12 +129,11 @@ header{
 .btn-summon.single.charging .btn-progress { transition: width 0.6s linear; }
 .btn-summon.multi.charging .btn-progress { transition: width 1.0s linear; }
 
-/* === Card Design (FIXED: Inner/Outer Wrapper for Badge) === */
+/* === Card Design === */
 .card-stage {
   perspective: 1000px; display: flex; justify-content: center; align-items: center;
   width: 300px; height: 420px; position: relative;
 }
-/* Outer wrapper: Handles 3D rotate, Visible Overflow for Badge */
 .result-card {
   width: 100%; height: 100%; position: relative;
   text-align: center; transform-style: preserve-3d;
@@ -141,25 +141,39 @@ header{
 }
 .result-card.show { transform: scale(1); opacity: 1; }
 
-/* Inner wrapper: Handles Backgrounds, Borders, Clipping */
 .result-card-inner {
   width: 100%; height: 100%; padding: 24px 20px; border-radius: 20px;
   background: rgba(16, 24, 45, 0.95); backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.1); 
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  overflow: hidden; /* Clip internal effects */
+  overflow: hidden; 
   position: absolute; top: 0; left: 0;
   box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.4);
 }
 
 /* Styles apply to INNER now */
+@keyframes pulseGold { 0%,100%{box-shadow:0 0 40px var(--gold);} 50%{box-shadow:0 0 80px var(--gold), 0 0 20px #fff;} }
+@keyframes pulseBad { 0%,100%{box-shadow:0 0 20px var(--bad);} 50%{box-shadow:0 0 50px var(--bad), inset 0 0 20px var(--bad);} }
+@keyframes rotateRays { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+@keyframes shineSweep { 0%{left:-100%;} 100%{left:200%;} }
+
 .result-card.S .result-card-inner {
   background: radial-gradient(circle at center, rgba(255, 215, 0, 0.2) 0%, rgba(20, 27, 46, 0.95) 80%);
   border: 2px solid var(--gold); animation: pulseGold 2s infinite;
 }
+.result-card.S .result-card-inner::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(255,215,0,0.1) 10%, transparent 20%, rgba(255,215,0,0.3) 50%, transparent 80%);
+  animation: rotateRays 6s linear infinite; z-index: 0; pointer-events: none;
+}
 .result-card.A .result-card-inner {
   background: radial-gradient(circle at center, rgba(255, 189, 99, 0.15) 0%, rgba(20, 27, 46, 0.95) 80%);
   border: 1px solid var(--amber); box-shadow: 0 0 40px rgba(255, 189, 99, 0.4);
+}
+.result-card.A .result-card-inner::after {
+  content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg); animation: shineSweep 2s infinite; z-index: 1; pointer-events: none;
 }
 .result-card.B .result-card-inner {
   background: radial-gradient(circle at center, rgba(99, 234, 217, 0.1) 0%, rgba(20, 27, 46, 0.95) 80%);
@@ -172,30 +186,14 @@ header{
 }
 .result-card.D .result-card-inner { border: 1px solid var(--gray); }
 
-@keyframes pulseGold { 0%,100%{box-shadow:0 0 40px var(--gold);} 50%{box-shadow:0 0 80px var(--gold), 0 0 20px #fff;} }
-@keyframes pulseBad { 0%,100%{box-shadow:0 0 20px var(--bad);} 50%{box-shadow:0 0 50px var(--bad), inset 0 0 20px var(--bad);} }
-
-/* Effects inside Inner */
-.holo-sheen {
-  position: absolute; inset: 0; border-radius: 20px; pointer-events: none;
-  background: linear-gradient(135deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 60%);
-  background-size: 300% 300%; opacity: 0; mix-blend-mode: overlay; z-index: 5;
-}
+.holo-sheen { position: absolute; inset: 0; border-radius: 20px; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 60%); background-size: 300% 300%; opacity: 0; mix-blend-mode: overlay; z-index: 5; }
 .result-card.S .holo-sheen, .result-card.A .holo-sheen { opacity: 1; }
 
-.result-card.S .result-card-inner::before {
-  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: conic-gradient(from 0deg, transparent 0%, rgba(255,215,0,0.1) 10%, transparent 20%, rgba(255,215,0,0.3) 50%, transparent 80%);
-  animation: rotateRays 6s linear infinite; z-index: 0; pointer-events: none;
-}
-@keyframes rotateRays { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-
-.result-card.A .result-card-inner::after {
-  content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
-  transform: skewX(-20deg); animation: shineSweep 2s infinite; z-index: 1; pointer-events: none;
-}
-@keyframes shineSweep { 0%{left:-100%;} 100%{left:200%;} }
+.result-img-container { width: 160px; height: 160px; margin-bottom: 16px; position: relative; transform: translateZ(30px); display: flex; align-items: center; justify-content: center; }
+.result-img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
+.result-rarity { font-size: 48px; margin-bottom: 12px; transform: translateZ(30px); }
+.result-word { font-size: 24px; font-weight: 900; margin: 8px 0; line-height: 1.3; transform: translateZ(20px); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+.result-desc { font-size: 13px; color: var(--muted); line-height: 1.7; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 8px; transform: translateZ(10px); }
 
 /* Badge - Outside Inner */
 .badge {
@@ -208,14 +206,6 @@ header{
 }
 @keyframes popIn{from{transform:scale(0) rotate(0deg)}to{transform:scale(1) rotate(10deg)}}
 
-/* Content */
-.result-img-container, .result-word, .result-desc, .result-rarity { position: relative; z-index: 2; }
-.result-img-container { width: 160px; height: 160px; margin-bottom: 16px; transform: translateZ(30px); display: flex; align-items: center; justify-content: center; }
-.result-img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
-.result-rarity { font-size: 48px; margin-bottom: 12px; transform: translateZ(30px); }
-.result-word { font-size: 24px; font-weight: 900; margin: 8px 0; line-height: 1.3; transform: translateZ(20px); text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-.result-desc { font-size: 13px; color: var(--muted); line-height: 1.7; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 8px; transform: translateZ(10px); }
-
 /* === Summary List === */
 .summary-container {
   width: 100%; max-width: 360px; max-height: 55vh; overflow-y: auto;
@@ -226,7 +216,8 @@ header{
 .summary-card {
   display: flex; align-items: center; gap: 12px;
   background: rgba(20, 27, 46, 0.9); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px; padding: 10px; text-align: left; position: relative; overflow: hidden;
+  border-radius: 12px; padding: 10px; text-align: left; position: relative; 
+  overflow: visible; /* FIX 1: Allow badge pop-out */
 }
 .summary-card.S { border: 1px solid var(--gold); background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), transparent); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
 .summary-card.A { border: 1px solid var(--amber); background: linear-gradient(90deg, rgba(255, 189, 99, 0.1), transparent); }
@@ -255,14 +246,39 @@ header{
 .tier-reward { font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--muted); display: flex; align-items: center; gap: 4px; transition: .2s; margin-right: 8px; }
 .tier-reward.unlocked { background: rgba(99, 234, 217, 0.15); color: var(--aqua); border: 1px solid var(--aqua); box-shadow: 0 0 10px rgba(99,234,217,0.2); cursor: pointer; }
 .tier-reward.unlocked:active { transform: scale(0.95); background: rgba(99, 234, 217, 0.3); }
-.coll-item { aspect-ratio: 0.8; border: 1px solid var(--edge); border-radius: 12px; background: rgba(255,255,255,0.03); display: flex; flex-direction: column; justify-content: space-between; text-align: center; padding: 6px; cursor: pointer; transition: .2s; position: relative; overflow: hidden; }
-.coll-item-img-box { height: 65%; width: 100%; display: flex; align-items: center; justify-content: center; }
-.coll-img { max-width: 100%; max-height: 100%; object-fit: contain; transition: .2s; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+
+.coll-item {
+  aspect-ratio: 0.8;
+  border: 1px solid var(--edge); border-radius: 12px;
+  background: rgba(255,255,255,0.03); 
+  display: flex; flex-direction: column; justify-content: space-between;
+  text-align: center; padding: 6px;
+  cursor: pointer; transition: .2s; position: relative; overflow: hidden;
+}
+.coll-item-img-box {
+  height: 65%; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.coll-img { 
+  max-width: 100%; max-height: 100%; 
+  object-fit: contain; transition: .2s; 
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); 
+}
 .coll-item.locked .coll-img { display: none; }
 .coll-icon-locked { font-size: 24px; opacity: 0.3; }
-.coll-item-name { height: 35%; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; line-height: 1.2; overflow: hidden; word-break: break-all; color: var(--ink); }
+
+.coll-item-name {
+  height: 35%; width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; line-height: 1.2; 
+  overflow: hidden; word-break: break-all;
+  color: var(--ink);
+}
 .coll-item.locked .coll-item-name { color: var(--muted); }
+.coll-item-count { font-size: 9px; color: var(--aqua); font-weight: 900; margin-top: 2px;}
+
 .coll-grid-tier { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+
 .tier-S .tier-title { color: var(--gold); }
 .tier-S .tier-progress-fill { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .tier-S .coll-item { border-color: rgba(255,215,0,0.3); }
@@ -548,8 +564,14 @@ const rewards={
 const storeSeen="kotoba_collection_seen_v4_7";
 const storeBGM="kotoba_bgm_selected_v4_7";
 const storeUnlocked="kotoba_unlocked_tiers_v4_7";
+const storePullCounts="kotoba_pull_counts_v1";
+const storeChorusClaimed="kotoba_chorus_claimed_v1";
+
 const seen=new Set(JSON.parse(localStorage.getItem(storeSeen)||"[]"));
 const unlockedTiers=new Set(JSON.parse(localStorage.getItem(storeUnlocked)||"[]"));
+const pullCounts=JSON.parse(localStorage.getItem(storePullCounts)||"{}");
+const chorusClaimed = localStorage.getItem(storeChorusClaimed) === 'true';
+
 let selectedBGM=localStorage.getItem(storeBGM)||"default";
 const tiers=["S","A","B","C","D","X"];
 
@@ -682,19 +704,22 @@ function preloadImage(url) {
 async function roll(count){
   if(isBgmOn && bgmPlayer.paused) bgmPlayer.play().catch(()=>{});
   
-  // 1. SHOW OVERLAY
   overlay.classList.add('active'); resCont.innerHTML="";
   summonCircle.classList.remove('active');
   void summonCircle.offsetWidth; 
   summonCircle.classList.add('active');
   summonCircle.style.display = 'block';
   
-  // 2. CALC & PRELOAD
   const results = [];
   for(let i=0;i<count;i++){
     const t=pickTier();
     const w=pickWord(t);
     const isNew=!seen.has(w);
+    
+    // Update Pull Counts
+    pullCounts[w] = (pullCounts[w] || 0) + 1;
+    localStorage.setItem(storePullCounts, JSON.stringify(pullCounts));
+    
     if(isNew){ seen.add(w); localStorage.setItem(storeSeen,JSON.stringify([...seen])); }
     results.push({t, w, isNew});
   }
@@ -720,8 +745,7 @@ async function roll(count){
       const {t, w, isNew} = results[i];
       const cardWrap = document.createElement('div'); cardWrap.className = 'card-stage';
       
-      // 1. Create Wrapper (Outer Card)
-      const card = document.createElement('div'); 
+      const card=document.createElement('div'); 
       card.className=`result-card ${t}`;
       if(t==='X') document.body.classList.add('glitch-mode');
       
@@ -729,7 +753,7 @@ async function roll(count){
       const imgHtml = imgPath ? `<div class="result-img-container"><img src="${imgPath}" class="result-img" alt="${w}"></div>` : `<div class="result-rarity">${icons[t]}</div>`;
 
       // 2. Create Inner Content (Clipped)
-      card.innerHTML = `
+      card.innerHTML=`
         <div class="result-card-inner">
            <div class="holo-sheen"></div>
            ${imgHtml}
@@ -739,11 +763,8 @@ async function roll(count){
         ${isNew ? '<div class="badge">NEW</div>' : ''}
       `;
       
-      if(t==='S' || t==='A') {
-        cardWrap.addEventListener('mousemove', (e) => tiltCard(e, card));
-        cardWrap.addEventListener('mouseleave', () => resetCardTilt(card));
-        if(window.DeviceOrientationEvent) window.addEventListener('deviceorientation', (e) => tiltCardMobile(e, card));
-      }
+      // 3D Tilt Removed
+
       cardWrap.appendChild(card);
       resCont.innerHTML=""; resCont.appendChild(cardWrap);
       
@@ -773,33 +794,25 @@ async function roll(count){
         d.className = `summary-card ${r.t}`;
         const rImg = wordImages[r.w] ? (IMAGE_BASE_URL + wordImages[r.w]) : null;
         const iconHtml = rImg ? `<div class="s-icon"><img src="${rImg}" class="s-img"></div>` : `<div class="s-icon">${icons[r.t]}</div>`;
+        const cardCount = pullCounts[r.w] || 0;
+
         d.innerHTML = `
           ${iconHtml}
           <div class="s-content"><div class="s-word">${r.w}</div><div class="s-desc">${exp[r.w] || ""}</div></div>
-          ${r.isNew ? '<div class="badge" style="top:-4px;right:-4px;font-size:9px;">NEW</div>' : ''}
+          ${r.isNew ? '<div class="badge">NEW</div>' : ''}
         `;
         grid.appendChild(d);
       });
     }
+    // Check for 100% completion reward
+    checkFullCompletion();
+
   } catch(e) { console.error(e); closeOverlay(); }
 }
 
-function tiltCard(e, card) {
-  const rect = card.getBoundingClientRect();
-  const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-  const cx = rect.width / 2; const cy = rect.height / 2;
-  const dx = (x - cx) / cx; const dy = (y - cy) / cy;
-  card.style.transform = `scale(1) rotateY(${dx * 15}deg) rotateX(${-dy * 15}deg)`;
-  const sheen = card.querySelector('.holo-sheen');
-  if(sheen) sheen.style.backgroundPosition = `${50 + (dx * 50)}% ${50 + (dy * 50)}%`;
-}
-function resetCardTilt(card){
-  card.style.transform = `scale(1) rotateY(0) rotateX(0)`;
-}
-function tiltCardMobile(e, card) {
-  const dx = e.gamma / 45; const dy = e.beta / 45;
-  card.style.transform = `scale(1) rotateY(${dx * 15}deg) rotateX(${-dy * 15}deg)`;
-}
+function tiltCard(e, card) { /* Disabled */ }
+function resetCardTilt(card){ /* Disabled */ }
+function tiltCardMobile(e, card) { /* Disabled */ }
 
 function closeOverlay(){ overlay.classList.remove('active'); sfxTap(); }
 function confetti(){
@@ -814,7 +827,32 @@ function confetti(){
   }
 }
 
-/* === COLLECTION & MODAL === */
+/* === COLLECTION & MODAL (Request 3: Add Count) === */
+function checkFullCompletion() {
+    let allWords = 0;
+    tiers.forEach(t => { pools[t].forEach(() => allWords++); });
+
+    if (seen.size === allWords && !chorusClaimed) {
+        // 1. Mark claimed
+        localStorage.setItem(storeChorusClaimed, 'true');
+        
+        // 2. Play Audio
+        playTrack('chorus');
+        
+        // 3. Announce & Confetti burst for 3 seconds
+        showToast("★★ 全ての実体化を確認しました！ ★★");
+        
+        const confettiDuration = 3000;
+        const confettiInterval = setInterval(() => {
+            confetti(); 
+        }, 300);
+        
+        setTimeout(() => {
+            clearInterval(confettiInterval);
+        }, confettiDuration);
+    }
+}
+
 function renderCollection(){
   const cont = document.getElementById('coll-container'); cont.innerHTML="";
   let allTotal=0, allHave=0;
@@ -851,11 +889,19 @@ function renderCollection(){
       const el=document.createElement('div');
       const known=seen.has(w);
       el.className=`coll-item ${known?'':'locked'}`;
+      
       const imgPath = (known && wordImages[w]) ? (IMAGE_BASE_URL + wordImages[w]) : null;
       const contentHtml = imgPath 
         ? `<div class="coll-item-img-box"><img src="${imgPath}" class="coll-img" loading="lazy"></div>` 
         : `<div class="coll-item-img-box coll-icon-locked">${icons[t]}</div>`;
-      el.innerHTML=`${contentHtml}<div class="coll-item-name">${known?w:'???'}</div>`;
+        
+      const cardCount = pullCounts[w] || 0;
+      const countHtml = cardCount > 1 ? `<span class="coll-item-count">x${cardCount}</span>` : '';
+
+      el.innerHTML=`
+        ${contentHtml}
+        <div class="coll-item-name">${known?w:'???'} ${countHtml}</div>
+      `;
       if(known) el.onclick=()=>showModal(w, exp[w], t);
       grid.appendChild(el);
     });
@@ -908,7 +954,6 @@ function renderBGMList(){
   });
 }
 
-// Issue 3 Fix: Check persistent unlocked state
 function tryUnlock(t){
   if(["S","A","B"].includes(t) && hasTier(t) && !unlockedTiers.has(t)){
     unlockedTiers.add(t);
@@ -916,13 +961,13 @@ function tryUnlock(t){
     showToast(`Rank ${t} コンプリート！BGM解放`);
     renderCollection(); // Refresh to show unlocked BGM in header
     renderBGMList();
+    checkFullCompletion(); // Check overall completion here
   }
 }
 
 const toast=document.getElementById('toast');
 function showToast(msg){toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3000);}
 
-/* Modal: Now accepts Tier to style border */
 const modal=document.getElementById('cmModal');
 let typeInterval = null;
 
@@ -955,14 +1000,15 @@ function showModal(title, text, tier){
 }
 document.getElementById('cmClose').onclick=()=>modal.classList.remove('show');
 document.getElementById('cmBackdrop').onclick=()=>modal.classList.remove('show');
-// FIX: Soft Reset instead of reload
 document.getElementById('btn-reset').onclick=()=>{
   if(confirm('本当にデータを初期化しますか？')) {
     seen.clear(); 
     localStorage.setItem(storeSeen,"[]"); 
     unlockedTiers.clear();
     localStorage.setItem(storeUnlocked,"[]");
-    // Soft Reload UI
+    localStorage.removeItem(storePullCounts); // FIXED: Clear pull counts
+    localStorage.removeItem(storeChorusClaimed); // Clear chorus claim flag
+
     switchTab('gacha', 0);
     renderCollection();
     showToast("データを初期化しました");
