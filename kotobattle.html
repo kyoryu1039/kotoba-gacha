@@ -349,14 +349,39 @@ body::after {
 .statusRow { display: flex; gap: 2px; min-height: 14px; margin-top: 2px; justify-content: flex-end; flex-wrap: wrap; }
 .stBadge { font-size: 9px; padding: 0 4px; background: #450a0a; color: #fca5a5; border: 1px solid #991b1b; border-radius: 2px; }
 
-.bottomSection { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; padding: 4px; background: rgba(0,0,0,0.2); margin-top: 1px; z-index: 3; }
+/* ▼▼ ここを調整：説明欄の高さと余白を増やしてかぶり防止 ▼▼ */
+.bottomSection { 
+  flex: 0 0 auto; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 4px; 
+  padding: 4px; 
+  background: rgba(0,0,0,0.2); 
+  margin-top: 1px; 
+  z-index: 3; 
+}
 .skillInfo { 
-  background: rgba(30, 41, 59, 0.6); padding: 4px; border-radius: 4px;
-  flex: 0 0 auto; min-height: 40px; display:flex; flex-direction:column; justify-content:center; 
+  background: rgba(30, 41, 59, 0.6); 
+  padding: 4px 4px 6px; 
+  border-radius: 4px;
+  flex: 0 0 auto; 
+  min-height: 48px; 
+  display:flex; 
+  flex-direction:column; 
+  justify-content:center; 
   border-left: 3px solid var(--typeColor);
 }
-.skillN { font-size: 11px; font-weight: 900; color: #fcd34d; margin-bottom: 1px; }
-.skillD { font-size: 9px; line-height: 1.2; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.skillN { font-size: 11px; font-weight: 900; color: #fcd34d; margin-bottom: 2px; }
+.skillD { 
+  font-size: 9px; 
+  line-height: 1.25; 
+  color: #cbd5e1; 
+  display: -webkit-box; 
+  -webkit-line-clamp: 3; 
+  -webkit-box-orient: vertical; 
+  overflow: hidden; 
+}
+/* ▲▲ 調整ここまで ▲▲ */
 
 .spRow { display: flex; gap: 2px; justify-content: center; height: 6px; margin: 4px 0; }
 .pip { width: 100%; height: 100%; background: #334155; border-radius: 2px; }
@@ -1188,4 +1213,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-```
