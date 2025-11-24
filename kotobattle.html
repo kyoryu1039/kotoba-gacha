@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
-<title>KOTOBA-BATTLE | v45.00 Final Layout Fix</title>
+<title>KOTOBA-BATTLE | v45.01 Skill Area Fix</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#020617">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -90,19 +90,31 @@ body::after {
 /* アリーナ (ログ被り対策: padding-bottomを調整し、下に境界線を追加) */
 .arena { 
   flex: 1; min-height: 0; display: flex; flex-direction: column; 
-  padding: 6px 6px 6px 6px;  /* ★ 20px → 6px に縮小 */
+  padding: 6px 6px 6px 6px;
   position: relative; z-index: 1; 
-  border-bottom: 1px solid #0f172a;  /* ★ アリーナとログの区切り線 */
+  border-bottom: 1px solid #0f172a;  /* アリーナとログの区切り線 */
 }
 .vsrow { 
   flex: 1; min-height: 0; 
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px; 
   align-items: stretch; perspective: 800px; 
 }
+
+/* ★高さが低い画面でカード全体がログに隠れないよう、アリーナ内をスケール縮小 */
+@media (max-height: 760px) {
+  .vsrow { transform: scale(0.95); transform-origin: top center; }
+}
+@media (max-height: 700px) {
+  .vsrow { transform: scale(0.9); transform-origin: top center; }
+}
+@media (max-height: 640px) {
+  .vsrow { transform: scale(0.85); transform-origin: top center; }
+}
+
 .vsrow > div { 
   min-width: 0; height: 100%; 
   display: flex; flex-direction: column;
-  padding-bottom: 8px;  /* ★ カードの下を少し空けて高さを抑える */
+  padding-bottom: 8px;
 }
 
 /* ログ */
@@ -112,7 +124,7 @@ body::after {
   background: rgba(2, 6, 23, 0.95); 
   display: flex; flex-direction: column; position: relative; z-index: 10;
   font-family: 'Consolas', monospace;
-  margin-top: 6px;  /* ★ カードとの間にスキマ */
+  margin-top: 6px;  /* カードとの間にスキマ */
 }
 .logHeader { 
   background: #1e293b; color: #94a3b8; font-size: 10px; padding: 2px 8px; 
@@ -349,39 +361,14 @@ body::after {
 .statusRow { display: flex; gap: 2px; min-height: 14px; margin-top: 2px; justify-content: flex-end; flex-wrap: wrap; }
 .stBadge { font-size: 9px; padding: 0 4px; background: #450a0a; color: #fca5a5; border: 1px solid #991b1b; border-radius: 2px; }
 
-/* ▼▼ ここを調整：説明欄の高さと余白を増やしてかぶり防止 ▼▼ */
-.bottomSection { 
-  flex: 0 0 auto; 
-  display: flex; 
-  flex-direction: column; 
-  gap: 4px; 
-  padding: 4px; 
-  background: rgba(0,0,0,0.2); 
-  margin-top: 1px; 
-  z-index: 3; 
-}
+.bottomSection { flex: 0 0 auto; display: flex; flex-direction: column; gap: 2px; padding: 4px; background: rgba(0,0,0,0.2); margin-top: 1px; z-index: 3; }
 .skillInfo { 
-  background: rgba(30, 41, 59, 0.6); 
-  padding: 4px 4px 6px; 
-  border-radius: 4px;
-  flex: 0 0 auto; 
-  min-height: 48px; 
-  display:flex; 
-  flex-direction:column; 
-  justify-content:center; 
+  background: rgba(30, 41, 59, 0.6); padding: 4px; border-radius: 4px;
+  flex: 0 0 auto; min-height: 40px; display:flex; flex-direction:column; justify-content:center; 
   border-left: 3px solid var(--typeColor);
 }
-.skillN { font-size: 11px; font-weight: 900; color: #fcd34d; margin-bottom: 2px; }
-.skillD { 
-  font-size: 9px; 
-  line-height: 1.25; 
-  color: #cbd5e1; 
-  display: -webkit-box; 
-  -webkit-line-clamp: 3; 
-  -webkit-box-orient: vertical; 
-  overflow: hidden; 
-}
-/* ▲▲ 調整ここまで ▲▲ */
+.skillN { font-size: 11px; font-weight: 900; color: #fcd34d; margin-bottom: 1px; }
+.skillD { font-size: 9px; line-height: 1.2; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 .spRow { display: flex; gap: 2px; justify-content: center; height: 6px; margin: 4px 0; }
 .pip { width: 100%; height: 100%; background: #334155; border-radius: 2px; }
