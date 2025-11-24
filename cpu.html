@@ -14,7 +14,8 @@
 /* === Core Variables === */
 :root {
   --bg: #0b0f1c; --panel: #141b2e; --edge: #2a3555;
-  --ink: #eef2ff; --muted: #94a3b8;
+  --ink: #FFFFFF; /* FIXED: Enforced White Font */
+  --muted: #94a3b8;
   --gold: #ffd700; --amber:#ffbd63; --aqua: #63ead9; --blue:#8fb1ff; --gray:#94a3b8; --bad: #ff4d4d;
   --spotify: #1DB954;
   --nav-height: 64px;
@@ -128,12 +129,11 @@ header{
 .btn-summon.single.charging .btn-progress { transition: width 0.6s linear; }
 .btn-summon.multi.charging .btn-progress { transition: width 1.0s linear; }
 
-/* === Card Design (Fixed New Badge) === */
+/* === Card Design === */
 .card-stage {
   perspective: 1000px; display: flex; justify-content: center; align-items: center;
   width: 300px; height: 420px; position: relative;
 }
-/* Outer Wrapper: Allows Badge to Pop Out */
 .result-card {
   width: 100%; height: 100%; position: relative;
   text-align: center; transform-style: preserve-3d;
@@ -141,7 +141,6 @@ header{
 }
 .result-card.show { transform: scale(1); opacity: 1; }
 
-/* Inner Wrapper: Clips Effects */
 .result-card-inner {
   width: 100%; height: 100%; padding: 24px 20px; border-radius: 20px;
   background: rgba(16, 24, 45, 0.95); backdrop-filter: blur(16px);
@@ -151,7 +150,13 @@ header{
   position: absolute; top: 0; left: 0;
   box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.4);
 }
+
 /* Styles apply to INNER now */
+@keyframes pulseGold { 0%,100%{box-shadow:0 0 40px var(--gold);} 50%{box-shadow:0 0 80px var(--gold), 0 0 20px #fff;} }
+@keyframes pulseBad { 0%,100%{box-shadow:0 0 20px var(--bad);} 50%{box-shadow:0 0 50px var(--bad), inset 0 0 20px var(--bad);} }
+@keyframes rotateRays { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+@keyframes shineSweep { 0%{left:-100%;} 100%{left:200%;} }
+
 .result-card.S .result-card-inner {
   background: radial-gradient(circle at center, rgba(255, 215, 0, 0.2) 0%, rgba(20, 27, 46, 0.95) 80%);
   border: 2px solid var(--gold); animation: pulseGold 2s infinite;
@@ -181,12 +186,6 @@ header{
 }
 .result-card.D .result-card-inner { border: 1px solid var(--gray); }
 
-@keyframes pulseGold { 0%,100%{box-shadow:0 0 40px var(--gold);} 50%{box-shadow:0 0 80px var(--gold), 0 0 20px #fff;} }
-@keyframes pulseBad { 0%,100%{box-shadow:0 0 20px var(--bad);} 50%{box-shadow:0 0 50px var(--bad), inset 0 0 20px var(--bad);} }
-@keyframes rotateRays { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-@keyframes shineSweep { 0%{left:-100%;} 100%{left:200%;} }
-
-
 .holo-sheen { position: absolute; inset: 0; border-radius: 20px; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 60%); background-size: 300% 300%; opacity: 0; mix-blend-mode: overlay; z-index: 5; }
 .result-card.S .holo-sheen, .result-card.A .holo-sheen { opacity: 1; }
 
@@ -207,7 +206,7 @@ header{
 }
 @keyframes popIn{from{transform:scale(0) rotate(0deg)}to{transform:scale(1) rotate(10deg)}}
 
-/* === Summary List (Updated for Rarity) === */
+/* === Summary List === */
 .summary-container {
   width: 100%; max-width: 360px; max-height: 55vh; overflow-y: auto;
   display: flex; flex-direction: column; gap: 10px; padding: 10px;
@@ -217,7 +216,7 @@ header{
 .summary-card {
   display: flex; align-items: center; gap: 12px;
   background: rgba(20, 27, 46, 0.9); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px; padding: 10px; text-align: left; position: relative;
+  border-radius: 12px; padding: 10px; text-align: left; position: relative; 
   overflow: visible; /* FIX 1: Allow badge pop-out */
 }
 .summary-card.S { border: 1px solid var(--gold); background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), transparent); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
@@ -270,7 +269,7 @@ header{
 
 .coll-item-name {
   height: 35%; width: 100%;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; /* Adjust for count */
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   font-size: 8px; font-weight: 700; line-height: 1.2; 
   overflow: hidden; word-break: break-all;
   color: var(--ink);
@@ -280,7 +279,6 @@ header{
 
 .coll-grid-tier { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
 
-/* Tier Colors */
 .tier-S .tier-title { color: var(--gold); }
 .tier-S .tier-progress-fill { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .tier-S .coll-item { border-color: rgba(255,215,0,0.3); }
@@ -567,10 +565,12 @@ const storeSeen="kotoba_collection_seen_v4_7";
 const storeBGM="kotoba_bgm_selected_v4_7";
 const storeUnlocked="kotoba_unlocked_tiers_v4_7";
 const storePullCounts="kotoba_pull_counts_v1";
+const storeChorusClaimed="kotoba_chorus_claimed_v1";
 
 const seen=new Set(JSON.parse(localStorage.getItem(storeSeen)||"[]"));
 const unlockedTiers=new Set(JSON.parse(localStorage.getItem(storeUnlocked)||"[]"));
 const pullCounts=JSON.parse(localStorage.getItem(storePullCounts)||"{}");
+const chorusClaimed = localStorage.getItem(storeChorusClaimed) === 'true';
 
 let selectedBGM=localStorage.getItem(storeBGM)||"default";
 const tiers=["S","A","B","C","D","X"];
@@ -704,21 +704,19 @@ function preloadImage(url) {
 async function roll(count){
   if(isBgmOn && bgmPlayer.paused) bgmPlayer.play().catch(()=>{});
   
-  // 1. SHOW OVERLAY
   overlay.classList.add('active'); resCont.innerHTML="";
   summonCircle.classList.remove('active');
   void summonCircle.offsetWidth; 
   summonCircle.classList.add('active');
   summonCircle.style.display = 'block';
   
-  // 2. CALC & PRELOAD
   const results = [];
   for(let i=0;i<count;i++){
     const t=pickTier();
     const w=pickWord(t);
     const isNew=!seen.has(w);
     
-    // NEW: Count pulls and save (Request 3 setup)
+    // Update Pull Counts
     pullCounts[w] = (pullCounts[w] || 0) + 1;
     localStorage.setItem(storePullCounts, JSON.stringify(pullCounts));
     
@@ -765,11 +763,8 @@ async function roll(count){
         ${isNew ? '<div class="badge">NEW</div>' : ''}
       `;
       
-      if(t==='S' || t==='A') {
-        cardWrap.addEventListener('mousemove', (e) => tiltCard(e, card));
-        cardWrap.addEventListener('mouseleave', () => resetCardTilt(card));
-        if(window.DeviceOrientationEvent) window.addEventListener('deviceorientation', (e) => tiltCardMobile(e, card));
-      }
+      // 3D Tilt Removed
+
       cardWrap.appendChild(card);
       resCont.innerHTML=""; resCont.appendChild(cardWrap);
       
@@ -799,6 +794,8 @@ async function roll(count){
         d.className = `summary-card ${r.t}`;
         const rImg = wordImages[r.w] ? (IMAGE_BASE_URL + wordImages[r.w]) : null;
         const iconHtml = rImg ? `<div class="s-icon"><img src="${rImg}" class="s-img"></div>` : `<div class="s-icon">${icons[r.t]}</div>`;
+        const cardCount = pullCounts[r.w] || 0;
+
         d.innerHTML = `
           ${iconHtml}
           <div class="s-content"><div class="s-word">${r.w}</div><div class="s-desc">${exp[r.w] || ""}</div></div>
@@ -807,10 +804,12 @@ async function roll(count){
         grid.appendChild(d);
       });
     }
+    // Check for 100% completion reward
+    checkFullCompletion();
+
   } catch(e) { console.error(e); closeOverlay(); }
 }
 
-// 3D Tilt Functions (Removed due to Request 2)
 function tiltCard(e, card) { /* Disabled */ }
 function resetCardTilt(card){ /* Disabled */ }
 function tiltCardMobile(e, card) { /* Disabled */ }
@@ -829,6 +828,31 @@ function confetti(){
 }
 
 /* === COLLECTION & MODAL (Request 3: Add Count) === */
+function checkFullCompletion() {
+    let allWords = 0;
+    tiers.forEach(t => { pools[t].forEach(() => allWords++); });
+
+    if (seen.size === allWords && !chorusClaimed) {
+        // 1. Mark claimed
+        localStorage.setItem(storeChorusClaimed, 'true');
+        
+        // 2. Play Audio
+        playTrack('chorus');
+        
+        // 3. Announce & Confetti burst for 3 seconds
+        showToast("★★ 全ての実体化を確認しました！ ★★");
+        
+        const confettiDuration = 3000;
+        const confettiInterval = setInterval(() => {
+            confetti(); 
+        }, 300);
+        
+        setTimeout(() => {
+            clearInterval(confettiInterval);
+        }, confettiDuration);
+    }
+}
+
 function renderCollection(){
   const cont = document.getElementById('coll-container'); cont.innerHTML="";
   let allTotal=0, allHave=0;
@@ -872,11 +896,11 @@ function renderCollection(){
         : `<div class="coll-item-img-box coll-icon-locked">${icons[t]}</div>`;
         
       const cardCount = pullCounts[w] || 0;
-      const countHtml = cardCount > 0 ? `<span class="coll-item-count">x${cardCount}</span>` : '';
+      const countHtml = cardCount > 1 ? `<span class="coll-item-count">x${cardCount}</span>` : '';
 
       el.innerHTML=`
         ${contentHtml}
-        <div class="coll-item-name">${known?w:'???'}${countHtml}</div>
+        <div class="coll-item-name">${known?w:'???'} ${countHtml}</div>
       `;
       if(known) el.onclick=()=>showModal(w, exp[w], t);
       grid.appendChild(el);
@@ -937,6 +961,7 @@ function tryUnlock(t){
     showToast(`Rank ${t} コンプリート！BGM解放`);
     renderCollection(); // Refresh to show unlocked BGM in header
     renderBGMList();
+    checkFullCompletion(); // Check overall completion here
   }
 }
 
@@ -981,7 +1006,8 @@ document.getElementById('btn-reset').onclick=()=>{
     localStorage.setItem(storeSeen,"[]"); 
     unlockedTiers.clear();
     localStorage.setItem(storeUnlocked,"[]");
-    localStorage.setItem(storePullCounts,"{}"); // Clear pull counts
+    localStorage.removeItem(storePullCounts); // FIXED: Clear pull counts
+    localStorage.removeItem(storeChorusClaimed); // Clear chorus claim flag
 
     switchTab('gacha', 0);
     renderCollection();
