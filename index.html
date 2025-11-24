@@ -517,6 +517,8 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
 
 <div id="toast">Message</div>
 <audio id="bgm-player" loop></audio>
+<!-- ★ 追加：ストーリー用オーディオ要素 -->
+<audio id="story-player" preload="auto"></audio>
 
 <div class="cm-modal" id="cmModal" aria-hidden="true">
   <div class="cm-backdrop" id="cmBackdrop"></div>
@@ -596,18 +598,16 @@ const tiers=["S","A","B","C","D","X"];
 
 /* === AUDIO SYSTEM === */
 const bgmPlayer=document.getElementById('bgm-player');
+const storyPlayer=document.getElementById('story-player');
 const bgmBtn=document.getElementById('btn-bgm-toggle');
 const volSlider=document.getElementById('vol-slider');
-
-/* ★ 追加：眠れない夜用ストーリー音源 ★ */
-const storyPlayer = new Audio('audio/story.mp3');
-storyPlayer.loop = false;
-/* ★ 追加ここまで ★ */
-
 let isBgmOn=false;
+let isStoryPlaying=false;
 
 bgmPlayer.volume=parseFloat(volSlider.value);
 storyPlayer.volume=bgmPlayer.volume;
+storyPlayer.src="audio/story.mp3";
+
 volSlider.addEventListener('input',()=>{
   const v=parseFloat(volSlider.value);
   bgmPlayer.volume=v;
@@ -793,8 +793,6 @@ async function roll(count){
         ${isNew ? '<div class="badge">NEW</div>' : ''}
       `;
       
-      // 3D Tilt Removed
-
       cardWrap.appendChild(card);
       resCont.innerHTML=""; resCont.appendChild(cardWrap);
       
@@ -840,10 +838,6 @@ async function roll(count){
   } catch(e) { console.error(e); closeOverlay(); }
 }
 
-function tiltCard(e, card) { /* Disabled */ }
-function resetCardTilt(card){ /* Disabled */ }
-function tiltCardMobile(e, card) { /* Disabled */ }
-
 function closeOverlay(){ overlay.classList.remove('active'); sfxTap(); }
 function confetti(){
   const colors=['#ffd700','#63ead9','#ff4d4d'];
@@ -863,20 +857,13 @@ function checkFullCompletion() {
     tiers.forEach(t => { pools[t].forEach(() => allWords++); });
 
     if (seen.size === allWords && !chorusClaimed) {
-        // 1. Mark claimed inメモリ & localStorage
         chorusClaimed = true;
         localStorage.setItem(storeChorusClaimed, 'true');
-        
-        // 2. BGMは切り替えず、そのまま流し続ける
-        //    → トーストと紙吹雪だけにする
         showToast("★★ 全ての実体化を確認しました！ ★★");
-        
-        // 3. Confetti burst for 3 seconds
         const confettiDuration = 3000;
         const confettiInterval = setInterval(() => {
             confetti(); 
         }, 300);
-        
         setTimeout(() => {
             clearInterval(confettiInterval);
         }, confettiDuration);
@@ -989,9 +976,9 @@ function tryUnlock(t){
     unlockedTiers.add(t);
     localStorage.setItem(storeUnlocked, JSON.stringify([...unlockedTiers]));
     showToast(`Rank ${t} コンプリート！BGM解放`);
-    renderCollection(); // Refresh to show unlocked BGM in header
+    renderCollection();
     renderBGMList();
-    checkFullCompletion(); // Check overall completion here
+    checkFullCompletion();
   }
 }
 
@@ -1036,9 +1023,9 @@ document.getElementById('btn-reset').onclick=()=>{
     localStorage.setItem(storeSeen,"[]"); 
     unlockedTiers.clear();
     localStorage.setItem(storeUnlocked,"[]");
-    localStorage.removeItem(storePullCounts); // FIXED: Clear pull counts
-    localStorage.removeItem(storeChorusClaimed); // Clear chorus claim flag
-    chorusClaimed = false; // ★ フラグもリセット
+    localStorage.removeItem(storePullCounts);
+    localStorage.removeItem(storeChorusClaimed);
+    chorusClaimed = false;
 
     switchTab('gacha', 0);
     renderCollection();
@@ -1054,23 +1041,34 @@ const storyBtn = document.getElementById('btn-story');
 if(storyBtn){
   storyBtn.addEventListener('click',()=>{
     sfxTap();
-    if(storyPlayer.paused){
-      // ストーリー再生時はBGMを止める
+    if(!isStoryPlaying){
       if(isBgmOn){ setBgmState(false); }
       storyPlayer.currentTime = 0;
-      storyPlayer.play().catch(()=>{});
-      storyBtn.textContent = '■ 停止';
+      storyPlayer.play().then(()=>{
+        isStoryPlaying = true;
+        storyBtn.textContent = '■ 停止';
+      }).catch(err=>{
+        console.error('story.mp3 再生エラー', err);
+        isStoryPlaying = false;
+        storyBtn.textContent = '▶ 再生';
+        alert('「story.mp3」の再生に失敗しました。audio/story.mp3 のパスとファイル名(大文字小文字)を確認してください。');
+      });
     }else{
       storyPlayer.pause();
       storyPlayer.currentTime = 0;
+      isStoryPlaying = false;
       storyBtn.textContent = '▶ 再生';
     }
   });
   storyPlayer.addEventListener('ended',()=>{
+    isStoryPlaying = false;
     storyBtn.textContent = '▶ 再生';
   });
 }
-/* ★ 追加ここまで ★ */
+
+/* === nav indicator initial render deps === */
+renderCollection();
+renderBGMList();
 </script>
 </body>
 </html>
