@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カリウム太郎一家 | 公式サイト</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Noto+Sans+JP:wght@500;700;900&family=Bangers&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           CSS Variables & Global Reset
+           ========================================= */
+        :root {
+            --c-yellow: #FFD700;
+            --c-pink: #FF0055;
+            --c-cyan: #00E5FF;
+            --c-black: #111111;
+            --c-white: #FFFFFF;
+            
+            --font-title-jp: 'Mochiy+Pop+One', sans-serif;
+            --font-title-en: 'Bangers', cursive;
+            --font-body: 'Noto Sans JP', sans-serif;
+            
+            --border-comic: 4px solid var(--c-black);
+            --shadow-comic: 8px 8px 0 var(--c-black);
+            --section-spacing: clamp(60px, 10vw, 120px);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--c-white);
+            color: var(--c-black);
+            line-height: 1.8;
+            overflow-x: hidden;
+            /* アメコミ風ドットパターン背景（クリーンに） */
+            background-image: 
+                radial-gradient(var(--c-yellow) 20%, transparent 20%),
+                radial-gradient(var(--c-yellow) 20%, transparent 20%);
+            background-size: 12px 12px;
+            background-position: 0 0, 6px 6px;
+            padding-top: 70px; /* ヘッダーの高さ分空ける */
+        }
+
+        a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
+        img { max-width: 100%; height: auto; display: block; }
+        
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* セクション共通スタイル（斜めカット＆枠線） */
+        .section {
+            padding: var(--section-spacing) 0;
+            position: relative;
+            border-top: var(--border-comic);
+            border-bottom: var(--border-comic);
+            background: var(--c-white);
+            transform: skewY(-2deg);
+            margin-top: -4px;
+        }
+        .section > .container { transform: skewY(2deg); }
+        
+        /* 色違いセクション */
+        .section--accent {
+            background-color: var(--c-cyan);
+            background-image: radial-gradient(var(--c-white) 20%, transparent 20%);
+            background-size: 15px 15px;
+        }
+        .section--dark {
+            background-color: var(--c-black);
+            color: var(--c-white);
+        }
+
+        /* 見出しスタイル */
+        .section-header {
+            text-align: center;
+            margin-bottom: clamp(40px, 8vw, 60px);
+        }
+
+        .section-title {
+            font-family: var(--font-title-jp);
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: var(--c-pink);
+            -webkit-text-stroke: 2px var(--c-black);
+            text-shadow: 5px 5px 0 var(--c-yellow);
+            position: relative;
+            display: inline-block;
+            z-index: 1;
+            transform: rotate(-2deg);
+        }
+        
+        .section-title::before {
+            content: attr(data-en);
+            position: absolute;
+            top: -0.5em; left: 50%;
+            transform: translateX(-50%) skewX(-10deg);
+            font-family: var(--font-title-en);
+            font-size: 2em;
+            color: rgba(0,0,0,0.05);
+            -webkit-text-stroke: 0; text-shadow: none;
+            z-index: -1; white-space: nowrap;
+        }
+
+        p { font-size: clamp(1rem, 1.2vw, 1.15rem); margin-bottom: 1.5em; font-weight: 500; }
+
+        /* =========================================
+           Components
+           ========================================= */
+        /* アメコミ風ボタン */
+        .btn-comic {
+            display: inline-block; padding: 0.8em 2.5em;
+            background: var(--c-yellow); color: var(--c-black);
+            font-family: var(--font-title-jp); font-weight: 900; font-size: 1.2rem;
+            border: var(--border-comic); box-shadow: var(--shadow-comic);
+            transform: skewX(-10deg); transition: all 0.2s;
+        }
+        .btn-comic span { display: block; transform: skewX(10deg); }
+        .btn-comic:hover {
+            transform: skewX(-10deg) translate(4px, 4px);
+            box-shadow: none; background: var(--c-pink); color: var(--c-white);
+        }
+
+        /* =========================================
+           Layout Sections
+           ========================================= */
+        /* Header */
+        .site-header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            z-index: 100; padding: 0 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--c-yellow); border-bottom: var(--border-comic);
+        }
+        .logo {
+            font-family: var(--font-title-jp); font-size: 1.5rem;
+            -webkit-text-stroke: 1px var(--c-black); color: var(--c-white);
+            text-shadow: 3px 3px 0 var(--c-black);
+        }
+        .global-nav ul { display: flex; list-style: none; gap: 20px; }
+        .global-nav a {
+            font-family: var(--font-title-en); font-size: 1.2rem; font-weight: bold;
+            padding: 5px 10px; border: 2px solid transparent;
+        }
+        .global-nav a:hover {
+            background: var(--c-black); color: var(--c-yellow);
+            border-color: var(--c-black); transform: skewX(-10deg);
+        }
+        @media (max-width: 768px) { .global-nav { display: none; } }
+
+        /* Hero Section (バナー強調) */
+        .hero {
+            padding: clamp(30px, 5vw, 60px) 0;
+            /* 集中線背景 */
+            background: repeating-conic-gradient(from 0deg, var(--c-white) 0deg, var(--c-white) 10deg, rgba(255,215,0,0.2) 10deg, rgba(255,215,0,0.2) 20deg);
+            border-bottom: var(--border-comic);
+        }
+        
+        .hero-banner-wrapper {
+            position: relative;
+            max-width: 1000px; margin: 0 auto;
+            border: var(--border-comic);
+            box-shadow: var(--shadow-comic);
+            transform: rotate(-1deg);
+            background: var(--c-black); /* 画像ロード前は黒 */
+        }
+        .hero-banner-wrapper img { width: 100%; display: block; }
+        
+        .hero-text {
+            text-align: center;
+            max-width: 900px; margin: 40px auto 0;
+            padding: 30px;
+            background: var(--c-white);
+            border: var(--border-comic);
+            box-shadow: var(--shadow-comic);
+            transform: rotate(1deg);
+        }
+        
+        .hero-catch-main {
+            font-family: var(--font-title-jp);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            line-height: 1.3;
+            color: var(--c-pink);
+            -webkit-text-stroke: 1.5px var(--c-black);
+            margin-bottom: 20px;
+        }
+        .hero-catch-sub {
+            font-size: 1.2rem; font-weight: 700;
+            display: inline-block; background: var(--c-yellow);
+            padding: 5px 15px; border: 2px solid var(--c-black);
+        }
+
+        /* Introduction */
+        .intro-layout {
+            display: grid; grid-template-columns: 1fr; gap: 40px;
+            align-items: center;
+        }
+        @media (min-width: 769px) { .intro-layout { grid-template-columns: 1.5fr 1fr; } }
+
+        .comic-bubble {
+            background: var(--c-white); border: var(--border-comic);
+            padding: 30px; position: relative;
+            box-shadow: var(--shadow-comic); border-radius: 20px;
+        }
+        /* 吹き出しのしっぽ */
+        .comic-bubble::after, .comic-bubble::before {
+            content: ''; position: absolute; bottom: -20px; left: 50px;
+            border-style: solid;
+        }
+        .comic-bubble::after {
+            border-width: 20px 20px 0 0;
+            border-color: var(--c-white) transparent transparent transparent;
+            z-index: 1;
+        }
+        .comic-bubble::before {
+            bottom: -24px; left: 48px;
+            border-width: 22px 22px 0 0;
+            border-color: var(--c-black) transparent transparent transparent;
+            z-index: 0;
+        }
+
+        .intro-highlight {
+            font-weight: 900; color: var(--c-pink);
+            font-size: 1.2em; -webkit-text-stroke: 1px var(--c-black);
+        }
+        .intro-visual img {
+            transform: rotate(2deg); box-shadow: var(--shadow-comic);
+            border: var(--border-comic); background: #ccc;
+        }
+
+        /* Character */
+        .character {
+            background-color: var(--c-pink);
+            background-image: radial-gradient(var(--c-yellow) 15%, transparent 15%);
+            background-size: 20px 20px;
+        }
+        .character .section-title { color: var(--c-yellow); text-shadow: 5px 5px 0 var(--c-black); }
+
+        .char-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px 30px;
+        }
+        .char-card {
+            background: var(--c-white); border: var(--border-comic);
+            box-shadow: var(--shadow-comic); transition: transform 0.2s;
+            transform: rotate(-1deg);
+        }
+        .char-card:hover { transform: translate(4px, 4px) rotate(0deg); box-shadow: none; }
+
+        .char-img-box {
+            height: 250px; background: var(--c-yellow);
+            border-bottom: var(--border-comic); position: relative; overflow: hidden;
+        }
+        /* 集中線背景 */
+        .char-img-box::after {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+            background: repeating-conic-gradient(from 0deg, transparent 0deg, transparent 15deg, rgba(255,255,255,0.3) 15deg, rgba(255,255,255,0.3) 30deg);
+        }
+        .char-img-box img { position: relative; z-index: 1; object-fit: cover; height: 100%; width: 100%; }
+
+        .char-info { padding: 20px; }
+        .char-catch {
+            display: inline-block; background: var(--c-black); color: var(--c-yellow);
+            padding: 4px 10px; font-weight: 900; transform: skewX(-10deg); margin-bottom: 10px;
+        }
+        .char-name {
+            font-family: var(--font-title-jp); font-size: 1.8rem;
+            -webkit-text-stroke: 1px var(--c-black); color: var(--c-pink);
+        }
+
+        /* Correlation */
+        .correlation-img-wrapper {
+            border: var(--border-comic); box-shadow: var(--shadow-comic);
+            padding: 10px; background: var(--c-yellow); transform: rotate(1deg);
+        }
+        .correlation-img-wrapper img { width: 100%; }
+
+        /* Story */
+        .story .section-title { color: var(--c-yellow); text-shadow: 5px 5px 0 var(--c-pink); }
+        .story-list { list-style: none; max-width: 800px; margin: 0 auto; }
+        .story-item {
+            display: flex; align-items: stretch; margin-bottom: 30px;
+            border: var(--border-comic); background: var(--c-white);
+            color: var(--c-black); box-shadow: var(--shadow-comic);
+        }
+        .story-num {
+            font-family: var(--font-title-en); font-size: 3rem;
+            background: var(--c-pink); color: var(--c-yellow);
+            -webkit-text-stroke: 2px var(--c-black);
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 20px; border-right: var(--border-comic);
+            clip-path: polygon(0 0, 100% 0, 90% 50%, 100% 100%, 0 100%); width: 100px;
+        }
+        .story-text { padding: 20px; font-weight: bold; font-size: 1.2rem; flex: 1; display: flex; align-items: center; }
+        
+        .story-item:last-child { transform: scale(1.05) rotate(-2deg); background: var(--c-yellow); }
+        .story-item:last-child .story-num { background: var(--c-black); color: var(--c-pink); }
+
+        /* Footer */
+        .site-footer {
+            background: var(--c-black); padding: 60px 20px; text-align: center;
+            border-top: var(--border-comic);
+            background-image: radial-gradient(rgba(255,255,255,0.2) 15%, transparent 15%);
+            background-size: 20px 20px;
+        }
+        .footer-cta {
+            font-family: var(--font-title-jp); font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--c-yellow); -webkit-text-stroke: 1px var(--c-black);
+            margin-bottom: 30px;
+        }
+        .copyright { margin-top: 40px; font-size: 0.8rem; color: var(--c-white); }
+    </style>
+</head>
+<body>
+
+    <header class="site-header">
+        <h1 class="logo">カリウム太郎一家</h1>
+        <nav class="global-nav">
+            <ul>
+                <li><a href="#intro">INTRODUCTION</a></li>
+                <li><a href="#character">CHARACTER</a></li>
+                <li><a href="#correlation">RELATIONSHIP</a></li>
+                <li><a href="#story">STORY</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-banner-wrapper">
+                <img src="kotoba-gacha/images/k_bannar.png" alt="カリウム太郎一家 メインビジュアル">
+            </div>
+            <div class="hero-text">
+                <h2 class="hero-catch-main">健康派 vs 不健康派(危険)!<br>ピリ辛村のドタバタ化学反応コメディ、開幕!</h2>
+                <p class="hero-catch-sub">混ぜるな危険？いや、混ぜなきゃ始まらない！大人も子供も（たぶん）楽しめる、ノンストップ5分アニメ！</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="intro" class="section section--accent">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-en="INTRODUCTION">この村、何かがおかしい!?</h2>
+            </div>
+            <div class="intro-layout">
+                <div class="comic-bubble">
+                    <p>
+                        舞台は、健康マニアと危険人物が隣り合わせで暮らす「カプサイシン村」。
+                        「健康第一！」が口癖の熱血漢・<span class="intro-highlight">カリウム太郎</span>と、
+                        「危ないのが一番♡」な刺激中毒妻・<span class="intro-highlight">アスベス子</span>。
+                    </p>
+                    <p>
+                        正反対の夫婦が巻き起こす大騒動を、なぜか人肌で溶けてしまう息子・<span class="intro-highlight">ガリウム坊や</span>の視点で描く、ハイテンション・ホームコメディ！
+                    </p>
+                    <p style="font-weight: 900; font-size: 1.2em; margin-top: 1.5em;">
+                        <span style="background: var(--c-yellow); padding: 2px 5px; border: 2px solid var(--c-black);">理科の知識？ そんなものは二の次だ！</span><br>
+                        人間たちの愛すべき「ズレ」が織りなす、爆笑の化学反応を見届けよ！
+                    </p>
+                </div>
+                <div class="intro-visual">
+                    <img src="https://placehold.jp/400x300.png?text=Intro+Visual" alt="カプサイシン村の様子"> 
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="character" class="section character">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-en="CHARACTER">混ぜるな危険！強烈すぎる奴ら</h2>
+            </div>
+            
+            <div class="char-grid">
+                <article class="char-card">
+                    <div class="char-img-box">
+                        <img src="https://placehold.jp/300x250.png?text=Taro" alt="カリウム太郎">
+                    </div>
+                    <div class="char-info">
+                        <span class="char-catch">元気いっぱい！健康第一！</span>
+                        <h3 class="char-name">カリウム太郎</h3>
+                        <p>とにかく元気で真面目だが、空回りが芸の愛すべきパパ。締めの一言でいつも滑る。</p>
+                    </div>
+                </article>
+                
+                <article class="char-card">
+                    <div class="char-img-box" style="background: var(--c-pink);">
+                        <img src="https://placehold.jp/300x250.png?text=Asbesko" alt="アスベス子">
+                    </div>
+                    <div class="char-info">
+                        <span class="char-catch" style="background: var(--c-pink); color: var(--c-yellow);">とっても危ない♡</span>
+                        <h3 class="char-name" style="color: var(--c-pink);">アスベス子</h3>
+                        <p>危険とスリルを愛するトラブルメーカーなママ。退屈が大嫌い。</p>
+                    </div>
+                </article>
+                
+                <article class="char-card">
+                    <div class="char-img-box" style="background: var(--c-cyan);">
+                        <img src="https://placehold.jp/300x250.png?text=Gallium" alt="ガリウム坊や">
+                    </div>
+                    <div class="char-info">
+                        <span class="char-catch" style="background: var(--c-cyan);">人肌でとけちゃう〜！</span>
+                        <h3 class="char-name" style="color: var(--c-cyan);">ガリウム坊や</h3>
+                        <p>本作の語り部。素直なツッコミ役だが、興奮すると物理的に溶けてしまう。</p>
+                    </div>
+                </article>
+            </div>
+            
+            <div style="text-align: center; margin-top: 60px;">
+                <a href="#" class="btn-comic"><span>ご近所さん（危険人物）をもっと見る</span></a>
+            </div>
+        </div>
+    </section>
+
+    <section id="correlation" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-en="RELATIONSHIP">一目でわかる(?) カオスな関係性</h2>
+                <p style="margin-top: 20px; font-weight: bold;">健康派と不健康派の対立、疑惑の親子関係…。<br>この村の人間関係は、化学式より複雑怪奇！</p>
+            </div>
+            
+            <div class="correlation-img-wrapper">
+                <img src="kotoba-gacha/images/k_relation.png" alt="カリウム太郎一家 相関図">
+            </div>
+        </div>
+    </section>
+
+    <section id="story" class="section section--dark">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-en="STORY">毎度おさわがせ！村の日常</h2>
+                <p style="color: var(--c-yellow); font-size: 1.2em;">このアニメの基本は、愛すべき「お約束」の繰り返し！</p>
+            </div>
+
+            <ul class="story-list">
+                <li class="story-item">
+                    <div class="story-num">01</div>
+                    <div class="story-text">坊やの平和な語りでスタート</div>
+                </li>
+                <li class="story-item">
+                    <div class="story-num">02</div>
+                    <div class="story-text">アスベス子がとんでもない火種を持ち込む</div>
+                </li>
+                <li class="story-item">
+                    <div class="story-num">03</div>
+                    <div class="story-text">不健康派（総長たち）が悪ノリして大騒動に</div>
+                </li>
+                <li class="story-item">
+                    <div class="story-num">04</div>
+                    <div class="story-text">モリブデン兄さんが一喝！（でも止まらない！）</div>
+                </li>
+                <li class="story-item">
+                    <div class="story-num">05</div>
+                    <div class="story-text">太郎が「健康第一！」で締めようとして、アスベス子が台無しに</div>
+                </li>
+                <li class="story-item">
+                    <div class="story-num">END</div>
+                    <div class="story-text" style="font-size: 1.5em;">最後に坊やがとろ〜り溶けて暗転。</div>
+                </li>
+            </ul>
+
+            <div style="text-align: center; margin-top: 60px; font-size: clamp(1.2rem, 3vw, 1.8rem); font-weight: 900; color: var(--c-yellow); text-shadow: 3px 3px 0 var(--c-black);">
+                <p>村長選挙、美肌コンテスト、ゴミ屋敷清掃…<br>
+                村ぐるみのイベントで、毎回何かが爆発する全10話！</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p class="footer-cta">YouTubeにて近日配信開始予定！</p>
+            <a href="#" class="btn-comic"><span>チャンネル登録はこちら！</span></a>
+            <p class="copyright">© カリウム太郎一家製作委員会</p>
+        </div>
+    </footer>
+
+</body>
+</html>
