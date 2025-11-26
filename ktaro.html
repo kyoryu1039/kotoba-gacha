@@ -44,7 +44,6 @@
             padding: 0;
         }
 
-        /* 【修正1】固定ヘッダー分の余白を確保して、リンク位置ズレを解消 */
         html { 
             scroll-behavior: smooth; 
             scroll-padding-top: 80px; 
@@ -104,10 +103,12 @@
             margin-bottom: 40px;
         }
 
+        /* 【修正1】フォントサイズを全体的に小さく調整 */
         .section-title {
             font-family: var(--font-title-jp);
             font-weight: 900;
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            /* 以前より小さく: 1.8rem -> 1.5rem, 2.5rem -> 2.2rem */
+            font-size: clamp(1.5rem, 3.5vw, 2.2rem); 
             color: var(--c-pink);
             -webkit-text-stroke: 1.5px var(--c-black);
             text-shadow: 3px 3px 0 var(--c-yellow);
@@ -117,6 +118,14 @@
             transform: rotate(var(--skew-angle));
             letter-spacing: 0.05em;
             line-height: 1.3;
+        }
+
+        /* 【修正2】スマホ表示時の「黒フチ」を極細にして可読性を確保 */
+        @media (max-width: 768px) {
+            .section-title {
+                -webkit-text-stroke: 0.6px var(--c-black); /* 1.5pxから0.6pxへ減量 */
+                text-shadow: 2px 2px 0 var(--c-yellow); /* 影も少し控えめに */
+            }
         }
         
         .section-title::before {
@@ -132,15 +141,8 @@
             pointer-events: none;
         }
 
-        .js-text-anim span {
-            display: inline-block;
-        }
-
-        p {
-            font-size: 1rem;
-            margin-bottom: 1.2em;
-            font-weight: 500;
-        }
+        .js-text-anim span { display: inline-block; }
+        p { font-size: 1rem; margin-bottom: 1.2em; font-weight: 500; }
 
         /* =========================================
            Components
@@ -163,7 +165,6 @@
             box-shadow: none; background: var(--c-pink); color: var(--c-white);
         }
 
-        /* 【修正3】スクロール促進の注意書きスタイル */
         .scroll-hint-box {
             display: inline-block;
             background: var(--c-black);
@@ -174,20 +175,11 @@
             border: 3px solid var(--c-white);
             transform: skewX(-10deg);
             box-shadow: 5px 5px 0 rgba(0,0,0,0.2);
-            margin-top: 30px;
+            /* margin-topはHTML側のwrapperで制御するため削除 */
         }
-        .scroll-hint-box span {
-            display: block;
-            transform: skewX(10deg); /* 文字の傾きを戻す */
-        }
-        .scroll-hint-box .arrow {
-            display: inline-block;
-            animation: bounceX 1s infinite alternate;
-        }
-        @keyframes bounceX {
-            from { transform: translateX(0); }
-            to { transform: translateX(5px); }
-        }
+        .scroll-hint-box span { display: block; transform: skewX(10deg); }
+        .scroll-hint-box .arrow { display: inline-block; animation: bounceX 1s infinite alternate; }
+        @keyframes bounceX { from { transform: translateX(0); } to { transform: translateX(5px); } }
 
         /* =========================================
            Layout Sections
@@ -226,28 +218,17 @@
         }
 
         .global-nav { display: none; }
-        
         @media (min-width: 769px) {
             .site-header { justify-content: space-between; height: 70px; padding: 0 30px; }
             .global-nav { display: block; }
         }
-
         .global-nav ul { display: flex; list-style: none; gap: 20px; }
-        
         .global-nav a {
-            font-family: var(--font-title-en); 
-            /* 【修正2】レスポンシブ対応: デフォルト(タブレットなど)は少し小さく */
-            font-size: 1rem; 
-            font-weight: bold;
+            font-family: var(--font-title-en); font-size: 1rem; font-weight: bold;
             padding: 5px 10px; border: 2px solid transparent; letter-spacing: 0.05em;
             position: relative; overflow: hidden;
         }
-
-        /* 【修正2】PCの大画面では元のサイズに戻す */
-        @media (min-width: 1024px) {
-            .global-nav a { font-size: 1.3rem; }
-        }
-
+        @media (min-width: 1024px) { .global-nav a { font-size: 1.3rem; } }
         .global-nav a::before {
             content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
             background: var(--c-black); transition: left 0.3s ease; z-index: -1;
@@ -256,70 +237,47 @@
         .global-nav a:hover { color: var(--c-yellow); border-color: var(--c-black); transform: skewX(-10deg); }
         .global-nav a:hover::before { left: 0; }
 
-        /* Hero Section */
+        /* Hero */
         .hero {
             padding: 40px 0;
             background: repeating-conic-gradient(from 0deg, var(--c-white) 0deg, var(--c-white) 10deg, rgba(255,215,0,0.2) 10deg, rgba(255,215,0,0.2) 20deg);
             border-bottom: var(--border-comic);
             overflow: hidden;
         }
-        
         .hero-banner-wrapper {
             position: relative; max-width: 1000px; margin: 0 auto;
             border: var(--border-comic); box-shadow: var(--shadow-comic);
             transform: rotate(-1deg); background: var(--c-black);
         }
         .hero-banner-wrapper img { width: 100%; display: block; }
-        
-        .hero-text {
-            text-align: center; max-width: 900px; margin: 30px auto 0;
-            padding: 0;
-        }
-        
+        .hero-text { text-align: center; max-width: 900px; margin: 30px auto 0; padding: 0; }
         .hero-catch-main {
             font-family: var(--font-title-jp); font-weight: 900;
             font-size: clamp(1rem, 2.5vw, 1.5rem);
-            line-height: 1.5;
-            color: var(--c-black);
-            margin-bottom: 15px;
+            line-height: 1.5; color: var(--c-black); margin-bottom: 15px;
             display: inline-block; width: 100%;
-            background: var(--c-white);
-            border: var(--border-comic); box-shadow: var(--shadow-comic);
-            padding: 15px;
-            transform: rotate(var(--skew-angle));
+            background: var(--c-white); border: var(--border-comic); box-shadow: var(--shadow-comic);
+            padding: 15px; transform: rotate(var(--skew-angle));
         }
-        @media (min-width: 769px) {
-            .hero-catch-main {
-                font-size: clamp(1.2rem, 2vw, 1.8rem); width: auto; padding: 15px 40px;
-            }
-        }
+        @media (min-width: 769px) { .hero-catch-main { font-size: clamp(1.2rem, 2vw, 1.8rem); width: auto; padding: 15px 40px; } }
         .pc-br { display: none; }
         @media (min-width: 769px) { .pc-br { display: inline; } }
-
         .hero-catch-sub {
-            font-size: 1rem; font-weight: 700;
-            display: inline-block; background: var(--c-yellow);
-            padding: 5px 15px; border: 2px solid var(--c-black);
-            margin-top: 15px;
+            font-size: 1rem; font-weight: 700; display: inline-block; background: var(--c-yellow);
+            padding: 5px 15px; border: 2px solid var(--c-black); margin-top: 15px;
         }
 
-        /* Introduction */
+        /* Intro */
         .intro-layout { display: block; max-width: 800px; margin: 0 auto; }
-
         .comic-bubble {
-            background: var(--c-white); border: var(--border-comic);
-            padding: 25px;
+            background: var(--c-white); border: var(--border-comic); padding: 25px;
             position: relative; box-shadow: var(--shadow-comic); border-radius: 15px;
         }
-        .comic-bubble p { font-size: 1rem; }
         .comic-bubble::after { bottom: -15px; left: 30px; border-width: 15px 15px 0 0; border-style: solid; border-color: var(--c-white) transparent transparent transparent; content: ''; position: absolute; z-index: 1; }
         .comic-bubble::before { bottom: -18px; left: 28px; border-width: 17px 17px 0 0; border-style: solid; border-color: var(--c-black) transparent transparent transparent; content: ''; position: absolute; z-index: 0; }
-
         .intro-highlight {
-            font-weight: 900; color: var(--c-pink);
-            font-size: 1.1em;
-            -webkit-text-stroke: 0.5px var(--c-black);
-            display: inline-block;
+            font-weight: 900; color: var(--c-pink); font-size: 1.1em;
+            -webkit-text-stroke: 0.5px var(--c-black); display: inline-block;
         }
 
         /* Character */
@@ -327,22 +285,43 @@
             background-color: var(--c-pink);
             background-image: radial-gradient(var(--c-yellow) 15%, transparent 15%);
             background-size: 15px 15px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            &::-webkit-scrollbar { display: none; }
+            /* overflow-x: auto; ←削除：親要素でスクロールさせない。子要素(.char-grid)でさせる */
         }
         .character .section-title { color: var(--c-yellow); text-shadow: 4px 4px 0 var(--c-black); }
 
+        /* 【修正3】キャラクターセクションのSticky制御 */
+        .character .container {
+            /* 子要素のStickyを効かせるため */
+            position: relative;
+            padding-bottom: 40px; /* 下部にヒント用の余白 */
+        }
+
+        .character .section-header {
+            /* タイトルを固定 */
+            position: sticky;
+            top: 10px; /* ヘッダー分少し空ける */
+            z-index: 10;
+            pointer-events: none; /* 下のカードをクリックできるように */
+        }
+
+        .char-scroll-wrapper {
+            /* 横スクロール領域 */
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            margin: 0 -20px; /* コンテナのpaddingを打ち消して画面幅いっぱいに */
+        }
+        .char-scroll-wrapper::-webkit-scrollbar { display: none; }
+
         .char-grid {
-            display: flex; gap: 20px; padding-bottom: 20px;
+            display: flex; gap: 20px; padding-bottom: 20px; padding-top: 20px;
             width: max-content;
-            padding-left: 20px; padding-right: 20px;
+            padding-left: 20px; padding-right: 20px; /* 端の余白 */
         }
         @media (min-width: 769px) {
-            .char-grid { padding-left: max(calc((100vw - 1100px) / 2), 20px); }
+            .char-scroll-wrapper { margin: 0; } /* PCはコンテナ内に収める */
+            .char-grid { padding-left: 20px; padding-right: 20px; }
         }
-        .character > .container { width: 100%; max-width: none; padding: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
         .char-card {
             background: var(--c-white); border: var(--border-comic);
@@ -352,17 +331,15 @@
             display: flex; flex-direction: column;
         }
         @media (min-width: 769px) {
-             .char-card:hover { transform: translate(4px, 4px) rotate(0deg) scale(1.02); box-shadow: none; z-index: 10; }
+             .char-card:hover { transform: translate(4px, 4px) rotate(0deg) scale(1.02); box-shadow: none; z-index: 20; }
         }
-
+        /* 各キャラカードの配色（変更なし） */
         .char-card--health .char-img-box { background: var(--c-yellow); }
         .char-card--health .char-catch { background: var(--c-black); color: var(--c-yellow); }
         .char-card--health .char-name { color: var(--c-pink); }
-        
         .char-card--danger .char-img-box { background: var(--c-pink); }
         .char-card--danger .char-catch { background: var(--c-pink); color: var(--c-yellow); border: 2px solid var(--c-black); }
         .char-card--danger .char-name { color: var(--c-pink); }
-
         .char-card--neutral .char-img-box { background: var(--c-cyan); }
         .char-card--neutral .char-catch { background: var(--c-cyan); color: var(--c-black); }
         .char-card--neutral .char-name { color: var(--c-cyan); -webkit-text-stroke: 1.5px var(--c-black); }
@@ -371,13 +348,11 @@
         .char-img-box::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-conic-gradient(from 0deg, transparent 0deg, transparent 15deg, rgba(255,255,255,0.3) 15deg, rgba(255,255,255,0.3) 30deg); }
         .char-img-box img { position: relative; z-index: 1; object-fit: cover; height: 100%; width: 100%; transition: transform 0.5s ease; }
         .char-card:hover .char-img-box img { transform: scale(1.1); }
-
         .char-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
         .char-catch { display: inline-block; padding: 3px 8px; font-size: 0.9rem; font-weight: 900; transform: skewX(-5deg); margin-bottom: 8px; align-self: flex-start; }
         .char-name {
             font-family: var(--font-title-jp); font-size: 1.5rem; font-weight: 900;
-            -webkit-text-stroke: 1.5px var(--c-black); margin-bottom: 10px;
-            line-height: 1.2;
+            -webkit-text-stroke: 1.5px var(--c-black); margin-bottom: 10px; line-height: 1.2;
         }
         .char-desc { font-size: 0.9rem; margin-bottom: 15px; line-height: 1.5; flex-grow: 1; }
         .char-quote {
@@ -388,15 +363,22 @@
         }
         .char-quote::before { content: '“'; font-family: serif; font-size: 3rem; position: absolute; top: -15px; left: 5px; color: rgba(0,0,0,0.2); line-height: 1; }
 
+        /* 【修正3続き】スクロールヒントのSticky制御 */
+        .char-hint-wrapper {
+            position: sticky;
+            bottom: 20px; /* 画面下部に固定 */
+            left: 0;
+            text-align: center;
+            z-index: 30;
+            pointer-events: none; /* スクロール操作を邪魔しない */
+            margin-top: 20px;
+        }
+
         /* Correlation */
         .correlation-img-wrapper {
-            border: var(--border-comic); box-shadow: var(--shadow-comic);
-            padding: 5px;
-            background: var(--c-yellow);
-            transform: rotate(1deg);
-            width: 100%;
+            border: var(--border-comic); box-shadow: var(--shadow-comic); padding: 5px;
+            background: var(--c-yellow); transform: rotate(1deg); width: 100%;
         }
-        .correlation-img-wrapper img { width: 100%; }
 
         /* Story */
         .story .section-title {
@@ -404,12 +386,21 @@
             text-shadow: 4px 4px 0 var(--c-pink), 6px 6px 0 var(--c-black);
             -webkit-text-stroke: 2px var(--c-black);
         }
+        /* 【修正2】Storyの黒フチもスマホ用に調整 */
+        @media (max-width: 768px) {
+            .story .section-title {
+                -webkit-text-stroke: 0.8px var(--c-black);
+            }
+            .story .section-header p {
+                 /* リード文も潰れやすいので調整 */
+                -webkit-text-stroke: 0.4px var(--c-black);
+                text-shadow: 1px 1px 0 var(--c-black);
+            }
+        }
         
         .story .section-header p {
-            color: var(--c-yellow); font-size: 0.9rem;
-            font-weight: 900;
-            -webkit-text-stroke: 1px var(--c-black);
-            text-shadow: 2px 2px 0 var(--c-black);
+            color: var(--c-yellow); font-size: 0.9rem; font-weight: 900;
+            -webkit-text-stroke: 1px var(--c-black); text-shadow: 2px 2px 0 var(--c-black);
         }
 
         .story-list { list-style: none; max-width: 800px; margin: 0 auto; }
@@ -420,11 +411,9 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .story-item:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0 var(--c-black); }
-
         @media (max-width: 768px) {
             .story-item { display: block; position: relative; padding-left: 80px; min-height: 80px; }
         }
-
         .story-num {
             font-family: var(--font-title-en); font-size: 2.5rem;
             background: var(--c-pink); color: var(--c-yellow);
@@ -437,42 +426,32 @@
         @media (max-width: 768px) {
             .story-num {
                 position: absolute; top: 0; left: 0; width: 80px; height: 100%;
-                font-size: 2rem; padding: 0; border-right: none; border-bottom: var(--border-comic);
-                clip-path: none;
+                font-size: 2rem; padding: 0; border-right: none; border-bottom: var(--border-comic); clip-path: none;
             }
         }
-
-        .story-text {
-            padding: 15px;
-            font-weight: 700; font-size: 1rem;
-            flex: 1; display: flex; align-items: center;
-        }
-        @media (max-width: 768px) {
-            .story-text { display: block; padding: 15px 15px 15px 10px; }
-        }
-        
+        .story-text { padding: 15px; font-weight: 700; font-size: 1rem; flex: 1; display: flex; align-items: center; }
+        @media (max-width: 768px) { .story-text { display: block; padding: 15px 15px 15px 10px; } }
         .story-item:last-child { transform: scale(1.02) rotate(var(--skew-angle)); background: var(--c-yellow); }
         .story-item:last-child:hover { transform: scale(1.02) rotate(var(--skew-angle)) translate(-3px, -3px); }
         .story-item:last-child .story-num { background: var(--c-black); color: var(--c-pink); }
-        @media (max-width: 768px) {
-             .story-item:last-child .story-text { font-size: 1.2rem; }
-        }
+        @media (max-width: 768px) { .story-item:last-child .story-text { font-size: 1.2rem; } }
 
         /* Footer */
         .site-footer {
-            background: var(--c-black); padding: 40px 20px;
-            text-align: center;
+            background: var(--c-black); padding: 40px 20px; text-align: center;
             border-top: var(--border-comic);
-            background-image: radial-gradient(rgba(255,255,255,0.2) 15%, transparent 15%);
-            background-size: 15px 15px;
+            background-image: radial-gradient(rgba(255,255,255,0.2) 15%, transparent 15%); background-size: 15px 15px;
         }
         .footer-cta {
             font-family: var(--font-title-jp); font-weight: 900;
-            font-size: 1.5rem;
-            color: var(--c-yellow);
+            font-size: 1.5rem; color: var(--c-yellow);
             -webkit-text-stroke: 1.5px var(--c-black);
             text-shadow: 3px 3px 0 var(--c-pink), 5px 5px 0 var(--c-black);
             margin-bottom: 20px;
+        }
+        /* 【修正2】Footer CTAの黒フチもスマホ用に調整 */
+        @media (max-width: 768px) {
+            .footer-cta { -webkit-text-stroke: 0.6px var(--c-black); }
         }
         .copyright { margin-top: 30px; font-size: 0.8rem; color: var(--c-white); opacity: 0.8; }
     </style>
@@ -533,154 +512,156 @@
                 <h2 class="section-title js-text-anim" data-en="CHARACTER">混ぜるな危険！強烈すぎる奴ら</h2>
             </div>
             
-            <div class="char-grid">
-                <article class="char-card char-card--health js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Taro" alt="カリウム太郎">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">元気いっぱい！健康第一！</span>
-                        <h3 class="char-name">カリウム太郎</h3>
-                        <p class="char-desc">とにかく元気で真面目だが、空回りが芸の愛すべきパパ。締めの一言でいつも滑る。</p>
-                        <p class="char-quote">健康第一！</p>
-                    </div>
-                </article>
-                
-                <article class="char-card char-card--danger js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Asbesko" alt="アスベス子">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">とっても危ない♡</span>
-                        <h3 class="char-name">アスベス子</h3>
-                        <p class="char-desc">危険とスリルを愛するトラブルメーカーなママ。退屈が大嫌い。</p>
-                        <p class="char-quote">危ないのが一番♡</p>
-                    </div>
-                </article>
-                
-                <article class="char-card char-card--neutral js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Gallium" alt="ガリウム坊や">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">人肌でとけちゃう〜！</span>
-                        <h3 class="char-name">ガリウム坊や</h3>
-                        <p class="char-desc">本作の語り部。素直なツッコミ役だが、興奮すると物理的に溶けてしまう。</p>
-                        <p class="char-quote">とけちゃう〜！</p>
-                    </div>
-                </article>
+            <div class="char-scroll-wrapper">
+                <div class="char-grid">
+                    <article class="char-card char-card--health js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Taro" alt="カリウム太郎">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">元気いっぱい！健康第一！</span>
+                            <h3 class="char-name">カリウム太郎</h3>
+                            <p class="char-desc">とにかく元気で真面目だが、空回りが芸の愛すべきパパ。締めの一言でいつも滑る。</p>
+                            <p class="char-quote">健康第一！</p>
+                        </div>
+                    </article>
+                    
+                    <article class="char-card char-card--danger js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Asbesko" alt="アスベス子">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">とっても危ない♡</span>
+                            <h3 class="char-name">アスベス子</h3>
+                            <p class="char-desc">危険とスリルを愛するトラブルメーカーなママ。退屈が大嫌い。</p>
+                            <p class="char-quote">危ないのが一番♡</p>
+                        </div>
+                    </article>
+                    
+                    <article class="char-card char-card--neutral js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Gallium" alt="ガリウム坊や">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">人肌でとけちゃう〜！</span>
+                            <h3 class="char-name">ガリウム坊や</h3>
+                            <p class="char-desc">本作の語り部。素直なツッコミ役だが、興奮すると物理的に溶けてしまう。</p>
+                            <p class="char-quote">とけちゃう〜！</p>
+                        </div>
+                    </article>
 
-                <article class="char-card char-card--health js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Carotene" alt="カロテン姉さん">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">美肌がまぶしい！</span>
-                        <h3 class="char-name">カロテン姉さん</h3>
-                        <p class="char-desc">太郎の実姉。圧倒的な美肌マウントで周囲を眩惑し、事故を招く美容アイコン。</p>
-                        <p class="char-quote">ビタミンパワー注入！</p>
-                    </div>
-                </article>
+                    <article class="char-card char-card--health js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Carotene" alt="カロテン姉さん">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">美肌がまぶしい！</span>
+                            <h3 class="char-name">カロテン姉さん</h3>
+                            <p class="char-desc">太郎の実姉。圧倒的な美肌マウントで周囲を眩惑し、事故を招く美容アイコン。</p>
+                            <p class="char-quote">ビタミンパワー注入！</p>
+                        </div>
+                    </article>
 
-                <article class="char-card char-card--danger js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Nicotine" alt="ニコチン爺や">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">全く歯がない！</span>
-                        <h3 class="char-name">ニコチン爺や</h3>
-                        <p class="char-desc">アスベス子の父。ヤニ咳と黄ばみが誇り。隙あらば昭和の武勇伝を語り出す。</p>
-                        <p class="char-quote">昔はよかった！</p>
-                    </div>
-                </article>
+                    <article class="char-card char-card--danger js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Nicotine" alt="ニコチン爺や">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">全く歯がない！</span>
+                            <h3 class="char-name">ニコチン爺や</h3>
+                            <p class="char-desc">アスベス子の父。ヤニ咳と黄ばみが誇り。隙あらば昭和の武勇伝を語り出す。</p>
+                            <p class="char-quote">昔はよかった！</p>
+                        </div>
+                    </article>
 
-                <article class="char-card char-card--danger js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Benzene" alt="ベンゼン婆や">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">かつて輝いた…</span>
-                        <h3 class="char-name">ベンゼン婆や</h3>
-                        <p class="char-desc">アスベス子の母。過去の栄光にすがり、六角形の何かに異常な執着を見せる。</p>
-                        <p class="char-quote">ベンゼン環がすべてじゃ！</p>
-                    </div>
-                </article>
+                    <article class="char-card char-card--danger js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Benzene" alt="ベンゼン婆や">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">かつて輝いた…</span>
+                            <h3 class="char-name">ベンゼン婆や</h3>
+                            <p class="char-desc">アスベス子の母。過去の栄光にすがり、六角形の何かに異常な執着を見せる。</p>
+                            <p class="char-quote">ベンゼン環がすべてじゃ！</p>
+                        </div>
+                    </article>
 
-                <article class="char-card char-card--neutral js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Molybdenum" alt="モリブデン兄さん">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">融点高すぎ。</span>
-                        <h3 class="char-name">モリブデン兄さん</h3>
-                        <p class="char-desc">寡黙な隣人。一喝するだけでカオスな場を凍りつかせる最強の抑止力。</p>
-                        <p class="char-quote">…落ち着け。</p>
-                    </div>
-                </article>
+                    <article class="char-card char-card--neutral js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Molybdenum" alt="モリブデン兄さん">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">融点高すぎ。</span>
+                            <h3 class="char-name">モリブデン兄さん</h3>
+                            <p class="char-desc">寡黙な隣人。一喝するだけでカオスな場を凍りつかせる最強の抑止力。</p>
+                            <p class="char-quote">…落ち着け。</p>
+                        </div>
+                    </article>
 
-                <article class="char-card char-card--health js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Vaseline" alt="ワセリンちゃん">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">みんなのアイドル！うるおい届ける☆</span>
-                        <h3 class="char-name">ワセリンちゃん</h3>
-                        <p class="char-desc">博士の溺愛娘。常にテカテカで物理的に眩しい。カロテン姉さんに憧れている。</p>
-                        <p class="char-quote">うるおっちゃえ〜！</p>
-                    </div>
-                </article>
+                    <article class="char-card char-card--health js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Vaseline" alt="ワセリンちゃん">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">みんなのアイドル！うるおい届ける☆</span>
+                            <h3 class="char-name">ワセリンちゃん</h3>
+                            <p class="char-desc">博士の溺愛娘。常にテカテカで物理的に眩しい。カロテン姉さんに憧れている。</p>
+                            <p class="char-quote">うるおっちゃえ〜！</p>
+                        </div>
+                    </article>
 
-                <article class="char-card char-card--health js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Cellulose" alt="セルロース博士">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">いつも孤独なセルロース博士</span>
-                        <h3 class="char-name">セルロース博士</h3>
-                        <p class="char-desc">孤独な学者。善意の発明がいつも巨大な迷惑を引き起こす。娘には弱い。</p>
-                        <p class="char-quote">セルロースなくして文明なし！</p>
-                    </div>
-                </article>
+                    <article class="char-card char-card--health js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Cellulose" alt="セルロース博士">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">いつも孤独なセルロース博士</span>
+                            <h3 class="char-name">セルロース博士</h3>
+                            <p class="char-desc">孤独な学者。善意の発明がいつも巨大な迷惑を引き起こす。娘には弱い。</p>
+                            <p class="char-quote">セルロースなくして文明なし！</p>
+                        </div>
+                    </article>
 
-                <article class="char-card char-card--health js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Kuen" alt="クエンさん">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">お掃除大好き！</span>
-                        <h3 class="char-name">クエンさん</h3>
-                        <p class="char-desc">常軌を逸した吸引力の掃除兵器を操る家政婦。汚すと瞬時にキレる。</p>
-                        <p class="char-quote">ちょっと！吸い殻落とさないで！</p>
-                    </div>
-                </article>
+                    <article class="char-card char-card--health js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Kuen" alt="クエンさん">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">お掃除大好き！</span>
+                            <h3 class="char-name">クエンさん</h3>
+                            <p class="char-desc">常軌を逸した吸引力の掃除兵器を操る家政婦。汚すと瞬時にキレる。</p>
+                            <p class="char-quote">ちょっと！吸い殻落とさないで！</p>
+                        </div>
+                    </article>
 
-                <article class="char-card char-card--danger js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Cadmium" alt="カドミウム先輩">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">ちょっぴりやんちゃ！</span>
-                        <h3 class="char-name">カドミウム先輩</h3>
-                        <p class="char-desc">不良ポジに憧れるやんちゃ者。メッキのアクセサリがすぐくすむのが悩み。</p>
-                        <p class="char-quote">先輩風吹かせちゃうぞ！</p>
-                    </div>
-                </article>
+                    <article class="char-card char-card--danger js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Cadmium" alt="カドミウム先輩">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">ちょっぴりやんちゃ！</span>
+                            <h3 class="char-name">カドミウム先輩</h3>
+                            <p class="char-desc">不良ポジに憧れるやんちゃ者。メッキのアクセサリがすぐくすむのが悩み。</p>
+                            <p class="char-quote">先輩風吹かせちゃうぞ！</p>
+                        </div>
+                    </article>
 
-                <article class="char-card char-card--danger js-char-card">
-                    <div class="char-img-box">
-                        <img src="https://placehold.jp/300x250.png?text=Bilirubin" alt="ビリルビン総長">
-                    </div>
-                    <div class="char-info">
-                        <span class="char-catch">異国から来た黄色のカリスマ！</span>
-                        <h3 class="char-name">ビリルビン総長</h3>
-                        <p class="char-desc">不健康派リーダー。強い光を浴びると色あせてしまう繊細な一面も持つ。</p>
-                        <p class="char-quote">村を黄色に染めてやる！</p>
-                    </div>
-                </article>
+                    <article class="char-card char-card--danger js-char-card">
+                        <div class="char-img-box">
+                            <img src="https://placehold.jp/300x250.png?text=Bilirubin" alt="ビリルビン総長">
+                        </div>
+                        <div class="char-info">
+                            <span class="char-catch">異国から来た黄色のカリスマ！</span>
+                            <h3 class="char-name">ビリルビン総長</h3>
+                            <p class="char-desc">不健康派リーダー。強い光を浴びると色あせてしまう繊細な一面も持つ。</p>
+                            <p class="char-quote">村を黄色に染めてやる！</p>
+                        </div>
+                    </article>
 
+                </div>
             </div>
             
-            <div style="text-align: center;" class="js-fade-up">
+            <div class="js-fade-up char-hint-wrapper">
                 <div class="scroll-hint-box">
                     <span><span class="arrow">←</span> 横にスクロールして全員チェック！ <span class="arrow">→</span></span>
                 </div>
@@ -763,7 +744,7 @@
         });
 
         function initAnimations() {
-            // 初期状態をセット（CSSでのopacity:0を避けるため）
+            // 初期状態をセット
             gsap.set('.js-header', { y: '-100%' });
             gsap.set('.js-logo', { opacity: 0, scale: 0.5 });
             gsap.set('.js-pop-in-hero', { opacity: 0, scale: 0.9, rotation: -1 });
@@ -772,14 +753,14 @@
             gsap.set('.js-pop-in-scroll', { opacity: 0, scale: 0.8 });
             gsap.set('.js-char-card', { opacity: 0, y: 50, rotation: 'var(--skew-angle)' });
 
-            // ヒーローセクションのアニメーション（ロード時）
+            // ヒーローセクションのアニメーション
             const heroTl = gsap.timeline({ defaults: { ease: "back.out(1.7)", duration: 0.8 } });
             heroTl.to('.js-header', { y: '0%', ease: "power2.out", duration: 0.5 }, "+=0.2")
                   .to('.js-logo', { opacity: 1, scale: 1, rotation: -3 }, "-=0.3")
                   .to('.js-pop-in-hero', { opacity: 1, scale: 1, rotation: -1 }, "-=0.2")
                   .to('.js-fade-up-hero', { opacity: 1, y: 0, rotation: 'var(--skew-angle)', stagger: 0.2 }, "-=0.4");
 
-            // パララックス効果（ヒーロー背景）
+            // パララックス
             gsap.to('body', {
                 backgroundPosition: `0 100px, 5px 105px`,
                 ease: "none",
@@ -791,7 +772,7 @@
                 }
             });
 
-            // 汎用フェードアップアニメーション（スクロール時）
+            // フェードアップ
             gsap.utils.toArray('.js-fade-up').forEach(target => {
                 const delay = target.dataset.delay || 0;
                 gsap.to(target, {
@@ -808,7 +789,7 @@
                 });
             });
 
-             // ストーリーリストのスタガリングアニメーション
+             // ストーリーリスト
              gsap.to('.js-fade-up_stagger', {
                 opacity: 1,
                 y: 0,
@@ -822,7 +803,7 @@
                 }
             });
 
-            // 汎用ポップインアニメーション（スクロール時）
+            // ポップイン
             gsap.utils.toArray('.js-pop-in-scroll').forEach(target => {
                 const delay = target.dataset.delay || 0;
                 gsap.to(target, {
@@ -839,7 +820,7 @@
                 });
             });
 
-             // キャラクターカードのスタガリングアニメーション
+             // キャラクターカード
              gsap.to('.js-char-card', {
                 opacity: 1,
                 y: 0,
@@ -854,7 +835,7 @@
                 }
             });
 
-            // 見出し文字のアニメーション
+            // 文字アニメーション
             document.querySelectorAll('.js-text-anim').forEach(title => {
                 title.innerHTML = title.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
                 gsap.set(title.querySelectorAll('.letter'), { opacity: 0, y: 20, scale: 0.8 });
