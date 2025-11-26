@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate v28</title>
+<title>ことばコレクションガチャ Ultimate v29</title>
 <meta name="theme-color" content="#0b0f1c">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -336,7 +336,7 @@ header{
 
 #full-ad-overlay { position: fixed; inset: 0; z-index: 9999; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.4s ease; }
 #full-ad-overlay.active { display: flex; }
-#full-ad-overlay img { width: 100%; max-width: 400px; height: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
+#full-ad-overlay img, #full-ad-overlay video { width: 100%; max-width: 400px; height: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); display: block; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* === Modal Design === */
@@ -518,9 +518,7 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
 
 <div id="full-ad-overlay">
   <div style="color:var(--muted); font-size:12px; margin-bottom:12px; letter-spacing:2px; font-weight:700;">SPONSORED</div>
-  <a href="nekologia.html" target="_blank" rel="noopener">
-    <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
-  </a>
+  <div id="ad-slot"></div>
   <button class="btn-play" style="margin-top:24px; border-color:white; color:white; padding:10px 30px; font-size:14px;" onclick="closeFullScreenAd()">× 閉じる</button>
 </div>
 
@@ -721,8 +719,41 @@ function shakeScreen(hard=false){
 }
 
 const adOverlay = document.getElementById('full-ad-overlay');
+const adSlot = document.getElementById('ad-slot');
+
 function onCloseMultiResult() {
-  if (Math.random() < 0.2) { adOverlay.classList.add('active'); sfxTap(); } else { closeOverlay(); }
+  const rand = Math.random();
+  // 20% Potassium Taro (動画広告)
+  if (rand < 0.2) {
+    adSlot.innerHTML = `
+      <a href="potassium_taro.html" target="_blank" rel="noopener" style="display:block; text-decoration:none;">
+        <video id="ad-video" src="kotoba-gacha/audio/ktarovideo.mp4" muted autoplay playsinline style="width:100%; max-width:400px; height:auto; border-radius:8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.1); display:block;"></video>
+        <img id="ad-img" src="kotoba-gacha/images/k_bannar.jpg" style="width:100%; max-width:400px; height:auto; border-radius:8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.1); display:none;" alt="カリウム太郎">
+      </a>
+    `;
+    const v = document.getElementById('ad-video');
+    const i = document.getElementById('ad-img');
+    v.addEventListener('ended', () => {
+      v.style.display = 'none';
+      i.style.display = 'block';
+    });
+    adOverlay.classList.add('active'); 
+    sfxTap();
+  } 
+  // 20% Nekologia (既存の静止画広告)
+  else if (rand < 0.4) {
+    adSlot.innerHTML = `
+      <a href="nekologia.html" target="_blank" rel="noopener">
+        <img src="images/necologia_banner.jpg" alt="ネコロジア" style="width:100%; max-width:400px; height:auto; border-radius:8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.1);">
+      </a>
+    `;
+    adOverlay.classList.add('active');
+    sfxTap();
+  }
+  // 60% No Ad
+  else { 
+    closeOverlay(); 
+  }
 }
 function closeFullScreenAd() { adOverlay.classList.remove('active'); closeOverlay(); }
 
