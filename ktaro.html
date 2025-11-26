@@ -103,20 +103,18 @@
             margin-bottom: 40px;
         }
 
-        /* 【修正1】インパクトを取り戻すための最強設定 */
         .section-title {
             font-family: var(--font-title-jp);
             font-weight: 900;
             
-            /* 【ここがポイント】画面幅に合わせて自動調整 */
-            /* 最小1.5rem 〜 画面幅の7% 〜 最大2.5rem */
-            font-size: clamp(1.4rem, 7vw, 2.5rem);
+            /* 【修正】文字サイズ調整 */
+            font-size: clamp(1.4rem, 6vw, 2.5rem);
             
             color: var(--c-pink);
             
-            /* フチを太くしても文字が潰れない魔法のプロパティ */
+            /* フチの描画順序 */
             -webkit-text-stroke: 1.5px var(--c-black);
-            paint-order: stroke fill; /* フチを後ろに描画する */
+            paint-order: stroke fill;
             
             text-shadow: 3px 3px 0 var(--c-yellow);
             position: relative;
@@ -124,11 +122,12 @@
             z-index: 1;
             transform: rotate(var(--skew-angle));
             letter-spacing: 0.05em;
-            line-height: 1.3;
             
-            /* 変な改行を防ぐ */
-            white-space: nowrap;
-            max-width: 100%; /* はみ出し防止 */
+            /* 【修正】改行制御：絶対にはみ出させない */
+            line-height: 1.4; /* フチが重ならないように少し広げる */
+            white-space: normal; /* 改行を許可 */
+            word-wrap: break-word; /* 長い単語でも折り返す */
+            max-width: 100%;
         }
         
         .section-title::before {
@@ -137,7 +136,7 @@
             top: -0.8em; left: 50%;
             transform: translateX(-50%) skewX(-5deg);
             font-family: var(--font-title-en);
-            font-size: 0.5em; /* 英語表記は少し小さくして邪魔しないように */
+            font-size: 0.5em;
             color: rgba(0,0,0,0.1);
             -webkit-text-stroke: 0; text-shadow: none;
             z-index: -1; white-space: nowrap;
@@ -168,22 +167,17 @@
             box-shadow: none; background: var(--c-pink); color: var(--c-white);
         }
 
-        /* 【修正2】スクロール注意書きも自動サイズ調整 */
         .scroll-hint-box {
             display: inline-block;
             background: var(--c-black);
             color: var(--c-yellow);
-            /* 上下余白は固定、左右は少し狭める */
             padding: 0.5em 1em; 
             font-weight: 900;
-            
-            /* 画面幅に合わせて文字サイズ調整 */
             font-size: clamp(0.8rem, 3.5vw, 1rem);
-            
             border: 3px solid var(--c-white);
             transform: skewX(-10deg);
             box-shadow: 5px 5px 0 rgba(0,0,0,0.2);
-            white-space: nowrap; /* 1行に収める */
+            white-space: nowrap;
         }
         .scroll-hint-box span { display: block; transform: skewX(10deg); }
         .scroll-hint-box .arrow { display: inline-block; animation: bounceX 1s infinite alternate; }
@@ -297,7 +291,6 @@
         .character .section-title { 
             color: var(--c-yellow); 
             text-shadow: 4px 4px 0 var(--c-black);
-            /* キャラクタータイトルは少し長めなので、サイズ調整を少し強めに */
             font-size: clamp(1.2rem, 6vw, 2.5rem);
         }
 
@@ -341,7 +334,7 @@
         @media (min-width: 769px) {
              .char-card:hover { transform: translate(4px, 4px) rotate(0deg) scale(1.02); box-shadow: none; z-index: 20; }
         }
-        /* 各キャラカードの配色 */
+        
         .char-card--health .char-img-box { background: var(--c-yellow); }
         .char-card--health .char-catch { background: var(--c-black); color: var(--c-yellow); }
         .char-card--health .char-name { color: var(--c-pink); }
@@ -382,24 +375,38 @@
         }
 
         /* Correlation */
+        /* 【修正】相関図をタップ可能にするスタイル */
         .correlation-img-wrapper {
             border: var(--border-comic); box-shadow: var(--shadow-comic); padding: 5px;
             background: var(--c-yellow); transform: rotate(1deg); width: 100%;
+            cursor: zoom-in; /* カーソルを虫眼鏡に */
+            position: relative;
+            transition: transform 0.3s ease;
         }
+        .correlation-img-wrapper:active { transform: scale(0.98) rotate(1deg); }
+
+        .correlation-img-wrapper img { width: 100%; pointer-events: none; }
+        
+        /* 拡大ヒントアイコン */
+        .zoom-hint {
+            position: absolute; bottom: 10px; right: 10px;
+            background: rgba(0,0,0,0.7); color: white;
+            padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+            pointer-events: none;
+        }
+        .zoom-hint::before { content: '🔍'; margin-right: 5px; }
 
         /* Story */
         .story .section-title {
             color: var(--c-yellow);
             text-shadow: 4px 4px 0 var(--c-pink), 6px 6px 0 var(--c-black);
             -webkit-text-stroke: 2px var(--c-black);
-            /* paint-orderをここでも有効化 */
             paint-order: stroke fill;
         }
         
         .story .section-header p {
             color: var(--c-yellow); font-size: 0.9rem; font-weight: 900;
             -webkit-text-stroke: 1px var(--c-black); text-shadow: 2px 2px 0 var(--c-black);
-            /* リード文もpaint-orderで可読性UP */
             paint-order: stroke fill;
         }
 
@@ -445,18 +452,36 @@
         .footer-cta {
             font-family: var(--font-title-jp); font-weight: 900;
             color: var(--c-yellow);
-            
-            /* Footer CTAも自動サイズ調整＋インパクト維持 */
             font-size: clamp(1.2rem, 5vw, 1.5rem);
             white-space: nowrap;
-            
             -webkit-text-stroke: 1.5px var(--c-black);
-            paint-order: stroke fill; /* インパクト維持 */
-            
+            paint-order: stroke fill;
             text-shadow: 3px 3px 0 var(--c-pink), 5px 5px 0 var(--c-black);
             margin-bottom: 20px;
         }
         .copyright { margin-top: 30px; font-size: 0.8rem; color: var(--c-white); opacity: 0.8; }
+
+        /* 【追加】モーダル（ライトボックス）用スタイル */
+        .image-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            cursor: zoom-out;
+        }
+        .image-modal.is-open { opacity: 1; pointer-events: auto; }
+        .image-modal img {
+            max-width: 95%; max-height: 95%;
+            object-fit: contain;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transform: scale(0.9); transition: transform 0.3s ease;
+        }
+        .image-modal.is-open img { transform: scale(1); }
+        .modal-close-msg {
+            position: absolute; bottom: 30px; color: white; font-weight: bold;
+            background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 20px;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -679,8 +704,9 @@
                 <p style="margin-top: 20px; font-weight: bold; font-size: 0.9rem;" class="js-fade-up" data-delay="0.2">健康派と不健康派の対立、疑惑の親子関係…。<br>この村の人間関係は、化学式より複雑怪奇！</p>
             </div>
             
-            <div class="correlation-img-wrapper js-pop-in-scroll" data-delay="0.4">
+            <div class="correlation-img-wrapper js-pop-in-scroll js-modal-open" data-delay="0.4">
                <img src="https://raw.githubusercontent.com/kyoryu1039/kotoba-gacha/e623b9f723cd0465ffa1196b856f99a53b10ed39/images/k_relation.png" alt="カリウム太郎一家 相関図">
+               <div class="zoom-hint">タップして拡大</div>
             </div>
         </div>
     </section>
@@ -734,6 +760,11 @@
         </div>
     </footer>
 
+    <div class="image-modal js-modal">
+        <img src="" alt="拡大画像" class="js-modal-img">
+        <p class="modal-close-msg">タップして閉じる</p>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
@@ -744,7 +775,31 @@
         // ページ読み込み完了後にアニメーションを開始
         window.addEventListener('load', () => {
             initAnimations();
+            initModal();
         });
+
+        // モーダル機能の初期化
+        function initModal() {
+            const modalOpenBtn = document.querySelector('.js-modal-open');
+            const modal = document.querySelector('.js-modal');
+            const modalImg = document.querySelector('.js-modal-img');
+            
+            if (modalOpenBtn) {
+                modalOpenBtn.addEventListener('click', () => {
+                    const src = modalOpenBtn.querySelector('img').src;
+                    modalImg.src = src;
+                    modal.classList.add('is-open');
+                    document.body.style.overflow = 'hidden'; // 背景スクロール固定
+                });
+            }
+
+            if (modal) {
+                modal.addEventListener('click', () => {
+                    modal.classList.remove('is-open');
+                    document.body.style.overflow = ''; // 背景スクロール解除
+                });
+            }
+        }
 
         function initAnimations() {
             // 初期状態をセット
