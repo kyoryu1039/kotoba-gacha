@@ -106,27 +106,19 @@
         .section-title {
             font-family: var(--font-title-jp);
             font-weight: 900;
-            
-            /* 【修正】文字サイズ調整 */
             font-size: clamp(1.4rem, 6vw, 2.5rem);
-            
             color: var(--c-pink);
-            
-            /* フチの描画順序 */
             -webkit-text-stroke: 1.5px var(--c-black);
             paint-order: stroke fill;
-            
             text-shadow: 3px 3px 0 var(--c-yellow);
             position: relative;
             display: inline-block;
             z-index: 1;
             transform: rotate(var(--skew-angle));
             letter-spacing: 0.05em;
-            
-            /* 【修正】改行制御：絶対にはみ出させない */
-            line-height: 1.4; /* フチが重ならないように少し広げる */
-            white-space: normal; /* 改行を許可 */
-            word-wrap: break-word; /* 長い単語でも折り返す */
+            line-height: 1.4;
+            white-space: normal;
+            word-wrap: break-word;
             max-width: 100%;
         }
         
@@ -345,8 +337,8 @@
         .char-card--neutral .char-catch { background: var(--c-cyan); color: var(--c-black); }
         .char-card--neutral .char-name { color: var(--c-cyan); -webkit-text-stroke: 1.5px var(--c-black); }
 
-        .char-img-box { height: 200px; border-bottom: var(--border-comic); position: relative; overflow: hidden; flex-shrink: 0; }
-        .char-img-box::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-conic-gradient(from 0deg, transparent 0deg, transparent 15deg, rgba(255,255,255,0.3) 15deg, rgba(255,255,255,0.3) 30deg); }
+        .char-img-box { height: 280px; /* 画像が見やすいように高さを調整 */ border-bottom: var(--border-comic); position: relative; overflow: hidden; flex-shrink: 0; }
+        .char-img-box::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: repeating-conic-gradient(from 0deg, transparent 0deg, transparent 15deg, rgba(255,255,255,0.1) 15deg, rgba(255,255,255,0.1) 30deg); pointer-events: none; }
         .char-img-box img { position: relative; z-index: 1; object-fit: cover; height: 100%; width: 100%; transition: transform 0.5s ease; }
         .char-card:hover .char-img-box img { transform: scale(1.1); }
         .char-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
@@ -375,11 +367,10 @@
         }
 
         /* Correlation */
-        /* 【修正】相関図をタップ可能にするスタイル */
         .correlation-img-wrapper {
             border: var(--border-comic); box-shadow: var(--shadow-comic); padding: 5px;
             background: var(--c-yellow); transform: rotate(1deg); width: 100%;
-            cursor: zoom-in; /* カーソルを虫眼鏡に */
+            cursor: zoom-in;
             position: relative;
             transition: transform 0.3s ease;
         }
@@ -387,7 +378,6 @@
 
         .correlation-img-wrapper img { width: 100%; pointer-events: none; }
         
-        /* 拡大ヒントアイコン */
         .zoom-hint {
             position: absolute; bottom: 10px; right: 10px;
             background: rgba(0,0,0,0.7); color: white;
@@ -461,7 +451,7 @@
         }
         .copyright { margin-top: 30px; font-size: 0.8rem; color: var(--c-white); opacity: 0.8; }
 
-        /* 【追加】モーダル（ライトボックス）用スタイル */
+        /* Modal */
         .image-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 9999;
@@ -544,7 +534,7 @@
                 <div class="char-grid">
                     <article class="char-card char-card--health js-char-card">
                         <div class="char-img-box">
-                            <img src="https://placehold.jp/300x250.png?text=Taro" alt="カリウム太郎">
+                            <img src="images/taro_bromide.png" alt="カリウム太郎">
                         </div>
                         <div class="char-info">
                             <span class="char-catch">元気いっぱい！健康第一！</span>
@@ -556,7 +546,7 @@
                     
                     <article class="char-card char-card--danger js-char-card">
                         <div class="char-img-box">
-                            <img src="https://placehold.jp/300x250.png?text=Asbesko" alt="アスベス子">
+                            <img src="images/asbesko_bromide.png" alt="アスベス子">
                         </div>
                         <div class="char-info">
                             <span class="char-catch">とっても危ない♡</span>
@@ -568,7 +558,7 @@
                     
                     <article class="char-card char-card--neutral js-char-card">
                         <div class="char-img-box">
-                            <img src="https://placehold.jp/300x250.png?text=Gallium" alt="ガリウム坊や">
+                            <img src="images/gallium_bromide.png" alt="ガリウム坊や">
                         </div>
                         <div class="char-info">
                             <span class="char-catch">人肌でとけちゃう〜！</span>
@@ -866,6 +856,7 @@
                 const delay = target.dataset.delay || 0;
                 gsap.to(target, {
                     opacity: 1,
+                    y: 0,
                     scale: 1,
                     duration: 0.6,
                     delay: delay,
