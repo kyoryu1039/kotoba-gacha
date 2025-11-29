@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rhythm CAPTCHA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            background-color: #f9f9f9;
+        }
+
+        /* CAPTCHA Widget Style */
+        .captcha-box {
+            position: absolute;
+            width: 300px;
+            height: 74px;
+            background: #f9f9f9;
+            border: 1px solid #d3d3d3;
+            border-radius: 3px;
+            box-shadow: 0 0 4px 1px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            transform: translate(-50%, -50%);
+            z-index: 60; 
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+            pointer-events: auto;
+            /* Scale down slightly on very small screens if needed, but 300px usually fits */
+            max-width: 90vw; 
+        }
+
+        .captcha-box.active {
+            opacity: 1;
+        }
+
+        /* Initial Start Trigger Style */
+        #start-trigger {
+            opacity: 1; 
+            z-index: 100;
+            transition: transform 0.2s, opacity 0.3s;
+        }
+        #start-trigger:hover {
+            box-shadow: 0 0 4px 1px rgba(0,0,0,0.15);
+        }
+        #start-trigger:active {
+            background-color: #f0f0f0;
+        }
+
+        .checkbox-container {
+            width: 28px;
+            height: 28px;
+            background: #fff;
+            border: 2px solid #c1c1c1;
+            border-radius: 2px;
+            margin-right: 12px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .checkbox-container:hover {
+            border-color: #b2b2b2;
+        }
+
+        .captcha-text {
+            color: #282828;
+            font-size: 14px;
+            font-weight: 500;
+            flex-grow: 1;
+        }
+
+        .captcha-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        
+        .captcha-logo img {
+            width: 32px;
+            opacity: 0.5;
+        }
+
+        .captcha-logo span {
+            font-size: 10px;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        /* Rhythm Ring Animation */
+        .approach-ring {
+            position: absolute;
+            top: 50%;
+            left: 26px; /* Center over checkbox */
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(66, 133, 244, 0.6);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        /* Success Checkmark */
+        .checkmark {
+            display: none;
+            width: 24px;
+            height: 24px;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: dash 0.3s forwards;
+        }
+        
+        .checkmark-path {
+            stroke: #0F9D58;
+            stroke-width: 4;
+            fill: none;
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3498db;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Feedback Text */
+        .feedback {
+            position: absolute;
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 70;
+            text-shadow: 1px 1px 0 #fff;
+            animation: floatUp 0.5s forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -80%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -100%) scale(1); opacity: 0; }
+        }
+
+        .perfect { color: #0F9D58; }
+        .good { color: #F4B400; }
+        .miss { color: #DB4437; }
+
+        /* UI Overlays */
+        #start-screen, #game-over-screen {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        /* Rule Popup */
+        #rule-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            border: 1px solid #ddd;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 200;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: translate(-50%, -60%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #888;
+            cursor: pointer;
+            padding: 4px 8px;
+            line-height: 1;
+        }
+        .close-btn:hover { color: #333; }
+
+        .popup-action-btn {
+            display: block;
+            width: 100%;
+            margin-top: 16px;
+            background: #4285F4;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+        .popup-action-btn:hover { background: #357ae8; }
+
+        .hidden { display: none !important; }
+
+        .btn {
+            background: #4285F4;
+            color: white;
+            padding: 12px 32px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .btn:hover { background: #357ae8; }
+        
+        /* Scanline effect */
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.02) 50%, rgba(0,0,0,0.02));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        /* Responsive Text Sizes */
+        @media (max-width: 600px) {
+            #status-text { font-size: 1rem; }
+            #timer-display { font-size: 2rem; }
+            .hud-label { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen w-screen overflow-hidden">
+
+    <!-- HUD -->
+    <div id="hud" class="fixed top-0 left-0 w-full p-3 sm:p-4 flex justify-between items-start pointer-events-none z-50 opacity-0 transition-opacity duration-500">
+        <div class="flex-1">
+            <div class="hud-label text-gray-500 text-xs sm:text-sm font-bold tracking-wider">認証ランク</div>
+            <div id="status-text" class="text-lg sm:text-xl font-bold text-green-600 mb-1 leading-tight">純粋な人間</div>
+            <div class="w-32 sm:w-48 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div id="rank-progress" class="h-full bg-green-500 w-full transition-all duration-300"></div>
+            </div>
+            <div class="text-xs text-gray-400 mt-1">MISSES: <span id="miss-display">0</span></div>
+        </div>
+        <div class="text-right">
+            <div class="hud-label text-gray-500 text-xs sm:text-sm font-bold tracking-wider">残り時間</div>
+            <div id="timer-display" class="text-3xl sm:text-5xl font-mono text-gray-800 tracking-tight leading-none mt-1">15.00</div>
+        </div>
+    </div>
+
+    <!-- Game Area -->
+    <div id="game-container" class="relative w-full h-full z-10">
+        <!-- Notes will spawn here -->
+    </div>
+
+    <!-- Scanlines Overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Start Screen (Ad Banner Style) -->
+    <div id="start-screen">
+        <!-- The trigger widget -->
+        <div id="start-trigger" class="captcha-box" style="position: relative; top: 0; left: 0; transform: none;">
+            <div class="checkbox-container"></div>
+            <div class="captcha-text">I'm not a robot</div>
+            <div class="captcha-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <span class="text-[8px] mt-1">reCAPTCHA</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rule Popup -->
+    <div id="rule-popup" class="hidden">
+        <button id="close-popup-btn-x" class="close-btn">×</button>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">人間証明テスト</h2>
+        <p class="text-gray-600 text-sm leading-relaxed mb-4">
+            これから15秒間の人間証明テストを行います。<br>
+            リズムに合わせて、出現する<strong>"I'm not a robot"</strong>をクリックして下さい。
+        </p>
+        <!-- OK Button for better mobile UX -->
+        <button id="close-popup-btn-main" class="popup-action-btn">テストを開始する</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="hidden">
+        <div class="text-6xl mb-4" id="result-emoji">🤖</div>
+        <h2 class="text-xl text-gray-500 mb-1">VERIFICATION COMPLETE</h2>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4 text-center px-2" id="result-rank-text">RANK ?</h1>
+        <p class="text-gray-600 mb-6 font-mono bg-gray-100 px-4 py-2 rounded">Final Miss Count: <span id="final-misses">0</span></p>
+        <button id="restart-btn" class="btn">再認証 (RETRY)</button>
+    </div>
+
+    <script>
+        // --- Audio System (Web Audio API) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let nextNoteTime = 0.0;
+        let timerID;
+        let isPlaying = false;
+        
+        // Game Settings
+        const BPM = 90; 
+        const GAME_DURATION = 15.0; // Seconds
+        const LOOKAHEAD = 25.0; // ms
+        const SCHEDULE_AHEAD_TIME = 0.1; // sec
+        
+        // Note logic
+        const APPROACH_TIME = 1.5; 
+        const HIT_WINDOW_PERFECT = 0.15; 
+        const HIT_WINDOW_GOOD = 0.35;    
+        
+        // Game State
+        let missCount = 0;
+        let activeNotes = [];
+        let noteIdCounter = 0;
+        let gameStartTime = 0;
+        let currentRankIndex = 10;
+        let introDelay = 1.5; // Short delay after clicking popup before first beat logic
+
+        // Sounds
+        function playKick(time) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(150, time);
+            osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+            gain.gain.setValueAtTime(0.5, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.5);
+        }
+
+        function playSnare(time) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const noise = audioCtx.createBufferSource();
+            
+            osc.frequency.setValueAtTime(250, time);
+            gain.gain.setValueAtTime(0.2, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+            osc.connect(gain);
+            
+            const bufferSize = audioCtx.sampleRate * 0.2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            noise.buffer = buffer;
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.3, time);
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+            noise.connect(noiseGain);
+
+            gain.connect(audioCtx.destination);
+            noiseGain.connect(audioCtx.destination);
+            
+            osc.start(time);
+            noise.start(time);
+            osc.stop(time + 0.2);
+            noise.stop(time + 0.2);
+        }
+
+        function playHiHat(time) {
+            const bufferSize = audioCtx.sampleRate * 0.05;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = "highpass";
+            filter.frequency.value = 5000;
+            
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.1, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+            
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            noise.start(time);
+            noise.stop(time + 0.05);
+        }
+
+        function playClickSound(success) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const time = audioCtx.currentTime;
+            
+            if (success) {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, time);
+                osc.frequency.exponentialRampToValueAtTime(1200, time + 0.1);
+                gain.gain.setValueAtTime(0.3, time);
+                gain.gain.linearRampToValueAtTime(0, time + 0.1);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, time);
+                osc.frequency.linearRampToValueAtTime(100, time + 0.2);
+                gain.gain.setValueAtTime(0.3, time);
+                gain.gain.linearRampToValueAtTime(0, time + 0.2);
+            }
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + 0.2);
+        }
+
+        // --- Game Loop & Logic ---
+
+        let currentBeat = 0;
+
+        function scheduler() {
+            if (!isPlaying || !audioCtx) return;
+
+            if (audioCtx.currentTime === 0 && activeNotes.length === 0) {
+                 timerID = setTimeout(scheduler, 100);
+                 return;
+            }
+            
+            // Time Check (Wait for intro)
+            const elapsedTime = audioCtx.currentTime - gameStartTime;
+            
+            // End Game Check
+            if (elapsedTime >= GAME_DURATION + introDelay) {
+                return;
+            }
+
+            while (nextNoteTime < audioCtx.currentTime + SCHEDULE_AHEAD_TIME) {
+                // Intro Logic: Only schedule visual notes AFTER introDelay
+                const absoluteTime = nextNoteTime - gameStartTime;
+                
+                // Rhythm always plays (kick/snare) to give user beat
+                scheduleSound(currentBeat, nextNoteTime);
+                
+                // Visuals start after intro
+                if (absoluteTime > introDelay && absoluteTime < GAME_DURATION + introDelay - 1.0) {
+                     scheduleVisuals(currentBeat, nextNoteTime);
+                }
+                
+                nextNote();
+            }
+            if (isPlaying) {
+                timerID = setTimeout(scheduler, LOOKAHEAD);
+            }
+        }
+
+        function nextNote() {
+            const secondsPerBeat = 60.0 / BPM;
+            nextNoteTime += secondsPerBeat;
+            currentBeat++;
+        }
+
+        function scheduleSound(beatNumber, time) {
+            if (beatNumber % 4 === 0) {
+                playKick(time);
+            } else if (beatNumber % 4 === 2) {
+                playSnare(time);
+            } else {
+                playHiHat(time);
+            }
+        }
+
+        function scheduleVisuals(beatNumber, time) {
+            const shouldSpawn = (beatNumber % 2 === 0); 
+            
+            if (shouldSpawn) {
+                // Ensure we don't spawn if already too late
+                const timeUntilHit = time - audioCtx.currentTime;
+                if (timeUntilHit < 0.05) return;
+                createCaptchaNote(time);
+            }
+        }
+
+        function createCaptchaNote(targetAudioTime) {
+            const container = document.getElementById('game-container');
+            const noteId = noteIdCounter++;
+            
+            const boxWidth = 300;
+            const boxHeight = 74;
+            const padding = 10;
+            
+            const containerW = container.clientWidth || window.innerWidth;
+            const containerH = container.clientHeight || window.innerHeight;
+
+            // Adjusted margins for mobile to prevent overflow
+            // Ensure box doesn't go off screen. 
+            // Box is centered on X/Y. So limits are:
+            // Min X: boxWidth/2 + padding
+            // Max X: containerW - boxWidth/2 - padding
+            
+            // On very small screens, boxWidth (300) might be larger than screen.
+            // In that case, center it.
+            const minX = boxWidth / 2 + padding;
+            const maxX = Math.max(minX, containerW - (boxWidth / 2) - padding);
+            
+            // HUD height approximation (100px for safety)
+            const hudHeight = 100;
+            const minY = boxHeight / 2 + padding + hudHeight; 
+            const maxY = Math.max(minY, containerH - (boxHeight / 2) - padding);
+
+            let finalX, finalY;
+            if (maxX <= minX) finalX = containerW / 2;
+            else finalX = minX + Math.random() * (maxX - minX);
+
+            if (maxY <= minY) finalY = containerH / 2; // Not enough space vertically? center it below HUD if possible
+            else finalY = minY + Math.random() * (maxY - minY);
+
+            const el = document.createElement('div');
+            el.className = 'captcha-box';
+            el.style.left = finalX + 'px';
+            el.style.top = finalY + 'px';
+            el.dataset.id = noteId;
+            el.dataset.targetTime = targetAudioTime;
+            el.dataset.hit = "false";
+
+            el.innerHTML = `
+                <div class="checkbox-container">
+                    <div class="spinner"></div>
+                    <svg class="checkmark" viewBox="0 0 24 24"><path class="checkmark-path" d="M4 12 l5 5 l10 -10"></path></svg>
+                </div>
+                <div class="captcha-text">I'm not a robot</div>
+                <div class="captcha-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <span>reCAPTCHA</span>
+                </div>
+                <div class="approach-ring"></div>
+            `;
+
+            container.appendChild(el);
+            setTimeout(() => { el.classList.add('active'); }, 20);
+
+            const noteObj = {
+                id: noteId,
+                el: el,
+                targetTime: targetAudioTime,
+                x: finalX,
+                y: finalY,
+                processed: false
+            };
+            activeNotes.push(noteObj);
+            
+            el.addEventListener('mousedown', (e) => handleInput(e, noteObj));
+            el.addEventListener('touchstart', (e) => {
+                e.preventDefault(); 
+                handleInput(e, noteObj);
+            });
+        }
+
+        function handleInput(e, note) {
+            if (note.processed) return;
+            
+            const currentTime = audioCtx.currentTime;
+            const diff = Math.abs(currentTime - note.targetTime);
+            
+            let result = null;
+
+            if (diff <= HIT_WINDOW_PERFECT) {
+                result = "PERFECT";
+            } else if (diff <= HIT_WINDOW_GOOD) {
+                result = "GOOD";
+            } else {
+                result = "MISS";
+                missCount++;
+            }
+
+            processNoteResult(note, result);
+        }
+
+        function processNoteResult(note, result) {
+            note.processed = true;
+            const spinner = note.el.querySelector('.spinner');
+            const checkmark = note.el.querySelector('.checkmark');
+            const ring = note.el.querySelector('.approach-ring');
+            
+            ring.style.display = 'none'; 
+
+            if (result === "MISS") {
+                note.el.style.backgroundColor = "#fee";
+                note.el.style.borderColor = "#faa";
+                playClickSound(false);
+                createFeedback(note.x, note.y - 50, "MISS", "miss");
+                updateRank();
+            } else {
+                spinner.style.display = 'block';
+                setTimeout(() => {
+                    spinner.style.display = 'none';
+                    checkmark.style.display = 'block';
+                }, 50); 
+                playClickSound(true);
+                createFeedback(note.x, note.y - 50, result, result === "PERFECT" ? "perfect" : "good");
+            }
+
+            setTimeout(() => {
+                if (note.el.parentNode) {
+                    note.el.style.opacity = '0';
+                    setTimeout(() => note.el.remove(), 200);
+                }
+            }, 500);
+        }
+
+        function createFeedback(x, y, text, cls) {
+            const el = document.createElement('div');
+            el.className = `feedback ${cls}`;
+            el.innerText = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 600);
+        }
+
+        // --- Animation Loop (Visual Updates) ---
+        function animationLoop() {
+            if (!isPlaying) return;
+
+            const currentTime = audioCtx.currentTime;
+            const elapsedTime = currentTime - gameStartTime; 
+            const gameTime = Math.max(0, elapsedTime - introDelay); 
+            
+            // Timer Update
+            const remaining = Math.max(0, GAME_DURATION - gameTime);
+            document.getElementById('timer-display').innerText = remaining.toFixed(2);
+
+            // End Game Check
+            if (gameTime >= GAME_DURATION) {
+                endGame();
+                return;
+            }
+            
+            // Update active notes visuals
+            for (let i = activeNotes.length - 1; i >= 0; i--) {
+                const note = activeNotes[i];
+                if (note.processed) {
+                    activeNotes.splice(i, 1);
+                    continue;
+                }
+
+                if (currentTime > note.targetTime + HIT_WINDOW_GOOD) {
+                    processNoteResult(note, "MISS");
+                    missCount++; 
+                    updateRank();
+                    continue;
+                }
+
+                // Update Ring Size
+                const timeData = note.targetTime - currentTime;
+                if (timeData <= APPROACH_TIME) {
+                    const progress = 1 - (timeData / APPROACH_TIME); 
+                    const currentSize = 80 - ((80 - 34) * progress);
+                    const ringEl = note.el.querySelector('.approach-ring');
+                    if (ringEl) {
+                        ringEl.style.width = `${Math.max(currentSize, 34)}px`;
+                        ringEl.style.height = `${Math.max(currentSize, 34)}px`;
+                        if (Math.abs(timeData) < HIT_WINDOW_PERFECT) {
+                            ringEl.style.borderColor = "rgba(15, 157, 88, 0.8)";
+                        } else {
+                            ringEl.style.borderColor = "rgba(66, 133, 244, 0.6)";
+                        }
+                    }
+                }
+            }
+            requestAnimationFrame(animationLoop);
+        }
+
+        // --- UI & Lifecycle ---
+
+        const RANKS = [
+            { title: "ランク0：鉄クズ", color: "text-gray-600", bg: "bg-gray-600" },
+            { title: "ランク1：悪質ボット", color: "text-red-800", bg: "bg-red-800" },
+            { title: "ランク2：スクリプトキディ", color: "text-red-600", bg: "bg-red-600" },
+            { title: "ランク3：マクロ利用者", color: "text-red-500", bg: "bg-red-500" },
+            { title: "ランク4：挙動不審", color: "text-orange-500", bg: "bg-orange-500" },
+            { title: "ランク5：未確認", color: "text-yellow-600", bg: "bg-yellow-600" },
+            { title: "ランク6：判定不能", color: "text-yellow-500", bg: "bg-yellow-500" },
+            { title: "ランク7：たぶん人間", color: "text-blue-400", bg: "bg-blue-400" },
+            { title: "ランク8：認証済み人間", color: "text-blue-600", bg: "bg-blue-600" },
+            { title: "ランク9：高知能生命体", color: "text-green-500", bg: "bg-green-500" },
+            { title: "ランク10：純粋な人間", color: "text-green-600", bg: "bg-green-600" }
+        ];
+
+        function updateRank() {
+            let r = 10 - missCount;
+            if (r < 0) r = 0; 
+            currentRankIndex = r;
+
+            const rankData = RANKS[currentRankIndex];
+            const statusText = document.getElementById('status-text');
+            const progressBar = document.getElementById('rank-progress');
+            const missDisplay = document.getElementById('miss-display');
+
+            statusText.innerText = rankData.title;
+            statusText.className = `text-lg sm:text-xl font-bold mb-1 leading-tight ${rankData.color}`;
+            
+            progressBar.className = `h-full transition-all duration-300 ${rankData.bg}`;
+            progressBar.style.width = `${(currentRankIndex / 10) * 100}%`;
+            
+            missDisplay.innerText = missCount;
+        }
+
+        function endGame() {
+            isPlaying = false;
+            clearTimeout(timerID);
+            
+            document.getElementById('hud').classList.add('opacity-0');
+            document.getElementById('rule-popup').classList.add('hidden');
+            document.getElementById('game-container').innerHTML = '';
+
+            const rankData = RANKS[currentRankIndex];
+            document.getElementById('result-rank-text').innerText = rankData.title;
+            document.getElementById('result-rank-text').className = `text-3xl sm:text-4xl font-bold mb-4 text-center px-2 ${rankData.color}`;
+            document.getElementById('final-misses').innerText = missCount;
+            
+            const emoji = currentRankIndex >= 8 ? "👤" : currentRankIndex >= 5 ? "🤔" : "🤖";
+            document.getElementById('result-emoji').innerText = emoji;
+
+            document.getElementById('game-over-screen').classList.remove('hidden');
+        }
+
+        function startGameEngine() {
+            missCount = 0;
+            currentBeat = 0;
+            noteIdCounter = 0;
+            activeNotes = [];
+            currentRankIndex = 10;
+            
+            updateRank();
+            
+            document.getElementById('game-container').innerHTML = '';
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('hud').classList.remove('opacity-0');
+            
+            gameStartTime = audioCtx.currentTime;
+            nextNoteTime = audioCtx.currentTime + 0.1; 
+            
+            isPlaying = true;
+            scheduler();
+            animationLoop();
+        }
+
+        // --- Event Listeners for Start Flow ---
+
+        const trigger = document.getElementById('start-trigger');
+        const popup = document.getElementById('rule-popup');
+        const closeBtnX = document.getElementById('close-popup-btn-x');
+        const closeBtnMain = document.getElementById('close-popup-btn-main');
+        
+        // 1. Click initial Widget -> Show Popup
+        trigger.addEventListener('click', () => {
+             // Fake loading
+             trigger.querySelector('.checkbox-container').innerHTML = '<div class="spinner" style="display:block; border-color:#ccc; border-top-color:#888;"></div>';
+             setTimeout(() => {
+                 popup.classList.remove('hidden');
+             }, 500);
+        });
+
+        // 2. Function to actually start game on popup interaction
+        const handleStart = () => {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            // Ensure audio context is ready (needed for mobile)
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume().then(() => {
+                    popup.classList.add('hidden');
+                    startGameEngine();
+                });
+            } else {
+                popup.classList.add('hidden');
+                startGameEngine();
+            }
+        };
+
+        // Bind start to both buttons
+        closeBtnX.addEventListener('click', handleStart);
+        closeBtnMain.addEventListener('click', handleStart);
+
+        document.getElementById('restart-btn').addEventListener('click', () => {
+             location.reload(); 
+        });
+
+    </script>
+</body>
+</html>
