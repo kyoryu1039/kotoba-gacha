@@ -6,15 +6,18 @@
 <title>ことばコレクションガチャ Ultimate v30</title>
 <meta name="theme-color" content="#0b0f1c">
 
+<!-- Tailwind for Rhythm CAPTCHA (Ad) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
 /* === Core Variables === */
 :root {
   --bg: #0b0f1c; --panel: #141b2e; --edge: #2a3555;
-  --ink: #FFFFFF; /* FIXED: Enforced White Font */
+  --ink: #FFFFFF;
   --muted: #94a3b8;
   --gold: #ffd700; --amber:#ffbd63; --aqua: #63ead9; --blue:#8fb1ff; --gray:#94a3b8; --bad: #ff4d4d;
   --spotify: #1DB954;
@@ -336,8 +339,9 @@ header{
 
 #full-ad-overlay { position: fixed; inset: 0; z-index: 9999; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.4s ease; }
 #full-ad-overlay.active { display: flex; }
-/* ADDED: Supports both img and video for ads */
-#full-ad-overlay img, #full-ad-overlay video { width: 100%; max-width: 400px; height: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
+/* ADDED: Supports both img, video and iframe for ads */
+#full-ad-overlay img, #full-ad-overlay video, #full-ad-overlay iframe { width: 100%; max-width: 400px; height: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
+#full-ad-overlay iframe { height: 100%; max-height: 80vh; border: none; aspect-ratio: 9/16; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* === Modal Design === */
@@ -379,6 +383,81 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
 .track-info { display: flex; flex-direction: column; gap: 4px; }
 .track-name { font-size: 14px; font-weight: 700; transition: color .2s; }
 .track-status { font-size: 10px; color: var(--muted); }
+
+/* --- Rhythm CAPTCHA Specific Styles (Scoped) --- */
+#rc-overlay {
+  position: fixed; inset: 0; z-index: 10000; background: #fff;
+  display: none; flex-direction: column; overflow: hidden;
+  font-family: 'Roboto', sans-serif;
+}
+#rc-overlay.active { display: flex; }
+/* Override base body styles for the overlay context */
+#rc-overlay * { box-sizing: border-box; }
+
+.rc-captcha-box {
+  position: absolute; width: 300px; height: 74px;
+  background: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px;
+  box-shadow: 0 0 4px 1px rgba(0,0,0,0.08);
+  display: flex; align-items: center; padding: 0 12px;
+  transform: translate(-50%, -50%); z-index: 60; cursor: pointer;
+  opacity: 0; transition: opacity 0.2s ease-out; pointer-events: auto;
+  max-width: 90vw; color: #000;
+}
+.rc-captcha-box.active { opacity: 1; }
+.rc-checkbox-container {
+  width: 28px; height: 28px; background: #fff; border: 2px solid #c1c1c1;
+  border-radius: 2px; margin-right: 12px; position: relative;
+  display: flex; justify-content: center; align-items: center; flex-shrink: 0;
+}
+.rc-text { color: #282828; font-size: 14px; font-weight: 500; flex-grow: 1; }
+.rc-logo { display: flex; flex-direction: column; align-items: center; margin-left: auto; flex-shrink: 0; }
+.rc-logo svg { width: 32px; height: 32px; opacity: 0.5; }
+.rc-logo span { font-size: 10px; color: #555; margin-top: 2px; }
+.rc-approach-ring {
+  position: absolute; top: 50%; left: 26px; width: 80px; height: 80px;
+  border: 4px solid rgba(66, 133, 244, 0.6); border-radius: 50%;
+  transform: translate(-50%, -50%); pointer-events: none;
+}
+.rc-checkmark {
+  display: none; width: 24px; height: 24px; stroke-dasharray: 100;
+  stroke-dashoffset: 100; animation: rc-dash 0.3s forwards;
+}
+.rc-checkmark-path { stroke: #0F9D58; stroke-width: 4; fill: none; }
+@keyframes rc-dash { to { stroke-dashoffset: 0; } }
+.rc-spinner {
+  border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db;
+  width: 20px; height: 20px; animation: rc-spin 1s linear infinite; display: none;
+}
+@keyframes rc-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.rc-feedback {
+  position: absolute; font-weight: bold; font-size: 24px; pointer-events: none;
+  z-index: 70; text-shadow: 1px 1px 0 #fff; animation: rc-floatUp 0.5s forwards;
+}
+@keyframes rc-floatUp {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  50% { transform: translate(-50%, -80%) scale(1.2); opacity: 1; }
+  100% { transform: translate(-50%, -100%) scale(1); opacity: 0; }
+}
+.rc-perfect { color: #0F9D58; } .rc-good { color: #F4B400; } .rc-miss { color: #DB4437; }
+.rc-scanlines {
+  position: fixed; inset: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.02) 50%, rgba(0,0,0,0.02));
+  background-size: 100% 4px; pointer-events: none; z-index: 40;
+}
+#rc-rule-popup { animation: rc-popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes rc-popIn { from { opacity: 0; transform: translate(-50%, -60%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+/* Rhythm Captcha Button Styles */
+.rc-btn {
+    background: #4285F4; color: white; padding: 12px 32px; border-radius: 4px;
+    font-weight: bold; font-size: 16px; border: none; cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background 0.2s;
+}
+.rc-btn:hover { background: #357ae8; }
+.rc-btn-close {
+    background: #333; margin-top: 12px;
+}
+.rc-btn-close:hover { background: #555; }
 </style>
 </head>
 <body>
@@ -520,8 +599,67 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
 <div id="full-ad-overlay">
   <div style="color:var(--muted); font-size:12px; margin-bottom:12px; letter-spacing:2px; font-weight:700;">SPONSORED</div>
   <div id="ad-content-area"></div>
-  <button class="btn-play" style="margin-top:24px; border-color:white; color:white; padding:10px 30px; font-size:14px;" onclick="closeFullScreenAd()">× 閉じる</button>
+  <button class="btn-play" id="ad-close-btn" style="margin-top:24px; border-color:white; color:white; padding:10px 30px; font-size:14px;" onclick="closeFullScreenAd()">× 閉じる</button>
 </div>
+
+<!-- Rhythm CAPTCHA Overlay (Hidden by default) -->
+<div id="rc-overlay">
+  <!-- HUD -->
+  <div id="rc-hud" class="fixed top-0 left-0 w-full p-3 sm:p-4 flex justify-between items-start pointer-events-none z-50 opacity-0 transition-opacity duration-500">
+    <div class="flex-1">
+        <div class="text-gray-500 text-xs sm:text-sm font-bold tracking-wider">認証ランク</div>
+        <div id="rc-status-text" class="text-lg sm:text-xl font-bold text-green-600 mb-1 leading-tight">純粋な人間</div>
+        <div class="w-32 sm:w-48 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div id="rc-rank-progress" class="h-full bg-green-500 w-full transition-all duration-300"></div>
+        </div>
+        <div class="text-xs text-gray-400 mt-1">MISSES: <span id="rc-miss-display">0</span></div>
+    </div>
+    <div class="text-right">
+        <div class="text-gray-500 text-xs sm:text-sm font-bold tracking-wider">残り時間</div>
+        <div id="rc-timer-display" class="text-3xl sm:text-5xl font-mono text-gray-800 tracking-tight leading-none mt-1">15.00</div>
+    </div>
+  </div>
+
+  <!-- Game Area -->
+  <div id="rc-game-container" class="relative w-full h-full z-10"></div>
+  <div class="rc-scanlines"></div>
+
+  <!-- Start Screen (Fake Recaptcha) -->
+  <div id="rc-start-screen" class="absolute inset-0 bg-white flex flex-col justify-center items-center z-[100]">
+     <div id="rc-start-trigger" class="rc-captcha-box" style="position: relative; top: 0; left: 0; transform: none; opacity:1;">
+        <div class="rc-checkbox-container"></div>
+        <div class="rc-text">I'm not a robot</div>
+        <div class="rc-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span class="text-[8px] mt-1">reCAPTCHA</span>
+        </div>
+    </div>
+  </div>
+
+  <!-- Rule Popup -->
+  <div id="rc-rule-popup" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-2xl border border-gray-200 w-[90%] max-w-[400px] z-[200]">
+    <h2 class="text-xl font-bold text-gray-800 mb-2">人間証明テスト</h2>
+    <p class="text-gray-600 text-sm leading-relaxed mb-4">
+        これから15秒間の人間証明テストを行います。<br>
+        リズムに合わせて、出現する<strong>"I'm not a robot"</strong>をクリックして下さい。
+    </p>
+    <button id="rc-popup-start-btn" class="w-full mt-4 bg-blue-500 text-white text-center py-2 rounded font-bold hover:bg-blue-600">テストを開始する</button>
+  </div>
+
+  <!-- Result Screen -->
+  <div id="rc-result-screen" class="hidden absolute inset-0 bg-white flex flex-col justify-center items-center z-[100]">
+    <div class="text-6xl mb-4" id="rc-result-emoji">🤖</div>
+    <h2 class="text-xl text-gray-500 mb-1">VERIFICATION COMPLETE</h2>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-4 text-center px-2" id="rc-result-rank-text">RANK ?</h1>
+    <p class="text-gray-600 mb-6 font-mono bg-gray-100 px-4 py-2 rounded">Final Miss Count: <span id="rc-final-misses">0</span></p>
+    <button id="rc-retry-btn" class="rc-btn">再認証 (RETRY)</button>
+    <button id="rc-close-ad-btn" class="rc-btn rc-btn-close">閉じる</button>
+  </div>
+</div>
+<!-- End Rhythm CAPTCHA Overlay -->
 
 <div id="toast">Message</div>
 <audio id="bgm-player" loop></audio>
@@ -719,24 +857,29 @@ function shakeScreen(hard=false){
   if(navigator.vibrate) navigator.vibrate(hard ? 200 : 50);
 }
 
-/* === AD SYSTEM UPDATED (15% + 15% = 30%) === */
+/* === AD SYSTEM UPDATED WITH RHYTHM GAME (15% + 15% + 10% = 40%) === */
 const adOverlay = document.getElementById('full-ad-overlay');
 const adContentArea = document.getElementById('ad-content-area');
+const adCloseBtn = document.getElementById('ad-close-btn');
 
 function onCloseMultiResult() {
   const rand = Math.random();
-  // 30% Total Chance (0.0 to 0.3)
-  if (rand < 0.3) { 
+  // 40% Chance Total
+  if (rand < 0.4) { 
     sfxTap();
     adOverlay.classList.add('active');
     
-    // Split: 0.0 ~ 0.15 (15%) for Nekologia
+    // 0.0 ~ 0.15: Nekologia
     if (rand < 0.15) {
       showAd('nekologia');
     } 
-    // Split: 0.15 ~ 0.30 (15%) for K-Taro
-    else {
+    // 0.15 ~ 0.30: K-Taro
+    else if (rand < 0.30) {
       showAd('ktaro');
+    }
+    // 0.30 ~ 0.45: Rhythm Game (Playable Ad)
+    else {
+      showAd('rhythm');
     }
   } else { 
     closeOverlay(); 
@@ -745,6 +888,9 @@ function onCloseMultiResult() {
 
 function showAd(type) {
   adContentArea.innerHTML = "";
+  // Reset close button visibility by default
+  adCloseBtn.style.display = 'block';
+
   if (type === 'nekologia') {
     adContentArea.innerHTML = `
       <a href="nekologia.html" target="_blank" rel="noopener">
@@ -758,21 +904,32 @@ function showAd(type) {
         <img id="ad-img" src="images/k_bannar.jpg" style="display:none;" alt="カリウム太郎">
       </a>
     `;
-    // Video end event to swap to image
     const vid = document.getElementById('ad-video');
     const img = document.getElementById('ad-img');
-    if(vid){
-        vid.onended = () => {
-            vid.style.display = 'none';
-            img.style.display = 'block';
-        };
-    }
+    if(vid){ vid.onended = () => { vid.style.display = 'none'; img.style.display = 'block'; }; }
+  } else if (type === 'rhythm') {
+    // Rhythm CAPTCHA Banner - Reverted to Simple Style & Close Button Hidden
+    adCloseBtn.style.display = 'none'; // Hide the close button for this ad type
+    adContentArea.innerHTML = `
+        <div style="display:flex; justify-content:center; align-items:center; padding:10px; cursor:pointer; width:100%; height:100%;" onclick="CaptchaGame.open()">
+             <div class="rc-captcha-box" style="position:relative; top:auto; left:auto; transform:none; opacity:1; margin:0; pointer-events:none; box-shadow: 0 0 4px 1px rgba(0,0,0,0.08);">
+                <div class="rc-checkbox-container"></div>
+                <div class="rc-text">I'm not a robot</div>
+                <div class="rc-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span>reCAPTCHA</span>
+                </div>
+            </div>
+        </div>
+    `;
   }
 }
 
 function closeFullScreenAd() { 
   adOverlay.classList.remove('active'); 
-  // Clear content to stop video playback
   setTimeout(() => { adContentArea.innerHTML = ""; }, 300);
   closeOverlay(); 
 }
@@ -1139,6 +1296,375 @@ storyPlayer.addEventListener('ended', () => {
     currentPlayingBtn = null;
   }
 });
+
+/* === RHYTHM CAPTCHA LOGIC MODULE === */
+// EXPOSED TO WINDOW for inline access
+window.CaptchaGame = {
+    rcAudioCtx: null,
+    isPlaying: false,
+    timerID: null,
+    nextNoteTime: 0.0,
+    currentBeat: 0,
+    noteIdCounter: 0,
+    activeNotes: [],
+    score: 0,
+    missCount: 0,
+    gameStartTime: 0,
+    introDelay: 1.5,
+    BPM: 90,
+    GAME_DURATION: 15.0,
+    
+    // Constants
+    RANKS: [
+        { title: "ランク0：鉄クズ", color: "text-gray-600", bg: "bg-gray-600" },
+        { title: "ランク1：悪質ボット", color: "text-red-800", bg: "bg-red-800" },
+        { title: "ランク2：スクリプトキディ", color: "text-red-600", bg: "bg-red-600" },
+        { title: "ランク3：マクロ利用者", color: "text-red-500", bg: "bg-red-500" },
+        { title: "ランク4：挙動不審", color: "text-orange-500", bg: "bg-orange-500" },
+        { title: "ランク5：未確認", color: "text-yellow-600", bg: "bg-yellow-600" },
+        { title: "ランク6：判定不能", color: "text-yellow-500", bg: "bg-yellow-500" },
+        { title: "ランク7：たぶん人間", color: "text-blue-400", bg: "bg-blue-400" },
+        { title: "ランク8：認証済み人間", color: "text-blue-600", bg: "bg-blue-600" },
+        { title: "ランク9：高知能生命体", color: "text-green-500", bg: "bg-green-500" },
+        { title: "ランク10：純粋な人間", color: "text-green-600", bg: "bg-green-600" }
+    ],
+
+    open: function() {
+        closeFullScreenAd(); // Close the wrapper ad
+        const rcOverlay = document.getElementById('rc-overlay');
+        rcOverlay.classList.add('active');
+        
+        // Pause Main BGM
+        if (isBgmOn && !bgmPlayer.paused) {
+            bgmPlayer.pause();
+        }
+
+        // Reset UI
+        document.getElementById('rc-game-container').innerHTML = '';
+        document.getElementById('rc-start-screen').classList.remove('hidden');
+        document.getElementById('rc-hud').classList.add('opacity-0');
+        document.getElementById('rc-rule-popup').classList.add('hidden');
+        document.getElementById('rc-result-screen').classList.add('hidden');
+        
+        // Reset Trigger State
+        const trigger = document.getElementById('rc-start-trigger');
+        trigger.style.pointerEvents = 'none'; // Disable click on the fake widget
+        trigger.querySelector('.rc-checkbox-container').innerHTML = ''; 
+
+        // Auto-start the sequence
+        setTimeout(() => {
+            this.triggerStart();
+        }, 600);
+    },
+
+    close: function() {
+        this.isPlaying = false;
+        if(this.timerID) clearTimeout(this.timerID);
+        if(this.rcAudioCtx) this.rcAudioCtx.close();
+        this.rcAudioCtx = null;
+
+        document.getElementById('rc-overlay').classList.remove('active');
+        
+        // Resume Main BGM if it was on
+        if (isBgmOn) {
+            bgmPlayer.play().catch(()=>{});
+        }
+    },
+
+    triggerStart: function() {
+        const trigger = document.getElementById('rc-start-trigger');
+        // 1. Show Spinner
+        trigger.querySelector('.rc-checkbox-container').innerHTML = '<div class="rc-spinner" style="display:block; border-color:#ccc; border-top-color:#888;"></div>';
+        
+        // 2. Simulate Loading -> Checkmark -> Popup
+        setTimeout(() => {
+            // Checkmark
+            trigger.querySelector('.rc-checkbox-container').innerHTML = '<svg class="rc-checkmark" style="display:block" viewBox="0 0 24 24"><path class="rc-checkmark-path" d="M4 12 l5 5 l10 -10"></path></svg>';
+            
+            // Show Rule Popup
+            setTimeout(() => {
+                document.getElementById('rc-rule-popup').classList.remove('hidden');
+            }, 500);
+        }, 1200);
+    },
+
+    startGameEngine: function() {
+        if (!this.rcAudioCtx) this.rcAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Resume context for mobile
+        if (this.rcAudioCtx.state === 'suspended') {
+            this.rcAudioCtx.resume();
+        }
+
+        this.missCount = 0;
+        this.currentBeat = 0;
+        this.noteIdCounter = 0;
+        this.activeNotes = [];
+        this.updateRank();
+        
+        document.getElementById('rc-game-container').innerHTML = '';
+        document.getElementById('rc-start-screen').classList.add('hidden');
+        document.getElementById('rc-result-screen').classList.add('hidden');
+        document.getElementById('rc-hud').classList.remove('opacity-0');
+        document.getElementById('rc-rule-popup').classList.add('hidden');
+        
+        this.gameStartTime = this.rcAudioCtx.currentTime;
+        this.nextNoteTime = this.rcAudioCtx.currentTime + 0.1; 
+        
+        this.isPlaying = true;
+        this.scheduler();
+        this.animationLoop();
+    },
+
+    scheduler: function() {
+        if (!this.isPlaying || !this.rcAudioCtx) return;
+        
+        // End Game Check
+        const elapsedTime = this.rcAudioCtx.currentTime - this.gameStartTime;
+        if (elapsedTime >= this.GAME_DURATION + this.introDelay) return;
+
+        while (this.nextNoteTime < this.rcAudioCtx.currentTime + 0.1) {
+            const absoluteTime = this.nextNoteTime - this.gameStartTime;
+            this.scheduleSound(this.currentBeat, this.nextNoteTime);
+            
+            if (absoluteTime > this.introDelay && absoluteTime < this.GAME_DURATION + this.introDelay - 1.0) {
+                 this.scheduleVisuals(this.currentBeat, this.nextNoteTime);
+            }
+            
+            const secondsPerBeat = 60.0 / this.BPM;
+            this.nextNoteTime += secondsPerBeat;
+            this.currentBeat++;
+        }
+        if (this.isPlaying) this.timerID = setTimeout(() => this.scheduler(), 25);
+    },
+
+    scheduleSound: function(beatNumber, time) {
+        if (beatNumber % 4 === 0) this.playKick(time);
+        else if (beatNumber % 4 === 2) this.playSnare(time);
+        else this.playHiHat(time);
+    },
+
+    scheduleVisuals: function(beatNumber, time) {
+        if (beatNumber % 2 === 0) {
+             if ((time - this.rcAudioCtx.currentTime) >= 0.05) this.createCaptchaNote(time);
+        }
+    },
+
+    // Audio Gen
+    playKick: function(time) {
+        const osc = this.rcAudioCtx.createOscillator();
+        const gain = this.rcAudioCtx.createGain();
+        osc.frequency.setValueAtTime(150, time);
+        osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+        gain.gain.setValueAtTime(0.5, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+        osc.connect(gain); gain.connect(this.rcAudioCtx.destination);
+        osc.start(time); osc.stop(time + 0.5);
+    },
+    playSnare: function(time) {
+        const osc = this.rcAudioCtx.createOscillator();
+        const gain = this.rcAudioCtx.createGain();
+        const noise = this.rcAudioCtx.createBufferSource();
+        osc.frequency.setValueAtTime(250, time);
+        gain.gain.setValueAtTime(0.2, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+        osc.connect(gain);
+        const bufferSize = this.rcAudioCtx.sampleRate * 0.2;
+        const buffer = this.rcAudioCtx.createBuffer(1, bufferSize, this.rcAudioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        noise.buffer = buffer;
+        const noiseGain = this.rcAudioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0.3, time);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+        noise.connect(noiseGain);
+        gain.connect(this.rcAudioCtx.destination); noiseGain.connect(this.rcAudioCtx.destination);
+        osc.start(time); noise.start(time); osc.stop(time + 0.2); noise.stop(time + 0.2);
+    },
+    playHiHat: function(time) {
+        const bufferSize = this.rcAudioCtx.sampleRate * 0.05;
+        const buffer = this.rcAudioCtx.createBuffer(1, bufferSize, this.rcAudioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = this.rcAudioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.rcAudioCtx.createBiquadFilter();
+        filter.type = "highpass"; filter.frequency.value = 5000;
+        const gain = this.rcAudioCtx.createGain();
+        gain.gain.setValueAtTime(0.1, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
+        noise.connect(filter); filter.connect(gain); gain.connect(this.rcAudioCtx.destination);
+        noise.start(time); noise.stop(time + 0.05);
+    },
+    playClickSound: function(success) {
+        const osc = this.rcAudioCtx.createOscillator();
+        const gain = this.rcAudioCtx.createGain();
+        const time = this.rcAudioCtx.currentTime;
+        if (success) {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(800, time);
+            osc.frequency.exponentialRampToValueAtTime(1200, time + 0.1);
+            gain.gain.setValueAtTime(0.3, time); gain.gain.linearRampToValueAtTime(0, time + 0.1);
+        } else {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, time);
+            osc.frequency.linearRampToValueAtTime(100, time + 0.2);
+            gain.gain.setValueAtTime(0.3, time); gain.gain.linearRampToValueAtTime(0, time + 0.2);
+        }
+        osc.connect(gain); gain.connect(this.rcAudioCtx.destination);
+        osc.start(time); osc.stop(time + 0.2);
+    },
+
+    // Visuals
+    createCaptchaNote: function(targetTime) {
+        const container = document.getElementById('rc-game-container');
+        const noteId = this.noteIdCounter++;
+        const boxWidth = 300; const boxHeight = 74; const padding = 10;
+        const containerW = container.clientWidth || window.innerWidth;
+        const containerH = container.clientHeight || window.innerHeight;
+        const minX = boxWidth / 2 + padding;
+        const maxX = Math.max(minX, containerW - (boxWidth / 2) - padding);
+        const minY = boxHeight / 2 + padding + 100; 
+        const maxY = Math.max(minY, containerH - (boxHeight / 2) - padding);
+
+        let finalX = (maxX <= minX) ? containerW/2 : minX + Math.random() * (maxX - minX);
+        let finalY = (maxY <= minY) ? containerH/2 : minY + Math.random() * (maxY - minY);
+
+        const el = document.createElement('div');
+        el.className = 'rc-captcha-box';
+        el.style.left = finalX + 'px'; el.style.top = finalY + 'px';
+        el.innerHTML = `
+            <div class="rc-checkbox-container"><div class="rc-spinner"></div><svg class="rc-checkmark" viewBox="0 0 24 24"><path class="rc-checkmark-path" d="M4 12 l5 5 l10 -10"></path></svg></div>
+            <div class="rc-text">I'm not a robot</div>
+            <div class="rc-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span>reCAPTCHA</span></div>
+            <div class="rc-approach-ring"></div>
+        `;
+        container.appendChild(el);
+        setTimeout(() => el.classList.add('active'), 20);
+
+        const noteObj = { id: noteId, el: el, targetTime: targetTime, x: finalX, y: finalY, processed: false };
+        this.activeNotes.push(noteObj);
+        
+        const handler = (e) => { e.preventDefault(); this.handleInput(noteObj); };
+        el.addEventListener('mousedown', handler);
+        el.addEventListener('touchstart', handler);
+    },
+
+    handleInput: function(note) {
+        if (note.processed) return;
+        const diff = Math.abs(this.rcAudioCtx.currentTime - note.targetTime);
+        let result = "MISS";
+        if (diff <= 0.15) result = "PERFECT";
+        else if (diff <= 0.35) result = "GOOD";
+        else this.missCount++;
+        this.processNoteResult(note, result);
+    },
+
+    processNoteResult: function(note, result) {
+        note.processed = true;
+        const spinner = note.el.querySelector('.rc-spinner');
+        const checkmark = note.el.querySelector('.rc-checkmark');
+        const ring = note.el.querySelector('.rc-approach-ring');
+        ring.style.display = 'none';
+
+        if (result === "MISS") {
+            note.el.style.backgroundColor = "#fee";
+            note.el.style.borderColor = "#faa";
+            this.playClickSound(false);
+            this.createFeedback(note.x, note.y - 50, "MISS", "rc-miss");
+            this.updateRank();
+        } else {
+            spinner.style.display = 'block';
+            setTimeout(() => { spinner.style.display = 'none'; checkmark.style.display = 'block'; }, 50);
+            this.playClickSound(true);
+            this.createFeedback(note.x, note.y - 50, result, result==="PERFECT"?"rc-perfect":"rc-good");
+        }
+        setTimeout(() => { if(note.el.parentNode) { note.el.style.opacity = '0'; setTimeout(()=>note.el.remove(), 200); }}, 500);
+    },
+
+    createFeedback: function(x, y, text, cls) {
+        const el = document.createElement('div');
+        el.className = `rc-feedback ${cls}`; el.innerText = text;
+        el.style.left = x + 'px'; el.style.top = y + 'px';
+        document.getElementById('rc-overlay').appendChild(el);
+        setTimeout(() => el.remove(), 600);
+    },
+
+    animationLoop: function() {
+        if (!this.isPlaying) return;
+        const currentTime = this.rcAudioCtx.currentTime;
+        const gameTime = Math.max(0, currentTime - this.gameStartTime - this.introDelay);
+        const remaining = Math.max(0, this.GAME_DURATION - gameTime);
+        document.getElementById('rc-timer-display').innerText = remaining.toFixed(2);
+
+        if (gameTime >= this.GAME_DURATION) { this.endGame(); return; }
+
+        for (let i = this.activeNotes.length - 1; i >= 0; i--) {
+            const note = this.activeNotes[i];
+            if (note.processed) { this.activeNotes.splice(i, 1); continue; }
+            if (currentTime > note.targetTime + 0.35) {
+                this.processNoteResult(note, "MISS");
+                this.missCount++;
+                this.updateRank();
+            }
+            // Ring
+            const timeData = note.targetTime - currentTime;
+            if (timeData <= 1.5) {
+                const progress = 1 - (timeData / 1.5);
+                const currentSize = 80 - ((80 - 34) * progress);
+                const ringEl = note.el.querySelector('.rc-approach-ring');
+                if (ringEl) {
+                    ringEl.style.width = `${Math.max(currentSize, 34)}px`;
+                    ringEl.style.height = `${Math.max(currentSize, 34)}px`;
+                    ringEl.style.borderColor = (Math.abs(timeData) < 0.15) ? "rgba(15, 157, 88, 0.8)" : "rgba(66, 133, 244, 0.6)";
+                }
+            }
+        }
+        requestAnimationFrame(() => this.animationLoop());
+    },
+
+    updateRank: function() {
+        let r = 10 - this.missCount;
+        if (r < 0) r = 0;
+        const rankData = this.RANKS[r];
+        const statusText = document.getElementById('rc-status-text');
+        statusText.innerText = rankData.title;
+        statusText.className = `text-lg sm:text-xl font-bold mb-1 leading-tight ${rankData.color.replace('text-', 'text-')}`; // Tailwind class map needed if specific vars not used, but kept simple
+        // Fallback for color if tailwind classes not fully mapped in scope, using style
+        statusText.style.color = ""; // Reset
+        if(rankData.bg.includes('green')) statusText.style.color = '#16a34a';
+        else if(rankData.bg.includes('red')) statusText.style.color = '#dc2626';
+        else if(rankData.bg.includes('yellow')) statusText.style.color = '#ca8a04';
+        
+        document.getElementById('rc-rank-progress').className = `h-full transition-all duration-300 ${rankData.bg}`;
+        document.getElementById('rc-rank-progress').style.width = `${(r / 10) * 100}%`;
+        document.getElementById('rc-miss-display').innerText = this.missCount;
+        this.currentRankIndex = r;
+    },
+
+    endGame: function() {
+        this.isPlaying = false;
+        clearTimeout(this.timerID);
+        document.getElementById('rc-hud').classList.add('opacity-0');
+        document.getElementById('rc-game-container').innerHTML = '';
+        
+        const rankData = this.RANKS[this.currentRankIndex];
+        const resultText = document.getElementById('rc-result-rank-text');
+        resultText.innerText = rankData.title;
+        // Simple color mapping
+        resultText.style.color = (this.currentRankIndex >= 9) ? '#16a34a' : (this.currentRankIndex <= 3) ? '#dc2626' : '#ca8a04';
+
+        document.getElementById('rc-final-misses').innerText = this.missCount;
+        const emoji = this.currentRankIndex >= 8 ? "👤" : this.currentRankIndex >= 5 ? "🤔" : "🤖";
+        document.getElementById('rc-result-emoji').innerText = emoji;
+
+        document.getElementById('rc-result-screen').classList.remove('hidden');
+    }
+};
+
+// Bind Rhythm Captcha Events
+// Removed click listener for trigger since it's now automated in open()
+document.getElementById('rc-popup-start-btn').addEventListener('click', () => CaptchaGame.startGameEngine());
+document.getElementById('rc-retry-btn').addEventListener('click', () => CaptchaGame.startGameEngine());
+document.getElementById('rc-close-ad-btn').addEventListener('click', () => CaptchaGame.close());
 
 /* === nav indicator initial render deps === */
 renderCollection();
