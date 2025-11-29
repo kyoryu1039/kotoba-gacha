@@ -771,20 +771,26 @@ function showAd(type) {
     const img = document.getElementById('ad-img');
     if(vid){ vid.onended = () => { vid.style.display = 'none'; img.style.display = 'block'; }; }
   } else if (type === 'rhythm') {
-    // Rhythm CAPTCHA Banner - Modified to look like the standard widget immediately
+    // Rhythm CAPTCHA Banner - White Card Style
     adContentArea.innerHTML = `
-        <div style="display:flex; justify-content:center; align-items:center; padding:10px; cursor:pointer;" onclick="CaptchaGame.open()">
-             <div class="rc-captcha-box" style="position:relative; top:auto; left:auto; transform:none; opacity:1; margin:0; pointer-events:none;">
-                <div class="rc-checkbox-container"></div>
-                <div class="rc-text">I'm not a robot</div>
-                <div class="rc-logo">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                    <span>reCAPTCHA</span>
+        <div style="background:white; padding:24px 20px; border-radius:12px; text-align:center; cursor:pointer; width:340px; max-width:90vw; box-shadow: 0 10px 25px rgba(0,0,0,0.5);" onclick="CaptchaGame.open()">
+             <div style="font-size:18px; font-weight:900; color:#222; margin-bottom:20px;">あなたは本当に人間ですか？</div>
+             
+             <div style="display:flex; justify-content:center; margin-bottom:16px;">
+                 <div class="rc-captcha-box" style="position:relative; top:auto; left:auto; transform:none; opacity:1; margin:0; pointer-events:none; box-shadow:0 0 4px 1px rgba(0,0,0,0.08);">
+                    <div class="rc-checkbox-container"></div>
+                    <div class="rc-text">I'm not a robot</div>
+                    <div class="rc-logo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span>reCAPTCHA</span>
+                    </div>
                 </div>
             </div>
+
+             <div style="font-size:12px; color:#666; font-weight:700;">今すぐクリックして認証テストを開始</div>
         </div>
     `;
   }
