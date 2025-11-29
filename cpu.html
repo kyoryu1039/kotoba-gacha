@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate v27</title>
+<title>ことばコレクションガチャ Ultimate v30</title>
 <meta name="theme-color" content="#0b0f1c">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -293,6 +293,13 @@ header{
 .tier-X .coll-item { border-color: rgba(255,77,77,0.3); }
 .tier-C .tier-progress-fill, .tier-D .tier-progress-fill { background: var(--blue); }
 
+.tier-S .tier-counts, .tier-S .coll-item-count { color: var(--gold); }
+.tier-A .tier-counts, .tier-A .coll-item-count { color: var(--amber); }
+.tier-B .tier-counts, .tier-B .coll-item-count { color: var(--aqua); }
+.tier-C .tier-counts, .tier-C .coll-item-count,
+.tier-D .tier-counts, .tier-D .coll-item-count { color: var(--blue); }
+.tier-X .tier-counts, .tier-X .coll-item-count { color: var(--bad); }
+
 /* === CPU Battle Mode Styles === */
 .cyber-grid { position: absolute; inset: -50%; width: 200%; height: 200%; background-image: linear-gradient(transparent 0%, var(--bg) 100%), linear-gradient(0deg, rgba(99,234,217,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(99,234,217,0.2) 1px, transparent 1px); background-size: 40px 40px; transform: perspective(500px) rotateX(60deg); animation: gridMove 1s linear infinite; z-index: -1; pointer-events: none; opacity: 0.5; }
 @keyframes gridMove { 0% { transform: perspective(500px) rotateX(60deg) translateY(0); } 100% { transform: perspective(500px) rotateX(60deg) translateY(40px); } }
@@ -309,7 +316,7 @@ header{
 .cpu-footer-text { position: absolute; bottom: 40px; width: 100%; text-align: center; font-size: 10px; color: var(--muted); opacity: 0.5; letter-spacing: 1px; }
 
 /* === Common UI === */
-.btn-play { background: transparent; border: 1px solid var(--aqua); color: var(--aqua); padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; transition: .2s; display:flex; align-items:center; gap:6px; }
+.btn-play { background: transparent; border: 1px solid var(--aqua); color: var(--aqua); padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; transition: .2s; display:flex; align-items:center; justify-content: center; gap:6px; }
 .btn-play:active { background: rgba(99,234,217,0.1); transform: scale(0.95); }
 .btn-spotify { background: rgba(29, 185, 84, 0.1); border: 1px solid var(--spotify); color: var(--spotify); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: .2s; text-decoration: none; }
 .btn-spotify:hover { background: var(--spotify); color: #fff; box-shadow: 0 0 10px rgba(29, 185, 84, 0.4); }
@@ -329,7 +336,9 @@ header{
 
 #full-ad-overlay { position: fixed; inset: 0; z-index: 9999; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.4s ease; }
 #full-ad-overlay.active { display: flex; }
-#full-ad-overlay img { width: 100%; max-width: 400px; height: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
+/* ADDED: Supports both img, video and iframe for ads */
+#full-ad-overlay img, #full-ad-overlay video, #full-ad-overlay iframe { width: 100%; max-width: 400px; height: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
+#full-ad-overlay iframe { height: 100%; max-height: 80vh; border: none; aspect-ratio: 9/16; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* === Modal Design === */
@@ -471,7 +480,27 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
           ・ゲーム：にほんのあらそい、甲虫王者ムシキング、ポケットモンスター
         </div>
       </details>
-    </div>
+      <div class="infoBox">
+        <h3>どうしても眠れない夜に...</h3>
+        <div class="infoSmall">
+          眠れない夜にだけ、そっと再生してください。
+          <div style="margin-top:12px; display:grid; gap:12px;">
+            <div class="story-item">
+              <div style="font-weight:700; margin-bottom:4px; color:var(--ink);">①ひつじがいっぴきNEO（卒業式ver.）</div>
+              <button class="btn-play story-btn" data-src="audio/sotsugyo.mp3" style="width:100%">▶ 再生</button>
+            </div>
+            <div class="story-item">
+              <div style="font-weight:700; margin-bottom:4px; color:var(--ink);">②AIが漫才を作ったら</div>
+              <button class="btn-play story-btn" data-src="audio/manzai.mp3" style="width:100%">▶ 再生</button>
+            </div>
+            <div class="story-item">
+              <div style="font-weight:700; margin-bottom:4px; color:var(--ink);">③AIが戯曲を作ったら</div>
+              <button class="btn-play story-btn" data-src="audio/story.mp3" style="width:100%">▶ 再生</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
   </section>
 </div>
 
@@ -491,14 +520,13 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
 
 <div id="full-ad-overlay">
   <div style="color:var(--muted); font-size:12px; margin-bottom:12px; letter-spacing:2px; font-weight:700;">SPONSORED</div>
-  <a href="nekologia.html" target="_blank" rel="noopener">
-    <img src="images/necologia_banner.jpg" alt="ネコロジア | 9.31発売 DVD・ブルーレイ">
-  </a>
-  <button class="btn-play" style="margin-top:24px; border-color:white; color:white; padding:10px 30px; font-size:14px;" onclick="closeFullScreenAd()">× 閉じる</button>
+  <div id="ad-content-area"></div>
+  <button class="btn-play" id="ad-close-btn" style="margin-top:24px; border-color:white; color:white; padding:10px 30px; font-size:14px;" onclick="closeFullScreenAd()">× 閉じる</button>
 </div>
 
 <div id="toast">Message</div>
 <audio id="bgm-player" loop></audio>
+<audio id="story-player" preload="auto"></audio>
 
 <div class="cm-modal" id="cmModal" aria-hidden="true">
   <div class="cm-backdrop" id="cmBackdrop"></div>
@@ -570,19 +598,26 @@ const storeChorusClaimed="kotoba_chorus_claimed_v1";
 const seen=new Set(JSON.parse(localStorage.getItem(storeSeen)||"[]"));
 const unlockedTiers=new Set(JSON.parse(localStorage.getItem(storeUnlocked)||"[]"));
 const pullCounts=JSON.parse(localStorage.getItem(storePullCounts)||"{}");
-const chorusClaimed = localStorage.getItem(storeChorusClaimed) === 'true';
+let chorusClaimed = localStorage.getItem(storeChorusClaimed) === 'true';
 
 let selectedBGM=localStorage.getItem(storeBGM)||"default";
 const tiers=["S","A","B","C","D","X"];
 
 /* === AUDIO SYSTEM === */
 const bgmPlayer=document.getElementById('bgm-player');
+const storyPlayer=document.getElementById('story-player');
 const bgmBtn=document.getElementById('btn-bgm-toggle');
 const volSlider=document.getElementById('vol-slider');
 let isBgmOn=false;
 
 bgmPlayer.volume=parseFloat(volSlider.value);
-volSlider.addEventListener('input',()=>bgmPlayer.volume=parseFloat(volSlider.value));
+storyPlayer.volume=bgmPlayer.volume;
+
+volSlider.addEventListener('input',()=>{
+  const v=parseFloat(volSlider.value);
+  bgmPlayer.volume=v;
+  storyPlayer.volume=v;
+});
 
 function setBgmState(on){
   isBgmOn = on;
@@ -685,11 +720,81 @@ function shakeScreen(hard=false){
   if(navigator.vibrate) navigator.vibrate(hard ? 200 : 50);
 }
 
+/* === AD SYSTEM UPDATED WITH RHYTHM GAME (15% + 15% + 10% = 40%) === */
 const adOverlay = document.getElementById('full-ad-overlay');
+const adContentArea = document.getElementById('ad-content-area');
+const adCloseBtn = document.getElementById('ad-close-btn');
+
 function onCloseMultiResult() {
-  if (Math.random() < 0.2) { adOverlay.classList.add('active'); sfxTap(); } else { closeOverlay(); }
+  const rand = Math.random();
+  // 40% Chance Total
+  if (rand < 0.4) { 
+    sfxTap();
+    adOverlay.classList.add('active');
+    
+    // 0.0 ~ 0.15: Nekologia
+    if (rand < 0.15) {
+      showAd('nekologia');
+    } 
+    // 0.15 ~ 0.30: K-Taro
+    else if (rand < 0.30) {
+      showAd('ktaro');
+    }
+    // 0.30 ~ 0.40: Rhythm Game (Playable Ad)
+    else {
+      showAd('rhythm');
+    }
+  } else { 
+    closeOverlay(); 
+  }
 }
-function closeFullScreenAd() { adOverlay.classList.remove('active'); closeOverlay(); }
+
+function showAd(type) {
+  adContentArea.innerHTML = "";
+  // Reset close button visibility
+  adCloseBtn.style.display = 'block';
+
+  if (type === 'nekologia') {
+    adContentArea.innerHTML = `
+      <a href="nekologia.html" target="_blank" rel="noopener">
+        <img src="images/necologia_banner.jpg" alt="ネコロジア">
+      </a>
+    `;
+  } else if (type === 'ktaro') {
+    adContentArea.innerHTML = `
+      <a href="https://kyoryu1039.github.io/kotoba-gacha/ktaro" target="_blank" rel="noopener">
+        <video id="ad-video" src="audio/ktarovideo.mp4" autoplay muted playsinline></video>
+        <img id="ad-img" src="images/k_bannar.jpg" style="display:none;" alt="カリウム太郎">
+      </a>
+    `;
+    const vid = document.getElementById('ad-video');
+    const img = document.getElementById('ad-img');
+    if(vid){ vid.onended = () => { vid.style.display = 'none'; img.style.display = 'block'; }; }
+  } else if (type === 'rhythm') {
+    // Rhythm CAPTCHA Banner - Modified to look like the standard widget immediately
+    adContentArea.innerHTML = `
+        <div style="display:flex; justify-content:center; align-items:center; padding:10px; cursor:pointer;" onclick="CaptchaGame.open()">
+             <div class="rc-captcha-box" style="position:relative; top:auto; left:auto; transform:none; opacity:1; margin:0; pointer-events:none;">
+                <div class="rc-checkbox-container"></div>
+                <div class="rc-text">I'm not a robot</div>
+                <div class="rc-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span>reCAPTCHA</span>
+                </div>
+            </div>
+        </div>
+    `;
+  }
+}
+
+function closeFullScreenAd() { 
+  adOverlay.classList.remove('active'); 
+  setTimeout(() => { adContentArea.innerHTML = ""; }, 300);
+  closeOverlay(); 
+}
 
 // Preload Helper
 function preloadImage(url) {
@@ -763,8 +868,6 @@ async function roll(count){
         ${isNew ? '<div class="badge">NEW</div>' : ''}
       `;
       
-      // 3D Tilt Removed
-
       cardWrap.appendChild(card);
       resCont.innerHTML=""; resCont.appendChild(cardWrap);
       
@@ -810,10 +913,6 @@ async function roll(count){
   } catch(e) { console.error(e); closeOverlay(); }
 }
 
-function tiltCard(e, card) { /* Disabled */ }
-function resetCardTilt(card){ /* Disabled */ }
-function tiltCardMobile(e, card) { /* Disabled */ }
-
 function closeOverlay(){ overlay.classList.remove('active'); sfxTap(); }
 function confetti(){
   const colors=['#ffd700','#63ead9','#ff4d4d'];
@@ -827,26 +926,19 @@ function confetti(){
   }
 }
 
-/* === COLLECTION & MODAL (Request 3: Add Count) === */
+/* === COLLECTION & MODAL === */
 function checkFullCompletion() {
     let allWords = 0;
     tiers.forEach(t => { pools[t].forEach(() => allWords++); });
 
     if (seen.size === allWords && !chorusClaimed) {
-        // 1. Mark claimed
+        chorusClaimed = true;
         localStorage.setItem(storeChorusClaimed, 'true');
-        
-        // 2. Play Audio
-        playTrack('chorus');
-        
-        // 3. Announce & Confetti burst for 3 seconds
         showToast("★★ 全ての実体化を確認しました！ ★★");
-        
         const confettiDuration = 3000;
         const confettiInterval = setInterval(() => {
             confetti(); 
         }, 300);
-        
         setTimeout(() => {
             clearInterval(confettiInterval);
         }, confettiDuration);
@@ -959,9 +1051,9 @@ function tryUnlock(t){
     unlockedTiers.add(t);
     localStorage.setItem(storeUnlocked, JSON.stringify([...unlockedTiers]));
     showToast(`Rank ${t} コンプリート！BGM解放`);
-    renderCollection(); // Refresh to show unlocked BGM in header
+    renderCollection();
     renderBGMList();
-    checkFullCompletion(); // Check overall completion here
+    checkFullCompletion();
   }
 }
 
@@ -1006,8 +1098,9 @@ document.getElementById('btn-reset').onclick=()=>{
     localStorage.setItem(storeSeen,"[]"); 
     unlockedTiers.clear();
     localStorage.setItem(storeUnlocked,"[]");
-    localStorage.removeItem(storePullCounts); // FIXED: Clear pull counts
-    localStorage.removeItem(storeChorusClaimed); // Clear chorus claim flag
+    localStorage.removeItem(storePullCounts);
+    localStorage.removeItem(storeChorusClaimed);
+    chorusClaimed = false;
 
     switchTab('gacha', 0);
     renderCollection();
@@ -1017,6 +1110,58 @@ document.getElementById('btn-reset').onclick=()=>{
 document.getElementById('btn-rates').onclick=()=>{alert("排出率:\nS:2% A:8% B:20% C:30% D:30% X:10%");};
 const savedTrack = getTracks().find(t=>t.id===selectedBGM);
 if(savedTrack) bgmPlayer.src = savedTrack.src;
+
+/* ★ 更新：どうしても眠れない夜に聞く話 再生ロジック（複数トラック対応） ★ */
+const storyButtons = document.querySelectorAll('.story-btn');
+let currentPlayingBtn = null;
+
+storyButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    sfxTap();
+    const src = btn.getAttribute('data-src');
+
+    // 既に再生中のボタンを押した場合 -> 停止
+    if (currentPlayingBtn === btn && !storyPlayer.paused) {
+      storyPlayer.pause();
+      storyPlayer.currentTime = 0;
+      btn.textContent = '▶ 再生';
+      currentPlayingBtn = null;
+      return;
+    }
+
+    // 新しいボタン、または停止中から再生する場合
+    // 1. 全てのボタン表記をリセット
+    storyButtons.forEach(b => b.textContent = '▶ 再生');
+    
+    // 2. BGMが鳴っていれば止める
+    if (isBgmOn) {
+      setBgmState(false);
+    }
+
+    // 3. 新しいソースをセットして再生
+    storyPlayer.src = src;
+    storyPlayer.play().then(() => {
+      btn.textContent = '■ 停止';
+      currentPlayingBtn = btn;
+    }).catch(err => {
+      console.error('Playback error:', err);
+      alert('音声ファイルの再生に失敗しました。audioフォルダ内のファイル名を確認してください: ' + src);
+      currentPlayingBtn = null;
+    });
+  });
+});
+
+// 再生終了時のリセット処理
+storyPlayer.addEventListener('ended', () => {
+  if (currentPlayingBtn) {
+    currentPlayingBtn.textContent = '▶ 再生';
+    currentPlayingBtn = null;
+  }
+});
+
+/* === nav indicator initial render deps === */
+renderCollection();
+renderBGMList();
 </script>
 </body>
 </html>
