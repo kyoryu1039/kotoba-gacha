@@ -76,6 +76,7 @@
         const Sparkles = (p) => <Icon {...p} path={<React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></React.Fragment>} />;
         const ExternalLink = (p) => <Icon {...p} path={<React.Fragment><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></React.Fragment>} />;
         const Maximize2 = (p) => <Icon {...p} path={<React.Fragment><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></React.Fragment>} />;
+        const Clock = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></React.Fragment>} />;
 
 
         // --- Main Component ---
@@ -163,12 +164,14 @@
         };
 
         const SurnameHunterGameMiyabi = () => {
+            const MAX_ROUNDS = 5; // 最大ラウンド数
             const [phase, setPhase] = useState('SETUP');
             const [players, setPlayers] = useState([
                 { id: 1, name: '壱の者', strikes: 0, isOut: false, bestScore: 999999 },
                 { id: 2, name: '弐の者', strikes: 0, isOut: false, bestScore: 999999 },
             ]);
             const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+            const [currentRound, setCurrentRound] = useState(1);
             const [inputName, setInputName] = useState('');
             const [searchUrl, setSearchUrl] = useState('');
             const [globalHistory, setGlobalHistory] = useState([]);
@@ -225,44 +228,66 @@
                 result: type,
                 };
 
+                // 勝敗判定ロジック
                 if (type === 'WIN' || (type === 'COUNT' && value === 10)) {
-                newPlayers[currentPlayerIndex].bestScore = 10;
-                setPhase('WIN');
-                setGlobalHistory([newHistoryItem, ...globalHistory]);
-                setPlayers(newPlayers);
-                return;
+                    // 10人ジャスト（即勝利）
+                    newPlayers[currentPlayerIndex].bestScore = 10;
+                    setPhase('WIN');
+                    setGlobalHistory([newHistoryItem, ...globalHistory]);
+                    setPlayers(newPlayers);
+                    return;
                 } else if (type === 'STRIKE') {
-                newPlayers[currentPlayerIndex].strikes += 1;
-                newHistoryItem.count = '不明';
-                if (newPlayers[currentPlayerIndex].strikes >= 3) newPlayers[currentPlayerIndex].isOut = true;
+                    // 失策
+                    newPlayers[currentPlayerIndex].strikes += 1;
+                    newHistoryItem.count = '不明';
+                    if (newPlayers[currentPlayerIndex].strikes >= 3) newPlayers[currentPlayerIndex].isOut = true;
                 } else if (type === 'COUNT') {
-                if (value < newPlayers[currentPlayerIndex].bestScore) newPlayers[currentPlayerIndex].bestScore = value;
-                if (value < minRecord.count) setMinRecord({ holder: currentPlayer.name, count: value, name: inputName });
+                    // 人数記録
+                    if (value < newPlayers[currentPlayerIndex].bestScore) newPlayers[currentPlayerIndex].bestScore = value;
+                    if (value < minRecord.count) setMinRecord({ holder: currentPlayer.name, count: value, name: inputName });
                 }
 
                 setPlayers(newPlayers);
                 setGlobalHistory([newHistoryItem, ...globalHistory]);
                 setInputName('');
 
+                // 生存者確認
                 const alivePlayers = newPlayers.filter(p => !p.isOut);
+                
                 if (alivePlayers.length === 0) {
-                setPhase('GAMEOVER');
+                    setPhase('GAMEOVER');
                 } else if (alivePlayers.length === 1 && newPlayers.length > 1) {
-                setPhase('SURVIVOR_WIN');
+                    setPhase('SURVIVOR_WIN');
                 } else {
-                let nextIndex = (currentPlayerIndex + 1) % players.length;
-                while (newPlayers[nextIndex].isOut) {
-                    nextIndex = (nextIndex + 1) % players.length;
-                }
-                setCurrentPlayerIndex(nextIndex);
-                setPhase('PLAYING');
+                    // 次のプレイヤーへ
+                    let nextIndex = (currentPlayerIndex + 1) % players.length;
+                    while (newPlayers[nextIndex].isOut) {
+                        nextIndex = (nextIndex + 1) % players.length;
+                    }
+
+                    // ラウンド更新判定（一周したら）
+                    // 単純に「今のプレイヤーが最後のプレイヤーだった場合」と判定すると、
+                    // 途中離脱者がいる場合にずれる可能性があるが、簡易的に
+                    // 「インデックスが若返った（または0に戻った）場合」をラウンド更新とする
+                    if (nextIndex < currentPlayerIndex) {
+                        const nextRound = currentRound + 1;
+                        if (nextRound > MAX_ROUNDS) {
+                            // 規定ラウンド終了 -> 判定勝ちへ
+                            setPhase('TIME_UP_WIN');
+                            return;
+                        }
+                        setCurrentRound(nextRound);
+                    }
+                    
+                    setCurrentPlayerIndex(nextIndex);
+                    setPhase('PLAYING');
                 }
             };
 
             // Background Component
             const Background = () => (
                 <div className="fixed inset-0 bg-[#1c1917] z-[-1]">
-                <CherryBlossoms intensity={phase === 'WIN' || phase === 'SURVIVOR_WIN' ? 'high' : 'normal'} />
+                <CherryBlossoms intensity={['WIN', 'SURVIVOR_WIN', 'TIME_UP_WIN'].includes(phase) ? 'high' : 'normal'} />
                 </div>
             );
 
@@ -320,12 +345,22 @@
 
                 {/* Header */}
                 <div className="p-4 flex justify-between items-center border-b border-white/10 bg-black/20 backdrop-blur-sm z-20">
-                    <h1 className="text-lg font-bold tracking-widest text-rose-100/80">極限苗字探索</h1>
+                    <div>
+                        <h1 className="text-lg font-bold tracking-widest text-rose-100/80">極限苗字探索</h1>
+                        {['PLAYING', 'SEARCHING'].includes(phase) && (
+                            <div className="text-[10px] text-stone-500 flex items-center gap-1 mt-1">
+                                <Clock size={10} /> 第{currentRound}の巡 ({currentRound}/{MAX_ROUNDS})
+                            </div>
+                        )}
+                    </div>
                     <div className="flex items-center gap-3 border border-rose-900/30 px-4 py-1.5 rounded bg-black/40">
-                    <span className="text-xs text-stone-400">最小記録</span>
-                    <div className="flex items-baseline gap-1">
-                        <span className="text-xl font-bold text-rose-400">{minRecord.count === 999999 ? '--' : minRecord.count.toLocaleString()}</span>
-                        <span className="text-xs text-rose-400/70">人</span>
+                    <span className="text-xs text-stone-400">最小</span>
+                    <div className="flex flex-col items-end leading-none">
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-xl font-bold text-rose-400">{minRecord.count === 999999 ? '--' : minRecord.count.toLocaleString()}</span>
+                            <span className="text-xs text-rose-400/70">人</span>
+                        </div>
+                        {minRecord.name && <span className="text-[10px] text-stone-500">{minRecord.name}</span>}
                     </div>
                     </div>
                 </div>
@@ -336,7 +371,9 @@
                     {/* Players */}
                     <div className="grid grid-cols-2 gap-3 mb-6">
                     {players.map((p, idx) => (
-                        <PlayerCard key={p.id} player={p} isActive={!p.isOut && idx === currentPlayerIndex && !['WIN','SURVIVOR_WIN','GAMEOVER'].includes(phase)} isWinner={['WIN','SURVIVOR_WIN'].includes(phase) && !p.isOut && idx === currentPlayerIndex} />
+                        <PlayerCard key={p.id} player={p} isActive={!p.isOut && idx === currentPlayerIndex && !['WIN','SURVIVOR_WIN','GAMEOVER', 'TIME_UP_WIN'].includes(phase)} isWinner={['WIN','SURVIVOR_WIN', 'TIME_UP_WIN'].includes(phase) && !p.isOut && (
+                            phase === 'TIME_UP_WIN' ? (p.name === minRecord.holder) : (idx === currentPlayerIndex)
+                        )} />
                     ))}
                     </div>
 
@@ -409,7 +446,7 @@
                         </div>
                     )}
 
-                    {(['WIN', 'SURVIVOR_WIN', 'GAMEOVER'].includes(phase)) && (
+                    {(['WIN', 'SURVIVOR_WIN', 'GAMEOVER', 'TIME_UP_WIN'].includes(phase)) && (
                         <div className="text-center animate-fade-in py-8">
                         <div className="mb-6 inline-block relative">
                             {phase === 'GAMEOVER' ? (
@@ -423,12 +460,22 @@
                         </div>
                         
                         <h2 className="text-5xl font-black mb-4 tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-stone-400">
-                            {phase === 'GAMEOVER' ? '終焉' : '天晴'}
+                            {phase === 'GAMEOVER' ? '終焉' : phase === 'TIME_UP_WIN' ? '決着' : '天晴'}
                         </h2>
                         
-                        <p className="text-xl font-bold text-rose-200 mb-10 tracking-widest">
-                            {phase === 'GAMEOVER' ? '勝者なし' : `勝者：${currentPlayer.name}`}
+                        <p className="text-xl font-bold text-rose-200 mb-2 tracking-widest">
+                            {phase === 'GAMEOVER' ? '勝者なし' : `勝者：${phase === 'TIME_UP_WIN' ? minRecord.holder : currentPlayer.name}`}
                         </p>
+                        
+                        {phase === 'TIME_UP_WIN' && (
+                            <div className="text-sm text-stone-400 mb-8 font-bold">
+                                最小記録勝利: 「{minRecord.name}」 ({minRecord.count}人)
+                            </div>
+                        )}
+
+                        {phase !== 'TIME_UP_WIN' && (
+                            <div className="mb-10"></div>
+                        )}
                         
                         <button onClick={() => window.location.reload()} className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-10 py-3 rounded-full hover:shadow-[0_0_30px_rgba(225,29,72,0.4)] transition-all tracking-widest text-sm">
                             再戦する
