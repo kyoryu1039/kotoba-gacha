@@ -3,10 +3,9 @@ import { Search, User, XCircle, Trophy, History, Skull, Crown, ExternalLink, Flo
 
 /**
  * THE LAST TEN - 雅 (Miyabi) Ver.
- * 改修点: 
- * 1. iframeによる「画面内埋め込み」を実装（表示されるか試みる機能）。
- * 2. 別窓の場合も「ポップアップ（小窓）」として開くよう指定し、アプリ感を維持。
- * 3. 5秒タイマーなどは廃止し、タブ復帰検知のみ残す。
+ * 修正版: 
+ * 1. Iframe廃止。最初から「小窓（ポップアップ）」方式へ一本化。
+ * 2. GitHub Pages等でのホスティングを想定し、安定した挙動に変更。
  */
 
 // --- Components ---
@@ -112,24 +111,6 @@ export default function SurnameHunterGameMiyabi() {
   
   const inputRef = useRef(null);
 
-  // --- Effects ---
-
-  // タブ復帰検知（別窓から戻ってきたとき用）
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      // 検索中（SEARCHING）かつ、タブが再び見えるようになったら（visible）
-      // 何もしない（今回は画面内にiframeがあるので、自動で遷移させない方が良い場合がある）
-      // ただし、ユーザーが「別窓」で見て戻ってきた場合を考慮して、
-      // 明示的なアクションを促す形にする。
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [phase]);
-
-
   // --- Functions ---
 
   const addPlayer = () => {
@@ -146,6 +127,22 @@ export default function SurnameHunterGameMiyabi() {
 
   const startGame = () => setPhase('PLAYING');
 
+  // ポップアップウィンドウで開く（小窓風）
+  // ユーティリティ関数として分離
+  const openSearchPopup = (url) => {
+    const width = 500;
+    const height = 700;
+    // 画面中央に配置
+    const left = window.screen.width ? (window.screen.width - width) / 2 : 0;
+    const top = window.screen.height ? (window.screen.height - height) / 2 : 0;
+    
+    window.open(
+      url, 
+      'SurnameSearch', 
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+    );
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     const name = inputName.trim();
@@ -159,18 +156,11 @@ export default function SurnameHunterGameMiyabi() {
     const url = `https://myoji-yurai.net/searchResult.htm?myojiKanji=${encodeURIComponent(name)}`;
     setSearchUrl(url);
     
-    // iframeでの表示を試みるため、まずは遷移だけ行う
-    // 自動でwindow.openはしない（ユーザーに選ばせる）
+    // 即座に小窓を開く
+    openSearchPopup(url);
+    
+    // 入力フェーズへ遷移
     setPhase('SEARCHING');
-  };
-
-  // ポップアップウィンドウで開く（小窓風）
-  const openPopup = () => {
-    const width = 500;
-    const height = 600;
-    const left = (window.screen.width - width) / 2;
-    const top = (window.screen.height - height) / 2;
-    window.open(searchUrl, 'SurnameSearch', `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`);
   };
 
   const handleResultSubmit = (type, value = 0) => {
@@ -342,64 +332,41 @@ export default function SurnameHunterGameMiyabi() {
           )}
 
           {phase === 'SEARCHING' && (
-            <div className="flex flex-col h-full animate-fade-in gap-4">
-              <div className="flex justify-between items-end border-b border-white/5 pb-2">
-                 <div>
-                    <div className="text-[10px] text-stone-500 tracking-widest">SEARCHING...</div>
-                    <div className="text-2xl font-black text-white tracking-widest">"{inputName}"</div>
-                 </div>
-                 <button onClick={openPopup} className="text-xs flex items-center gap-1 text-rose-400 hover:text-rose-300 border border-rose-900/50 px-2 py-1 rounded bg-black/40">
-                    <Maximize2 size={10} /> 小窓で開く
+            <div className="flex flex-col h-full animate-fade-in gap-6 justify-center">
+              <div className="text-center">
+                 <div className="text-[10px] text-stone-500 tracking-widest mb-2">SEARCHING...</div>
+                 <div className="text-5xl font-black text-white tracking-widest drop-shadow-lg mb-4">"{inputName}"</div>
+                 <p className="text-xs text-rose-200">別窓（ポップアップ）にて人数を確認せよ</p>
+              </div>
+
+              {/* 小窓がブロックされた場合用の手動ボタン */}
+              <div className="flex justify-center">
+                 <button 
+                   onClick={() => openSearchPopup(searchUrl)}
+                   className="flex items-center gap-2 px-6 py-3 bg-stone-800 hover:bg-stone-700 border border-rose-500/30 rounded-full text-rose-400 hover:text-rose-300 transition-all shadow-lg animate-pulse"
+                 >
+                    <Maximize2 size={16} />
+                    <span>検索結果ウィンドウを開く</span>
                  </button>
               </div>
 
-              {/* ★ Iframe エリア ★
-                 多くのサイトはここでブロックされるが、表示を試みる。
-                 オーバーレイを表示し、「真っ白な場合」の動線を確保。
-              */}
-              <div className="relative flex-1 bg-white rounded-sm overflow-hidden min-h-[250px] border border-stone-600">
-                <iframe 
-                  src={searchUrl} 
-                  title="search-result"
-                  className="w-full h-full border-0"
-                  sandbox="allow-scripts allow-same-origin allow-forms" // 必要最小限の権限
-                />
+              <div className="space-y-4 pt-4 border-t border-white/5 mt-4">
+                <p className="text-center text-[10px] text-stone-500">―― 結果を入力してください ――</p>
                 
-                {/* Iframeの上に表示する案内。
-                   完全に覆うと操作できないので、下部に配置したり、
-                   「見えない場合」ボタンを目立たせる。
-                */}
-                <div className="absolute bottom-0 left-0 w-full bg-stone-900/90 backdrop-blur-sm p-2 flex justify-between items-center border-t border-rose-500/30">
-                   <div className="text-[10px] text-stone-400">
-                      <span className="text-rose-500 font-bold">⚠️ 画面が白いですか？</span><br/>
-                      セキュリティにより表示できない場合は右のボタンへ
-                   </div>
-                   <button 
-                      onClick={openPopup}
-                      className="bg-rose-700 hover:bg-rose-600 text-white text-xs font-bold py-2 px-3 rounded shadow-lg flex items-center gap-1 animate-pulse"
-                   >
-                      <ExternalLink size={12} /> 小窓で見る
-                   </button>
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-2">
-                <p className="text-center text-[10px] text-stone-500">―― 結果を確認し、入力してください ――</p>
-                
-                <button onClick={() => handleResultSubmit('WIN', 10)} className="w-full bg-gradient-to-r from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-white font-bold py-3 rounded-sm flex items-center justify-center gap-3 shadow-[0_4px_20px_rgba(234,179,8,0.2)] border border-yellow-500/30 group transition-all">
-                  <Sparkles size={16} className="text-yellow-200 group-hover:spin-slow" /> 
-                  <span className="text-sm tracking-widest">奇跡の「およそ10人」</span>
-                  <Sparkles size={16} className="text-yellow-200" /> 
+                <button onClick={() => handleResultSubmit('WIN', 10)} className="w-full bg-gradient-to-r from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-white font-bold py-4 rounded-sm flex items-center justify-center gap-3 shadow-[0_4px_20px_rgba(234,179,8,0.2)] border border-yellow-500/30 group transition-all">
+                  <Sparkles size={20} className="text-yellow-200 group-hover:spin-slow" /> 
+                  <span className="text-lg tracking-widest">奇跡の「およそ10人」</span>
+                  <Sparkles size={20} className="text-yellow-200" /> 
                 </button>
                 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <button onClick={() => {
                     const count = prompt('人数を半角数字で入力してください');
                     if (count && !isNaN(count)) handleResultSubmit('COUNT', parseInt(count));
-                  }} className="bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold py-3 rounded-sm border border-stone-700 transition-all text-xs">
+                  }} className="bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold py-3 rounded-sm border border-stone-700 transition-all">
                     その他の人数
                   </button>
-                  <button onClick={() => handleResultSubmit('STRIKE')} className="bg-rose-950/50 hover:bg-rose-900/80 text-rose-300 font-bold py-3 rounded-sm border border-rose-900/50 transition-all text-xs">
+                  <button onClick={() => handleResultSubmit('STRIKE')} className="bg-rose-950/50 hover:bg-rose-900/80 text-rose-300 font-bold py-3 rounded-sm border border-rose-900/50 transition-all">
                     該当なし (失策)
                   </button>
                 </div>
