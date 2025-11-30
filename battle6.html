@@ -1,427 +1,467 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, User, XCircle, Trophy, History, Skull, Crown, ExternalLink, Flower, Sparkles, Eye, Maximize2 } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>極限苗字探索 - THE LAST TEN</title>
+    
+    <!-- React & Babel (ブラウザでReactを動かすためのツール) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- 修正: Babelを最新版(@babel/standalone)に変更して省略記法に対応 -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS (デザイン用) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts (明朝体) -->
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700;800&display=swap" rel="stylesheet">
 
-/**
- * THE LAST TEN - 雅 (Miyabi) Ver.
- * 修正版: 
- * 1. Iframe廃止。最初から「小窓（ポップアップ）」方式へ一本化。
- * 2. GitHub Pages等でのホスティングを想定し、安定した挙動に変更。
- */
-
-// --- Components ---
-
-// 桜吹雪エフェクト
-const CherryBlossoms = ({ intensity = 'normal' }) => {
-  const count = intensity === 'high' ? 60 : 20;
-  return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {[...Array(count)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute animate-sakura"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `-10%`,
-            backgroundColor: Math.random() > 0.6 ? '#fecaca' : '#fce7f3', // ピンクと薄ピンク
-            width: `${Math.random() * 10 + 8}px`,
-            height: `${Math.random() * 10 + 8}px`,
-            animationDuration: `${Math.random() * 5 + 5}s`,
-            animationDelay: `${Math.random() * 5}s`,
-            borderRadius: '60% 0 60% 0', // 花びらの形
-            opacity: Math.random() * 0.5 + 0.3,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// プレイヤー札（カード）
-const PlayerCard = ({ player, isActive, isWinner }) => {
-  return (
-    <div 
-      className={`
-        relative overflow-hidden transition-all duration-700 ease-out 
-        ${isActive ? 'scale-105 border-rose-400/60 bg-black/60 shadow-[0_0_25px_rgba(251,113,133,0.2)]' : 'scale-100 border-stone-700/50 bg-black/40 opacity-70'}
-        ${player.isOut ? 'grayscale opacity-30' : ''}
-        border rounded-sm p-4 flex flex-col justify-between h-32 w-full
-        font-serif
-      `}
-    >
-      {/* 和紙のようなテクスチャオーバーレイ */}
-      <div className="absolute inset-0 bg-noise opacity-10 pointer-events-none"></div>
-
-      {isActive && !player.isOut && (
-        <div className="absolute top-0 right-0 p-1">
-           <Flower size={16} className="text-rose-400 animate-spin-slow" />
-        </div>
-      )}
-      
-      <div>
-        <div className="flex items-center gap-2 mb-2 border-b border-white/10 pb-1">
-          {isWinner ? <Crown className="w-4 h-4 text-yellow-500" /> : <User className={`w-4 h-4 ${isActive ? 'text-rose-300' : 'text-stone-500'}`} />}
-          <span className={`font-bold tracking-widest text-sm ${isActive ? 'text-rose-50' : 'text-stone-400'}`}>{player.name}</span>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-end">
-        {/* ライフ表示（家紋風） */}
-        <div className="flex gap-1">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className={`transform ${i < player.strikes ? 'text-stone-800' : 'text-rose-500'}`}>
-               {i < player.strikes ? (
-                 <XCircle size={16} /> // 失策済み
-               ) : (
-                 <div className="w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_5px_rgba(244,63,94,0.6)]"></div> // ライフ
-               )}
-            </div>
-          ))}
-        </div>
+    <style>
+        body {
+            font-family: 'Shippori Mincho', 'Times New Roman', serif;
+            background-color: #1c1917;
+            margin: 0;
+            overflow: hidden; /* スマホでのスクロール防止 */
+        }
         
-        {/* 最良記録 */}
-        <div className="text-right">
-          <div className="text-[10px] text-stone-500 mb-0.5 tracking-tighter">最良</div>
-          <div className={`font-serif font-bold text-lg leading-none ${player.bestScore === 999999 ? 'text-stone-700' : 'text-rose-300'}`}>
-            {player.bestScore === 999999 ? '---' : `${player.bestScore.toLocaleString()}`}
-            <span className="text-[10px] ml-1 text-stone-600">人</span>
-          </div>
-        </div>
-      </div>
-      
-      {player.isOut && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10 backdrop-blur-sm">
-          <span className="text-stone-500 font-serif font-black text-2xl tracking-[0.5em] border-y border-stone-500 py-1">脱落</span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default function SurnameHunterGameMiyabi() {
-  const [phase, setPhase] = useState('SETUP');
-  const [players, setPlayers] = useState([
-    { id: 1, name: '壱の者', strikes: 0, isOut: false, bestScore: 999999 },
-    { id: 2, name: '弐の者', strikes: 0, isOut: false, bestScore: 999999 },
-  ]);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [inputName, setInputName] = useState('');
-  const [searchUrl, setSearchUrl] = useState('');
-  const [globalHistory, setGlobalHistory] = useState([]);
-  const [minRecord, setMinRecord] = useState({ holder: null, count: 999999, name: '' });
-  
-  const inputRef = useRef(null);
-
-  // --- Functions ---
-
-  const addPlayer = () => {
-    if (players.length >= 4) return;
-    const kanjiNumbers = ['参', '肆'];
-    const name = `${kanjiNumbers[players.length - 2]}の者`;
-    setPlayers([...players, { id: players.length + 1, name, strikes: 0, isOut: false, bestScore: 999999 }]);
-  };
-
-  const removePlayer = (id) => {
-    if (players.length <= 2) return;
-    setPlayers(players.filter(p => p.id !== id));
-  };
-
-  const startGame = () => setPhase('PLAYING');
-
-  // ポップアップウィンドウで開く（小窓風）
-  // ユーティリティ関数として分離
-  const openSearchPopup = (url) => {
-    const width = 500;
-    const height = 700;
-    // 画面中央に配置
-    const left = window.screen.width ? (window.screen.width - width) / 2 : 0;
-    const top = window.screen.height ? (window.screen.height - height) / 2 : 0;
-    
-    window.open(
-      url, 
-      'SurnameSearch', 
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
-    );
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const name = inputName.trim();
-    if (!name) return;
-    
-    if (globalHistory.some(h => h.name === name)) {
-      alert("その苗字は既出でございます。");
-      return;
-    }
-
-    const url = `https://myoji-yurai.net/searchResult.htm?myojiKanji=${encodeURIComponent(name)}`;
-    setSearchUrl(url);
-    
-    // 即座に小窓を開く
-    openSearchPopup(url);
-    
-    // 入力フェーズへ遷移
-    setPhase('SEARCHING');
-  };
-
-  const handleResultSubmit = (type, value = 0) => {
-    const currentPlayer = players[currentPlayerIndex];
-    let newPlayers = [...players];
-    let newHistoryItem = { 
-      player: currentPlayer.name, 
-      name: inputName, 
-      count: value, 
-      result: type,
-    };
-
-    if (type === 'WIN' || (type === 'COUNT' && value === 10)) {
-      newPlayers[currentPlayerIndex].bestScore = 10;
-      setPhase('WIN');
-      setGlobalHistory([newHistoryItem, ...globalHistory]);
-      setPlayers(newPlayers);
-      return;
-    } else if (type === 'STRIKE') {
-      newPlayers[currentPlayerIndex].strikes += 1;
-      newHistoryItem.count = '不明';
-      if (newPlayers[currentPlayerIndex].strikes >= 3) newPlayers[currentPlayerIndex].isOut = true;
-    } else if (type === 'COUNT') {
-      if (value < newPlayers[currentPlayerIndex].bestScore) newPlayers[currentPlayerIndex].bestScore = value;
-      if (value < minRecord.count) setMinRecord({ holder: currentPlayer.name, count: value, name: inputName });
-    }
-
-    setPlayers(newPlayers);
-    setGlobalHistory([newHistoryItem, ...globalHistory]);
-    setInputName('');
-
-    const alivePlayers = newPlayers.filter(p => !p.isOut);
-    if (alivePlayers.length === 0) {
-      setPhase('GAMEOVER');
-    } else if (alivePlayers.length === 1 && newPlayers.length > 1) {
-      setPhase('SURVIVOR_WIN');
-    } else {
-      let nextIndex = (currentPlayerIndex + 1) % players.length;
-      while (newPlayers[nextIndex].isOut) {
-        nextIndex = (nextIndex + 1) % players.length;
-      }
-      setCurrentPlayerIndex(nextIndex);
-      setPhase('PLAYING');
-    }
-  };
-
-  // --- Render ---
-
-  // 共通の背景とスタイル定義
-  const Background = () => (
-    <div className="fixed inset-0 bg-[#1c1917] z-[-1]">
-      <CherryBlossoms intensity={phase === 'WIN' || phase === 'SURVIVOR_WIN' ? 'high' : 'normal'} />
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700;800&display=swap');
-        .font-serif { fontFamily: 'Shippori Mincho', 'Times New Roman', serif; }
+        /* 桜のアニメーション */
         @keyframes sakura {
-          0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
-          20% { opacity: 1; }
-          100% { transform: translateY(100vh) rotate(360deg) translateX(50px); opacity: 0; }
+            0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg) translateX(50px); opacity: 0; }
         }
         .animate-sakura { animation: sakura linear forwards; }
-        .glass-jp { background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
+        
+        /* ガラス風パネル */
+        .glass-jp { 
+            background: rgba(20, 20, 20, 0.85); 
+            backdrop-filter: blur(8px); 
+            border: 1px solid rgba(255,255,255,0.15); 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); 
+        }
+        
+        /* フェードイン */
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .bg-noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"); }
-      `}</style>
-    </div>
-  );
-
-  if (phase === 'SETUP') {
-    return (
-      <div className="min-h-screen text-stone-200 font-serif flex items-center justify-center p-4 relative overflow-hidden">
-        <Background />
-        <div className="w-full max-w-md space-y-10 z-10">
-          <div className="text-center space-y-4">
-            <div className="inline-block p-4 border-2 border-rose-900/50 rounded-full mb-2 bg-black/40">
-                <Flower className="w-10 h-10 text-rose-400" />
-            </div>
-            <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-rose-100 via-rose-300 to-rose-600 tracking-widest drop-shadow-lg">
-              極限<br/>苗字探索
-            </h1>
-            <p className="text-stone-500 text-sm tracking-[0.3em] uppercase">- The Last Ten -</p>
-          </div>
-          
-          <div className="space-y-4 bg-black/40 p-6 rounded-lg border border-white/5 backdrop-blur-sm">
-            {players.map((player) => (
-              <div key={player.id} className="flex gap-2 items-center">
-                <span className="text-xs text-stone-600 w-4 text-center">{player.id}</span>
-                <input
-                  value={player.name}
-                  onChange={(e) => setPlayers(players.map(p => p.id === player.id ? {...p, name: e.target.value} : p))}
-                  className="flex-1 bg-transparent border-b border-stone-700 py-2 px-2 text-rose-50 placeholder-stone-700 focus:border-rose-500 outline-none transition-colors text-lg"
-                  placeholder="名前を入力"
-                />
-                {players.length > 2 && <button onClick={() => removePlayer(player.id)} className="text-stone-600 hover:text-rose-500 transition-colors"><XCircle size={18} /></button>}
-              </div>
-            ))}
-            {players.length < 4 && (
-              <button onClick={addPlayer} className="w-full py-3 border border-dashed border-stone-800 text-stone-600 text-sm hover:border-rose-900 hover:text-rose-400 transition-all">
-                + 参加者を増やす
-              </button>
-            )}
-          </div>
-          
-          <button onClick={startGame} className="w-full group relative overflow-hidden bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold py-5 rounded-sm border border-rose-700/50 transition-all">
-            <span className="relative z-10 flex items-center justify-center gap-3 text-xl tracking-[0.2em]">
-              いざ、開幕
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const currentPlayer = players[currentPlayerIndex];
-
-  return (
-    <div className="min-h-screen text-stone-200 font-serif relative overflow-hidden flex flex-col">
-      <Background />
-
-      {/* Header */}
-      <div className="p-4 flex justify-between items-center border-b border-white/10 bg-black/20 backdrop-blur-sm z-20">
-        <h1 className="text-lg font-bold tracking-widest text-rose-100/80">極限苗字探索</h1>
-        <div className="flex items-center gap-3 border border-rose-900/30 px-4 py-1.5 rounded bg-black/40">
-          <span className="text-xs text-stone-400">最小記録</span>
-          <div className="flex items-baseline gap-1">
-             <span className="text-xl font-bold text-rose-400">{minRecord.count === 999999 ? '--' : minRecord.count.toLocaleString()}</span>
-             <span className="text-xs text-rose-400/70">人</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col p-4 max-w-lg mx-auto w-full z-10">
         
-        {/* Players */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          {players.map((p, idx) => (
-            <PlayerCard key={p.id} player={p} isActive={!p.isOut && idx === currentPlayerIndex && !['WIN','SURVIVOR_WIN','GAMEOVER'].includes(phase)} isWinner={['WIN','SURVIVOR_WIN'].includes(phase) && !p.isOut && idx === currentPlayerIndex} />
-          ))}
-        </div>
+        /* ゆっくり回転 */
+        .animate-spin-slow { animation: spin 8s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        {/* Game Action Panel */}
-        <div className={`glass-jp flex-1 rounded-sm p-4 relative flex flex-col justify-center min-h-[450px] transition-all duration-500`}>
-          
-          {phase === 'PLAYING' && (
-            <form onSubmit={handleSearch} className="flex flex-col gap-8 animate-fade-in text-center p-4">
-              <div>
-                <div className="inline-block px-4 py-1 border-x border-rose-500/50 text-rose-300 text-xs tracking-[0.3em] mb-4">手番</div>
-                <div className="text-4xl font-bold text-white drop-shadow-md">{currentPlayer.name}</div>
-              </div>
-              <div className="relative">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={inputName}
-                  onChange={(e) => setInputName(e.target.value)}
-                  placeholder="苗字を入力（例：百目鬼）"
-                  className="w-full bg-transparent border-b-2 border-stone-600 py-4 text-3xl text-center text-rose-50 placeholder-stone-700 focus:border-rose-500 focus:outline-none transition-all tracking-widest"
-                  autoFocus
-                />
-              </div>
-              <button type="submit" disabled={!inputName.trim()} className="w-full bg-stone-800 hover:bg-rose-900/60 text-stone-300 hover:text-rose-100 border border-stone-600 hover:border-rose-500/50 py-4 transition-all flex items-center justify-center gap-2 tracking-widest disabled:opacity-30 disabled:cursor-not-allowed group">
-                <Search size={18} className="group-hover:scale-110 transition-transform" />
-                検索・判定へ
-              </button>
-            </form>
-          )}
+        /* ノイズテクスチャ */
+        .bg-noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-          {phase === 'SEARCHING' && (
-            <div className="flex flex-col h-full animate-fade-in gap-6 justify-center">
-              <div className="text-center">
-                 <div className="text-[10px] text-stone-500 tracking-widest mb-2">SEARCHING...</div>
-                 <div className="text-5xl font-black text-white tracking-widest drop-shadow-lg mb-4">"{inputName}"</div>
-                 <p className="text-xs text-rose-200">別窓（ポップアップ）にて人数を確認せよ</p>
-              </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-              {/* 小窓がブロックされた場合用の手動ボタン */}
-              <div className="flex justify-center">
-                 <button 
-                   onClick={() => openSearchPopup(searchUrl)}
-                   className="flex items-center gap-2 px-6 py-3 bg-stone-800 hover:bg-stone-700 border border-rose-500/30 rounded-full text-rose-400 hover:text-rose-300 transition-all shadow-lg animate-pulse"
-                 >
-                    <Maximize2 size={16} />
-                    <span>検索結果ウィンドウを開く</span>
-                 </button>
-              </div>
+        // --- Icons (Lucide IconsのSVG定義) ---
+        const Icon = ({ path, ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                {path}
+            </svg>
+        );
 
-              <div className="space-y-4 pt-4 border-t border-white/5 mt-4">
-                <p className="text-center text-[10px] text-stone-500">―― 結果を入力してください ――</p>
-                
-                <button onClick={() => handleResultSubmit('WIN', 10)} className="w-full bg-gradient-to-r from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-white font-bold py-4 rounded-sm flex items-center justify-center gap-3 shadow-[0_4px_20px_rgba(234,179,8,0.2)] border border-yellow-500/30 group transition-all">
-                  <Sparkles size={20} className="text-yellow-200 group-hover:spin-slow" /> 
-                  <span className="text-lg tracking-widest">奇跡の「およそ10人」</span>
-                  <Sparkles size={20} className="text-yellow-200" /> 
-                </button>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <button onClick={() => {
-                    const count = prompt('人数を半角数字で入力してください');
-                    if (count && !isNaN(count)) handleResultSubmit('COUNT', parseInt(count));
-                  }} className="bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold py-3 rounded-sm border border-stone-700 transition-all">
-                    その他の人数
-                  </button>
-                  <button onClick={() => handleResultSubmit('STRIKE')} className="bg-rose-950/50 hover:bg-rose-900/80 text-rose-300 font-bold py-3 rounded-sm border border-rose-900/50 transition-all">
-                    該当なし (失策)
-                  </button>
+        const Search = (p) => <Icon {...p} path={<React.Fragment><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></React.Fragment>} />;
+        const User = (p) => <Icon {...p} path={<React.Fragment><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></React.Fragment>} />;
+        const XCircle = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></React.Fragment>} />;
+        const Crown = (p) => <Icon {...p} path={<React.Fragment><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></React.Fragment>} />;
+        const History = (p) => <Icon {...p} path={<React.Fragment><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/><path d="M12 7v5l4 2"/></React.Fragment>} />;
+        const Skull = (p) => <Icon {...p} path={<React.Fragment><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></React.Fragment>} />;
+        const Flower = (p) => <Icon {...p} path={<React.Fragment><path d="M12 7.5a4.5 4.5 0 1 1 4.5 4.5M12 7.5A4.5 4.5 0 1 0 7.5 12M12 7.5V9m-4.5 3a4.5 4.5 0 1 1 4.5-4.5M7.5 12A4.5 4.5 0 1 0 12 16.5M7.5 12H9m4.5 3a4.5 4.5 0 1 1-4.5 4.5M12 16.5A4.5 4.5 0 1 0 16.5 12M12 16.5V15"/></React.Fragment>} />;
+        const Sparkles = (p) => <Icon {...p} path={<React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></React.Fragment>} />;
+        const ExternalLink = (p) => <Icon {...p} path={<React.Fragment><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></React.Fragment>} />;
+        const Maximize2 = (p) => <Icon {...p} path={<React.Fragment><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></React.Fragment>} />;
+
+
+        // --- Main Component ---
+
+        const CherryBlossoms = ({ intensity = 'normal' }) => {
+            const count = intensity === 'high' ? 60 : 20;
+            return (
+                <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                {[...Array(count)].map((_, i) => (
+                    <div
+                    key={i}
+                    className="absolute animate-sakura"
+                    style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `-10%`,
+                        backgroundColor: Math.random() > 0.6 ? '#fecaca' : '#fce7f3',
+                        width: `${Math.random() * 10 + 8}px`,
+                        height: `${Math.random() * 10 + 8}px`,
+                        animationDuration: `${Math.random() * 5 + 5}s`,
+                        animationDelay: `${Math.random() * 5}s`,
+                        borderRadius: '60% 0 60% 0',
+                        opacity: Math.random() * 0.5 + 0.3,
+                    }}
+                    />
+                ))}
                 </div>
-              </div>
-            </div>
-          )}
+            );
+        };
 
-          {/* Result Screens */}
-          {(['WIN', 'SURVIVOR_WIN', 'GAMEOVER'].includes(phase)) && (
-            <div className="text-center animate-fade-in py-8">
-              <div className="mb-6 inline-block relative">
-                 {phase === 'GAMEOVER' ? (
-                   <div className="text-stone-600 animate-pulse"><Skull size={64} strokeWidth={1} /></div>
-                 ) : (
-                   <>
-                    <div className="absolute -inset-4 bg-yellow-500/20 blur-xl rounded-full"></div>
-                    <Crown size={64} className="text-yellow-500 relative z-10 drop-shadow-lg" strokeWidth={1} />
-                   </>
-                 )}
-              </div>
-              
-              <h2 className="text-5xl font-black mb-4 tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-stone-400">
-                {phase === 'GAMEOVER' ? '終焉' : '天晴'}
-              </h2>
-              
-              <p className="text-xl font-bold text-rose-200 mb-10 tracking-widest">
-                {phase === 'GAMEOVER' ? '勝者なし' : `勝者：${currentPlayer.name}`}
-              </p>
-              
-              <button onClick={() => window.location.reload()} className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-10 py-3 rounded-full hover:shadow-[0_0_30px_rgba(225,29,72,0.4)] transition-all tracking-widest text-sm">
-                再戦する
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+        const PlayerCard = ({ player, isActive, isWinner }) => {
+            return (
+                <div 
+                className={`
+                    relative overflow-hidden transition-all duration-700 ease-out 
+                    ${isActive ? 'scale-105 border-rose-400/60 bg-black/60 shadow-[0_0_25px_rgba(251,113,133,0.2)]' : 'scale-100 border-stone-700/50 bg-black/40 opacity-70'}
+                    ${player.isOut ? 'grayscale opacity-30' : ''}
+                    border rounded-sm p-4 flex flex-col justify-between h-32 w-full
+                    font-serif
+                `}
+                >
+                <div className="absolute inset-0 bg-noise opacity-10 pointer-events-none"></div>
 
-      {/* History Log */}
-      <div className="bg-black/40 border-t border-white/5 p-4 max-h-40 overflow-y-auto backdrop-blur-md z-20">
-        <div className="flex items-center gap-2 text-xs font-bold text-stone-500 mb-2 tracking-widest">
-          <History size={12} /> 戦歴
-        </div>
-        <div className="space-y-1">
-          {globalHistory.map((h, i) => (
-            <div key={i} className="flex justify-between text-xs py-2 border-b border-white/5 last:border-0 font-serif">
-              <span className="text-stone-500 w-16 truncate">{h.player}</span>
-              <span className="text-stone-200 font-bold text-sm">{h.name}</span>
-              <span className={`${h.result === 'STRIKE' ? 'text-rose-500' : h.result === 'WIN' ? 'text-yellow-500' : 'text-blue-300'}`}>
-                {h.result === 'STRIKE' ? '失策' : `${h.count}人`}
-              </span>
-            </div>
-          ))}
-          {globalHistory.length === 0 && <div className="text-stone-700 text-xs text-center py-2">記録なし</div>}
-        </div>
-      </div>
-    </div>
-  );
-}
+                {isActive && !player.isOut && (
+                    <div className="absolute top-0 right-0 p-1">
+                    <Flower size={16} className="text-rose-400 animate-spin-slow" />
+                    </div>
+                )}
+                
+                <div>
+                    <div className="flex items-center gap-2 mb-2 border-b border-white/10 pb-1">
+                    {isWinner ? <Crown className="w-4 h-4 text-yellow-500" /> : <User className={`w-4 h-4 ${isActive ? 'text-rose-300' : 'text-stone-500'}`} />}
+                    <span className={`font-bold tracking-widest text-sm ${isActive ? 'text-rose-50' : 'text-stone-400'}`}>{player.name}</span>
+                    </div>
+                </div>
+
+                <div className="flex justify-between items-end">
+                    <div className="flex gap-1">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className={`transform ${i < player.strikes ? 'text-stone-800' : 'text-rose-500'}`}>
+                        {i < player.strikes ? (
+                            <XCircle size={16} /> 
+                        ) : (
+                            <div className="w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_5px_rgba(244,63,94,0.6)]"></div>
+                        )}
+                        </div>
+                    ))}
+                    </div>
+                    
+                    <div className="text-right">
+                    <div className="text-[10px] text-stone-500 mb-0.5 tracking-tighter">最良</div>
+                    <div className={`font-serif font-bold text-lg leading-none ${player.bestScore === 999999 ? 'text-stone-700' : 'text-rose-300'}`}>
+                        {player.bestScore === 999999 ? '---' : `${player.bestScore.toLocaleString()}`}
+                        <span className="text-[10px] ml-1 text-stone-600">人</span>
+                    </div>
+                    </div>
+                </div>
+                
+                {player.isOut && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10 backdrop-blur-sm">
+                    <span className="text-stone-500 font-serif font-black text-2xl tracking-[0.5em] border-y border-stone-500 py-1">脱落</span>
+                    </div>
+                )}
+                </div>
+            );
+        };
+
+        const SurnameHunterGameMiyabi = () => {
+            const [phase, setPhase] = useState('SETUP');
+            const [players, setPlayers] = useState([
+                { id: 1, name: '壱の者', strikes: 0, isOut: false, bestScore: 999999 },
+                { id: 2, name: '弐の者', strikes: 0, isOut: false, bestScore: 999999 },
+            ]);
+            const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+            const [inputName, setInputName] = useState('');
+            const [searchUrl, setSearchUrl] = useState('');
+            const [globalHistory, setGlobalHistory] = useState([]);
+            const [minRecord, setMinRecord] = useState({ holder: null, count: 999999, name: '' });
+            
+            const inputRef = useRef(null);
+
+            const addPlayer = () => {
+                if (players.length >= 4) return;
+                const kanjiNumbers = ['参', '肆'];
+                const name = `${kanjiNumbers[players.length - 2]}の者`;
+                setPlayers([...players, { id: players.length + 1, name, strikes: 0, isOut: false, bestScore: 999999 }]);
+            };
+
+            const removePlayer = (id) => {
+                if (players.length <= 2) return;
+                setPlayers(players.filter(p => p.id !== id));
+            };
+
+            const startGame = () => setPhase('PLAYING');
+
+            const openSearchPopup = (url) => {
+                const width = 500;
+                const height = 700;
+                const left = window.screen.width ? (window.screen.width - width) / 2 : 0;
+                const top = window.screen.height ? (window.screen.height - height) / 2 : 0;
+                window.open(url, 'SurnameSearch', `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`);
+            };
+
+            const handleSearch = (e) => {
+                e.preventDefault();
+                const name = inputName.trim();
+                if (!name) return;
+                
+                if (globalHistory.some(h => h.name === name)) {
+                alert("その苗字は既出でございます。");
+                return;
+                }
+
+                const url = `https://myoji-yurai.net/searchResult.htm?myojiKanji=${encodeURIComponent(name)}`;
+                setSearchUrl(url);
+                
+                openSearchPopup(url);
+                setPhase('SEARCHING');
+            };
+
+            const handleResultSubmit = (type, value = 0) => {
+                const currentPlayer = players[currentPlayerIndex];
+                let newPlayers = [...players];
+                let newHistoryItem = { 
+                player: currentPlayer.name, 
+                name: inputName, 
+                count: value, 
+                result: type,
+                };
+
+                if (type === 'WIN' || (type === 'COUNT' && value === 10)) {
+                newPlayers[currentPlayerIndex].bestScore = 10;
+                setPhase('WIN');
+                setGlobalHistory([newHistoryItem, ...globalHistory]);
+                setPlayers(newPlayers);
+                return;
+                } else if (type === 'STRIKE') {
+                newPlayers[currentPlayerIndex].strikes += 1;
+                newHistoryItem.count = '不明';
+                if (newPlayers[currentPlayerIndex].strikes >= 3) newPlayers[currentPlayerIndex].isOut = true;
+                } else if (type === 'COUNT') {
+                if (value < newPlayers[currentPlayerIndex].bestScore) newPlayers[currentPlayerIndex].bestScore = value;
+                if (value < minRecord.count) setMinRecord({ holder: currentPlayer.name, count: value, name: inputName });
+                }
+
+                setPlayers(newPlayers);
+                setGlobalHistory([newHistoryItem, ...globalHistory]);
+                setInputName('');
+
+                const alivePlayers = newPlayers.filter(p => !p.isOut);
+                if (alivePlayers.length === 0) {
+                setPhase('GAMEOVER');
+                } else if (alivePlayers.length === 1 && newPlayers.length > 1) {
+                setPhase('SURVIVOR_WIN');
+                } else {
+                let nextIndex = (currentPlayerIndex + 1) % players.length;
+                while (newPlayers[nextIndex].isOut) {
+                    nextIndex = (nextIndex + 1) % players.length;
+                }
+                setCurrentPlayerIndex(nextIndex);
+                setPhase('PLAYING');
+                }
+            };
+
+            // Background Component
+            const Background = () => (
+                <div className="fixed inset-0 bg-[#1c1917] z-[-1]">
+                <CherryBlossoms intensity={phase === 'WIN' || phase === 'SURVIVOR_WIN' ? 'high' : 'normal'} />
+                </div>
+            );
+
+            if (phase === 'SETUP') {
+                return (
+                <div className="min-h-screen text-stone-200 font-serif flex items-center justify-center p-4 relative overflow-hidden">
+                    <Background />
+                    <div className="w-full max-w-md space-y-10 z-10">
+                    <div className="text-center space-y-4">
+                        <div className="inline-block p-4 border-2 border-rose-900/50 rounded-full mb-2 bg-black/40">
+                            <Flower className="w-10 h-10 text-rose-400" />
+                        </div>
+                        <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-rose-100 via-rose-300 to-rose-600 tracking-widest drop-shadow-lg">
+                        極限<br/>苗字探索
+                        </h1>
+                        <p className="text-stone-500 text-sm tracking-[0.3em] uppercase">- The Last Ten -</p>
+                    </div>
+                    
+                    <div className="space-y-4 bg-black/40 p-6 rounded-lg border border-white/5 backdrop-blur-sm">
+                        {players.map((player) => (
+                        <div key={player.id} className="flex gap-2 items-center">
+                            <span className="text-xs text-stone-600 w-4 text-center">{player.id}</span>
+                            <input
+                            value={player.name}
+                            onChange={(e) => setPlayers(players.map(p => p.id === player.id ? {...p, name: e.target.value} : p))}
+                            className="flex-1 bg-transparent border-b border-stone-700 py-2 px-2 text-rose-50 placeholder-stone-700 focus:border-rose-500 outline-none transition-colors text-lg"
+                            placeholder="名前を入力"
+                            />
+                            {players.length > 2 && <button onClick={() => removePlayer(player.id)} className="text-stone-600 hover:text-rose-500 transition-colors"><XCircle size={18} /></button>}
+                        </div>
+                        ))}
+                        {players.length < 4 && (
+                        <button onClick={addPlayer} className="w-full py-3 border border-dashed border-stone-800 text-stone-600 text-sm hover:border-rose-900 hover:text-rose-400 transition-all">
+                            + 参加者を増やす
+                        </button>
+                        )}
+                    </div>
+                    
+                    <button onClick={startGame} className="w-full group relative overflow-hidden bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold py-5 rounded-sm border border-rose-700/50 transition-all">
+                        <span className="relative z-10 flex items-center justify-center gap-3 text-xl tracking-[0.2em]">
+                        いざ、開幕
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                    </button>
+                    </div>
+                </div>
+                );
+            }
+
+            const currentPlayer = players[currentPlayerIndex];
+
+            return (
+                <div className="min-h-screen text-stone-200 font-serif relative overflow-hidden flex flex-col">
+                <Background />
+
+                {/* Header */}
+                <div className="p-4 flex justify-between items-center border-b border-white/10 bg-black/20 backdrop-blur-sm z-20">
+                    <h1 className="text-lg font-bold tracking-widest text-rose-100/80">極限苗字探索</h1>
+                    <div className="flex items-center gap-3 border border-rose-900/30 px-4 py-1.5 rounded bg-black/40">
+                    <span className="text-xs text-stone-400">最小記録</span>
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-xl font-bold text-rose-400">{minRecord.count === 999999 ? '--' : minRecord.count.toLocaleString()}</span>
+                        <span className="text-xs text-rose-400/70">人</span>
+                    </div>
+                    </div>
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col p-4 max-w-lg mx-auto w-full z-10">
+                    
+                    {/* Players */}
+                    <div className="grid grid-cols-2 gap-3 mb-6">
+                    {players.map((p, idx) => (
+                        <PlayerCard key={p.id} player={p} isActive={!p.isOut && idx === currentPlayerIndex && !['WIN','SURVIVOR_WIN','GAMEOVER'].includes(phase)} isWinner={['WIN','SURVIVOR_WIN'].includes(phase) && !p.isOut && idx === currentPlayerIndex} />
+                    ))}
+                    </div>
+
+                    {/* Game Action Panel */}
+                    <div className={`glass-jp flex-1 rounded-sm p-4 relative flex flex-col justify-center min-h-[450px] transition-all duration-500`}>
+                    
+                    {phase === 'PLAYING' && (
+                        <form onSubmit={handleSearch} className="flex flex-col gap-8 animate-fade-in text-center p-4">
+                        <div>
+                            <div className="inline-block px-4 py-1 border-x border-rose-500/50 text-rose-300 text-xs tracking-[0.3em] mb-4">手番</div>
+                            <div className="text-4xl font-bold text-white drop-shadow-md">{currentPlayer.name}</div>
+                        </div>
+                        <div className="relative">
+                            <input
+                            ref={inputRef}
+                            type="text"
+                            value={inputName}
+                            onChange={(e) => setInputName(e.target.value)}
+                            placeholder="苗字を入力"
+                            className="w-full bg-transparent border-b-2 border-stone-600 py-4 text-3xl text-center text-rose-50 placeholder-stone-700 focus:border-rose-500 focus:outline-none transition-all tracking-widest"
+                            autoFocus
+                            />
+                        </div>
+                        <button type="submit" disabled={!inputName.trim()} className="w-full bg-stone-800 hover:bg-rose-900/60 text-stone-300 hover:text-rose-100 border border-stone-600 hover:border-rose-500/50 py-4 transition-all flex items-center justify-center gap-2 tracking-widest disabled:opacity-30 disabled:cursor-not-allowed group">
+                            <Search size={18} className="group-hover:scale-110 transition-transform" />
+                            検索・判定へ
+                        </button>
+                        </form>
+                    )}
+
+                    {phase === 'SEARCHING' && (
+                        <div className="flex flex-col h-full animate-fade-in gap-6 justify-center">
+                        <div className="text-center">
+                            <div className="text-[10px] text-stone-500 tracking-widest mb-2">SEARCHING...</div>
+                            <div className="text-5xl font-black text-white tracking-widest drop-shadow-lg mb-4">"{inputName}"</div>
+                            <p className="text-xs text-rose-200">別窓（ポップアップ）にて人数を確認せよ</p>
+                        </div>
+
+                        <div className="flex justify-center">
+                            <button 
+                            onClick={() => openSearchPopup(searchUrl)}
+                            className="flex items-center gap-2 px-6 py-3 bg-stone-800 hover:bg-stone-700 border border-rose-500/30 rounded-full text-rose-400 hover:text-rose-300 transition-all shadow-lg animate-pulse"
+                            >
+                                <Maximize2 size={16} />
+                                <span>ウィンドウを再度開く</span>
+                            </button>
+                        </div>
+
+                        <div className="space-y-4 pt-4 border-t border-white/5 mt-4">
+                            <p className="text-center text-[10px] text-stone-500">―― 結果を入力してください ――</p>
+                            
+                            <button onClick={() => handleResultSubmit('WIN', 10)} className="w-full bg-gradient-to-r from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-white font-bold py-4 rounded-sm flex items-center justify-center gap-3 shadow-[0_4px_20px_rgba(234,179,8,0.2)] border border-yellow-500/30 group transition-all">
+                            <Sparkles size={20} className="text-yellow-200 group-hover:spin-slow" /> 
+                            <span className="text-lg tracking-widest">奇跡の「およそ10人」</span>
+                            <Sparkles size={20} className="text-yellow-200" /> 
+                            </button>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                            <button onClick={() => {
+                                const count = prompt('人数を半角数字で入力してください');
+                                if (count && !isNaN(count)) handleResultSubmit('COUNT', parseInt(count));
+                            }} className="bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold py-3 rounded-sm border border-stone-700 transition-all">
+                                その他の人数
+                            </button>
+                            <button onClick={() => handleResultSubmit('STRIKE')} className="bg-rose-950/50 hover:bg-rose-900/80 text-rose-300 font-bold py-3 rounded-sm border border-rose-900/50 transition-all">
+                                該当なし (失策)
+                            </button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
+
+                    {(['WIN', 'SURVIVOR_WIN', 'GAMEOVER'].includes(phase)) && (
+                        <div className="text-center animate-fade-in py-8">
+                        <div className="mb-6 inline-block relative">
+                            {phase === 'GAMEOVER' ? (
+                            <div className="text-stone-600 animate-pulse"><Skull size={64} strokeWidth={1} /></div>
+                            ) : (
+                            <>
+                                <div className="absolute -inset-4 bg-yellow-500/20 blur-xl rounded-full"></div>
+                                <Crown size={64} className="text-yellow-500 relative z-10 drop-shadow-lg" strokeWidth={1} />
+                            </>
+                            )}
+                        </div>
+                        
+                        <h2 className="text-5xl font-black mb-4 tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-stone-400">
+                            {phase === 'GAMEOVER' ? '終焉' : '天晴'}
+                        </h2>
+                        
+                        <p className="text-xl font-bold text-rose-200 mb-10 tracking-widest">
+                            {phase === 'GAMEOVER' ? '勝者なし' : `勝者：${currentPlayer.name}`}
+                        </p>
+                        
+                        <button onClick={() => window.location.reload()} className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-10 py-3 rounded-full hover:shadow-[0_0_30px_rgba(225,29,72,0.4)] transition-all tracking-widest text-sm">
+                            再戦する
+                        </button>
+                        </div>
+                    )}
+                    </div>
+                </div>
+
+                {/* History Log */}
+                <div className="bg-black/40 border-t border-white/5 p-4 max-h-40 overflow-y-auto backdrop-blur-md z-20">
+                    <div className="flex items-center gap-2 text-xs font-bold text-stone-500 mb-2 tracking-widest">
+                    <History size={12} /> 戦歴
+                    </div>
+                    <div className="space-y-1">
+                    {globalHistory.map((h, i) => (
+                        <div key={i} className="flex justify-between text-xs py-2 border-b border-white/5 last:border-0 font-serif">
+                        <span className="text-stone-500 w-16 truncate">{h.player}</span>
+                        <span className="text-stone-200 font-bold text-sm">{h.name}</span>
+                        <span className={`${h.result === 'STRIKE' ? 'text-rose-500' : h.result === 'WIN' ? 'text-yellow-500' : 'text-blue-300'}`}>
+                            {h.result === 'STRIKE' ? '失策' : `${h.count}人`}
+                        </span>
+                        </div>
+                    ))}
+                    {globalHistory.length === 0 && <div className="text-stone-700 text-xs text-center py-2">記録なし</div>}
+                    </div>
+                </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SurnameHunterGameMiyabi />);
+    </script>
+</body>
+</html>
