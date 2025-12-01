@@ -110,13 +110,13 @@
 
         /* トースト通知 */
         @keyframes toast-slide {
-            0% { transform: translateX(-50%) translateY(20px); opacity: 0; }
+            0% { transform: translateX(-50%) translateY(-20px); opacity: 0; }
             10% { transform: translateX(-50%) translateY(0); opacity: 1; }
             90% { transform: translateX(-50%) translateY(0); opacity: 1; }
             100% { transform: translateX(-50%) translateY(-20px); opacity: 0; }
         }
         .animate-toast {
-            animation: toast-slide 3s ease-in-out forwards;
+            animation: toast-slide 4s ease-in-out forwards;
         }
 
         /* オートスタート用プログレスバー */
@@ -175,7 +175,6 @@
         const Users = (p) => <Icon {...p} path={<React.Fragment><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></React.Fragment>} />;
         const ArrowUp = (p) => <Icon {...p} path={<React.Fragment><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></React.Fragment>} />;
         const Lock = (p) => <Icon {...p} path={<React.Fragment><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></React.Fragment>} />;
-        const Edit = (p) => <Icon {...p} path={<React.Fragment><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></React.Fragment>} />;
 
 
         // --- Components ---
@@ -228,15 +227,15 @@
         };
 
         const Toast = ({ message, type = 'normal' }) => {
-            const colors = type === 'curse' 
-                ? 'from-purple-900 to-rose-900 border-rose-500 shadow-rose-900/50' 
-                : 'from-yellow-500 to-amber-600 border-yellow-300 shadow-yellow-500/50';
+            const styles = type === 'curse' 
+                ? 'bg-rose-950/95 border-rose-600 text-rose-200 shadow-[0_0_30px_rgba(225,29,72,0.6)]' 
+                : 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white border-yellow-300 shadow-[0_0_20px_rgba(234,179,8,0.5)]';
             
             return (
-                <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 z-[200] animate-toast pointer-events-none w-max">
-                    <div className={`bg-gradient-to-r text-white px-6 py-3 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] flex items-center gap-2 border ${colors}`}>
-                        {type === 'curse' ? <Skull size={20} className="text-white animate-bounce-custom" /> : <Heart size={20} className="fill-white text-white animate-bounce-custom" />}
-                        <span className="font-bold tracking-widest text-lg">{message}</span>
+                <div className="fixed top-12 left-1/2 transform -translate-x-1/2 z-[200] animate-toast pointer-events-none w-[90%] max-w-sm">
+                    <div className={`${styles} px-6 py-4 rounded-lg flex items-center justify-center gap-3 border shadow-2xl`}>
+                        {type === 'curse' ? <Skull size={28} className="text-rose-500 animate-bounce-custom" /> : <Heart size={20} className="fill-white text-white animate-bounce-custom" />}
+                        <span className={`${type === 'curse' ? 'text-xl font-black' : 'text-lg font-bold'} tracking-widest text-center`}>{message}</span>
                     </div>
                 </div>
             );
@@ -307,8 +306,11 @@
                             </div>
 
                             <div className="p-3 bg-stone-800/50 rounded border border-stone-700">
-                                <h3 className="font-bold text-white mb-1 flex items-center gap-2"><Lock size={14} /> 呪いの蓄積</h3>
-                                <p className="text-xs">進むにつれ、「特定の漢字禁止」などの呪いがかかります。<br/>呪いはゲーム終了まで解除されません。</p>
+                                <h3 className="font-bold text-white mb-1 flex items-center gap-2"><Lock size={14} /> 呪いの種類</h3>
+                                <p className="text-xs">
+                                    <span className="text-rose-400 font-bold">文字種縛り</span>（「田」禁止など）は<span className="underline">蓄積</span>されます。<br/>
+                                    <span className="text-rose-400 font-bold">文字数縛り</span>（2文字禁止など）は<span className="underline">単発</span>です。
+                                </p>
                             </div>
 
                             <div className="p-3 bg-stone-800/50 rounded border border-stone-700">
@@ -489,7 +491,6 @@
             // State
             const [phase, setPhase] = useState('SETUP'); 
             const [gameMode, setGameMode] = useState('ENDLESS'); 
-            const [username, setUsername] = useState('名無し');
             
             const [players, setPlayers] = useState([
                 { id: 1, name: 'Player 1', strikes: 0, wins: 0, isOut: false, bestScore: 999999 },
@@ -530,21 +531,11 @@
             const searchWindowRef = useRef(null);
             const timerRef = useRef(null);
 
-            // Init Load Highscore & Username
+            // Init Load Highscore
             useEffect(() => {
                 const storedScore = localStorage.getItem('surname_hunter_highscore');
                 if (storedScore) setHighScore(parseInt(storedScore));
-                
-                const storedName = localStorage.getItem('surname_hunter_username');
-                if (storedName) setUsername(storedName);
             }, []);
-
-            // Save username on change
-            const handleUsernameChange = (e) => {
-                const newName = e.target.value;
-                setUsername(newName);
-                localStorage.setItem('surname_hunter_username', newName);
-            };
 
             useEffect(() => {
                 if (phase === 'PLAYING' || phase === 'TURN_TRANSITION') {
@@ -618,20 +609,7 @@
                 setCurrentRound(1);
                 setCurrentPlayerIndex(0);
                 setTurnConstraint(null);
-                
-                // 名前を反映したプレイヤー初期化
-                const p1Name = username || '名無し';
-                if (mode === 'ENDLESS') {
-                    setPlayers([{ id: 1, name: p1Name, strikes: 0, wins: 0, isOut: false, bestScore: 999999 }]);
-                } else {
-                    // マルチプレイ初期化 (P1はユーザー名、P2以降はデフォルト)
-                    const newPlayers = players.map((p, idx) => ({ 
-                        ...p, 
-                        name: idx === 0 ? p1Name : p.name,
-                        strikes: 0, wins: 0, isOut: false, bestScore: 999999 
-                    }));
-                    setPlayers(newPlayers);
-                }
+                setPlayers(players.map(p => ({ ...p, strikes: 0, wins: 0, isOut: false, bestScore: 999999 })));
 
                 if (mode === 'TARGET') {
                     setupNextTargetRound(1);
@@ -673,6 +651,9 @@
             const setupNextEndlessFloor = (floor, showConstraintAnim = true) => {
                 setEndlessFloor(floor);
                 
+                // 1. 既存の縛りから「文字数縛り」を除外して、継承する縛りリストを作成（文字種は蓄積）
+                let currentConstraints = activeConstraints.filter(c => c.type === 'FORBIDDEN_CHAR');
+                
                 // 制約追加ロジック (5階以降、ランダムで追加)
                 let newConstraint = null;
                 // 5階、10階、15階...のような節目、またはランダムで追加
@@ -683,13 +664,10 @@
                     // 30%の確率で文字数制限、70%で漢字制限
                     if (rand < 0.3) {
                         const len = Math.random() < 0.5 ? 1 : 2; // 1文字か2文字を禁止
-                        // 既に同じ制限がないか確認
-                        if (!activeConstraints.some(c => c.type === 'FORBIDDEN_LENGTH' && c.value === len)) {
-                            newConstraint = { type: 'FORBIDDEN_LENGTH', value: len };
-                        }
+                        newConstraint = { type: 'FORBIDDEN_LENGTH', value: len };
                     } else {
                         // 未使用の漢字を探す
-                        const usedChars = activeConstraints.filter(c => c.type === 'FORBIDDEN_CHAR').map(c => c.value);
+                        const usedChars = currentConstraints.map(c => c.value);
                         const availableChars = COMMON_KANJI.filter(c => !usedChars.includes(c));
                         if (availableChars.length > 0) {
                             const char = availableChars[Math.floor(Math.random() * availableChars.length)];
@@ -698,7 +676,7 @@
                     }
                     
                     if (newConstraint) {
-                        setActiveConstraints(prev => [...prev, newConstraint]);
+                        currentConstraints.push(newConstraint);
                         setNewConstraintAnim(newConstraint);
                         // トーストで呪い表示
                         const msg = newConstraint.type === 'FORBIDDEN_CHAR' 
@@ -708,6 +686,8 @@
                         setTimeout(() => setShowToast(null), 4000);
                     }
                 }
+                
+                setActiveConstraints(currentConstraints);
 
                 // ランダムターゲット生成
                 const base = Math.floor(Math.random() * 50000) + 10;
@@ -734,9 +714,16 @@
                     else if (rand < 0.8) constraint = 2;
                     else constraint = 3;
                 }
-                setTurnConstraint(constraint);
-                setPhase('TURN_TRANSITION');
-                setTimeLeft(TRANSITION_TIME);
+                
+                // 無限回廊ならREADY画面をスキップ
+                if (gameMode === 'ENDLESS') {
+                    setPhase('PLAYING');
+                    setTimeLeft(TURN_TIME_LIMIT);
+                } else {
+                    setTurnConstraint(constraint);
+                    setPhase('TURN_TRANSITION');
+                    setTimeLeft(TRANSITION_TIME);
+                }
             };
 
             const openSearchPopup = (url) => {
@@ -936,20 +923,19 @@
                             setIsNewRecord(true);
                         }
                         setPhase('GAMEOVER');
-                        setGameResultSummary({ winnerName: "踏破失敗", winReason: `到達階層: ${endlessFloor}階` });
+                        setGameResultSummary({ winnerName: `${endlessFloor}階`, winReason: "到達記録" });
                     } else {
-                        // Next Floor Animation
+                        // Next Floor Animation Sequence
                         setShowStairAnim(true);
-                        setNewConstraintAnim(null); // Reset anim state
+                        setNewConstraintAnim(null); 
+                        
+                        // 1. 2.5秒間アニメーションを見せる (前回のフェーズのまま)
                         setTimeout(() => {
+                            // 2. アニメーションを非表示にし、データを更新して画面を切り替える
+                            setShowStairAnim(false);
+                            setNewConstraintAnim(null);
                             setupNextEndlessFloor(endlessFloor + 1);
-                            // アニメーション終了後にステートをクリアするとチラつくので、
-                            // StairTransition内部でうまいことやるか、タイムアウトを調整
-                            setTimeout(() => {
-                                setShowStairAnim(false);
-                                setNewConstraintAnim(null);
-                            }, 4500); // 演出時間 (2.5s -> 4.5s に延長)
-                        }, 500); // 少し待ってから次へ
+                        }, 2500); 
                     }
                     return;
                 }
@@ -1005,21 +991,6 @@
                             <div className="text-[10px] text-stone-600 mt-2">Data Source: 名字由来net</div>
                         </div>
                         
-                        {/* Name Input */}
-                        <div className="px-4">
-                            <div className="text-xs text-stone-500 mb-1 tracking-widest text-center">プレイヤー名</div>
-                            <div className="relative border-b border-stone-600 focus-within:border-rose-500 transition-colors">
-                                <input 
-                                    type="text" 
-                                    value={username} 
-                                    onChange={handleUsernameChange}
-                                    className="w-full bg-transparent text-center text-xl py-2 focus:outline-none text-rose-100"
-                                    placeholder="名前を入力"
-                                />
-                                <Edit size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-600" />
-                            </div>
-                        </div>
-
                         <div className="flex flex-col gap-4">
                              <button onClick={() => setPhase('MODE_CATEGORY_SELECT')} className="w-full group relative overflow-hidden bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold py-4 rounded-sm border border-rose-700/50 transition-all compact-mode-p">
                                 <span className="relative z-10 flex items-center justify-center gap-3 text-lg tracking-[0.2em]">
@@ -1136,7 +1107,7 @@
                                             ))}
                                         </div>
                                         {activeConstraints.length > 0 && (
-                                            <div className="flex flex-wrap gap-2 justify-center max-w-xs">
+                                            <div className="flex flex-wrap gap-2 justify-center max-w-xs overflow-y-auto max-h-20">
                                                 {activeConstraints.map((c, i) => (
                                                     <span key={i} className="text-[10px] bg-rose-950 text-rose-300 px-2 py-1 rounded border border-rose-800">
                                                         {c.type === 'FORBIDDEN_CHAR' ? `禁: ${c.value}` : `禁: ${c.value}文字`}
@@ -1389,7 +1360,8 @@
                                                 <span className="font-bold text-stone-200">{h.name}</span>
                                             </div>
                                             <span className={`${h.result === 'STRIKE' ? 'text-rose-500' : h.result === 'WIN' ? 'text-yellow-500' : 'text-blue-300'}`}>
-                                                {h.result === 'STRIKE' ? '失策' : typeof h.count === 'number' ? `${h.count.toLocaleString()}人` : h.count}
+                                                {h.result === 'STRIKE' && h.count === 'ドボン' ? 'ドボン' : 
+                                                 typeof h.count === 'number' ? `${h.count.toLocaleString()}人` : h.count}
                                             </span>
                                         </div>
                                     ))}
@@ -1518,8 +1490,8 @@
                     <div className="mb-3 flex-1 min-h-[90px] max-h-[160px]">
                         {gameMode === 'ENDLESS' ? (
                              <div className="w-full h-full bg-black/30 border border-purple-500/20 rounded flex flex-col items-center justify-center relative overflow-hidden">
-                                <div className="text-[10px] text-purple-400 tracking-widest mb-2">CURRENT LIFE</div>
-                                <div className="flex gap-4">
+                                <div className="text-[10px] text-purple-400 tracking-widest mb-1">CURRENT LIFE</div>
+                                <div className="flex gap-4 mb-2">
                                     {[...Array(5)].map((_, i) => (
                                         <div key={i} className={`transition-all duration-500 ${i < endlessLife ? 'opacity-100 scale-100' : 'opacity-10 scale-75 grayscale'}`}>
                                             {i < endlessLife ? 
@@ -1529,21 +1501,20 @@
                                         </div>
                                     ))}
                                 </div>
+                                
+                                {/* 制約バッジ表示 (Relative配置でハートの下に) */}
+                                <div className="h-6 flex items-center justify-center gap-1 mb-2">
+                                    {activeConstraints.map((c, i) => (
+                                        <div key={i} className="flex items-center gap-1 bg-rose-950/80 border border-rose-800/50 px-2 py-0.5 rounded text-[10px] text-rose-300 animate-fade-in">
+                                            <Lock size={10} />
+                                            {c.type === 'FORBIDDEN_CHAR' ? `禁止: ${c.value}` : `禁止: ${c.value}文字`}
+                                        </div>
+                                    ))}
+                                </div>
+
                                 <div className="absolute bottom-2 right-3 text-[10px] text-stone-600">
                                     目標: {targetNumber.toLocaleString()}人
                                 </div>
-                                
-                                {/* 制約バッジ表示 */}
-                                {activeConstraints.length > 0 && (
-                                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                                            {activeConstraints.map((c, i) => (
-                                                <div key={i} className="flex items-center gap-1 bg-rose-950/80 border border-rose-800/50 px-2 py-0.5 rounded text-[10px] text-rose-300 animate-fade-in">
-                                                    <Lock size={10} />
-                                                    {c.type === 'FORBIDDEN_CHAR' ? `禁止: ${c.value}` : `禁止: ${c.value}文字`}
-                                                </div>
-                                            ))}
-                                    </div>
-                                )}
                              </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-2 h-full">
@@ -1558,15 +1529,17 @@
                     
                     {phase === 'PLAYING' && (
                         <form onSubmit={handleSearch} className="flex flex-col gap-4 animate-fade-in text-center h-full justify-center">
-                        <div className="flex-none">
-                            <div className="inline-block px-3 py-0.5 border-x border-rose-500/50 text-rose-300 text-[10px] tracking-[0.3em] mb-2">手番</div>
-                            <div className="text-3xl font-bold text-white drop-shadow-md">{currentPlayer.name}</div>
-                            {turnConstraint && (
-                                <div className="mt-2 inline-block bg-rose-900/80 text-white text-xs font-bold px-2 py-0.5 rounded border border-rose-500 animate-pulse">
-                                    ⚠ 縛り: {turnConstraint}文字のみ
-                                </div>
-                            )}
-                        </div>
+                        {gameMode !== 'ENDLESS' && (
+                            <div className="flex-none">
+                                <div className="inline-block px-3 py-0.5 border-x border-rose-500/50 text-rose-300 text-[10px] tracking-[0.3em] mb-2">手番</div>
+                                <div className="text-3xl font-bold text-white drop-shadow-md">{currentPlayer.name}</div>
+                                {turnConstraint && (
+                                    <div className="mt-2 inline-block bg-rose-900/80 text-white text-xs font-bold px-2 py-0.5 rounded border border-rose-500 animate-pulse">
+                                        ⚠ 縛り: {turnConstraint}文字のみ
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <div className="relative flex-1 flex items-center justify-center">
                             <input
                             ref={inputRef}
@@ -1633,7 +1606,8 @@
                         <span className="text-stone-500 w-14 truncate">{h.player}</span>
                         <span className="text-stone-200 font-bold text-xs">{h.name}</span>
                         <span className={`${h.result === 'STRIKE' ? 'text-rose-500' : h.result === 'WIN' ? 'text-yellow-500' : 'text-blue-300'}`}>
-                            {h.result === 'STRIKE' ? '失策' : typeof h.count === 'number' ? `${h.count.toLocaleString()}人` : h.count}
+                            {h.result === 'STRIKE' && h.count === 'ドボン' ? 'ドボン' : 
+                             typeof h.count === 'number' ? `${h.count.toLocaleString()}人` : h.count}
                         </span>
                         </div>
                     ))}
