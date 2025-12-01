@@ -175,6 +175,7 @@
         const Users = (p) => <Icon {...p} path={<React.Fragment><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></React.Fragment>} />;
         const ArrowUp = (p) => <Icon {...p} path={<React.Fragment><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></React.Fragment>} />;
         const Lock = (p) => <Icon {...p} path={<React.Fragment><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></React.Fragment>} />;
+        const Edit = (p) => <Icon {...p} path={<React.Fragment><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></React.Fragment>} />;
 
 
         // --- Components ---
@@ -531,11 +532,23 @@
             const searchWindowRef = useRef(null);
             const timerRef = useRef(null);
 
-            // Init Load Highscore
+            // Init Load Highscore & Player 1 Name
             useEffect(() => {
                 const storedScore = localStorage.getItem('surname_hunter_highscore');
                 if (storedScore) setHighScore(parseInt(storedScore));
+                
+                const storedName = localStorage.getItem('surname_hunter_username');
+                if (storedName) {
+                    setPlayers(prev => prev.map(p => p.id === 1 ? { ...p, name: storedName } : p));
+                }
             }, []);
+
+            const handlePlayerNameChange = (id, newName) => {
+                setPlayers(prev => prev.map(p => p.id === id ? { ...p, name: newName } : p));
+                if (id === 1) {
+                    localStorage.setItem('surname_hunter_username', newName);
+                }
+            };
 
             useEffect(() => {
                 if (phase === 'PLAYING' || phase === 'TURN_TRANSITION') {
@@ -583,7 +596,7 @@
             };
 
             const removePlayer = (id) => {
-                if (players.length <= 1) return;
+                if (players.length <= 2) return; // Minimum 2 players
                 setPlayers(players.filter(p => p.id !== id));
             };
 
@@ -609,7 +622,15 @@
                 setCurrentRound(1);
                 setCurrentPlayerIndex(0);
                 setTurnConstraint(null);
-                setPlayers(players.map(p => ({ ...p, strikes: 0, wins: 0, isOut: false, bestScore: 999999 })));
+                
+                // Reset stats but keep names for multiplayer
+                if (mode === 'ENDLESS') {
+                    // Endless uses a temporary player object
+                    setPlayers([{ id: 1, name: 'Challenger', strikes: 0, wins: 0, isOut: false, bestScore: 999999 }]);
+                } else {
+                    // Reset stats for existing players
+                    setPlayers(players.map(p => ({ ...p, strikes: 0, wins: 0, isOut: false, bestScore: 999999 })));
+                }
 
                 if (mode === 'TARGET') {
                     setupNextTargetRound(1);
@@ -935,7 +956,7 @@
                             setShowStairAnim(false);
                             setNewConstraintAnim(null);
                             setupNextEndlessFloor(endlessFloor + 1);
-                        }, 2500); 
+                        }, 4500); // 演出時間 (2.5s -> 4.5s に延長)
                     }
                     return;
                 }
@@ -1042,12 +1063,32 @@
                         <div className="w-full max-w-md space-y-4 z-10 animate-fade-in my-auto flex flex-col h-full justify-center">
                             <h2 className="text-center text-lg font-bold tracking-widest mb-4">対戦遊戯選択</h2>
                             
-                             {/* Player setup mini */}
+                             {/* Player setup */}
                              <div className="bg-black/40 p-3 rounded mb-4 border border-stone-800">
-                                <div className="text-xs text-stone-500 mb-2 text-center">参加者</div>
-                                <div className="flex flex-wrap gap-2 justify-center">
-                                    {players.map(p => <span key={p.id} className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">{p.name}</span>)}
-                                    {players.length < 4 && <button onClick={addPlayer} className="text-xs bg-stone-800 border border-dashed border-stone-600 px-2 py-1 rounded text-stone-500 hover:text-white">+</button>}
+                                <div className="text-xs text-stone-500 mb-2 text-center">参加者設定</div>
+                                
+                                <div className="grid grid-cols-2 gap-3 mb-3">
+                                    {players.map((p) => (
+                                        <div key={p.id} className="relative border-b border-stone-600 focus-within:border-rose-500 transition-colors">
+                                             <input
+                                                type="text"
+                                                value={p.name}
+                                                onChange={(e) => handlePlayerNameChange(p.id, e.target.value)}
+                                                className="w-full bg-transparent text-center text-sm py-1 focus:outline-none text-rose-100"
+                                                placeholder={`Player ${p.id}`}
+                                            />
+                                            {p.id > 2 && (
+                                                <button onClick={() => removePlayer(p.id)} className="absolute -right-2 -top-2 text-stone-500 hover:text-rose-500 bg-stone-900 rounded-full">
+                                                    <XCircle size={14} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {players.length < 4 && (
+                                        <button onClick={addPlayer} className="text-xs border border-dashed border-stone-600 text-stone-500 hover:text-white hover:border-stone-400 rounded flex items-center justify-center py-1">
+                                            + 追加
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -1564,6 +1605,7 @@
                             <div className="text-3xl font-black text-white tracking-widest drop-shadow-lg mb-2">"{inputName}"</div>
                             <p className="text-xs text-rose-200">「名字由来net」のページを開いて判定します</p>
                             <p className="text-[9px] text-stone-500 mt-0.5">※Data Source: 名字由来net</p>
+                            <p className="text-[9px] text-rose-300 mt-1 animate-pulse">※3秒後に自動で閉じます</p>
                         </div>
 
                         <div className="flex justify-center flex-none">
