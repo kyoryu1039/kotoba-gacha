@@ -3,10 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ことばコレクションガチャ Ultimate v30</title>
+<title>ことばコレクションガチャ Ultimate v31</title>
 <meta name="theme-color" content="#0b0f1c">
 
-<!-- Tailwind for Rhythm CAPTCHA (Ad) -->
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -568,11 +567,15 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
               <button class="btn-play story-btn" data-src="audio/sotsugyo.mp3" style="width:100%">▶ 再生</button>
             </div>
             <div class="story-item">
-              <div style="font-weight:700; margin-bottom:4px; color:var(--ink);">②AIが漫才を作ったら</div>
+              <div style="font-weight:700; margin-bottom:4px; color:var(--ink);">②夢で見た話をしよう</div>
+              <button class="btn-play story-btn" data-src="audio/bananamushi.mp3" style="width:100%">▶ 再生</button>
+            </div>
+            <div class="story-item">
+              <div style="font-weight:700; margin-bottom:4px; color:var(--ink);">③AIが漫才を作ったら</div>
               <button class="btn-play story-btn" data-src="audio/manzai.mp3" style="width:100%">▶ 再生</button>
             </div>
             <div class="story-item">
-              <div style="font-weight:700; margin-bottom:4px; color:var(--ink);">③AIが戯曲を作ったら</div>
+              <div style="font-weight:700; margin-bottom:4px; color:var(--ink);">④AIが戯曲を作ったら</div>
               <button class="btn-play story-btn" data-src="audio/story.mp3" style="width:100%">▶ 再生</button>
             </div>
           </div>
@@ -602,9 +605,7 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
   <button class="btn-play" id="ad-close-btn" style="margin-top:24px; border-color:white; color:white; padding:10px 30px; font-size:14px;" onclick="closeFullScreenAd()">× 閉じる</button>
 </div>
 
-<!-- Rhythm CAPTCHA Overlay (Hidden by default) -->
 <div id="rc-overlay">
-  <!-- HUD -->
   <div id="rc-hud" class="fixed top-0 left-0 w-full p-3 sm:p-4 flex justify-between items-start pointer-events-none z-50 opacity-0 transition-opacity duration-500">
     <div class="flex-1">
         <div class="text-gray-500 text-xs sm:text-sm font-bold tracking-wider">認証ランク</div>
@@ -620,11 +621,9 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
     </div>
   </div>
 
-  <!-- Game Area -->
   <div id="rc-game-container" class="relative w-full h-full z-10"></div>
   <div class="rc-scanlines"></div>
 
-  <!-- Start Screen (Fake Recaptcha) -->
   <div id="rc-start-screen" class="absolute inset-0 bg-white flex flex-col justify-center items-center z-[100]">
      <div id="rc-start-trigger" class="rc-captcha-box" style="position: relative; top: 0; left: 0; transform: none; opacity:1;">
         <div class="rc-checkbox-container"></div>
@@ -639,7 +638,6 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
     </div>
   </div>
 
-  <!-- Rule Popup -->
   <div id="rc-rule-popup" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-2xl border border-gray-200 w-[90%] max-w-[400px] z-[200]">
     <h2 class="text-xl font-bold text-gray-800 mb-2">人間証明テスト</h2>
     <p class="text-gray-600 text-sm leading-relaxed mb-4">
@@ -649,7 +647,6 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
     <button id="rc-popup-start-btn" class="w-full mt-4 bg-blue-500 text-white text-center py-2 rounded font-bold hover:bg-blue-600">テストを開始する</button>
   </div>
 
-  <!-- Result Screen -->
   <div id="rc-result-screen" class="hidden absolute inset-0 bg-white flex flex-col justify-center items-center z-[100]">
     <div class="text-6xl mb-4" id="rc-result-emoji">🤖</div>
     <h2 class="text-xl text-gray-500 mb-1">VERIFICATION COMPLETE</h2>
@@ -659,8 +656,6 @@ details[open] summary { margin-bottom: 12px; border-bottom: 1px solid rgba(255,2
     <button id="rc-close-ad-btn" class="rc-btn rc-btn-close">閉じる</button>
   </div>
 </div>
-<!-- End Rhythm CAPTCHA Overlay -->
-
 <div id="toast">Message</div>
 <audio id="bgm-player" loop></audio>
 <audio id="story-player" preload="auto"></audio>
@@ -857,19 +852,19 @@ function shakeScreen(hard=false){
   if(navigator.vibrate) navigator.vibrate(hard ? 200 : 50);
 }
 
-/* === AD SYSTEM UPDATED WITH RHYTHM GAME (15% + 15% + 10% = 40%) === */
+/* === AD SYSTEM UPDATED (15% + 15% + 15% + 10% = 55%) === */
 const adOverlay = document.getElementById('full-ad-overlay');
 const adContentArea = document.getElementById('ad-content-area');
 const adCloseBtn = document.getElementById('ad-close-btn');
 
 function onCloseMultiResult() {
   const rand = Math.random();
-  // 40% Chance Total
-  if (rand < 0.4) { 
+  // 55% Chance Total (15+15+15+10)
+  if (rand < 0.55) { 
     sfxTap();
     adOverlay.classList.add('active');
     
-    // 0.0 ~ 0.15: Nekologia
+    // 0.00 ~ 0.15: Nekologia
     if (rand < 0.15) {
       showAd('nekologia');
     } 
@@ -877,7 +872,11 @@ function onCloseMultiResult() {
     else if (rand < 0.30) {
       showAd('ktaro');
     }
-    // 0.30 ~ 0.45: Rhythm Game (Playable Ad)
+    // 0.30 ~ 0.45: Myoji (NEW)
+    else if (rand < 0.45) {
+      showAd('myoji');
+    }
+    // 0.45 ~ 0.55: Rhythm Game (Playable Ad)
     else {
       showAd('rhythm');
     }
@@ -907,9 +906,16 @@ function showAd(type) {
     const vid = document.getElementById('ad-video');
     const img = document.getElementById('ad-img');
     if(vid){ vid.onended = () => { vid.style.display = 'none'; img.style.display = 'block'; }; }
+  } else if (type === 'myoji') {
+    // NEW: Myoji Battle Ad
+    adContentArea.innerHTML = `
+      <a href="https://kyoryu1039.github.io/kotoba-gacha/myoji" target="_blank" rel="noopener">
+        <img src="images/myoji.png" alt="苗字バトル">
+      </a>
+    `;
   } else if (type === 'rhythm') {
-    // Rhythm CAPTCHA Banner - Reverted to Simple Style & Close Button Hidden
-    adCloseBtn.style.display = 'none'; // Hide the close button for this ad type
+    // Rhythm CAPTCHA Banner
+    adCloseBtn.style.display = 'none'; 
     adContentArea.innerHTML = `
         <div style="display:flex; justify-content:center; align-items:center; padding:10px; cursor:pointer; width:100%; height:100%;" onclick="CaptchaGame.open()">
              <div class="rc-captcha-box" style="position:relative; top:auto; left:auto; transform:none; opacity:1; margin:0; pointer-events:none; box-shadow: 0 0 4px 1px rgba(0,0,0,0.08);">
