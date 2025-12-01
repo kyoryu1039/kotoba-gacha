@@ -1,1513 +1,1511 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>苗字バトル - Endless Ascension</title>
-    
-    <!-- React & Babel -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>苗字バトル - Endless Ascension</title>
+    
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700;900&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: 'Shippori Mincho', 'Times New Roman', serif;
-            background-color: #1c1917;
-            margin: 0;
-            overflow: hidden;
-            touch-action: manipulation;
-            color: #e5e5e5;
-            height: 100dvh;
-        }
-        
-        #root {
-            height: 100%;
-        }
+    <style>
+        body {
+            font-family: 'Shippori Mincho', 'Times New Roman', serif;
+            background-color: #1c1917;
+            margin: 0;
+            overflow: hidden;
+            touch-action: manipulation;
+            color: #e5e5e5;
+            height: 100dvh;
+        }
+        
+        #root {
+            height: 100%;
+        }
 
-        /* アニメーション定義 */
-        @keyframes sakura {
-            0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
-            20% { opacity: 1; }
-            100% { transform: translateY(100vh) rotate(360deg) translateX(50px); opacity: 0; }
-        }
-        .animate-sakura { animation: sakura linear forwards; }
+        /* アニメーション定義 */
+        @keyframes sakura {
+            0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg) translateX(50px); opacity: 0; }
+        }
+        .animate-sakura { animation: sakura linear forwards; }
 
-        @keyframes confetti {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        .animate-confetti { animation: confetti 2.5s ease-out forwards; }
-        
-        .glass-jp { 
-            background: rgba(20, 20, 20, 0.85); 
-            backdrop-filter: blur(8px); 
-            border: 1px solid rgba(255,255,255,0.15); 
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); 
-        }
-        
-        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .animate-confetti { animation: confetti 2.5s ease-out forwards; }
+        
+        .glass-jp { 
+            background: rgba(20, 20, 20, 0.85); 
+            backdrop-filter: blur(8px); 
+            border: 1px solid rgba(255,255,255,0.15); 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); 
+        }
+        
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .animate-spin-slow { animation: spin 8s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .animate-spin-slow { animation: spin 8s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        .animate-bounce-custom { animation: bounce 1s infinite; }
-        @keyframes bounce { 
-            0%, 100% { transform: translateY(0); } 
-            50% { transform: translateY(-10px); } 
-        }
+        .animate-bounce-custom { animation: bounce 1s infinite; }
+        @keyframes bounce { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-10px); } 
+        }
 
-        @keyframes cutInSlide {
-            0% { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
-            20% { transform: translateX(0) skewX(-20deg); opacity: 1; }
-            80% { transform: translateX(0) skewX(-20deg); opacity: 1; }
-            100% { transform: translateX(100%) skewX(-20deg); opacity: 0; }
-        }
-        .animate-cut-in { animation: cutInSlide 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes cutInSlide {
+            0% { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
+            20% { transform: translateX(0) skewX(-20deg); opacity: 1; }
+            80% { transform: translateX(0) skewX(-20deg); opacity: 1; }
+            100% { transform: translateX(100%) skewX(-20deg); opacity: 0; }
+        }
+        .animate-cut-in { animation: cutInSlide 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        @keyframes countdown-circle {
-            from { stroke-dashoffset: 0; }
-            to { stroke-dashoffset: 283; }
-        }
-        
-        @keyframes heart-beat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); filter: drop-shadow(0 0 5px rgba(225,29,72,0.8)); }
-        }
-        .animate-heart-beat { animation: heart-beat 0.6s ease-in-out infinite; }
+        @keyframes countdown-circle {
+            from { stroke-dashoffset: 0; }
+            to { stroke-dashoffset: 283; }
+        }
+        
+        @keyframes heart-beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); filter: drop-shadow(0 0 5px rgba(225,29,72,0.8)); }
+        }
+        .animate-heart-beat { animation: heart-beat 0.6s ease-in-out infinite; }
 
-        /* 階段駆け上がり演出用 */
-        @keyframes stairs-move {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(50px); }
-        }
-        .bg-stairs {
-            background-image: repeating-linear-gradient(
-                180deg,
-                rgba(60, 60, 60, 0.5),
-                rgba(60, 60, 60, 0.5) 2px,
-                transparent 2px,
-                transparent 40px
-            );
-            animation: stairs-move 0.5s linear infinite;
-        }
+        /* 階段駆け上がり演出用 */
+        @keyframes stairs-move {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+        .bg-stairs {
+            background-image: repeating-linear-gradient(
+                180deg,
+                rgba(60, 60, 60, 0.5),
+                rgba(60, 60, 60, 0.5) 2px,
+                transparent 2px,
+                transparent 40px
+            );
+            animation: stairs-move 0.5s linear infinite;
+        }
 
-        /* バーが伸びるアニメーション */
-        @keyframes grow-bar {
-            from { width: 0%; }
-            to { width: var(--target-width); }
-        }
-        .animate-bar-grow {
-            animation: grow-bar 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
+        /* バーが伸びるアニメーション */
+        @keyframes grow-bar {
+            from { width: 0%; }
+            to { width: var(--target-width); }
+        }
+        .animate-bar-grow {
+            animation: grow-bar 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
 
-        /* トースト通知 */
-        @keyframes toast-slide {
-            0% { transform: translateX(-50%) translateY(20px); opacity: 0; }
-            10% { transform: translateX(-50%) translateY(0); opacity: 1; }
-            90% { transform: translateX(-50%) translateY(0); opacity: 1; }
-            100% { transform: translateX(-50%) translateY(-20px); opacity: 0; }
-        }
-        .animate-toast {
-            animation: toast-slide 3s ease-in-out forwards;
-        }
+        /* トースト通知 */
+        @keyframes toast-slide {
+            0% { transform: translateX(-50%) translateY(20px); opacity: 0; }
+            10% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            90% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            100% { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+        }
+        .animate-toast {
+            animation: toast-slide 3s ease-in-out forwards;
+        }
 
-        .bg-noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"); }
-        
-        .active-press:active { transform: scale(0.95); }
+        .bg-noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"); }
+        
+        .active-press:active { transform: scale(0.95); }
 
-        /* 小さい画面用の自動縮小ハック */
-        @media (max-height: 750px) {
-            .compact-mode-text { font-size: 0.85rem !important; }
-            .compact-mode-title { font-size: 2.5rem !important; } 
-            .compact-mode-p { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
-            .compact-mode-h { height: auto !important; min-height: 0 !important; }
-        }
-    </style>
+        /* 小さい画面用の自動縮小ハック */
+        @media (max-height: 750px) {
+            .compact-mode-text { font-size: 0.85rem !important; }
+            .compact-mode-title { font-size: 2.5rem !important; } 
+            .compact-mode-p { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+            .compact-mode-h { height: auto !important; min-height: 0 !important; }
+        }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-
-        // --- Icons ---
-        const Icon = ({ path, ...props }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-                {path}
-            </svg>
-        );
-
-        const Search = (p) => <Icon {...p} path={<React.Fragment><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></React.Fragment>} />;
-        const User = (p) => <Icon {...p} path={<React.Fragment><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></React.Fragment>} />;
-        const XCircle = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></React.Fragment>} />;
-        const Crown = (p) => <Icon {...p} path={<React.Fragment><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></React.Fragment>} />;
-        const History = (p) => <Icon {...p} path={<React.Fragment><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/><path d="M12 7v5l4 2"/></React.Fragment>} />;
-        const Skull = (p) => <Icon {...p} path={<React.Fragment><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></React.Fragment>} />;
-        const Flower = (p) => <Icon {...p} path={<React.Fragment><path d="M12 7.5a4.5 4.5 0 1 1 4.5 4.5M12 7.5A4.5 4.5 0 1 0 7.5 12M12 7.5V9m-4.5 3a4.5 4.5 0 1 1 4.5-4.5M7.5 12A4.5 4.5 0 1 0 12 16.5M7.5 12H9m4.5 3a4.5 4.5 0 1 1-4.5 4.5M12 16.5A4.5 4.5 0 1 0 16.5 12M12 16.5V15"/></React.Fragment>} />;
-        const Sparkles = (p) => <Icon {...p} path={<React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></React.Fragment>} />;
-        const Maximize2 = (p) => <Icon {...p} path={<React.Fragment><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></React.Fragment>} />;
-        const Clock = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></React.Fragment>} />;
-        const Target = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></React.Fragment>} />;
-        const Hourglass = (p) => <Icon {...p} path={<React.Fragment><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></React.Fragment>} />;
-        const Delete = (p) => <Icon {...p} path={<React.Fragment><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></React.Fragment>} />;
-        const Check = (p) => <Icon {...p} path={<React.Fragment><polyline points="20 6 9 17 4 12"/></React.Fragment>} />;
-        const CornerDownLeft = (p) => <Icon {...p} path={<React.Fragment><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></React.Fragment>} />;
-        const Share2 = (p) => <Icon {...p} path={<React.Fragment><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></React.Fragment>} />;
-        const Heart = (p) => <Icon {...p} path={<React.Fragment><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></React.Fragment>} />;
-        const Layers = (p) => <Icon {...p} path={<React.Fragment><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></React.Fragment>} />;
-        const Users = (p) => <Icon {...p} path={<React.Fragment><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></React.Fragment>} />;
-        const ArrowUp = (p) => <Icon {...p} path={<React.Fragment><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></React.Fragment>} />;
-        const Lock = (p) => <Icon {...p} path={<React.Fragment><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></React.Fragment>} />;
-
-
-        // --- Components ---
-
-        const CherryBlossoms = ({ intensity = 'normal' }) => {
-            const count = intensity === 'high' ? 60 : 20;
-            return (
-                <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-                {[...Array(count)].map((_, i) => (
-                    <div
-                    key={i}
-                    className="absolute animate-sakura"
-                    style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `-10%`,
-                        backgroundColor: Math.random() > 0.6 ? '#fecaca' : '#fce7f3',
-                        width: `${Math.random() * 10 + 8}px`,
-                        height: `${Math.random() * 10 + 8}px`,
-                        animationDuration: `${Math.random() * 5 + 5}s`,
-                        animationDelay: `${Math.random() * 5}s`,
-                        borderRadius: '60% 0 60% 0',
-                        opacity: Math.random() * 0.5 + 0.3,
-                    }}
-                    />
-                ))}
-                </div>
-            );
-        };
-
-        const Confetti = () => {
-            return (
-                <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-                {[...Array(100)].map((_, i) => (
-                    <div
-                    key={i}
-                    className="absolute animate-confetti"
-                    style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `-10%`,
-                        backgroundColor: ['#FFD700', '#FF4500', '#FFFFFF', '#00BFFF', '#FF69B4'][Math.floor(Math.random() * 5)],
-                        width: `${Math.random() * 8 + 4}px`,
-                        height: `${Math.random() * 8 + 4}px`,
-                        animationDuration: `${Math.random() * 2 + 1.5}s`,
-                        animationDelay: `${Math.random() * 2}s`,
-                    }}
-                    />
-                ))}
-                </div>
-            );
-        };
-
-        const Toast = ({ message }) => {
-            return (
-                <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 z-[200] animate-toast pointer-events-none w-max">
-                    <div className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-6 py-3 rounded-full shadow-[0_0_20px_rgba(234,179,8,0.5)] flex items-center gap-2 border border-yellow-300">
-                        <Heart size={20} className="fill-white text-white animate-bounce-custom" />
-                        <span className="font-bold tracking-widest text-lg">{message}</span>
-                    </div>
-                </div>
-            );
-        };
-
-        const StairTransition = ({ floor, newConstraint }) => {
-            return (
-                <div className="fixed inset-0 z-[150] bg-stone-900 flex flex-col items-center justify-center overflow-hidden">
-                    <div className="absolute inset-0 bg-stairs opacity-20"></div>
-                    <div className="z-10 text-center animate-fade-in w-full px-4">
-                        <div className="mb-4 text-purple-400 animate-bounce-custom">
-                            <ArrowUp size={40} />
-                        </div>
-                        <div className="text-stone-500 tracking-[0.5em] text-sm mb-2">NEXT FLOOR</div>
-                        <div className="text-6xl font-black text-white tracking-widest mb-6">
-                            {floor}
-                            <span className="text-2xl ml-2 text-stone-500">階</span>
-                        </div>
-                        
-                        {newConstraint && (
-                            <div className="animate-cut-in bg-rose-950/80 border border-rose-600 p-4 rounded-lg max-w-sm mx-auto shadow-[0_0_30px_rgba(225,29,72,0.4)]">
-                                <div className="text-rose-400 text-xs font-bold tracking-widest mb-1">☠ 呪い発生 ☠</div>
-                                <div className="text-white text-xl font-bold font-serif">
-                                    {newConstraint.type === 'FORBIDDEN_CHAR' ? 
-                                        `「${newConstraint.value}」の使用禁止` : 
-                                        `「${newConstraint.value}文字」の使用禁止`}
-                                </div>
-                            </div>
-                        )}
-                        
-                        {!newConstraint && floor % 3 === 1 && floor > 1 && (
-                            <div className="mt-4 text-purple-400 font-bold border border-purple-500/50 bg-purple-900/30 px-4 py-2 rounded animate-pulse">
-                                ⚠ 警戒レベル上昇：許容範囲縮小
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        };
-
-        // --- 数字入力パッド ---
-        const NumPad = ({ onConfirm, onCancel }) => {
-            const [value, setValue] = useState('');
-
-            const handleNum = (num) => {
-                if (value.length < 8) { // 桁数制限
-                    setValue(prev => prev + num);
-                }
-            };
-
-            const handleDelete = () => {
-                setValue(prev => prev.slice(0, -1));
-            };
-
-            const handleSubmit = () => {
-                if (value === '') return;
-                onConfirm(parseInt(value));
-            };
-
-            return (
-                <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={(e) => { if(e.target === e.currentTarget) onCancel(); }}>
-                    <div className="w-full max-w-lg bg-[#1c1917] border-t border-stone-700 rounded-t-2xl overflow-hidden shadow-2xl animate-slide-up pb-8 safe-area-pb">
-                        <div className="bg-stone-900 p-4 border-b border-stone-800 flex flex-col items-center">
-                            <div className="w-12 h-1 bg-stone-700 rounded-full mb-4"></div>
-                            <div className="text-stone-400 text-xs tracking-widest mb-1">人数を入力</div>
-                            <div className="text-5xl font-bold text-white tracking-widest h-16 flex items-center">
-                                {value ? parseInt(value).toLocaleString() : <span className="text-stone-700">0</span>}
-                                <span className="text-lg ml-2 text-stone-500 font-normal">人</span>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-1 p-2 bg-stone-900/50">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                                <button
-                                    key={num}
-                                    onClick={() => handleNum(num)}
-                                    className="h-14 sm:h-16 bg-[#2a2725] text-white text-2xl font-bold rounded active-press hover:bg-stone-800 transition-colors"
-                                >
-                                    {num}
-                                </button>
-                            ))}
-                            <button onClick={handleDelete} className="h-14 sm:h-16 bg-[#2a2725] text-rose-400 text-xl font-bold rounded active-press hover:bg-stone-800 flex items-center justify-center transition-colors">
-                                <Delete />
-                            </button>
-                            <button onClick={() => handleNum(0)} className="h-14 sm:h-16 bg-[#2a2725] text-white text-2xl font-bold rounded active-press hover:bg-stone-800 transition-colors">
-                                0
-                            </button>
-                            <button onClick={handleSubmit} disabled={!value} className={`h-14 sm:h-16 text-white text-xl font-bold rounded active-press flex items-center justify-center gap-2 transition-all ${value ? 'bg-rose-700 hover:bg-rose-600 shadow-[0_0_15px_rgba(225,29,72,0.4)]' : 'bg-stone-800 text-stone-500 cursor-not-allowed'}`}>
-                                決定 <Check size={20} />
-                            </button>
-                        </div>
-                        
-                        <div className="px-4 mt-2 mb-safe">
-                            <button onClick={onCancel} className="w-full py-3 text-stone-500 text-sm hover:text-stone-300">
-                                閉じる
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const PlayerCard = ({ player, isActive, isWinner, gameMode }) => {
-            return (
-                <div 
-                className={`
-                    relative overflow-hidden transition-all duration-700 ease-out flex flex-col justify-between
-                    ${isActive ? 'scale-105 border-rose-400/60 bg-black/60 shadow-[0_0_25px_rgba(251,113,133,0.2)]' : 'scale-100 border-stone-700/50 bg-black/40 opacity-70'}
-                    ${player.isOut ? 'grayscale opacity-30' : ''}
-                    border rounded-sm p-3 font-serif w-full compact-mode-h flex-1 min-h-[90px]
-                `}
-                >
-                <div className="absolute inset-0 bg-noise opacity-10 pointer-events-none"></div>
-
-                {isActive && !player.isOut && (
-                    <div className="absolute top-0 right-0 p-1">
-                    <Flower size={14} className="text-rose-400 animate-spin-slow" />
-                    </div>
-                )}
-                
-                <div>
-                    <div className="flex items-center gap-2 mb-1 border-b border-white/10 pb-1">
-                    {isWinner ? <Crown className="w-3 h-3 text-yellow-500" /> : <User className={`w-3 h-3 ${isActive ? 'text-rose-300' : 'text-stone-500'}`} />}
-                    <span className={`font-bold tracking-widest text-xs ${isActive ? 'text-rose-50' : 'text-stone-400'}`}>{player.name}</span>
-                    </div>
-                </div>
-
-                <div className="flex justify-between items-end">
-                    {gameMode === 'SURVIVAL' ? (
-                        <>
-                            <div className="flex gap-0.5">
-                            {[...Array(3)].map((_, i) => (
-                                <div key={i} className={`transform ${i < player.strikes ? 'text-stone-800' : 'text-rose-500'}`}>
-                                {i < player.strikes ? <XCircle size={14} /> : <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_5px_rgba(244,63,94,0.6)]"></div>}
-                                </div>
-                            ))}
-                            </div>
-                            <div className="text-right">
-                                <div className="text-[9px] text-stone-500 tracking-tighter leading-none">最良</div>
-                                <div className={`font-serif font-bold text-base leading-none ${player.bestScore === 999999 ? 'text-stone-700' : 'text-rose-300'}`}>
-                                    {player.bestScore === 999999 ? '---' : `${player.bestScore.toLocaleString()}`}
-                                    <span className="text-[9px] ml-0.5 text-stone-600">人</span>
-                                </div>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="w-full">
-                            <div className="text-[9px] text-stone-500 mb-0.5 tracking-tighter">勝利数</div>
-                            <div className="flex gap-1">
-                                {[...Array(3)].map((_, i) => (
-                                    <div key={i}>
-                                        {i < player.wins ? (
-                                            <Crown size={16} className="text-yellow-500 fill-yellow-500 animate-bounce-custom" style={{ animationDelay: `${i * 0.2}s` }} />
-                                        ) : (
-                                            <div className="w-4 h-4 rounded-full border border-stone-700 bg-stone-900/50"></div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-                {player.isOut && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10 backdrop-blur-sm">
-                    <span className="text-stone-500 font-serif font-black text-xl tracking-[0.5em] border-y border-stone-500 py-1">脱落</span>
-                    </div>
-                )}
-                </div>
-            );
-        };
-
-        const CutIn = ({ text, subText }) => (
-            <div className="fixed inset-0 z-[100] pointer-events-none flex items-center justify-center overflow-hidden">
-                <div className="w-full h-48 bg-rose-900/90 absolute transform -skew-x-12 animate-cut-in flex items-center justify-center border-y-4 border-yellow-500 shadow-2xl">
-                    <div className="transform skew-x-12 text-center text-white drop-shadow-md">
-                        <div className="text-xl font-bold text-yellow-300 tracking-[0.5em] mb-2">{subText}</div>
-                        <div className="text-6xl font-black tracking-widest">{text}</div>
-                    </div>
-                </div>
-            </div>
-        );
-
-        const SurnameHunterGame = () => {
-            const MAX_ROUNDS_SURVIVAL = 5; 
-            const TARGET_LIST = [10, 50, 100, 1000, 3000, 5000, 10000, 20000, 50000];
-            const TURN_TIME_LIMIT = 30; 
-            const TRANSITION_TIME = 3; 
-            // 禁止漢字リスト
-            const COMMON_KANJI = ['田', '野', '谷', '木', '井', '山', '川', '小', '原', '本', '上', '大', '中', '藤', '村'];
-
-            // State
-            const [phase, setPhase] = useState('SETUP'); 
-            const [gameMode, setGameMode] = useState('ENDLESS'); 
-            
-            const [players, setPlayers] = useState([
-                { id: 1, name: 'Player 1', strikes: 0, wins: 0, isOut: false, bestScore: 999999 },
-                { id: 2, name: 'Player 2', strikes: 0, wins: 0, isOut: false, bestScore: 999999 },
-            ]);
-            const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-            const [currentRound, setCurrentRound] = useState(1);
-            const [inputName, setInputName] = useState('');
-            const [searchUrl, setSearchUrl] = useState('');
-            const [globalHistory, setGlobalHistory] = useState([]);
-            const [minRecord, setMinRecord] = useState({ holder: null, count: 999999, name: '' });
-            
-            const [targetNumber, setTargetNumber] = useState(0);
-            const [roundResults, setRoundResults] = useState([]); 
-            const [roundWinner, setRoundWinner] = useState(null); 
-            const [drawReason, setDrawReason] = useState(null);
-
-            // ENDLESS用
-            const [endlessLife, setEndlessLife] = useState(3);
-            const [endlessFloor, setEndlessFloor] = useState(1);
-            const [endlessResult, setEndlessResult] = useState(null);
-            const [highScore, setHighScore] = useState(0);
-            const [isNewRecord, setIsNewRecord] = useState(false);
-            const [showToast, setShowToast] = useState(null); 
-            const [showStairAnim, setShowStairAnim] = useState(false);
-            const [barAnimTrigger, setBarAnimTrigger] = useState(false);
-            const [activeConstraints, setActiveConstraints] = useState([]); // [{type: 'FORBIDDEN_CHAR', value: '田'}, ...]
-            const [newConstraintAnim, setNewConstraintAnim] = useState(null);
-
-            const [timeLeft, setTimeLeft] = useState(0);
-            const [turnConstraint, setTurnConstraint] = useState(null); 
-            const [showCutIn, setShowCutIn] = useState(false);
-            const [showNumPad, setShowNumPad] = useState(false);
-            const [gameResultSummary, setGameResultSummary] = useState({ winnerName: '', winReason: '' });
-
-            const inputRef = useRef(null);
-            const searchWindowRef = useRef(null);
-            const timerRef = useRef(null);
-
-            // Init Load Highscore
-            useEffect(() => {
-                const stored = localStorage.getItem('surname_hunter_highscore');
-                if (stored) setHighScore(parseInt(stored));
-            }, []);
-
-            useEffect(() => {
-                if (phase === 'PLAYING' || phase === 'TURN_TRANSITION') {
-                    if (timeLeft > 0) {
-                        timerRef.current = setTimeout(() => {
-                            setTimeLeft(timeLeft - 1);
-                        }, 1000);
-                    } else {
-                        handleTimerComplete();
-                    }
-                }
-                return () => clearTimeout(timerRef.current);
-            }, [timeLeft, phase]);
-
-            const handleTimerComplete = () => {
-                if (phase === 'TURN_TRANSITION') {
-                    setPhase('PLAYING');
-                    setTimeLeft(TURN_TIME_LIMIT);
-                    if (turnConstraint) {
-                        setShowCutIn(true);
-                        setTimeout(() => setShowCutIn(false), 2500);
-                    }
-                } else if (phase === 'PLAYING') {
-                    if (searchWindowRef.current && !searchWindowRef.current.closed) {
-                        searchWindowRef.current.close();
-                    }
-                    setShowNumPad(false);
-                    alert("時間切れ！強制ドボンとなります。");
-                    handleResultSubmit('STRIKE'); 
-                }
-            };
-
-            const addPlayer = () => {
-                if (players.length >= 4) return;
-                const name = `Player ${players.length + 1}`;
-                setPlayers([...players, { id: players.length + 1, name, strikes: 0, wins: 0, isOut: false, bestScore: 999999 }]);
-            };
-
-            const removePlayer = (id) => {
-                if (players.length <= 1) return;
-                setPlayers(players.filter(p => p.id !== id));
-            };
-
-            // 難易度計算（3階層ごとに難しくなるが、一定以上はレンジを緩めて縛りを増やす）
-            const getSafeRange = (target, floor) => {
-                let factor = 10.0;
-                
-                // 15階以降はレンジを少し緩めて、縛りの方で難しくする
-                if (floor >= 15) factor = 3.0; // 緩和
-                else if (floor >= 10) factor = 2.0;
-                else if (floor >= 7) factor = 3.0;
-                else if (floor >= 4) factor = 5.0;
-                else factor = 10.0;
-
-                const min = Math.max(1, Math.floor(target / factor));
-                const max = Math.ceil(target * factor);
-                return { min, max };
-            };
-
-            const startGame = (mode) => {
-                setGameMode(mode);
-                setGlobalHistory([]);
-                setCurrentRound(1);
-                setCurrentPlayerIndex(0);
-                setTurnConstraint(null);
-                setPlayers(players.map(p => ({ ...p, strikes: 0, wins: 0, isOut: false, bestScore: 999999 })));
-
-                if (mode === 'TARGET') {
-                    setupNextTargetRound(1);
-                } else if (mode === 'ENDLESS') {
-                    setEndlessLife(3);
-                    setEndlessFloor(1);
-                    setActiveConstraints([]); // 制約リセット
-                    setIsNewRecord(false);
-                    setupNextEndlessFloor(1, false);
-                } else {
-                    startTurnSequence(0, 1);
-                }
-            };
-
-            const setupNextTargetRound = (roundNum) => {
-                const newTarget = TARGET_LIST[Math.floor(Math.random() * TARGET_LIST.length)];
-                setTargetNumber(newTarget);
-                setRoundResults([]);
-                setRoundWinner(null);
-                setDrawReason(null);
-                setCurrentRound(roundNum);
-                const startIndex = (roundNum - 1) % players.length;
-                setCurrentPlayerIndex(startIndex); 
-                setPhase('TARGET_REVEAL');
-            };
-
-            const setupNextEndlessFloor = (floor, showConstraintAnim = true) => {
-                setEndlessFloor(floor);
-                
-                // 制約追加ロジック (5階以降、ランダムで追加)
-                let newConstraint = null;
-                // 5階、10階、15階...のような節目、またはランダムで追加
-                // しかし、あまり増えすぎても無理なので、10階以降は頻度を上げる
-                const shouldAddConstraint = floor > 3 && (floor % 3 === 0 || Math.random() < 0.2); 
-                
-                if (showConstraintAnim && shouldAddConstraint) {
-                    const rand = Math.random();
-                    // 30%の確率で文字数制限、70%で漢字制限
-                    if (rand < 0.3) {
-                        const len = Math.random() < 0.5 ? 1 : 2; // 1文字か2文字を禁止
-                        // 既に同じ制限がないか確認
-                        if (!activeConstraints.some(c => c.type === 'FORBIDDEN_LENGTH' && c.value === len)) {
-                            newConstraint = { type: 'FORBIDDEN_LENGTH', value: len };
-                        }
-                    } else {
-                        // 未使用の漢字を探す
-                        const usedChars = activeConstraints.filter(c => c.type === 'FORBIDDEN_CHAR').map(c => c.value);
-                        const availableChars = COMMON_KANJI.filter(c => !usedChars.includes(c));
-                        if (availableChars.length > 0) {
-                            const char = availableChars[Math.floor(Math.random() * availableChars.length)];
-                            newConstraint = { type: 'FORBIDDEN_CHAR', value: char };
-                        }
-                    }
-                    
-                    if (newConstraint) {
-                        setActiveConstraints(prev => [...prev, newConstraint]);
-                        setNewConstraintAnim(newConstraint);
-                    }
-                }
-
-                // ランダムターゲット生成
-                const base = Math.floor(Math.random() * 50000) + 10;
-                const multiplier = Math.random() > 0.8 ? 10 : 1;
-                const newTarget = base * multiplier;
-                
-                setTargetNumber(newTarget);
-                setEndlessResult(null);
-                setBarAnimTrigger(false);
-                setPhase('TARGET_REVEAL');
-            };
-
-            const startTurnSequence = (nextIndex, roundNum = currentRound) => {
-                setCurrentPlayerIndex(nextIndex);
-                setCurrentRound(roundNum);
-                setInputName('');
-                setShowNumPad(false);
-
-                // 縛り決定ロジック (対戦用)
-                let constraint = null;
-                if (gameMode === 'TARGET' && roundNum >= 4 && targetNumber <= 1000) {
-                    const rand = Math.random();
-                    if (rand < 0.3) constraint = 1;
-                    else if (rand < 0.8) constraint = 2;
-                    else constraint = 3;
-                }
-                setTurnConstraint(constraint);
-                setPhase('TURN_TRANSITION');
-                setTimeLeft(TRANSITION_TIME);
-            };
-
-            const openSearchPopup = (url) => {
-                const width = 500;
-                const height = 700;
-                const left = window.screen.width ? (window.screen.width - width) / 2 : 0;
-                const top = window.screen.height ? (window.screen.height - height) / 2 : 0;
-                const features = `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`;
-
-                if (!searchWindowRef.current || searchWindowRef.current.closed) {
-                    searchWindowRef.current = window.open(url, 'SurnameSearch', features);
-                } else {
-                    try {
-                        searchWindowRef.current.location.href = url;
-                        searchWindowRef.current.focus();
-                    } catch (e) {
-                        searchWindowRef.current = window.open(url, 'SurnameSearch', features);
-                    }
-                }
-                setTimeout(() => {
-                    if (searchWindowRef.current && !searchWindowRef.current.closed) {
-                        searchWindowRef.current.close();
-                        searchWindowRef.current = null;
-                    }
-                }, 3000);
-            };
-
-            const handleSearch = (e) => {
-                e.preventDefault();
-                const name = inputName.trim();
-                if (!name) return;
-
-                // 文字数縛りチェック (対戦モード)
-                if (turnConstraint && name.length !== turnConstraint) {
-                    alert(`【縛り違反】\n現在は「${turnConstraint}文字」の苗字しか検索できません！`);
-                    return;
-                }
-
-                // エンドレスモードの制約チェック
-                if (gameMode === 'ENDLESS') {
-                    for (const c of activeConstraints) {
-                        if (c.type === 'FORBIDDEN_LENGTH' && name.length === c.value) {
-                            alert(`【呪い発動】\n「${c.value}文字」の苗字は禁じられています！`);
-                            return;
-                        }
-                        if (c.type === 'FORBIDDEN_CHAR' && name.includes(c.value)) {
-                            alert(`【呪い発動】\n文字「${c.value}」の使用は禁じられています！`);
-                            return;
-                        }
-                    }
-                }
-                
-                if (globalHistory.some(h => h.name === name)) {
-                    alert("その苗字は既出でございます。");
-                    return;
-                }
-
-                const url = `https://myoji-yurai.net/searchResult.htm?myojiKanji=${encodeURIComponent(name)}`;
-                setSearchUrl(url);
-                openSearchPopup(url);
-                setPhase('SEARCHING');
-            };
-
-            const handleResultSubmit = (type, value = 0) => {
-                setShowNumPad(false);
-                const currentPlayer = players[currentPlayerIndex];
-                let newPlayers = [...players];
-                let newHistoryItem = { 
-                    player: currentPlayer.name, 
-                    name: inputName || (type === 'STRIKE' ? 'TIMEOUT' : ''), 
-                    count: value, 
-                    result: type,
-                };
-                
-                setInputName('');
-
-                // --- ENDLESS MODE LOGIC ---
-                if (gameMode === 'ENDLESS') {
-                    const safeRange = getSafeRange(targetNumber, endlessFloor);
-                    const isDobon = type === 'STRIKE' || value === 0;
-                    let isSafe = false;
-                    let healed = false;
-
-                    if (!isDobon) {
-                        isSafe = value >= safeRange.min && value <= safeRange.max;
-                    }
-
-                    // 回復判定 (誤差±25%以内 かつ ドボンでない)
-                    if (isSafe && !isDobon) {
-                        const diff = Math.abs(targetNumber - value);
-                        const errorRate = diff / targetNumber;
-                        if (errorRate <= 0.25) {
-                            if (endlessLife < 5) { // 最大ライフ5
-                                setEndlessLife(prev => prev + 1);
-                                healed = true;
-                            }
-                        }
-                    }
-
-                    if (!isSafe) {
-                        setEndlessLife(prev => prev - 1);
-                    }
-
-                    newHistoryItem.result = isSafe ? 'WIN' : 'STRIKE';
-                    newHistoryItem.count = isDobon ? 'ドボン' : value;
-                    setGlobalHistory([newHistoryItem, ...globalHistory]);
-
-                    setEndlessResult({
-                        isSafe, min: safeRange.min, max: safeRange.max, actual: value, isDobon, healed
-                    });
-                    
-                    setPhase('ROUND_RESULT');
-                    setBarAnimTrigger(true); // アニメーション開始トリガー
-                    
-                    if (healed) {
-                        setTimeout(() => {
-                            setShowToast('LIFE RECOVERED!');
-                            setTimeout(() => setShowToast(null), 3000);
-                        }, 2500); // バーのアニメーション後に表示
-                    }
-                    return;
-                }
-
-                // --- SURVIVAL / TARGET LOGIC ---
-                if (gameMode === 'SURVIVAL') {
-                    if (type === 'WIN' || (type === 'COUNT' && value === 10)) {
-                        newPlayers[currentPlayerIndex].bestScore = 10;
-                        setPhase('WIN');
-                        setGameResultSummary({ winnerName: currentPlayer.name, winReason: "奇跡の10人達成" });
-                        setGlobalHistory([newHistoryItem, ...globalHistory]);
-                        setPlayers(newPlayers);
-                        return;
-                    } else if (type === 'STRIKE') {
-                        newPlayers[currentPlayerIndex].strikes += 1;
-                        newHistoryItem.count = '不明';
-                        if (newPlayers[currentPlayerIndex].strikes >= 3) newPlayers[currentPlayerIndex].isOut = true;
-                    } else if (type === 'COUNT') {
-                        if (value < newPlayers[currentPlayerIndex].bestScore) newPlayers[currentPlayerIndex].bestScore = value;
-                        if (value < minRecord.count) setMinRecord({ holder: currentPlayer.name, count: value, name: inputName });
-                    }
-                    setPlayers(newPlayers);
-                    setGlobalHistory([newHistoryItem, ...globalHistory]);
-
-                    const alivePlayers = newPlayers.filter(p => !p.isOut);
-                    if (alivePlayers.length === 0) {
-                        setPhase('GAMEOVER');
-                        setGameResultSummary({ winnerName: "勝者なし", winReason: "全員脱落" });
-                    } else if (alivePlayers.length === 1 && newPlayers.length > 1) {
-                        const w = alivePlayers[0];
-                        setPhase('SURVIVOR_WIN');
-                        setGameResultSummary({ winnerName: w.name, winReason: "生き残り" });
-                    } else {
-                        let nextIndex = (currentPlayerIndex + 1) % players.length;
-                        while (newPlayers[nextIndex].isOut) nextIndex = (nextIndex + 1) % players.length;
-                        startTurnSequence(nextIndex, (nextIndex < currentPlayerIndex) ? currentRound + 1 : currentRound);
-                    }
-                } else {
-                    // TARGET
-                    const isDobon = type === 'STRIKE' || value === 0;
-                    const diff = isDobon ? null : Math.abs(value - targetNumber);
-                    const resultData = { playerId: currentPlayer.id, playerName: currentPlayer.name, name: inputName || 'TIMEOUT', count: isDobon ? '0人' : value, diff, isDobon };
-                    const updatedRoundResults = [...roundResults, resultData];
-                    setRoundResults(updatedRoundResults);
-                    setGlobalHistory([newHistoryItem, ...globalHistory]); 
-
-                    if (updatedRoundResults.length === players.length) {
-                        const validResults = updatedRoundResults.filter(r => !r.isDobon);
-                        let winner = null;
-                        if (validResults.length === 0) { setDrawReason('ALL_DOBON'); setRoundWinner(null); }
-                        else {
-                            const minDiff = Math.min(...validResults.map(r => r.diff));
-                            const winners = validResults.filter(r => r.diff === minDiff);
-                            if (winners.length > 1) { setDrawReason('TIE'); setRoundWinner(null); }
-                            else {
-                                winner = winners[0];
-                                const winnerIndex = newPlayers.findIndex(p => p.id === winner.playerId);
-                                newPlayers[winnerIndex].wins += 1;
-                                setPlayers(newPlayers);
-                                setRoundWinner(winner);
-                                setDrawReason(null);
-                            }
-                        }
-                        setPhase('ROUND_RESULT');
-                    } else {
-                        startTurnSequence((currentPlayerIndex + 1) % players.length);
-                    }
-                }
-            };
-
-            const nextTargetRoundAction = () => {
-                if (gameMode === 'ENDLESS') {
-                    if (endlessLife <= 0) {
-                        // Game Over - Save Score
-                        if (endlessFloor > highScore) {
-                            localStorage.setItem('surname_hunter_highscore', endlessFloor.toString());
-                            setHighScore(endlessFloor);
-                            setIsNewRecord(true);
-                        }
-                        setPhase('GAMEOVER');
-                        setGameResultSummary({ winnerName: "踏破失敗", winReason: `到達階層: ${endlessFloor}階` });
-                    } else {
-                        // Next Floor Animation
-                        setShowStairAnim(true);
-                        setNewConstraintAnim(null); // Reset anim state
-                        setTimeout(() => {
-                            setupNextEndlessFloor(endlessFloor + 1);
-                            // アニメーション終了後にステートをクリアするとチラつくので、
-                            // StairTransition内部でうまいことやるか、タイムアウトを調整
-                            setTimeout(() => {
-                                setShowStairAnim(false);
-                                setNewConstraintAnim(null);
-                            }, 2500); // 演出時間
-                        }, 500); // 少し待ってから次へ
-                    }
-                    return;
-                }
-                // Multiplay Next
-                const grandWinner = players.find(p => p.wins >= 3);
-                if (grandWinner) {
-                    setPhase('FINAL_WIN');
-                    setGameResultSummary({ winnerName: grandWinner.name, winReason: "3本先取達成" });
-                    return;
-                }
-                setupNextTargetRound(currentRound + 1);
-            };
-
-            const handleShare = () => {
-                let modeName = '';
-                if (gameMode === 'SURVIVAL') modeName = '極レア苗字を探せ！';
-                else if (gameMode === 'TARGET') modeName = '人数ピタリを目指せ！';
-                else modeName = `無限回廊（最高${endlessFloor}階）`;
-
-                const winnerText = gameResultSummary.winnerName;
-                const historyText = [...globalHistory].reverse().map(h => `・${h.player}: ${h.name} (${h.result === 'STRIKE' ? '失策' : typeof h.count === 'number' ? h.count + '人' : h.count})`).join('\n');
-                const text = `【苗字バトル】決着！\nモード: ${modeName}\n結果: ${gameResultSummary.winReason}\n\n#苗字バトル`;
-
-                if (navigator.share) {
-                    navigator.share({ title: '苗字バトル 結果', text: text }).catch(console.error);
-                } else {
-                    navigator.clipboard.writeText(text).then(() => alert('結果をクリップボードにコピーしました！'));
-                }
-            };
-
-            // --- Render ---
-            const Background = () => (
-                <div className="fixed inset-0 bg-[#1c1917] z-[-1]">
-                <CherryBlossoms intensity={isNewRecord || ['WIN', 'SURVIVOR_WIN', 'FINAL_WIN'].includes(phase) ? 'high' : 'normal'} />
-                {(isNewRecord || ['WIN', 'SURVIVOR_WIN', 'FINAL_WIN'].includes(phase)) && <Confetti />}
-                </div>
-            );
-
-            // 1. SETUP
-            if (phase === 'SETUP') {
-                return (
-                <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative overflow-y-auto">
-                    <Background />
-                    <div className="w-full max-w-md space-y-6 z-10 my-auto">
-                        <div className="text-center space-y-2">
-                            <div className="inline-block p-3 border-2 border-rose-900/50 rounded-full mb-1 bg-black/40">
-                                <Flower className="w-8 h-8 text-rose-400" />
-                            </div>
-                            <h1 className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-rose-100 via-rose-300 to-rose-600 tracking-widest drop-shadow-lg leading-tight compact-mode-title">
-                            苗字<br/>バトル
-                            </h1>
-                            <p className="text-stone-500 text-xs tracking-[0.3em] uppercase">- SURNAME BATTLE -</p>
-                        </div>
-                        
-                        <div className="flex flex-col gap-4">
-                             <button onClick={() => setPhase('MODE_CATEGORY_SELECT')} className="w-full group relative overflow-hidden bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold py-4 rounded-sm border border-rose-700/50 transition-all compact-mode-p">
-                                <span className="relative z-10 flex items-center justify-center gap-3 text-lg tracking-[0.2em]">
-                                遊戯開始
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                );
-            }
-
-            // 1.5. CATEGORY SELECT
-            if (phase === 'MODE_CATEGORY_SELECT') {
-                return (
-                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
-                        <Background />
-                        <div className="w-full max-w-md space-y-4 z-10 animate-fade-in my-auto">
-                             <h2 className="text-center text-lg font-bold tracking-widest mb-6">プレイ人数選択</h2>
-                             
-                             <button onClick={() => startGame('ENDLESS')} className="w-full bg-black/40 hover:bg-purple-900/40 border border-stone-600 hover:border-purple-500 p-6 flex items-center justify-between transition-all group">
-                                <div className="text-left">
-                                    <div className="text-xl font-bold text-purple-200 group-hover:text-white mb-1">ひとりで</div>
-                                    <div className="text-xs text-stone-400">無限回廊モード</div>
-                                </div>
-                                <Layers size={24} className="text-purple-500" />
-                             </button>
-
-                             <button onClick={() => setPhase('MODE_SELECT')} className="w-full bg-black/40 hover:bg-rose-900/40 border border-stone-600 hover:border-rose-500 p-6 flex items-center justify-between transition-all group">
-                                <div className="text-left">
-                                    <div className="text-xl font-bold text-rose-200 group-hover:text-white mb-1">みんなで</div>
-                                    <div className="text-xs text-stone-400">対戦モード (2〜4人)</div>
-                                </div>
-                                <Users size={24} className="text-rose-500" />
-                             </button>
-                             
-                             <button onClick={() => setPhase('SETUP')} className="mt-8 text-stone-500 hover:text-stone-300 text-xs w-full text-center">戻る</button>
-                        </div>
-                    </div>
-                );
-            }
-
-            // 2. MODE SELECT (MULTI ONLY)
-            if (phase === 'MODE_SELECT') {
-                return (
-                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
-                        <Background />
-                        <div className="w-full max-w-md space-y-4 z-10 animate-fade-in my-auto flex flex-col h-full justify-center">
-                            <h2 className="text-center text-lg font-bold tracking-widest mb-4">対戦遊戯選択</h2>
-                            
-                             {/* Player setup mini */}
-                             <div className="bg-black/40 p-3 rounded mb-4 border border-stone-800">
-                                <div className="text-xs text-stone-500 mb-2 text-center">参加者</div>
-                                <div className="flex flex-wrap gap-2 justify-center">
-                                    {players.map(p => <span key={p.id} className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">{p.name}</span>)}
-                                    {players.length < 4 && <button onClick={addPlayer} className="text-xs bg-stone-800 border border-dashed border-stone-600 px-2 py-1 rounded text-stone-500 hover:text-white">+</button>}
-                                </div>
-                            </div>
-
-                            <button onClick={() => startGame('TARGET')} className="w-full group relative overflow-hidden bg-black/40 hover:bg-yellow-900/40 border border-stone-600 hover:border-yellow-500 p-4 text-left transition-all flex-1 max-h-40 flex flex-col justify-center">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-lg font-bold text-yellow-100 group-hover:text-white">人数ピタリを目指せ！</span>
-                                    <Target className="text-stone-600 group-hover:text-yellow-500 transition-colors" />
-                                </div>
-                                <p className="text-xs text-stone-400 leading-relaxed compact-mode-text">
-                                    目標人数に近い苗字を出す頭脳戦。30秒制限。<br/>
-                                    3本先取で優勝。
-                                </p>
-                            </button>
-
-                            <button onClick={() => startGame('SURVIVAL')} className="w-full group relative overflow-hidden bg-black/40 hover:bg-rose-900/40 border border-stone-600 hover:border-rose-500 p-4 text-left transition-all flex-1 max-h-40 flex flex-col justify-center">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-lg font-bold text-rose-100 group-hover:text-white">極レア苗字を探せ！</span>
-                                    <Skull className="text-stone-600 group-hover:text-rose-500 transition-colors" />
-                                </div>
-                                <p className="text-xs text-stone-400 leading-relaxed compact-mode-text">
-                                    「およそ10人」の激レア苗字を探し出す。<br/>
-                                    実在しない苗字は即失策。
-                                </p>
-                            </button>
-                            
-                            <button onClick={() => setPhase('MODE_CATEGORY_SELECT')} className="text-stone-500 hover:text-stone-300 text-xs py-4">戻る</button>
-                        </div>
-                    </div>
-                );
-            }
-
-            // 3. TARGET REVEAL (共通)
-            if (phase === 'TARGET_REVEAL') {
-                const starter = players[currentPlayerIndex];
-                return (
-                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative" 
-                         onClick={() => startTurnSequence(currentPlayerIndex, currentRound)}>
-                        <Background />
-                        <div className="text-center z-10 animate-fade-in cursor-pointer my-auto">
-                            {gameMode === 'ENDLESS' ? (
-                                <div className="text-purple-400 text-xs tracking-widest mb-4">無限回廊 第{endlessFloor}階層</div>
-                            ) : (
-                                <div className="text-stone-500 text-xs tracking-widest mb-4">第{currentRound}回戦 目標</div>
-                            )}
-                            
-                            <div className="text-6xl font-black text-white drop-shadow-[0_0_30px_rgba(234,179,8,0.5)] mb-2">
-                                {targetNumber.toLocaleString()}
-                            </div>
-                            <div className="text-xl text-yellow-500 tracking-widest font-bold">人</div>
-                            
-                            <div className="mt-8 text-sm text-stone-300">
-                                {gameMode === 'ENDLESS' ? (
-                                    <div className="flex flex-col items-center gap-4">
-                                        <div className="flex justify-center gap-1">
-                                            {[...Array(5)].map((_, i) => ( // ライフ最大5個分スペース確保
-                                                <Heart key={i} size={20} className={i < endlessLife ? "text-rose-500 fill-rose-500" : "text-stone-800 opacity-20"} />
-                                            ))}
-                                        </div>
-                                        {activeConstraints.length > 0 && (
-                                            <div className="flex flex-wrap gap-2 justify-center max-w-xs">
-                                                {activeConstraints.map((c, i) => (
-                                                    <span key={i} className="text-[10px] bg-rose-950 text-rose-300 px-2 py-1 rounded border border-rose-800">
-                                                        {c.type === 'FORBIDDEN_CHAR' ? `禁: ${c.value}` : `禁: ${c.value}文字`}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <>先攻: <span className="font-bold text-white">{starter.name}</span></>
-                                )}
-                            </div>
-                            <p className="mt-8 text-xs text-stone-400 animate-pulse">画面をタップして開始</p>
-                        </div>
-                    </div>
-                );
-            }
-
-            // X. TURN TRANSITION
-            if (phase === 'TURN_TRANSITION') {
-                const nextPlayer = players[currentPlayerIndex];
-                return (
-                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
-                        <Background />
-                        <div className="text-center z-10 w-full max-w-md animate-fade-in my-auto">
-                            {gameMode === 'ENDLESS' ? (
-                                <h3 className="text-purple-400 tracking-[0.5em] text-xs mb-6">READY?</h3>
-                            ) : (
-                                <h3 className="text-stone-500 tracking-[0.5em] text-xs mb-6">NEXT PLAYER</h3>
-                            )}
-                            
-                            <div className="text-4xl font-black text-white mb-2">{nextPlayer.name}</div>
-                            {gameMode !== 'ENDLESS' && <p className="text-sm text-stone-400 mb-12">端末を相手に渡してください</p>}
-
-                            <div className="relative w-32 h-32 mx-auto flex items-center justify-center mt-10">
-                                <svg className="absolute inset-0 w-full h-full rotate-[-90deg]" viewBox="0 0 100 100">
-                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#333" strokeWidth="5" />
-                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#e11d48" strokeWidth="5" strokeDasharray="283" strokeDashoffset="0" style={{ animation: `countdown-circle ${TRANSITION_TIME}s linear forwards` }} />
-                                </svg>
-                                <span className="text-5xl font-black text-rose-500">{timeLeft}</span>
-                            </div>
-                            <p className="mt-8 text-xs text-stone-500 animate-pulse">まもなく開始します...</p>
-                        </div>
-                    </div>
-                );
-            }
-
-            // 4. ROUND RESULT (TARGET / ENDLESS)
-            if (phase === 'ROUND_RESULT') {
-                return (
-                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
-                        <Background />
-                        {showToast && <Toast message={showToast} />}
-                        {showStairAnim && <StairTransition floor={endlessFloor + 1} newConstraint={newConstraintAnim} />}
-
-                        <div className="w-full max-w-md z-10 animate-fade-in my-auto flex flex-col h-full justify-center">
-                            
-                            {/* ENDLESS RESULT HEADER */}
-                            {gameMode === 'ENDLESS' && endlessResult && (
-                                <div className="text-center mb-8 flex-none">
-                                    <div className="text-[10px] text-stone-500 tracking-widest mb-2">JUDGEMENT</div>
-                                    <div className="text-4xl font-black mb-4 h-12">
-                                         {/* アニメーション中は文字を出さない、あるいはWaiting... */}
-                                        {barAnimTrigger && (
-                                            <span className={`animate-fade-in transition-opacity duration-500 delay-[2000ms] ${endlessResult.isSafe ? 'text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]' : 'text-rose-500 drop-shadow-[0_0_10px_rgba(244,63,94,0.5)]'}`}>
-                                                {endlessResult.isSafe ? 'SAFE' : 'DAMAGE'}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* 許容レンジバーの可視化 */}
-                                    <div className="bg-black/40 p-4 rounded border border-stone-700 relative mt-4 overflow-hidden">
-                                        {(() => {
-                                            // バーの表示範囲をセーフゾーン中心にズームして構築
-                                            // セーフゾーンがバーの中央50%を占めるように設定
-                                            const safeRangeSpan = endlessResult.max - endlessResult.min;
-                                            // 表示範囲のマージン (セーフゾーン幅の0.5倍ずつ左右に)
-                                            const margin = safeRangeSpan * 0.5; 
-                                            
-                                            const displayMin = Math.max(0, endlessResult.min - margin);
-                                            const displayMax = endlessResult.max + margin;
-                                            const totalDisplaySpan = displayMax - displayMin;
-
-                                            // 比率計算ヘルパー
-                                            const getPercent = (val) => {
-                                                // 範囲外の場合は0% or 100%に張り付かせる (clamp)
-                                                if (val < displayMin) return 0;
-                                                if (val > displayMax) return 100;
-                                                return ((val - displayMin) / totalDisplaySpan) * 100;
-                                            };
-
-                                            const safeLeft = getPercent(endlessResult.min);
-                                            const safeWidth = getPercent(endlessResult.max) - safeLeft;
-                                            const targetPos = getPercent(targetNumber);
-                                            const actualPos = getPercent(endlessResult.actual);
-                                            
-                                            // actualが範囲外かどうか判定（表示用）
-                                            const isOutOfView = endlessResult.actual < displayMin || endlessResult.actual > displayMax;
-
-                                            return (
-                                                <div className="relative h-16 flex items-center px-4"> {/* px-4で端のアイコンスペース確保 */}
-                                                    {/* Base Line */}
-                                                    <div className="absolute left-0 right-0 h-1 bg-stone-800 rounded-full mx-4"></div>
-                                                    
-                                                    {/* Safe Zone (Green) */}
-                                                    <div className="absolute h-4 bg-green-500/20 border-x border-green-500 rounded-sm mx-4" 
-                                                         style={{ left: `${safeLeft}%`, width: `${safeWidth}%` }}>
-                                                         <div className="absolute -top-6 w-full text-center text-[9px] text-green-400">SAFE ZONE</div>
-                                                    </div>
-
-                                                    {/* Target Marker */}
-                                                    <div className="absolute h-8 w-0.5 bg-yellow-500 top-1/2 -translate-y-1/2 z-10 mx-4" style={{ left: `${targetPos}%` }}>
-                                                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] text-yellow-500 whitespace-nowrap">目標</div>
-                                                    </div>
-
-                                                    {/* Actual Value Bar (Animated) */}
-                                                    {/* 中央(target)から伸びるのではなく、0から伸びる演出だが、ズームされているので、
-                                                        画面左端から伸びてくるように見える */}
-                                                    <div className={`absolute h-2 bg-white rounded-full shadow-[0_0_10px_white] top-1/2 -translate-y-1/2 transition-all z-20 mx-4 ${barAnimTrigger ? 'animate-bar-grow' : 'w-0'}`}
-                                                         style={{ '--target-width': `${actualPos}%` }}>
-                                                    </div>
-                                                    
-                                                    {/* 圏外表示 */}
-                                                    {isOutOfView && barAnimTrigger && (
-                                                        <div className={`absolute top-1/2 -translate-y-1/2 text-rose-500 font-bold text-xs animate-pulse ${endlessResult.actual < displayMin ? 'left-1' : 'right-1'}`}>
-                                                            {endlessResult.actual < displayMin ? '<<' : '>>'}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })()}
-                                        
-                                        <div className="mt-4 flex justify-between items-center px-2">
-                                            <div className="text-xs text-stone-500">
-                                                Safe: {endlessResult.min.toLocaleString()} ~ {endlessResult.max.toLocaleString()}
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-xs text-stone-400">あなたの回答</div>
-                                                <div className={`text-2xl font-bold opacity-0 animate-fade-in delay-[2000ms] ${endlessResult.isSafe ? 'text-white' : 'text-rose-400'}`} style={{ animationDelay: '2s', animationFillMode: 'forwards' }}>
-                                                    {endlessResult.actual.toLocaleString()}人
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    {!endlessResult.isSafe && (
-                                        <div className="mt-4 flex justify-center gap-2 opacity-0 animate-fade-in delay-[2200ms]" style={{ animationDelay: '2.2s', animationFillMode: 'forwards' }}>
-                                            <div className="text-rose-500 font-bold animate-heart-beat">-1 LIFE</div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* TARGET MODE HEADER */}
-                            {gameMode === 'TARGET' && (
-                                <div className="text-center mb-4 flex-none">
-                                    <div className="text-[10px] text-stone-500 tracking-widest mb-1">目標: {targetNumber.toLocaleString()}人</div>
-                                    {roundWinner ? (
-                                        <div className="animate-bounce-custom">
-                                            <div className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600 mb-1 drop-shadow-lg">勝者: {roundWinner.playerName}</div>
-                                            <div className="text-sm text-white font-bold bg-white/10 inline-block px-3 py-0.5 rounded-full border border-white/20 backdrop-blur-sm">
-                                                "{roundWinner.name}" ({typeof roundWinner.count === 'number' ? roundWinner.count.toLocaleString() : roundWinner.count}人)
-                                                <span className="text-xs font-normal text-stone-300 ml-2">誤差: {roundWinner.diff.toLocaleString()}</span>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <div className="text-2xl font-bold text-stone-400 mb-1">引き分け - 再戦</div>
-                                            <div className="text-xs text-red-400">
-                                                {drawReason === 'ALL_DOBON' ? '全員ドボンにより無効' : '誤差が同じため無効'}
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* List */}
-                            <div className="flex-1 overflow-y-auto bg-black/40 p-2 rounded border border-stone-800 mb-4 min-h-0">
-                                {gameMode === 'ENDLESS' ? (
-                                     <div className="flex justify-between items-center p-2 border-b border-stone-800">
-                                        <span className="text-xs text-stone-400">第{endlessFloor}階層 結果</span>
-                                        <span className={endlessResult.isSafe ? 'text-green-400' : 'text-rose-500'}>
-                                            {endlessResult.isSafe ? '突破' : '被弾'}
-                                        </span>
-                                     </div>
-                                ) : (
-                                    roundResults.map((res, idx) => (
-                                        <div key={idx} className={`flex justify-between items-center p-2 border-b ${roundWinner && res.playerId === roundWinner.playerId ? 'border-yellow-500/50 text-yellow-100 bg-yellow-500/10' : 'border-stone-800 text-stone-400'} ${res.isDobon ? 'opacity-50' : ''}`}>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs w-16 truncate">{res.playerName}</span>
-                                                <span className="font-bold text-sm">{res.name}</span>
-                                            </div>
-                                            <div className="text-right text-xs">
-                                                <div>{typeof res.count === 'number' ? res.count.toLocaleString() : res.count}</div>
-                                                {res.isDobon ? (
-                                                    <div className="text-[10px] text-red-500 font-bold">ドボン</div>
-                                                ) : (
-                                                    <div className="text-[10px] opacity-70">差: {res.diff.toLocaleString()}</div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-
-                            <button onClick={nextTargetRoundAction} className="w-full bg-stone-800 hover:bg-stone-700 py-3 border border-stone-600 transition-all text-stone-200 flex-none compact-mode-p">
-                                {gameMode === 'ENDLESS' ? (endlessLife > 0 ? '次の階層へ' : '結果を見る') : (roundWinner ? '次の戦いへ' : '新しいお題でやり直し')}
-                            </button>
-                        </div>
-                    </div>
-                );
-            }
-
-            // ALL RESULTS
-            if (phase === 'ALL_RESULTS') {
-                return (
-                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col p-4 relative">
-                        <Background />
-                        <div className="w-full max-w-lg mx-auto z-10 animate-fade-in flex flex-col h-full">
-                            <h2 className="text-center text-lg font-bold tracking-widest mb-4 flex-none">全戦歴・結果</h2>
-
-                            <div className="bg-black/60 backdrop-blur-md p-4 rounded-lg border border-white/10 mb-4 text-center flex-none">
-                                <div className="text-[10px] text-stone-500 mb-1 tracking-widest">RESULT</div>
-                                <div className="text-2xl font-black text-rose-100 mb-1">{gameResultSummary.winnerName}</div>
-                                <div className="text-xs text-yellow-500 font-bold">{gameResultSummary.winReason}</div>
-                                {isNewRecord && <div className="text-xs text-rose-400 font-bold mt-2 animate-pulse">★ 自己新記録更新 ★</div>}
-                            </div>
-
-                            <button onClick={handleShare} className="w-full bg-blue-900/50 hover:bg-blue-800/60 border border-blue-500/30 text-blue-100 py-3 rounded-sm flex items-center justify-center gap-2 mb-4 transition-all flex-none compact-mode-p">
-                                <Share2 size={16} />
-                                <span>戦績を共有 / コピー</span>
-                            </button>
-
-                            <div className="flex-1 overflow-y-auto bg-black/40 border border-white/5 rounded-sm p-3 mb-3 min-h-0">
-                                <div className="text-xs font-bold text-stone-500 mb-2 tracking-widest flex items-center gap-2 sticky top-0 bg-black/80 p-1">
-                                    <History size={12} /> HISTORY
-                                </div>
-                                <div className="space-y-1">
-                                    {globalHistory.map((h, i) => (
-                                        <div key={i} className="flex justify-between items-center py-1.5 border-b border-white/5 text-xs">
-                                            <div className="flex flex-col">
-                                                <span className="text-[9px] text-stone-500 mb-0.5">{h.player}</span>
-                                                <span className="font-bold text-stone-200">{h.name}</span>
-                                            </div>
-                                            <span className={`${h.result === 'STRIKE' ? 'text-rose-500' : h.result === 'WIN' ? 'text-yellow-500' : 'text-blue-300'}`}>
-                                                {h.result === 'STRIKE' ? '失策' : typeof h.count === 'number' ? `${h.count.toLocaleString()}人` : h.count}
-                                            </span>
-                                        </div>
-                                    ))}
-                                    {globalHistory.length === 0 && <div className="text-stone-600 text-center py-4">履歴なし</div>}
-                                </div>
-                            </div>
-
-                            <button onClick={() => setPhase('SETUP')} className="w-full bg-stone-800 hover:bg-stone-700 py-3 border border-stone-600 transition-all text-stone-300 flex-none compact-mode-p">
-                                タイトルへ戻る
-                            </button>
-                        </div>
-                    </div>
-                );
-            }
-
-            const currentPlayer = players[currentPlayerIndex];
-
-            // END SCREEN
-            if (['WIN', 'SURVIVOR_WIN', 'GAMEOVER', 'TIME_UP_WIN', 'FINAL_WIN'].includes(phase)) {
-                return (
-                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
-                        <Background />
-                        <div className="text-center animate-fade-in py-4 z-10 w-full max-w-lg my-auto flex flex-col h-full justify-center">
-                            <div className="mb-6 inline-block relative animate-bounce-custom flex-none">
-                                {phase === 'GAMEOVER' ? (
-                                <div className="text-stone-600 animate-pulse"><Skull size={60} strokeWidth={1} /></div>
-                                ) : (
-                                <>
-                                    <div className="absolute -inset-10 bg-yellow-500/30 blur-2xl rounded-full animate-pulse"></div>
-                                    <Crown size={60} className="text-yellow-500 relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.8)]" strokeWidth={1.5} />
-                                </>
-                                )}
-                            </div>
-                            
-                            <h2 className="text-5xl font-black mb-4 tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-stone-400 drop-shadow-lg flex-none">
-                                {phase === 'GAMEOVER' ? '終焉' : '決着'}
-                            </h2>
-                            
-                            <div className="bg-black/60 backdrop-blur-md p-6 rounded-lg border border-white/10 mx-4 flex-none">
-                                <p className="text-xs text-stone-400 mb-1 tracking-widest">{gameMode === 'ENDLESS' ? 'RESULT' : 'VICTOR'}</p>
-                                <p className="text-3xl font-black text-rose-100 mb-2 tracking-widest drop-shadow-md">
-                                    {gameResultSummary.winnerName}
-                                </p>
-                                <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent mb-2"></div>
-                                <p className="text-sm text-yellow-500 font-bold">{gameResultSummary.winReason}</p>
-                                {isNewRecord && (
-                                    <div className="mt-4 bg-rose-900/40 border border-rose-500/30 p-2 rounded text-rose-300 text-xs font-bold animate-pulse">
-                                        <Sparkles size={12} className="inline mr-1" />
-                                        自己最高記録 更新！
-                                        <Sparkles size={12} className="inline ml-1" />
-                                    </div>
-                                )}
-                            </div>
-                            
-                            <div className="mt-8 space-y-3 flex-none">
-                                <button onClick={() => setPhase('ALL_RESULTS')} className="w-full bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600 px-8 py-3 rounded-sm transition-all tracking-widest text-sm flex items-center justify-center gap-2 compact-mode-p">
-                                    <History size={16} /> 結果詳細・共有
-                                </button>
-                                <button onClick={() => setPhase('SETUP')} className="w-full text-stone-500 hover:text-stone-300 py-2 text-xs transition-colors">
-                                    タイトルへ戻る
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                );
-            }
-
-            // --- MAIN PLAY SCREEN UI ---
-            return (
-                <div className="h-[100dvh] text-stone-200 font-serif relative flex flex-col overflow-hidden">
-                <Background />
-                {showCutIn && turnConstraint && (
-                    <CutIn text={`${turnConstraint}文字`} subText="縛り発生" />
-                )}
-                
-                {showNumPad && (
-                    <NumPad onConfirm={(val) => handleResultSubmit('COUNT', val)} onCancel={() => setShowNumPad(false)} />
-                )}
-
-                {/* Header */}
-                <div className="p-3 flex justify-between items-center border-b border-white/10 bg-black/20 backdrop-blur-sm z-20 flex-none h-14">
-                    <div>
-                        <h1 className="text-base font-bold tracking-widest text-rose-100/80">
-                            {gameMode === 'SURVIVAL' ? '極レア苗字を探せ！' : gameMode === 'ENDLESS' ? '無限回廊' : '人数ピタリを目指せ！'}
-                        </h1>
-                        {gameMode === 'SURVIVAL' && ['PLAYING', 'SEARCHING'].includes(phase) && (
-                            <div className="text-[10px] text-stone-500 flex items-center gap-1 mt-0.5">
-                                <Clock size={10} /> 第{currentRound}の巡 ({currentRound}/{MAX_ROUNDS_SURVIVAL})
-                            </div>
-                        )}
-                        {gameMode === 'TARGET' && (
-                            <div className="text-[10px] text-yellow-500 font-bold mt-0.5">目標: {targetNumber.toLocaleString()}人</div>
-                        )}
-                         {gameMode === 'ENDLESS' && (
-                            <div className="text-[10px] text-purple-400 font-bold mt-0.5 flex items-center gap-2">
-                                <span>第{endlessFloor}階層</span>
-                                <span className="text-stone-600">|</span>
-                                <span className="text-stone-400">Record: {highScore}階</span>
-                            </div>
-                        )}
-                    </div>
-                    
-                    {gameMode === 'SURVIVAL' ? (
-                        <div className="flex items-center gap-2 border border-rose-900/30 px-3 py-1 rounded bg-black/40">
-                        <span className="text-[10px] text-stone-400">最小</span>
-                        <div className="flex flex-col items-end leading-none">
-                            <div className="flex items-baseline gap-0.5">
-                                <span className="text-lg font-bold text-rose-400">{minRecord.count === 999999 ? '--' : minRecord.count.toLocaleString()}</span>
-                                <span className="text-[10px] text-rose-400/70">人</span>
-                            </div>
-                        </div>
-                        </div>
-                    ) : (
-                        <div className={`flex items-center gap-2 px-3 py-1 rounded border ${timeLeft <= 10 ? 'border-red-500 bg-red-900/20' : 'border-stone-600 bg-black/40'}`}>
-                             <Hourglass size={12} className={timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-stone-400'} />
-                             <span className={`text-lg font-bold font-mono ${timeLeft <= 10 ? 'text-red-500' : 'text-stone-200'}`}>
-                                 {timeLeft}
-                             </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Main Content */}
-                <div className="flex-1 flex flex-col p-3 max-w-lg mx-auto w-full z-10 min-h-0">
-                    
-                    <div className="mb-3 flex-1 min-h-[90px] max-h-[160px]">
-                        {gameMode === 'ENDLESS' ? (
-                             <div className="w-full h-full bg-black/30 border border-purple-500/20 rounded flex flex-col items-center justify-center relative overflow-hidden">
-                                <div className="text-[10px] text-purple-400 tracking-widest mb-2">CURRENT LIFE</div>
-                                <div className="flex gap-4">
-                                    {[...Array(5)].map((_, i) => (
-                                        <div key={i} className={`transition-all duration-500 ${i < endlessLife ? 'opacity-100 scale-100' : 'opacity-10 scale-75 grayscale'}`}>
-                                            {i < endlessLife ? 
-                                                <Heart size={32} className="text-rose-600 fill-rose-600 drop-shadow-[0_0_10px_rgba(225,29,72,0.5)]" /> :
-                                                <Heart size={32} className="text-stone-800 fill-stone-800" />
-                                            }
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="absolute bottom-2 right-3 text-[10px] text-stone-600">
-                                    目標: {targetNumber.toLocaleString()}人
-                                </div>
-                                
-                                {/* 制約バッジ表示 */}
-                                {activeConstraints.length > 0 && (
-                                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                                        {activeConstraints.map((c, i) => (
-                                            <div key={i} className="flex items-center gap-1 bg-rose-950/80 border border-rose-800/50 px-2 py-0.5 rounded text-[10px] text-rose-300 animate-fade-in">
-                                                <Lock size={10} />
-                                                {c.type === 'FORBIDDEN_CHAR' ? `禁止: ${c.value}` : `禁止: ${c.value}文字`}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                             </div>
-                        ) : (
-                            <div className="grid grid-cols-2 gap-2 h-full">
-                                {players.map((p, idx) => (
-                                    <PlayerCard key={p.id} player={p} isActive={!p.isOut && idx === currentPlayerIndex} isWinner={false} gameMode={gameMode} />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className={`glass-jp flex-[2] rounded-sm p-4 relative flex flex-col justify-center transition-all duration-500 min-h-0`}>
-                    
-                    {phase === 'PLAYING' && (
-                        <form onSubmit={handleSearch} className="flex flex-col gap-4 animate-fade-in text-center h-full justify-center">
-                        <div className="flex-none">
-                            <div className="inline-block px-3 py-0.5 border-x border-rose-500/50 text-rose-300 text-[10px] tracking-[0.3em] mb-2">手番</div>
-                            <div className="text-3xl font-bold text-white drop-shadow-md">{currentPlayer.name}</div>
-                            {turnConstraint && (
-                                <div className="mt-2 inline-block bg-rose-900/80 text-white text-xs font-bold px-2 py-0.5 rounded border border-rose-500 animate-pulse">
-                                    ⚠ 縛り: {turnConstraint}文字のみ
-                                </div>
-                            )}
-                        </div>
-                        <div className="relative flex-1 flex items-center justify-center">
-                            <input
-                            ref={inputRef}
-                            type="text"
-                            value={inputName}
-                            onChange={(e) => setInputName(e.target.value)}
-                            placeholder={turnConstraint ? `${turnConstraint}文字の苗字` : "苗字を入力"}
-                            className="w-full bg-transparent border-b-2 border-stone-600 py-3 text-2xl text-center text-rose-50 placeholder-stone-700 focus:border-rose-500 focus:outline-none transition-all tracking-widest"
-                            />
-                        </div>
-                        <button type="submit" disabled={!inputName.trim()} className="flex-none w-full bg-stone-800 hover:bg-rose-900/60 text-stone-300 hover:text-rose-100 border border-stone-600 hover:border-rose-500/50 py-3 transition-all flex items-center justify-center gap-2 tracking-widest disabled:opacity-30 disabled:cursor-not-allowed group compact-mode-p">
-                            <Search size={16} className="group-hover:scale-110 transition-transform" />
-                            検索・判定へ
-                        </button>
-                        </form>
-                    )}
-
-                    {phase === 'SEARCHING' && (
-                        <div className="flex flex-col h-full animate-fade-in gap-4 justify-center">
-                        <div className="text-center flex-none">
-                            <div className="text-[10px] text-stone-500 tracking-widest mb-1">SEARCHING...</div>
-                            <div className="text-3xl font-black text-white tracking-widest drop-shadow-lg mb-2">"{inputName}"</div>
-                            <p className="text-xs text-rose-200">別窓（ポップアップ）にて人数を確認せよ</p>
-                            <p className="text-[9px] text-stone-500 mt-0.5">※3秒後に自動で閉じます</p>
-                        </div>
-
-                        <div className="flex justify-center flex-none">
-                            <button onClick={() => openSearchPopup(searchUrl)} className="flex items-center gap-2 px-5 py-2 bg-stone-800 hover:bg-stone-700 border border-rose-500/30 rounded-full text-rose-400 hover:text-rose-300 transition-all shadow-lg text-sm">
-                                <Maximize2 size={14} />
-                                <span>ウィンドウを再度開く</span>
-                            </button>
-                        </div>
-
-                        <div className="space-y-3 pt-3 border-t border-white/5 mt-2 flex-1 flex flex-col justify-end">
-                            <p className="text-center text-[10px] text-stone-500 mb-1">―― 結果を入力してください ――</p>
-                            
-                            {gameMode === 'SURVIVAL' && (
-                                <button onClick={() => handleResultSubmit('WIN', 10)} className="w-full bg-gradient-to-r from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-white font-bold py-3 rounded-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(234,179,8,0.2)] border border-yellow-500/30 group transition-all compact-mode-p">
-                                <Sparkles size={16} className="text-yellow-200 group-hover:spin-slow" /> 
-                                <span className="text-base tracking-widest">奇跡の「およそ10人」</span>
-                                <Sparkles size={16} className="text-yellow-200" /> 
-                                </button>
-                            )}
-                            
-                            <div className={`grid ${gameMode === 'SURVIVAL' ? 'grid-cols-2' : 'grid-cols-1'} gap-2`}>
-                            <button onClick={() => setShowNumPad(true)} className="bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold py-3 rounded-sm border border-stone-700 transition-all flex items-center justify-center gap-2 group compact-mode-p">
-                                <CornerDownLeft size={14} className="group-hover:translate-y-1 transition-transform" />
-                                {gameMode === 'SURVIVAL' ? 'その他の人数' : '人数を入力'}
-                            </button>
-                            
-                            <button onClick={() => handleResultSubmit('STRIKE')} className={`bg-rose-950/50 hover:bg-rose-900/80 text-rose-300 font-bold py-3 rounded-sm border border-rose-900/50 transition-all ${gameMode !== 'SURVIVAL' ? 'mt-1 py-2 text-xs opacity-60' : ''} compact-mode-p`}>
-                                該当なし (失策) / 0人 (ドボン)
-                            </button>
-                            </div>
-                        </div>
-                        </div>
-                    )}
-                    </div>
-                </div>
-
-                <div className="bg-black/40 border-t border-white/5 p-3 h-32 flex-none overflow-y-auto backdrop-blur-md z-20">
-                    <div className="flex items-center gap-2 text-[10px] font-bold text-stone-500 mb-1 tracking-widest sticky top-0 bg-black/50 p-1">
-                    <History size={10} /> 戦歴
-                    </div>
-                    <div className="space-y-1">
-                    {globalHistory.map((h, i) => (
-                        <div key={i} className="flex justify-between text-[10px] py-1 border-b border-white/5 last:border-0 font-serif">
-                        <span className="text-stone-500 w-14 truncate">{h.player}</span>
-                        <span className="text-stone-200 font-bold text-xs">{h.name}</span>
-                        <span className={`${h.result === 'STRIKE' ? 'text-rose-500' : h.result === 'WIN' ? 'text-yellow-500' : 'text-blue-300'}`}>
-                            {h.result === 'STRIKE' ? '失策' : typeof h.count === 'number' ? `${h.count.toLocaleString()}人` : h.count}
-                        </span>
-                        </div>
-                    ))}
-                    {globalHistory.length === 0 && <div className="text-stone-700 text-[10px] text-center py-2">記録なし</div>}
-                    </div>
-                </div>
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<SurnameHunterGame />);
-    </script>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Icons ---
+        const Icon = ({ path, ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                {path}
+            </svg>
+        );
+
+        const Search = (p) => <Icon {...p} path={<React.Fragment><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></React.Fragment>} />;
+        const User = (p) => <Icon {...p} path={<React.Fragment><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></React.Fragment>} />;
+        const XCircle = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></React.Fragment>} />;
+        const Crown = (p) => <Icon {...p} path={<React.Fragment><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></React.Fragment>} />;
+        const History = (p) => <Icon {...p} path={<React.Fragment><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/><path d="M12 7v5l4 2"/></React.Fragment>} />;
+        const Skull = (p) => <Icon {...p} path={<React.Fragment><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></React.Fragment>} />;
+        const Flower = (p) => <Icon {...p} path={<React.Fragment><path d="M12 7.5a4.5 4.5 0 1 1 4.5 4.5M12 7.5A4.5 4.5 0 1 0 7.5 12M12 7.5V9m-4.5 3a4.5 4.5 0 1 1 4.5-4.5M7.5 12A4.5 4.5 0 1 0 12 16.5M7.5 12H9m4.5 3a4.5 4.5 0 1 1-4.5 4.5M12 16.5A4.5 4.5 0 1 0 16.5 12M12 16.5V15"/></React.Fragment>} />;
+        const Sparkles = (p) => <Icon {...p} path={<React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></React.Fragment>} />;
+        const Maximize2 = (p) => <Icon {...p} path={<React.Fragment><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></React.Fragment>} />;
+        const Clock = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></React.Fragment>} />;
+        const Target = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></React.Fragment>} />;
+        const Hourglass = (p) => <Icon {...p} path={<React.Fragment><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></React.Fragment>} />;
+        const Delete = (p) => <Icon {...p} path={<React.Fragment><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></React.Fragment>} />;
+        const Check = (p) => <Icon {...p} path={<React.Fragment><polyline points="20 6 9 17 4 12"/></React.Fragment>} />;
+        const CornerDownLeft = (p) => <Icon {...p} path={<React.Fragment><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></React.Fragment>} />;
+        const Share2 = (p) => <Icon {...p} path={<React.Fragment><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></React.Fragment>} />;
+        const Heart = (p) => <Icon {...p} path={<React.Fragment><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></React.Fragment>} />;
+        const Layers = (p) => <Icon {...p} path={<React.Fragment><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></React.Fragment>} />;
+        const Users = (p) => <Icon {...p} path={<React.Fragment><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></React.Fragment>} />;
+        const ArrowUp = (p) => <Icon {...p} path={<React.Fragment><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></React.Fragment>} />;
+        const Lock = (p) => <Icon {...p} path={<React.Fragment><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></React.Fragment>} />;
+
+
+        // --- Components ---
+
+        const CherryBlossoms = ({ intensity = 'normal' }) => {
+            const count = intensity === 'high' ? 60 : 20;
+            return (
+                <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                {[...Array(count)].map((_, i) => (
+                    <div
+                    key={i}
+                    className="absolute animate-sakura"
+                    style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `-10%`,
+                        backgroundColor: Math.random() > 0.6 ? '#fecaca' : '#fce7f3',
+                        width: `${Math.random() * 10 + 8}px`,
+                        height: `${Math.random() * 10 + 8}px`,
+                        animationDuration: `${Math.random() * 5 + 5}s`,
+                        animationDelay: `${Math.random() * 5}s`,
+                        borderRadius: '60% 0 60% 0',
+                        opacity: Math.random() * 0.5 + 0.3,
+                    }}
+                    />
+                ))}
+                </div>
+            );
+        };
+
+        const Confetti = () => {
+            return (
+                <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+                {[...Array(100)].map((_, i) => (
+                    <div
+                    key={i}
+                    className="absolute animate-confetti"
+                    style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `-10%`,
+                        backgroundColor: ['#FFD700', '#FF4500', '#FFFFFF', '#00BFFF', '#FF69B4'][Math.floor(Math.random() * 5)],
+                        width: `${Math.random() * 8 + 4}px`,
+                        height: `${Math.random() * 8 + 4}px`,
+                        animationDuration: `${Math.random() * 2 + 1.5}s`,
+                        animationDelay: `${Math.random() * 2}s`,
+                    }}
+                    />
+                ))}
+                </div>
+            );
+        };
+
+        const Toast = ({ message }) => {
+            return (
+                <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 z-[200] animate-toast pointer-events-none w-max">
+                    <div className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-6 py-3 rounded-full shadow-[0_0_20px_rgba(234,179,8,0.5)] flex items-center gap-2 border border-yellow-300">
+                        <Heart size={20} className="fill-white text-white animate-bounce-custom" />
+                        <span className="font-bold tracking-widest text-lg">{message}</span>
+                    </div>
+                </div>
+            );
+        };
+
+        const StairTransition = ({ floor, newConstraint }) => {
+            return (
+                <div className="fixed inset-0 z-[150] bg-stone-900 flex flex-col items-center justify-center overflow-hidden">
+                    <div className="absolute inset-0 bg-stairs opacity-20"></div>
+                    <div className="z-10 text-center animate-fade-in w-full px-4">
+                        <div className="mb-4 text-purple-400 animate-bounce-custom">
+                            <ArrowUp size={40} />
+                        </div>
+                        <div className="text-stone-500 tracking-[0.5em] text-sm mb-2">NEXT FLOOR</div>
+                        <div className="text-6xl font-black text-white tracking-widest mb-6">
+                            {floor}
+                            <span className="text-2xl ml-2 text-stone-500">階</span>
+                        </div>
+                        
+                        {newConstraint && (
+                            <div className="animate-cut-in bg-rose-950/80 border border-rose-600 p-4 rounded-lg max-w-sm mx-auto shadow-[0_0_30px_rgba(225,29,72,0.4)]">
+                                <div className="text-rose-400 text-xs font-bold tracking-widest mb-1">☠ 呪い発生 ☠</div>
+                                <div className="text-white text-xl font-bold font-serif">
+                                    {newConstraint.type === 'FORBIDDEN_CHAR' ? 
+                                        `「${newConstraint.value}」の使用禁止` : 
+                                        `「${newConstraint.value}文字」の使用禁止`}
+                                </div>
+                            </div>
+                        )}
+                        
+                        {!newConstraint && floor % 3 === 1 && floor > 1 && (
+                            <div className="mt-4 text-purple-400 font-bold border border-purple-500/50 bg-purple-900/30 px-4 py-2 rounded animate-pulse">
+                                ⚠ 警戒レベル上昇：許容範囲縮小
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 数字入力パッド ---
+        const NumPad = ({ onConfirm, onCancel }) => {
+            const [value, setValue] = useState('');
+
+            const handleNum = (num) => {
+                if (value.length < 8) { // 桁数制限
+                    setValue(prev => prev + num);
+                }
+            };
+
+            const handleDelete = () => {
+                setValue(prev => prev.slice(0, -1));
+            };
+
+            const handleSubmit = () => {
+                if (value === '') return;
+                onConfirm(parseInt(value));
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={(e) => { if(e.target === e.currentTarget) onCancel(); }}>
+                    <div className="w-full max-w-lg bg-[#1c1917] border-t border-stone-700 rounded-t-2xl overflow-hidden shadow-2xl animate-slide-up pb-8 safe-area-pb">
+                        <div className="bg-stone-900 p-4 border-b border-stone-800 flex flex-col items-center">
+                            <div className="w-12 h-1 bg-stone-700 rounded-full mb-4"></div>
+                            <div className="text-stone-400 text-xs tracking-widest mb-1">人数を入力</div>
+                            <div className="text-5xl font-bold text-white tracking-widest h-16 flex items-center">
+                                {value ? parseInt(value).toLocaleString() : <span className="text-stone-700">0</span>}
+                                <span className="text-lg ml-2 text-stone-500 font-normal">人</span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-1 p-2 bg-stone-900/50">
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                                <button
+                                    key={num}
+                                    onClick={() => handleNum(num)}
+                                    className="h-14 sm:h-16 bg-[#2a2725] text-white text-2xl font-bold rounded active-press hover:bg-stone-800 transition-colors"
+                                >
+                                    {num}
+                                </button>
+                            ))}
+                            <button onClick={handleDelete} className="h-14 sm:h-16 bg-[#2a2725] text-rose-400 text-xl font-bold rounded active-press hover:bg-stone-800 flex items-center justify-center transition-colors">
+                                <Delete />
+                            </button>
+                            <button onClick={() => handleNum(0)} className="h-14 sm:h-16 bg-[#2a2725] text-white text-2xl font-bold rounded active-press hover:bg-stone-800 transition-colors">
+                                0
+                            </button>
+                            <button onClick={handleSubmit} disabled={!value} className={`h-14 sm:h-16 text-white text-xl font-bold rounded active-press flex items-center justify-center gap-2 transition-all ${value ? 'bg-rose-700 hover:bg-rose-600 shadow-[0_0_15px_rgba(225,29,72,0.4)]' : 'bg-stone-800 text-stone-500 cursor-not-allowed'}`}>
+                                決定 <Check size={20} />
+                            </button>
+                        </div>
+                        
+                        <div className="px-4 mt-2 mb-safe">
+                            <button onClick={onCancel} className="w-full py-3 text-stone-500 text-sm hover:text-stone-300">
+                                閉じる
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const PlayerCard = ({ player, isActive, isWinner, gameMode }) => {
+            return (
+                <div 
+                className={`
+                    relative overflow-hidden transition-all duration-700 ease-out flex flex-col justify-between
+                    ${isActive ? 'scale-105 border-rose-400/60 bg-black/60 shadow-[0_0_25px_rgba(251,113,133,0.2)]' : 'scale-100 border-stone-700/50 bg-black/40 opacity-70'}
+                    ${player.isOut ? 'grayscale opacity-30' : ''}
+                    border rounded-sm p-3 font-serif w-full compact-mode-h flex-1 min-h-[90px]
+                `}
+                >
+                <div className="absolute inset-0 bg-noise opacity-10 pointer-events-none"></div>
+
+                {isActive && !player.isOut && (
+                    <div className="absolute top-0 right-0 p-1">
+                    <Flower size={14} className="text-rose-400 animate-spin-slow" />
+                    </div>
+                )}
+                
+                <div>
+                    <div className="flex items-center gap-2 mb-1 border-b border-white/10 pb-1">
+                    {isWinner ? <Crown className="w-3 h-3 text-yellow-500" /> : <User className={`w-3 h-3 ${isActive ? 'text-rose-300' : 'text-stone-500'}`} />}
+                    <span className={`font-bold tracking-widest text-xs ${isActive ? 'text-rose-50' : 'text-stone-400'}`}>{player.name}</span>
+                    </div>
+                </div>
+
+                <div className="flex justify-between items-end">
+                    {gameMode === 'SURVIVAL' ? (
+                        <>
+                            <div className="flex gap-0.5">
+                            {[...Array(3)].map((_, i) => (
+                                <div key={i} className={`transform ${i < player.strikes ? 'text-stone-800' : 'text-rose-500'}`}>
+                                {i < player.strikes ? <XCircle size={14} /> : <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_5px_rgba(244,63,94,0.6)]"></div>}
+                                </div>
+                            ))}
+                            </div>
+                            <div className="text-right">
+                                <div className="text-[9px] text-stone-500 tracking-tighter leading-none">最良</div>
+                                <div className={`font-serif font-bold text-base leading-none ${player.bestScore === 999999 ? 'text-stone-700' : 'text-rose-300'}`}>
+                                    {player.bestScore === 999999 ? '---' : `${player.bestScore.toLocaleString()}`}
+                                    <span className="text-[9px] ml-0.5 text-stone-600">人</span>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="w-full">
+                            <div className="text-[9px] text-stone-500 mb-0.5 tracking-tighter">勝利数</div>
+                            <div className="flex gap-1">
+                                {[...Array(3)].map((_, i) => (
+                                    <div key={i}>
+                                        {i < player.wins ? (
+                                            <Crown size={16} className="text-yellow-500 fill-yellow-500 animate-bounce-custom" style={{ animationDelay: `${i * 0.2}s` }} />
+                                        ) : (
+                                            <div className="w-4 h-4 rounded-full border border-stone-700 bg-stone-900/50"></div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+                {player.isOut && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10 backdrop-blur-sm">
+                    <span className="text-stone-500 font-serif font-black text-xl tracking-[0.5em] border-y border-stone-500 py-1">脱落</span>
+                    </div>
+                )}
+                </div>
+            );
+        };
+
+        const CutIn = ({ text, subText }) => (
+            <div className="fixed inset-0 z-[100] pointer-events-none flex items-center justify-center overflow-hidden">
+                <div className="w-full h-48 bg-rose-900/90 absolute transform -skew-x-12 animate-cut-in flex items-center justify-center border-y-4 border-yellow-500 shadow-2xl">
+                    <div className="transform skew-x-12 text-center text-white drop-shadow-md">
+                        <div className="text-xl font-bold text-yellow-300 tracking-[0.5em] mb-2">{subText}</div>
+                        <div className="text-6xl font-black tracking-widest">{text}</div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const SurnameHunterGame = () => {
+            const MAX_ROUNDS_SURVIVAL = 5; 
+            const TARGET_LIST = [10, 50, 100, 1000, 3000, 5000, 10000, 20000, 50000];
+            const TURN_TIME_LIMIT = 30; 
+            const TRANSITION_TIME = 3; 
+            // 禁止漢字リスト
+            const COMMON_KANJI = ['田', '野', '谷', '木', '井', '山', '川', '小', '原', '本', '上', '大', '中', '藤', '村'];
+
+            // State
+            const [phase, setPhase] = useState('SETUP'); 
+            const [gameMode, setGameMode] = useState('ENDLESS'); 
+            
+            const [players, setPlayers] = useState([
+                { id: 1, name: 'Player 1', strikes: 0, wins: 0, isOut: false, bestScore: 999999 },
+                { id: 2, name: 'Player 2', strikes: 0, wins: 0, isOut: false, bestScore: 999999 },
+            ]);
+            const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+            const [currentRound, setCurrentRound] = useState(1);
+            const [inputName, setInputName] = useState('');
+            const [searchUrl, setSearchUrl] = useState('');
+            const [globalHistory, setGlobalHistory] = useState([]);
+            const [minRecord, setMinRecord] = useState({ holder: null, count: 999999, name: '' });
+            
+            const [targetNumber, setTargetNumber] = useState(0);
+            const [roundResults, setRoundResults] = useState([]); 
+            const [roundWinner, setRoundWinner] = useState(null); 
+            const [drawReason, setDrawReason] = useState(null);
+
+            // ENDLESS用
+            const [endlessLife, setEndlessLife] = useState(3);
+            const [endlessFloor, setEndlessFloor] = useState(1);
+            const [endlessResult, setEndlessResult] = useState(null);
+            const [highScore, setHighScore] = useState(0);
+            const [isNewRecord, setIsNewRecord] = useState(false);
+            const [showToast, setShowToast] = useState(null); 
+            const [showStairAnim, setShowStairAnim] = useState(false);
+            const [barAnimTrigger, setBarAnimTrigger] = useState(false);
+            const [activeConstraints, setActiveConstraints] = useState([]); // [{type: 'FORBIDDEN_CHAR', value: '田'}, ...]
+            const [newConstraintAnim, setNewConstraintAnim] = useState(null);
+
+            const [timeLeft, setTimeLeft] = useState(0);
+            const [turnConstraint, setTurnConstraint] = useState(null); 
+            const [showCutIn, setShowCutIn] = useState(false);
+            const [showNumPad, setShowNumPad] = useState(false);
+            const [gameResultSummary, setGameResultSummary] = useState({ winnerName: '', winReason: '' });
+
+            const inputRef = useRef(null);
+            const searchWindowRef = useRef(null);
+            const timerRef = useRef(null);
+
+            // Init Load Highscore
+            useEffect(() => {
+                const stored = localStorage.getItem('surname_hunter_highscore');
+                if (stored) setHighScore(parseInt(stored));
+            }, []);
+
+            useEffect(() => {
+                if (phase === 'PLAYING' || phase === 'TURN_TRANSITION') {
+                    if (timeLeft > 0) {
+                        timerRef.current = setTimeout(() => {
+                            setTimeLeft(timeLeft - 1);
+                        }, 1000);
+                    } else {
+                        handleTimerComplete();
+                    }
+                }
+                return () => clearTimeout(timerRef.current);
+            }, [timeLeft, phase]);
+
+            const handleTimerComplete = () => {
+                if (phase === 'TURN_TRANSITION') {
+                    setPhase('PLAYING');
+                    setTimeLeft(TURN_TIME_LIMIT);
+                    if (turnConstraint) {
+                        setShowCutIn(true);
+                        setTimeout(() => setShowCutIn(false), 2500);
+                    }
+                } else if (phase === 'PLAYING') {
+                    if (searchWindowRef.current && !searchWindowRef.current.closed) {
+                        searchWindowRef.current.close();
+                    }
+                    setShowNumPad(false);
+                    alert("時間切れ！強制ドボンとなります。");
+                    handleResultSubmit('STRIKE'); 
+                }
+            };
+
+            const addPlayer = () => {
+                if (players.length >= 4) return;
+                const name = `Player ${players.length + 1}`;
+                setPlayers([...players, { id: players.length + 1, name, strikes: 0, wins: 0, isOut: false, bestScore: 999999 }]);
+            };
+
+            const removePlayer = (id) => {
+                if (players.length <= 1) return;
+                setPlayers(players.filter(p => p.id !== id));
+            };
+
+            // 難易度計算（3階層ごとに難しくなるが、一定以上はレンジを緩めて縛りを増やす）
+            const getSafeRange = (target, floor) => {
+                let factor = 10.0;
+                
+                // 15階以降はレンジを少し緩めて、縛りの方で難しくする
+                if (floor >= 15) factor = 3.0; // 緩和
+                else if (floor >= 10) factor = 2.0;
+                else if (floor >= 7) factor = 3.0;
+                else if (floor >= 4) factor = 5.0;
+                else factor = 10.0;
+
+                const min = Math.max(1, Math.floor(target / factor));
+                const max = Math.ceil(target * factor);
+                return { min, max };
+            };
+
+            const startGame = (mode) => {
+                setGameMode(mode);
+                setGlobalHistory([]);
+                setCurrentRound(1);
+                setCurrentPlayerIndex(0);
+                setTurnConstraint(null);
+                setPlayers(players.map(p => ({ ...p, strikes: 0, wins: 0, isOut: false, bestScore: 999999 })));
+
+                if (mode === 'TARGET') {
+                    setupNextTargetRound(1);
+                } else if (mode === 'ENDLESS') {
+                    setEndlessLife(3);
+                    setEndlessFloor(1);
+                    setActiveConstraints([]); // 制約リセット
+                    setIsNewRecord(false);
+                    setupNextEndlessFloor(1, false);
+                } else {
+                    startTurnSequence(0, 1);
+                }
+            };
+
+            const setupNextTargetRound = (roundNum) => {
+                const newTarget = TARGET_LIST[Math.floor(Math.random() * TARGET_LIST.length)];
+                setTargetNumber(newTarget);
+                setRoundResults([]);
+                setRoundWinner(null);
+                setDrawReason(null);
+                setCurrentRound(roundNum);
+                const startIndex = (roundNum - 1) % players.length;
+                setCurrentPlayerIndex(startIndex); 
+                setPhase('TARGET_REVEAL');
+            };
+
+            const setupNextEndlessFloor = (floor, showConstraintAnim = true) => {
+                setEndlessFloor(floor);
+                
+                // 制約追加ロジック (5階以降、ランダムで追加)
+                let newConstraint = null;
+                // 5階、10階、15階...のような節目、またはランダムで追加
+                // しかし、あまり増えすぎても無理なので、10階以降は頻度を上げる
+                const shouldAddConstraint = floor > 3 && (floor % 3 === 0 || Math.random() < 0.2); 
+                
+                if (showConstraintAnim && shouldAddConstraint) {
+                    const rand = Math.random();
+                    // 30%の確率で文字数制限、70%で漢字制限
+                    if (rand < 0.3) {
+                        const len = Math.random() < 0.5 ? 1 : 2; // 1文字か2文字を禁止
+                        // 既に同じ制限がないか確認
+                        if (!activeConstraints.some(c => c.type === 'FORBIDDEN_LENGTH' && c.value === len)) {
+                            newConstraint = { type: 'FORBIDDEN_LENGTH', value: len };
+                        }
+                    } else {
+                        // 未使用の漢字を探す
+                        const usedChars = activeConstraints.filter(c => c.type === 'FORBIDDEN_CHAR').map(c => c.value);
+                        const availableChars = COMMON_KANJI.filter(c => !usedChars.includes(c));
+                        if (availableChars.length > 0) {
+                            const char = availableChars[Math.floor(Math.random() * availableChars.length)];
+                            newConstraint = { type: 'FORBIDDEN_CHAR', value: char };
+                        }
+                    }
+                    
+                    if (newConstraint) {
+                        setActiveConstraints(prev => [...prev, newConstraint]);
+                        setNewConstraintAnim(newConstraint);
+                    }
+                }
+
+                // ランダムターゲット生成
+                const base = Math.floor(Math.random() * 50000) + 10;
+                const multiplier = Math.random() > 0.8 ? 10 : 1;
+                const newTarget = base * multiplier;
+                
+                setTargetNumber(newTarget);
+                setEndlessResult(null);
+                setBarAnimTrigger(false);
+                setPhase('TARGET_REVEAL');
+            };
+
+            const startTurnSequence = (nextIndex, roundNum = currentRound) => {
+                setCurrentPlayerIndex(nextIndex);
+                setCurrentRound(roundNum);
+                setInputName('');
+                setShowNumPad(false);
+
+                // 縛り決定ロジック (対戦用)
+                let constraint = null;
+                if (gameMode === 'TARGET' && roundNum >= 4 && targetNumber <= 1000) {
+                    const rand = Math.random();
+                    if (rand < 0.3) constraint = 1;
+                    else if (rand < 0.8) constraint = 2;
+                    else constraint = 3;
+                }
+                setTurnConstraint(constraint);
+                setPhase('TURN_TRANSITION');
+                setTimeLeft(TRANSITION_TIME);
+            };
+
+            const openSearchPopup = (url) => {
+                const width = 500;
+                const height = 700;
+                const left = window.screen.width ? (window.screen.width - width) / 2 : 0;
+                const top = window.screen.height ? (window.screen.height - height) / 2 : 0;
+                const features = `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`;
+
+                if (!searchWindowRef.current || searchWindowRef.current.closed) {
+                    searchWindowRef.current = window.open(url, 'SurnameSearch', features);
+                } else {
+                    try {
+                        searchWindowRef.current.location.href = url;
+                        searchWindowRef.current.focus();
+                    } catch (e) {
+                        searchWindowRef.current = window.open(url, 'SurnameSearch', features);
+                    }
+                }
+                setTimeout(() => {
+                    if (searchWindowRef.current && !searchWindowRef.current.closed) {
+                        searchWindowRef.current.close();
+                        searchWindowRef.current = null;
+                    }
+                }, 3000);
+            };
+
+            const handleSearch = (e) => {
+                e.preventDefault();
+                const name = inputName.trim();
+                if (!name) return;
+
+                // 文字数縛りチェック (対戦モード)
+                if (turnConstraint && name.length !== turnConstraint) {
+                    alert(`【縛り違反】\n現在は「${turnConstraint}文字」の苗字しか検索できません！`);
+                    return;
+                }
+
+                // エンドレスモードの制約チェック
+                if (gameMode === 'ENDLESS') {
+                    for (const c of activeConstraints) {
+                        if (c.type === 'FORBIDDEN_LENGTH' && name.length === c.value) {
+                            alert(`【呪い発動】\n「${c.value}文字」の苗字は禁じられています！`);
+                            return;
+                        }
+                        if (c.type === 'FORBIDDEN_CHAR' && name.includes(c.value)) {
+                            alert(`【呪い発動】\n文字「${c.value}」の使用は禁じられています！`);
+                            return;
+                        }
+                    }
+                }
+                
+                if (globalHistory.some(h => h.name === name)) {
+                    alert("その苗字は既出でございます。");
+                    return;
+                }
+
+                const url = `https://myoji-yurai.net/searchResult.htm?myojiKanji=${encodeURIComponent(name)}`;
+                setSearchUrl(url);
+                openSearchPopup(url);
+                setPhase('SEARCHING');
+            };
+
+            const handleResultSubmit = (type, value = 0) => {
+                setShowNumPad(false);
+                const currentPlayer = players[currentPlayerIndex];
+                let newPlayers = [...players];
+                let newHistoryItem = { 
+                    player: currentPlayer.name, 
+                    name: inputName || (type === 'STRIKE' ? 'TIMEOUT' : ''), 
+                    count: value, 
+                    result: type,
+                };
+                
+                setInputName('');
+
+                // --- ENDLESS MODE LOGIC ---
+                if (gameMode === 'ENDLESS') {
+                    const safeRange = getSafeRange(targetNumber, endlessFloor);
+                    const isDobon = type === 'STRIKE' || value === 0;
+                    let isSafe = false;
+                    let healed = false;
+
+                    if (!isDobon) {
+                        isSafe = value >= safeRange.min && value <= safeRange.max;
+                    }
+
+                    // 回復判定 (誤差±25%以内 かつ ドボンでない)
+                    if (isSafe && !isDobon) {
+                        const diff = Math.abs(targetNumber - value);
+                        const errorRate = diff / targetNumber;
+                        if (errorRate <= 0.25) {
+                            if (endlessLife < 5) { // 最大ライフ5
+                                setEndlessLife(prev => prev + 1);
+                                healed = true;
+                            }
+                        }
+                    }
+
+                    if (!isSafe) {
+                        setEndlessLife(prev => prev - 1);
+                    }
+
+                    newHistoryItem.result = isSafe ? 'WIN' : 'STRIKE';
+                    newHistoryItem.count = isDobon ? 'ドボン' : value;
+                    setGlobalHistory([newHistoryItem, ...globalHistory]);
+
+                    setEndlessResult({
+                        isSafe, min: safeRange.min, max: safeRange.max, actual: value, isDobon, healed
+                    });
+                    
+                    setPhase('ROUND_RESULT');
+                    setBarAnimTrigger(true); // アニメーション開始トリガー
+                    
+                    if (healed) {
+                        setTimeout(() => {
+                            setShowToast('LIFE RECOVERED!');
+                            setTimeout(() => setShowToast(null), 3000);
+                        }, 2500); // バーのアニメーション後に表示
+                    }
+                    return;
+                }
+
+                // --- SURVIVAL / TARGET LOGIC ---
+                if (gameMode === 'SURVIVAL') {
+                    if (type === 'WIN' || (type === 'COUNT' && value === 10)) {
+                        newPlayers[currentPlayerIndex].bestScore = 10;
+                        setPhase('WIN');
+                        setGameResultSummary({ winnerName: currentPlayer.name, winReason: "奇跡の10人達成" });
+                        setGlobalHistory([newHistoryItem, ...globalHistory]);
+                        setPlayers(newPlayers);
+                        return;
+                    } else if (type === 'STRIKE') {
+                        newPlayers[currentPlayerIndex].strikes += 1;
+                        newHistoryItem.count = '不明';
+                        if (newPlayers[currentPlayerIndex].strikes >= 3) newPlayers[currentPlayerIndex].isOut = true;
+                    } else if (type === 'COUNT') {
+                        if (value < newPlayers[currentPlayerIndex].bestScore) newPlayers[currentPlayerIndex].bestScore = value;
+                        if (value < minRecord.count) setMinRecord({ holder: currentPlayer.name, count: value, name: inputName });
+                    }
+                    setPlayers(newPlayers);
+                    setGlobalHistory([newHistoryItem, ...globalHistory]);
+
+                    const alivePlayers = newPlayers.filter(p => !p.isOut);
+                    if (alivePlayers.length === 0) {
+                        setPhase('GAMEOVER');
+                        setGameResultSummary({ winnerName: "勝者なし", winReason: "全員脱落" });
+                    } else if (alivePlayers.length === 1 && newPlayers.length > 1) {
+                        const w = alivePlayers[0];
+                        setPhase('SURVIVOR_WIN');
+                        setGameResultSummary({ winnerName: w.name, winReason: "生き残り" });
+                    } else {
+                        let nextIndex = (currentPlayerIndex + 1) % players.length;
+                        while (newPlayers[nextIndex].isOut) nextIndex = (nextIndex + 1) % players.length;
+                        startTurnSequence(nextIndex, (nextIndex < currentPlayerIndex) ? currentRound + 1 : currentRound);
+                    }
+                } else {
+                    // TARGET
+                    const isDobon = type === 'STRIKE' || value === 0;
+                    const diff = isDobon ? null : Math.abs(value - targetNumber);
+                    const resultData = { playerId: currentPlayer.id, playerName: currentPlayer.name, name: inputName || 'TIMEOUT', count: isDobon ? '0人' : value, diff, isDobon };
+                    const updatedRoundResults = [...roundResults, resultData];
+                    setRoundResults(updatedRoundResults);
+                    setGlobalHistory([newHistoryItem, ...globalHistory]); 
+
+                    if (updatedRoundResults.length === players.length) {
+                        const validResults = updatedRoundResults.filter(r => !r.isDobon);
+                        let winner = null;
+                        if (validResults.length === 0) { setDrawReason('ALL_DOBON'); setRoundWinner(null); }
+                        else {
+                            const minDiff = Math.min(...validResults.map(r => r.diff));
+                            const winners = validResults.filter(r => r.diff === minDiff);
+                            if (winners.length > 1) { setDrawReason('TIE'); setRoundWinner(null); }
+                            else {
+                                winner = winners[0];
+                                const winnerIndex = newPlayers.findIndex(p => p.id === winner.playerId);
+                                newPlayers[winnerIndex].wins += 1;
+                                setPlayers(newPlayers);
+                                setRoundWinner(winner);
+                                setDrawReason(null);
+                            }
+                        }
+                        setPhase('ROUND_RESULT');
+                    } else {
+                        startTurnSequence((currentPlayerIndex + 1) % players.length);
+                    }
+                }
+            };
+
+            const nextTargetRoundAction = () => {
+                if (gameMode === 'ENDLESS') {
+                    if (endlessLife <= 0) {
+                        // Game Over - Save Score
+                        if (endlessFloor > highScore) {
+                            localStorage.setItem('surname_hunter_highscore', endlessFloor.toString());
+                            setHighScore(endlessFloor);
+                            setIsNewRecord(true);
+                        }
+                        setPhase('GAMEOVER');
+                        setGameResultSummary({ winnerName: "踏破失敗", winReason: `到達階層: ${endlessFloor}階` });
+                    } else {
+                        // Next Floor Animation
+                        setShowStairAnim(true);
+                        setNewConstraintAnim(null); // Reset anim state
+                        setTimeout(() => {
+                            setupNextEndlessFloor(endlessFloor + 1);
+                            // アニメーション終了後にステートをクリアするとチラつくので、
+                            // StairTransition内部でうまいことやるか、タイムアウトを調整
+                            setTimeout(() => {
+                                setShowStairAnim(false);
+                                setNewConstraintAnim(null);
+                            }, 2500); // 演出時間
+                        }, 500); // 少し待ってから次へ
+                    }
+                    return;
+                }
+                // Multiplay Next
+                const grandWinner = players.find(p => p.wins >= 3);
+                if (grandWinner) {
+                    setPhase('FINAL_WIN');
+                    setGameResultSummary({ winnerName: grandWinner.name, winReason: "3本先取達成" });
+                    return;
+                }
+                setupNextTargetRound(currentRound + 1);
+            };
+
+            const handleShare = () => {
+                let modeName = '';
+                if (gameMode === 'SURVIVAL') modeName = '極レア苗字を探せ！';
+                else if (gameMode === 'TARGET') modeName = '人数ピタリを目指せ！';
+                else modeName = `無限回廊（最高${endlessFloor}階）`;
+
+                const winnerText = gameResultSummary.winnerName;
+                const historyText = [...globalHistory].reverse().map(h => `・${h.player}: ${h.name} (${h.result === 'STRIKE' ? '失策' : typeof h.count === 'number' ? h.count + '人' : h.count})`).join('\n');
+                const text = `【苗字バトル】決着！\nモード: ${modeName}\n結果: ${gameResultSummary.winReason}\n\n#苗字バトル`;
+
+                if (navigator.share) {
+                    navigator.share({ title: '苗字バトル 結果', text: text }).catch(console.error);
+                } else {
+                    navigator.clipboard.writeText(text).then(() => alert('結果をクリップボードにコピーしました！'));
+                }
+            };
+
+            // --- Render ---
+            const Background = () => (
+                <div className="fixed inset-0 bg-[#1c1917] z-[-1]">
+                <CherryBlossoms intensity={isNewRecord || ['WIN', 'SURVIVOR_WIN', 'FINAL_WIN'].includes(phase) ? 'high' : 'normal'} />
+                {(isNewRecord || ['WIN', 'SURVIVOR_WIN', 'FINAL_WIN'].includes(phase)) && <Confetti />}
+                </div>
+            );
+
+            // 1. SETUP
+            if (phase === 'SETUP') {
+                return (
+                <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative overflow-y-auto">
+                    <Background />
+                    <div className="w-full max-w-md space-y-6 z-10 my-auto">
+                        <div className="text-center space-y-2">
+                            <div className="inline-block p-3 border-2 border-rose-900/50 rounded-full mb-1 bg-black/40">
+                                <Flower className="w-8 h-8 text-rose-400" />
+                            </div>
+                            <h1 className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-rose-100 via-rose-300 to-rose-600 tracking-widest drop-shadow-lg leading-tight compact-mode-title">
+                            苗字<br/>バトル
+                            </h1>
+                            <p className="text-stone-500 text-xs tracking-[0.3em] uppercase">- SURNAME BATTLE -</p>
+                        </div>
+                        
+                        <div className="flex flex-col gap-4">
+                             <button onClick={() => setPhase('MODE_CATEGORY_SELECT')} className="w-full group relative overflow-hidden bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-bold py-4 rounded-sm border border-rose-700/50 transition-all compact-mode-p">
+                                <span className="relative z-10 flex items-center justify-center gap-3 text-lg tracking-[0.2em]">
+                                遊戯開始
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                );
+            }
+
+            // 1.5. CATEGORY SELECT
+            if (phase === 'MODE_CATEGORY_SELECT') {
+                return (
+                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
+                        <Background />
+                        <div className="w-full max-w-md space-y-4 z-10 animate-fade-in my-auto">
+                             <h2 className="text-center text-lg font-bold tracking-widest mb-6">プレイ人数選択</h2>
+                             
+                             <button onClick={() => startGame('ENDLESS')} className="w-full bg-black/40 hover:bg-purple-900/40 border border-stone-600 hover:border-purple-500 p-6 flex items-center justify-between transition-all group">
+                                <div className="text-left">
+                                    <div className="text-xl font-bold text-purple-200 group-hover:text-white mb-1">ひとりで</div>
+                                    <div className="text-xs text-stone-400">無限回廊モード</div>
+                                </div>
+                                <Layers size={24} className="text-purple-500" />
+                             </button>
+
+                             <button onClick={() => setPhase('MODE_SELECT')} className="w-full bg-black/40 hover:bg-rose-900/40 border border-stone-600 hover:border-rose-500 p-6 flex items-center justify-between transition-all group">
+                                <div className="text-left">
+                                    <div className="text-xl font-bold text-rose-200 group-hover:text-white mb-1">みんなで</div>
+                                    <div className="text-xs text-stone-400">対戦モード (2〜4人)</div>
+                                </div>
+                                <Users size={24} className="text-rose-500" />
+                             </button>
+                             
+                             <button onClick={() => setPhase('SETUP')} className="mt-8 text-stone-500 hover:text-stone-300 text-xs w-full text-center">戻る</button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // 2. MODE SELECT (MULTI ONLY)
+            if (phase === 'MODE_SELECT') {
+                return (
+                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
+                        <Background />
+                        <div className="w-full max-w-md space-y-4 z-10 animate-fade-in my-auto flex flex-col h-full justify-center">
+                            <h2 className="text-center text-lg font-bold tracking-widest mb-4">対戦遊戯選択</h2>
+                            
+                             {/* Player setup mini */}
+                             <div className="bg-black/40 p-3 rounded mb-4 border border-stone-800">
+                                <div className="text-xs text-stone-500 mb-2 text-center">参加者</div>
+                                <div className="flex flex-wrap gap-2 justify-center">
+                                    {players.map(p => <span key={p.id} className="text-xs bg-stone-800 px-2 py-1 rounded text-stone-300">{p.name}</span>)}
+                                    {players.length < 4 && <button onClick={addPlayer} className="text-xs bg-stone-800 border border-dashed border-stone-600 px-2 py-1 rounded text-stone-500 hover:text-white">+</button>}
+                                </div>
+                            </div>
+
+                            <button onClick={() => startGame('TARGET')} className="w-full group relative overflow-hidden bg-black/40 hover:bg-yellow-900/40 border border-stone-600 hover:border-yellow-500 p-4 text-left transition-all flex-1 max-h-40 flex flex-col justify-center">
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="text-lg font-bold text-yellow-100 group-hover:text-white">人数ピタリを目指せ！</span>
+                                    <Target className="text-stone-600 group-hover:text-yellow-500 transition-colors" />
+                                </div>
+                                <p className="text-xs text-stone-400 leading-relaxed compact-mode-text">
+                                    目標人数に近い苗字を出す頭脳戦。30秒制限。<br/>
+                                    3本先取で優勝。
+                                </p>
+                            </button>
+
+                            <button onClick={() => startGame('SURVIVAL')} className="w-full group relative overflow-hidden bg-black/40 hover:bg-rose-900/40 border border-stone-600 hover:border-rose-500 p-4 text-left transition-all flex-1 max-h-40 flex flex-col justify-center">
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="text-lg font-bold text-rose-100 group-hover:text-white">極レア苗字を探せ！</span>
+                                    <Skull className="text-stone-600 group-hover:text-rose-500 transition-colors" />
+                                </div>
+                                <p className="text-xs text-stone-400 leading-relaxed compact-mode-text">
+                                    「およそ10人」の激レア苗字を探し出す。<br/>
+                                    実在しない苗字は即失策。
+                                </p>
+                            </button>
+                            
+                            <button onClick={() => setPhase('MODE_CATEGORY_SELECT')} className="text-stone-500 hover:text-stone-300 text-xs py-4">戻る</button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // 3. TARGET REVEAL (共通)
+            if (phase === 'TARGET_REVEAL') {
+                const starter = players[currentPlayerIndex];
+                return (
+                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative" 
+                         onClick={() => startTurnSequence(currentPlayerIndex, currentRound)}>
+                        <Background />
+                        <div className="text-center z-10 animate-fade-in cursor-pointer my-auto">
+                            {gameMode === 'ENDLESS' ? (
+                                <div className="text-purple-400 text-xs tracking-widest mb-4">無限回廊 第{endlessFloor}階層</div>
+                            ) : (
+                                <div className="text-stone-500 text-xs tracking-widest mb-4">第{currentRound}回戦 目標</div>
+                            )}
+                            
+                            <div className="text-6xl font-black text-white drop-shadow-[0_0_30px_rgba(234,179,8,0.5)] mb-2">
+                                {targetNumber.toLocaleString()}
+                            </div>
+                            <div className="text-xl text-yellow-500 tracking-widest font-bold">人</div>
+                            
+                            <div className="mt-8 text-sm text-stone-300">
+                                {gameMode === 'ENDLESS' ? (
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="flex justify-center gap-1">
+                                            {[...Array(5)].map((_, i) => ( // ライフ最大5個分スペース確保
+                                                <Heart key={i} size={20} className={i < endlessLife ? "text-rose-500 fill-rose-500" : "text-stone-800 opacity-20"} />
+                                            ))}
+                                        </div>
+                                        {activeConstraints.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 justify-center max-w-xs">
+                                                {activeConstraints.map((c, i) => (
+                                                    <span key={i} className="text-[10px] bg-rose-950 text-rose-300 px-2 py-1 rounded border border-rose-800">
+                                                        {c.type === 'FORBIDDEN_CHAR' ? `禁: ${c.value}` : `禁: ${c.value}文字`}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <>先攻: <span className="font-bold text-white">{starter.name}</span></>
+                                )}
+                            </div>
+                            <p className="mt-8 text-xs text-stone-400 animate-pulse">画面をタップして開始</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // X. TURN TRANSITION
+            if (phase === 'TURN_TRANSITION') {
+                const nextPlayer = players[currentPlayerIndex];
+                return (
+                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
+                        <Background />
+                        <div className="text-center z-10 w-full max-w-md animate-fade-in my-auto">
+                            {gameMode === 'ENDLESS' ? (
+                                <h3 className="text-purple-400 tracking-[0.5em] text-xs mb-6">READY?</h3>
+                            ) : (
+                                <h3 className="text-stone-500 tracking-[0.5em] text-xs mb-6">NEXT PLAYER</h3>
+                            )}
+                            
+                            <div className="text-4xl font-black text-white mb-2">{nextPlayer.name}</div>
+                            {gameMode !== 'ENDLESS' && <p className="text-sm text-stone-400 mb-12">端末を相手に渡してください</p>}
+
+                            <div className="relative w-32 h-32 mx-auto flex items-center justify-center mt-10">
+                                <svg className="absolute inset-0 w-full h-full rotate-[-90deg]" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#333" strokeWidth="5" />
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#e11d48" strokeWidth="5" strokeDasharray="283" strokeDashoffset="0" style={{ animation: `countdown-circle ${TRANSITION_TIME}s linear forwards` }} />
+                                </svg>
+                                <span className="text-5xl font-black text-rose-500">{timeLeft}</span>
+                            </div>
+                            <p className="mt-8 text-xs text-stone-500 animate-pulse">まもなく開始します...</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // 4. ROUND RESULT (TARGET / ENDLESS)
+            if (phase === 'ROUND_RESULT') {
+                return (
+                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
+                        <Background />
+                        {showToast && <Toast message={showToast} />}
+                        {showStairAnim && <StairTransition floor={endlessFloor + 1} newConstraint={newConstraintAnim} />}
+
+                        <div className="w-full max-w-md z-10 animate-fade-in my-auto flex flex-col h-full justify-center">
+                            
+                            {/* ENDLESS RESULT HEADER */}
+                            {gameMode === 'ENDLESS' && endlessResult && (
+                                <div className="text-center mb-8 flex-none">
+                                    <div className="text-[10px] text-stone-500 tracking-widest mb-2">JUDGEMENT</div>
+                                    <div className="text-4xl font-black mb-4 h-12">
+                                         {/* アニメーション中は文字を出さない、あるいはWaiting... */}
+                                        {barAnimTrigger && (
+                                            <span className={`animate-fade-in transition-opacity duration-500 delay-[2000ms] ${endlessResult.isSafe ? 'text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]' : 'text-rose-500 drop-shadow-[0_0_10px_rgba(244,63,94,0.5)]'}`}>
+                                                {endlessResult.isSafe ? 'SAFE' : 'DAMAGE'}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* 許容レンジバーの可視化 */}
+                                    <div className="bg-black/40 p-4 rounded border border-stone-700 relative mt-4 overflow-hidden">
+                                        {(() => {
+                                            // バーの表示範囲をセーフゾーン中心にズームして構築
+                                            // セーフゾーンがバーの中央50%を占めるように設定
+                                            const safeRangeSpan = endlessResult.max - endlessResult.min;
+                                            // 表示範囲のマージン (セーフゾーン幅の0.5倍ずつ左右に)
+                                            const margin = safeRangeSpan * 0.5; 
+                                            
+                                            const displayMin = Math.max(0, endlessResult.min - margin);
+                                            const displayMax = endlessResult.max + margin;
+                                            const totalDisplaySpan = displayMax - displayMin;
+
+                                            // 比率計算ヘルパー
+                                            const getPercent = (val) => {
+                                                // 範囲外の場合は0% or 100%に張り付かせる (clamp)
+                                                if (val < displayMin) return 0;
+                                                if (val > displayMax) return 100;
+                                                return ((val - displayMin) / totalDisplaySpan) * 100;
+                                            };
+
+                                            const safeLeft = getPercent(endlessResult.min);
+                                            const safeWidth = getPercent(endlessResult.max) - safeLeft;
+                                            const targetPos = getPercent(targetNumber);
+                                            const actualPos = getPercent(endlessResult.actual);
+                                            
+                                            // actualが範囲外かどうか判定（表示用）
+                                            const isOutOfView = endlessResult.actual < displayMin || endlessResult.actual > displayMax;
+
+                                            return (
+                                                <div className="relative h-16 flex items-center px-4"> {/* px-4で端のアイコンスペース確保 */}
+                                                    {/* Base Line */}
+                                                    <div className="absolute left-0 right-0 h-1 bg-stone-800 rounded-full mx-4"></div>
+                                                    
+                                                    {/* Safe Zone (Green) */}
+                                                    <div className="absolute h-4 bg-green-500/20 border-x border-green-500 rounded-sm mx-4" 
+                                                         style={{ left: `${safeLeft}%`, width: `${safeWidth}%` }}>
+                                                         <div className="absolute -top-6 w-full text-center text-[9px] text-green-400">SAFE ZONE</div>
+                                                    </div>
+
+                                                    {/* Target Marker */}
+                                                    <div className="absolute h-8 w-0.5 bg-yellow-500 top-1/2 -translate-y-1/2 z-10 mx-4" style={{ left: `${targetPos}%` }}>
+                                                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] text-yellow-500 whitespace-nowrap">目標</div>
+                                                    </div>
+
+                                                    {/* Actual Value Bar (Animated) */}
+                                                    {/* 中央(target)から伸びるのではなく、0から伸びる演出だが、ズームされているので、
+                                                        画面左端から伸びてくるように見える */}
+                                                    <div className={`absolute h-2 bg-white rounded-full shadow-[0_0_10px_white] top-1/2 -translate-y-1/2 transition-all z-20 mx-4 ${barAnimTrigger ? 'animate-bar-grow' : 'w-0'}`}
+                                                         style={{ '--target-width': `${actualPos}%` }}>
+                                                    </div>
+                                                    
+                                                    {/* 圏外表示 */}
+                                                    {isOutOfView && barAnimTrigger && (
+                                                        <div className={`absolute top-1/2 -translate-y-1/2 text-rose-500 font-bold text-xs animate-pulse ${endlessResult.actual < displayMin ? 'left-1' : 'right-1'}`}>
+                                                            {endlessResult.actual < displayMin ? '<<' : '>>'}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
+                                        
+                                        <div className="mt-4 flex justify-between items-center px-2">
+                                            <div className="text-xs text-stone-500">
+                                                Safe: {endlessResult.min.toLocaleString()} ~ {endlessResult.max.toLocaleString()}
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-xs text-stone-400">あなたの回答</div>
+                                                <div className={`text-2xl font-bold opacity-0 animate-fade-in delay-[2000ms] ${endlessResult.isSafe ? 'text-white' : 'text-rose-400'}`} style={{ animationDelay: '2s', animationFillMode: 'forwards' }}>
+                                                    {endlessResult.actual.toLocaleString()}人
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {!endlessResult.isSafe && (
+                                        <div className="mt-4 flex justify-center gap-2 opacity-0 animate-fade-in delay-[2200ms]" style={{ animationDelay: '2.2s', animationFillMode: 'forwards' }}>
+                                            <div className="text-rose-500 font-bold animate-heart-beat">-1 LIFE</div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* TARGET MODE HEADER */}
+                            {gameMode === 'TARGET' && (
+                                <div className="text-center mb-4 flex-none">
+                                    <div className="text-[10px] text-stone-500 tracking-widest mb-1">目標: {targetNumber.toLocaleString()}人</div>
+                                    {roundWinner ? (
+                                        <div className="animate-bounce-custom">
+                                            <div className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600 mb-1 drop-shadow-lg">勝者: {roundWinner.playerName}</div>
+                                            <div className="text-sm text-white font-bold bg-white/10 inline-block px-3 py-0.5 rounded-full border border-white/20 backdrop-blur-sm">
+                                                "{roundWinner.name}" ({typeof roundWinner.count === 'number' ? roundWinner.count.toLocaleString() : roundWinner.count}人)
+                                                <span className="text-xs font-normal text-stone-300 ml-2">誤差: {roundWinner.diff.toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="text-2xl font-bold text-stone-400 mb-1">引き分け - 再戦</div>
+                                            <div className="text-xs text-red-400">
+                                                {drawReason === 'ALL_DOBON' ? '全員ドボンにより無効' : '誤差が同じため無効'}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* List */}
+                            <div className="flex-1 overflow-y-auto bg-black/40 p-2 rounded border border-stone-800 mb-4 min-h-0">
+                                {gameMode === 'ENDLESS' ? (
+                                     <div className="flex justify-between items-center p-2 border-b border-stone-800">
+                                        <span className="text-xs text-stone-400">第{endlessFloor}階層 結果</span>
+                                        <span className={endlessResult.isSafe ? 'text-green-400' : 'text-rose-500'}>
+                                            {endlessResult.isSafe ? '突破' : '被弾'}
+                                        </span>
+                                     </div>
+                                ) : (
+                                    roundResults.map((res, idx) => (
+                                        <div key={idx} className={`flex justify-between items-center p-2 border-b ${roundWinner && res.playerId === roundWinner.playerId ? 'border-yellow-500/50 text-yellow-100 bg-yellow-500/10' : 'border-stone-800 text-stone-400'} ${res.isDobon ? 'opacity-50' : ''}`}>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs w-16 truncate">{res.playerName}</span>
+                                                <span className="font-bold text-sm">{res.name}</span>
+                                            </div>
+                                            <div className="text-right text-xs">
+                                                <div>{typeof res.count === 'number' ? res.count.toLocaleString() : res.count}</div>
+                                                {res.isDobon ? (
+                                                    <div className="text-[10px] text-red-500 font-bold">ドボン</div>
+                                                ) : (
+                                                    <div className="text-[10px] opacity-70">差: {res.diff.toLocaleString()}</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+
+                            <button onClick={nextTargetRoundAction} className="w-full bg-stone-800 hover:bg-stone-700 py-3 border border-stone-600 transition-all text-stone-200 flex-none compact-mode-p">
+                                {gameMode === 'ENDLESS' ? (endlessLife > 0 ? '次の階層へ' : '結果を見る') : (roundWinner ? '次の戦いへ' : '新しいお題でやり直し')}
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ALL RESULTS
+            if (phase === 'ALL_RESULTS') {
+                return (
+                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col p-4 relative">
+                        <Background />
+                        <div className="w-full max-w-lg mx-auto z-10 animate-fade-in flex flex-col h-full">
+                            <h2 className="text-center text-lg font-bold tracking-widest mb-4 flex-none">全戦歴・結果</h2>
+
+                            <div className="bg-black/60 backdrop-blur-md p-4 rounded-lg border border-white/10 mb-4 text-center flex-none">
+                                <div className="text-[10px] text-stone-500 mb-1 tracking-widest">RESULT</div>
+                                <div className="text-2xl font-black text-rose-100 mb-1">{gameResultSummary.winnerName}</div>
+                                <div className="text-xs text-yellow-500 font-bold">{gameResultSummary.winReason}</div>
+                                {isNewRecord && <div className="text-xs text-rose-400 font-bold mt-2 animate-pulse">★ 自己新記録更新 ★</div>}
+                            </div>
+
+                            <button onClick={handleShare} className="w-full bg-blue-900/50 hover:bg-blue-800/60 border border-blue-500/30 text-blue-100 py-3 rounded-sm flex items-center justify-center gap-2 mb-4 transition-all flex-none compact-mode-p">
+                                <Share2 size={16} />
+                                <span>戦績を共有 / コピー</span>
+                            </button>
+
+                            <div className="flex-1 overflow-y-auto bg-black/40 border border-white/5 rounded-sm p-3 mb-3 min-h-0">
+                                <div className="text-xs font-bold text-stone-500 mb-2 tracking-widest flex items-center gap-2 sticky top-0 bg-black/80 p-1">
+                                    <History size={12} /> HISTORY
+                                </div>
+                                <div className="space-y-1">
+                                    {globalHistory.map((h, i) => (
+                                        <div key={i} className="flex justify-between items-center py-1.5 border-b border-white/5 text-xs">
+                                            <div className="flex flex-col">
+                                                <span className="text-[9px] text-stone-500 mb-0.5">{h.player}</span>
+                                                <span className="font-bold text-stone-200">{h.name}</span>
+                                            </div>
+                                            <span className={`${h.result === 'STRIKE' ? 'text-rose-500' : h.result === 'WIN' ? 'text-yellow-500' : 'text-blue-300'}`}>
+                                                {h.result === 'STRIKE' ? '失策' : typeof h.count === 'number' ? `${h.count.toLocaleString()}人` : h.count}
+                                            </span>
+                                        </div>
+                                    ))}
+                                    {globalHistory.length === 0 && <div className="text-stone-600 text-center py-4">履歴なし</div>}
+                                </div>
+                            </div>
+
+                            <button onClick={() => setPhase('SETUP')} className="w-full bg-stone-800 hover:bg-stone-700 py-3 border border-stone-600 transition-all text-stone-300 flex-none compact-mode-p">
+                                タイトルへ戻る
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentPlayer = players[currentPlayerIndex];
+
+            // END SCREEN
+            if (['WIN', 'SURVIVOR_WIN', 'GAMEOVER', 'TIME_UP_WIN', 'FINAL_WIN'].includes(phase)) {
+                return (
+                    <div className="h-[100dvh] text-stone-200 font-serif flex flex-col items-center justify-center p-4 relative">
+                        <Background />
+                        <div className="text-center animate-fade-in py-4 z-10 w-full max-w-lg my-auto flex flex-col h-full justify-center">
+                            <div className="mb-6 inline-block relative animate-bounce-custom flex-none">
+                                {phase === 'GAMEOVER' ? (
+                                <div className="text-stone-600 animate-pulse"><Skull size={60} strokeWidth={1} /></div>
+                                ) : (
+                                <>
+                                    <div className="absolute -inset-10 bg-yellow-500/30 blur-2xl rounded-full animate-pulse"></div>
+                                    <Crown size={60} className="text-yellow-500 relative z-10 drop-shadow-[0_0_15px_rgba(234,179,8,0.8)]" strokeWidth={1.5} />
+                                </>
+                                )}
+                            </div>
+                            
+                            <h2 className="text-5xl font-black mb-4 tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-stone-400 drop-shadow-lg flex-none">
+                                {phase === 'GAMEOVER' ? '終焉' : '決着'}
+                            </h2>
+                            
+                            <div className="bg-black/60 backdrop-blur-md p-6 rounded-lg border border-white/10 mx-4 flex-none">
+                                <p className="text-xs text-stone-400 mb-1 tracking-widest">{gameMode === 'ENDLESS' ? 'RESULT' : 'VICTOR'}</p>
+                                <p className="text-3xl font-black text-rose-100 mb-2 tracking-widest drop-shadow-md">
+                                    {gameResultSummary.winnerName}
+                                </p>
+                                <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent mb-2"></div>
+                                <p className="text-sm text-yellow-500 font-bold">{gameResultSummary.winReason}</p>
+                                {isNewRecord && (
+                                    <div className="mt-4 bg-rose-900/40 border border-rose-500/30 p-2 rounded text-rose-300 text-xs font-bold animate-pulse">
+                                        <Sparkles size={12} className="inline mr-1" />
+                                        自己最高記録 更新！
+                                        <Sparkles size={12} className="inline ml-1" />
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="mt-8 space-y-3 flex-none">
+                                <button onClick={() => setPhase('ALL_RESULTS')} className="w-full bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600 px-8 py-3 rounded-sm transition-all tracking-widest text-sm flex items-center justify-center gap-2 compact-mode-p">
+                                    <History size={16} /> 結果詳細・共有
+                                </button>
+                                <button onClick={() => setPhase('SETUP')} className="w-full text-stone-500 hover:text-stone-300 py-2 text-xs transition-colors">
+                                    タイトルへ戻る
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- MAIN PLAY SCREEN UI ---
+            return (
+                <div className="h-[100dvh] text-stone-200 font-serif relative flex flex-col overflow-hidden">
+                <Background />
+                {showCutIn && turnConstraint && (
+                    <CutIn text={`${turnConstraint}文字`} subText="縛り発生" />
+                )}
+                
+                {showNumPad && (
+                    <NumPad onConfirm={(val) => handleResultSubmit('COUNT', val)} onCancel={() => setShowNumPad(false)} />
+                )}
+
+                {/* Header */}
+                <div className="p-3 flex justify-between items-center border-b border-white/10 bg-black/20 backdrop-blur-sm z-20 flex-none h-14">
+                    <div>
+                        <h1 className="text-base font-bold tracking-widest text-rose-100/80">
+                            {gameMode === 'SURVIVAL' ? '極レア苗字を探せ！' : gameMode === 'ENDLESS' ? '無限回廊' : '人数ピタリを目指せ！'}
+                        </h1>
+                        {gameMode === 'SURVIVAL' && ['PLAYING', 'SEARCHING'].includes(phase) && (
+                            <div className="text-[10px] text-stone-500 flex items-center gap-1 mt-0.5">
+                                <Clock size={10} /> 第{currentRound}の巡 ({currentRound}/{MAX_ROUNDS_SURVIVAL})
+                            </div>
+                        )}
+                        {gameMode === 'TARGET' && (
+                            <div className="text-[10px] text-yellow-500 font-bold mt-0.5">目標: {targetNumber.toLocaleString()}人</div>
+                        )}
+                         {gameMode === 'ENDLESS' && (
+                            <div className="text-[10px] text-purple-400 font-bold mt-0.5 flex items-center gap-2">
+                                <span>第{endlessFloor}階層</span>
+                                <span className="text-stone-600">|</span>
+                                <span className="text-stone-400">Record: {highScore}階</span>
+                            </div>
+                        )}
+                    </div>
+                    
+                    {gameMode === 'SURVIVAL' ? (
+                        <div className="flex items-center gap-2 border border-rose-900/30 px-3 py-1 rounded bg-black/40">
+                        <span className="text-[10px] text-stone-400">最小</span>
+                        <div className="flex flex-col items-end leading-none">
+                            <div className="flex items-baseline gap-0.5">
+                                <span className="text-lg font-bold text-rose-400">{minRecord.count === 999999 ? '--' : minRecord.count.toLocaleString()}</span>
+                                <span className="text-[10px] text-rose-400/70">人</span>
+                            </div>
+                        </div>
+                        </div>
+                    ) : (
+                        <div className={`flex items-center gap-2 px-3 py-1 rounded border ${timeLeft <= 10 ? 'border-red-500 bg-red-900/20' : 'border-stone-600 bg-black/40'}`}>
+                             <Hourglass size={12} className={timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-stone-400'} />
+                             <span className={`text-lg font-bold font-mono ${timeLeft <= 10 ? 'text-red-500' : 'text-stone-200'}`}>
+                                 {timeLeft}
+                             </span>
+                        </div>
+                    )}
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col p-3 max-w-lg mx-auto w-full z-10 min-h-0">
+                    
+                    <div className="mb-3 flex-1 min-h-[90px] max-h-[160px]">
+                        {gameMode === 'ENDLESS' ? (
+                             <div className="w-full h-full bg-black/30 border border-purple-500/20 rounded flex flex-col items-center justify-center relative overflow-hidden">
+                                <div className="text-[10px] text-purple-400 tracking-widest mb-2">CURRENT LIFE</div>
+                                <div className="flex gap-4">
+                                    {[...Array(5)].map((_, i) => (
+                                        <div key={i} className={`transition-all duration-500 ${i < endlessLife ? 'opacity-100 scale-100' : 'opacity-10 scale-75 grayscale'}`}>
+                                            {i < endlessLife ? 
+                                                <Heart size={32} className="text-rose-600 fill-rose-600 drop-shadow-[0_0_10px_rgba(225,29,72,0.5)]" /> :
+                                                <Heart size={32} className="text-stone-800 fill-stone-800" />
+                                            }
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="absolute bottom-2 right-3 text-[10px] text-stone-600">
+                                    目標: {targetNumber.toLocaleString()}人
+                                </div>
+                                
+                                {/* 制約バッジ表示 */}
+                                {activeConstraints.length > 0 && (
+                                    <div className="absolute top-2 left-2 flex flex-col gap-1">
+                                        {activeConstraints.map((c, i) => (
+                                            <div key={i} className="flex items-center gap-1 bg-rose-950/80 border border-rose-800/50 px-2 py-0.5 rounded text-[10px] text-rose-300 animate-fade-in">
+                                                <Lock size={10} />
+                                                {c.type === 'FORBIDDEN_CHAR' ? `禁止: ${c.value}` : `禁止: ${c.value}文字`}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                             </div>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-2 h-full">
+                                {players.map((p, idx) => (
+                                    <PlayerCard key={p.id} player={p} isActive={!p.isOut && idx === currentPlayerIndex} isWinner={false} gameMode={gameMode} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className={`glass-jp flex-[2] rounded-sm p-4 relative flex flex-col justify-center transition-all duration-500 min-h-0`}>
+                    
+                    {phase === 'PLAYING' && (
+                        <form onSubmit={handleSearch} className="flex flex-col gap-4 animate-fade-in text-center h-full justify-center">
+                        <div className="flex-none">
+                            <div className="inline-block px-3 py-0.5 border-x border-rose-500/50 text-rose-300 text-[10px] tracking-[0.3em] mb-2">手番</div>
+                            <div className="text-3xl font-bold text-white drop-shadow-md">{currentPlayer.name}</div>
+                            {turnConstraint && (
+                                <div className="mt-2 inline-block bg-rose-900/80 text-white text-xs font-bold px-2 py-0.5 rounded border border-rose-500 animate-pulse">
+                                    ⚠ 縛り: {turnConstraint}文字のみ
+                                </div>
+                            )}
+                        </div>
+                        <div className="relative flex-1 flex items-center justify-center">
+                            <input
+                            ref={inputRef}
+                            type="text"
+                            value={inputName}
+                            onChange={(e) => setInputName(e.target.value)}
+                            placeholder={turnConstraint ? `${turnConstraint}文字の苗字` : "苗字を入力"}
+                            className="w-full bg-transparent border-b-2 border-stone-600 py-3 text-2xl text-center text-rose-50 placeholder-stone-700 focus:border-rose-500 focus:outline-none transition-all tracking-widest"
+                            />
+                        </div>
+                        <button type="submit" disabled={!inputName.trim()} className="flex-none w-full bg-stone-800 hover:bg-rose-900/60 text-stone-300 hover:text-rose-100 border border-stone-600 hover:border-rose-500/50 py-3 transition-all flex items-center justify-center gap-2 tracking-widest disabled:opacity-30 disabled:cursor-not-allowed group compact-mode-p">
+                            <Search size={16} className="group-hover:scale-110 transition-transform" />
+                            検索・判定へ
+                        </button>
+                        </form>
+                    )}
+
+                    {phase === 'SEARCHING' && (
+                        <div className="flex flex-col h-full animate-fade-in gap-4 justify-center">
+                        <div className="text-center flex-none">
+                            <div className="text-[10px] text-stone-500 tracking-widest mb-1">SEARCHING...</div>
+                            <div className="text-3xl font-black text-white tracking-widest drop-shadow-lg mb-2">"{inputName}"</div>
+                            <p className="text-xs text-rose-200">別窓（ポップアップ）にて人数を確認せよ</p>
+                            <p className="text-[9px] text-stone-500 mt-0.5">※3秒後に自動で閉じます</p>
+                        </div>
+
+                        <div className="flex justify-center flex-none">
+                            <button onClick={() => openSearchPopup(searchUrl)} className="flex items-center gap-2 px-5 py-2 bg-stone-800 hover:bg-stone-700 border border-rose-500/30 rounded-full text-rose-400 hover:text-rose-300 transition-all shadow-lg text-sm">
+                                <Maximize2 size={14} />
+                                <span>ウィンドウを再度開く</span>
+                            </button>
+                        </div>
+
+                        <div className="space-y-3 pt-3 border-t border-white/5 mt-2 flex-1 flex flex-col justify-end">
+                            <p className="text-center text-[10px] text-stone-500 mb-1">―― 結果を入力してください ――</p>
+                            
+                            {gameMode === 'SURVIVAL' && (
+                                <button onClick={() => handleResultSubmit('WIN', 10)} className="w-full bg-gradient-to-r from-amber-700 to-yellow-600 hover:from-amber-600 hover:to-yellow-500 text-white font-bold py-3 rounded-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(234,179,8,0.2)] border border-yellow-500/30 group transition-all compact-mode-p">
+                                <Sparkles size={16} className="text-yellow-200 group-hover:spin-slow" /> 
+                                <span className="text-base tracking-widest">奇跡の「およそ10人」</span>
+                                <Sparkles size={16} className="text-yellow-200" /> 
+                                </button>
+                            )}
+                            
+                            <div className={`grid ${gameMode === 'SURVIVAL' ? 'grid-cols-2' : 'grid-cols-1'} gap-2`}>
+                            <button onClick={() => setShowNumPad(true)} className="bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold py-3 rounded-sm border border-stone-700 transition-all flex items-center justify-center gap-2 group compact-mode-p">
+                                <CornerDownLeft size={14} className="group-hover:translate-y-1 transition-transform" />
+                                {gameMode === 'SURVIVAL' ? 'その他の人数' : '人数を入力'}
+                            </button>
+                            
+                            <button onClick={() => handleResultSubmit('STRIKE')} className={`bg-rose-950/50 hover:bg-rose-900/80 text-rose-300 font-bold py-3 rounded-sm border border-rose-900/50 transition-all ${gameMode !== 'SURVIVAL' ? 'mt-1 py-2 text-xs opacity-60' : ''} compact-mode-p`}>
+                                該当なし (失策) / 0人 (ドボン)
+                            </button>
+                            </div>
+                        </div>
+                        </div>
+                    )}
+                    </div>
+                </div>
+
+                <div className="bg-black/40 border-t border-white/5 p-3 h-32 flex-none overflow-y-auto backdrop-blur-md z-20">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-stone-500 mb-1 tracking-widest sticky top-0 bg-black/50 p-1">
+                    <History size={10} /> 戦歴
+                    </div>
+                    <div className="space-y-1">
+                    {globalHistory.map((h, i) => (
+                        <div key={i} className="flex justify-between text-[10px] py-1 border-b border-white/5 last:border-0 font-serif">
+                        <span className="text-stone-500 w-14 truncate">{h.player}</span>
+                        <span className="text-stone-200 font-bold text-xs">{h.name}</span>
+                        <span className={`${h.result === 'STRIKE' ? 'text-rose-500' : h.result === 'WIN' ? 'text-yellow-500' : 'text-blue-300'}`}>
+                            {h.result === 'STRIKE' ? '失策' : typeof h.count === 'number' ? `${h.count.toLocaleString()}人` : h.count}
+                        </span>
+                        </div>
+                    ))}
+                    {globalHistory.length === 0 && <div className="text-stone-700 text-[10px] text-center py-2">記録なし</div>}
+                    </div>
+                </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SurnameHunterGame />);
+    </script>
 </body>
 </html>
-
-このゲームのソロプレイの詳細なルールを教えて。
