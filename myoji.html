@@ -173,7 +173,8 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
         
-        // ★ 5000位までのデータ (アップロードされた順位.txtの内容)
+        // ★ 5000位までのデータ
+        // ここに `順位.txt` の内容をすべて貼り付けてください。
         const RAW_SURNAME_TEXT = `
 順位	名字	人数
 1位	佐藤	およそ1,798,000人
@@ -5192,7 +5193,7 @@
         const History = (p) => <Icon {...p} path={<React.Fragment><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/><path d="M12 7v5l4 2"/></React.Fragment>} />;
         const Skull = (p) => <Icon {...p} path={<React.Fragment><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></React.Fragment>} />;
         const Flower = (p) => <Icon {...p} path={<React.Fragment><path d="M12 7.5a4.5 4.5 0 1 1 4.5 4.5M12 7.5A4.5 4.5 0 1 0 7.5 12M12 7.5V9m-4.5 3a4.5 4.5 0 1 1 4.5-4.5M7.5 12A4.5 4.5 0 1 0 12 16.5M7.5 12H9m4.5 3a4.5 4.5 0 1 1-4.5 4.5M12 16.5A4.5 4.5 0 1 0 16.5 12M12 16.5V15"/></React.Fragment>} />;
-        const Sparkles = (p) => <Icon {...p} path={<React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1-1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></React.Fragment>} />;
+        const Sparkles = (p) => <Icon {...p} path={<React.Fragment><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></React.Fragment>} />;
         const Maximize2 = (p) => <Icon {...p} path={<React.Fragment><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></React.Fragment>} />;
         const Clock = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></React.Fragment>} />;
         const Target = (p) => <Icon {...p} path={<React.Fragment><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></React.Fragment>} />;
@@ -5209,6 +5210,8 @@
         const Edit = (p) => <Icon {...p} path={<React.Fragment><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></React.Fragment>} />;
         const Trophy = (p) => <Icon {...p} path={<React.Fragment><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></React.Fragment>} />;
         const Database = (p) => <Icon {...p} path={<React.Fragment><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></React.Fragment>} />;
+        const ExternalLink = (p) => <Icon {...p} path={<React.Fragment><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></React.Fragment>} />;
+
 
         // --- Components ---
         const CherryBlossoms = ({ intensity = 'normal' }) => {
@@ -5408,7 +5411,7 @@
                         <div className="w-full bg-stone-800 h-1 rounded-full overflow-hidden mb-2">
                             <div className="h-full bg-purple-500 animate-progress"></div>
                         </div>
-                        <p className="text-[10px] text-stone-500 animate-pulse">JUDGEMENTへ...</p>
+                        <p className="text-[10px] text-stone-500 animate-pulse">判定へ...</p>
                     </div>
                 </div>
             );
@@ -5973,9 +5976,13 @@
                     newHistoryItem.count = isDobon ? 'ドボン' : value;
                     setGlobalHistory([newHistoryItem, ...globalHistory]);
 
-                    setEndlessResult({
-                        isSafe, min: safeRange.min, max: safeRange.max, actual: value, isDobon, healed, rank: rank
-                    });
+                    // nameを保存 (Result Revealで使用)
+                    const resultData = {
+                        isSafe, min: safeRange.min, max: safeRange.max, actual: value, isDobon, healed, rank: rank,
+                        name: newHistoryItem.name
+                    };
+
+                    setEndlessResult(resultData);
                     
                     // 結果発表フェーズへ移行
                     setPhase('RESULT_REVEAL');
@@ -6138,6 +6145,7 @@
                             </h1>
                             <p className="text-stone-500 text-xs tracking-[0.3em] uppercase">- SURNAME BATTLE -</p>
                             <div className="text-[10px] text-stone-600 mt-2">Data Source: 名字由来net (2025/10時点)</div>
+                            <p className="text-[9px] text-stone-500 mt-1">※トップ5,000位までは内蔵データで即時判定、それ以降は外部サイトへ接続します。</p>
                         </div>
                         
                         <div className="flex flex-col gap-4">
@@ -6276,11 +6284,12 @@
                                             ))}
                                         </div>
                                         {activeConstraints.length > 0 && (
-                                            <div className="flex flex-wrap gap-2 justify-center max-w-xs overflow-y-auto max-h-20">
+                                            <div className="flex flex-wrap gap-1 justify-center w-full px-4">
                                                 {activeConstraints.map((c, i) => (
-                                                    <span key={i} className="text-[10px] bg-rose-950 text-rose-300 px-2 py-1 rounded border border-rose-800">
-                                                        {c.type === 'FORBIDDEN_CHAR' ? `禁: ${c.value}` : `禁: ${c.value}文字`}
-                                                    </span>
+                                                    <div key={i} className="flex items-center gap-1 bg-rose-950/80 border border-rose-800/50 px-2 py-0.5 rounded text-[10px] text-rose-300 animate-fade-in whitespace-nowrap">
+                                                        <Lock size={10} />
+                                                        {c.type === 'FORBIDDEN_CHAR' ? `禁止: ${c.value}` : `禁止: ${c.value}文字`}
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}
@@ -6362,7 +6371,7 @@
                                     </div>
 
                                     {/* 許容レンジバーの可視化 */}
-                                    <div className="bg-black/40 pt-24 pb-16 px-6 rounded border border-stone-700 relative mt-4 overflow-visible">
+                                    <div className="bg-black/40 pt-24 pb-12 px-6 rounded border border-stone-700 relative mt-4 overflow-visible">
                                         {(() => {
                                             // ターゲット中央固定ロジック
                                             const target = targetNumber;
@@ -6471,8 +6480,22 @@
                                         })()}
                                     </div>
                                     
+                                    {/* リンクと出典 */}
+                                    <div className="mt-6 text-center">
+                                        <a 
+                                            href={`https://myoji-yurai.net/searchResult.htm?myojiKanji=${encodeURIComponent(endlessResult.name)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors border-b border-blue-500/30 pb-0.5"
+                                        >
+                                            <span>{endlessResult.name}の詳細を見る (名字由来net)</span>
+                                            <ExternalLink size={10} />
+                                        </a>
+                                        <div className="text-[9px] text-stone-600 mt-1">出典: 名字由来net</div>
+                                    </div>
+
                                     {!endlessResult.isSafe && (
-                                        <div className="mt-12 flex justify-center gap-2 opacity-0 animate-fade-in delay-[2000ms]" style={{ animationDelay: '3.2s', animationFillMode: 'forwards' }}>
+                                        <div className="mt-4 flex justify-center gap-2 opacity-0 animate-fade-in delay-[2000ms]" style={{ animationDelay: '3.2s', animationFillMode: 'forwards' }}>
                                             <div className="text-rose-500 font-bold text-xl animate-heart-beat">-1 LIFE</div>
                                         </div>
                                     )}
