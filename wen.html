@@ -96,11 +96,12 @@
         .heavy-name { font-weight: 900; font-size: 2.8rem; line-height: 1.1; letter-spacing: -0.05em; }
         @media (min-width: 768px) { .heavy-name { font-size: 4rem; } }
         
+        /* --- 修正箇所: 画像サイズを0.8倍に --- */
         .pixel-art-wrapper {
-            width: 320px;
-            height: 320px;
+            width: 256px;  /* 320 * 0.8 */
+            height: 256px;
             max-width: 100%;
-            margin: 0 auto 0.25rem auto;
+            margin: 0 auto 0 auto; /* 下マージンを0に */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -109,10 +110,11 @@
         }
         @media (min-width: 768px) { 
             .pixel-art-wrapper { 
-                width: 440px;
-                height: 440px;
+                width: 352px; /* 440 * 0.8 */
+                height: 352px;
             } 
         }
+        /* -------------------------------------- */
         
         .pixel-art-wrapper img {
             width: 100%;
@@ -144,7 +146,7 @@
             font-weight: 900;
         }
 
-        /* テーブルデザイン用 */
+        /* テーブルデザイン */
         .rank-table-row {
             display: grid;
             grid-template-columns: 3rem 1fr 4rem;
@@ -171,11 +173,23 @@
             font-weight: bold;
             box-shadow: 0 4px 12px rgba(212, 255, 63, 0.3);
             border-radius: 4px;
-            margin: -1px -4px; /* 少しはみ出させる */
+            margin: -1px -4px;
             position: relative;
             z-index: 10;
             border: none;
         }
+        
+        .undo-text-btn {
+            font-size: 0.7rem;
+            opacity: 0.5;
+            letter-spacing: 0.1em;
+            text-decoration: underline;
+            margin-bottom: 2rem;
+            display: inline-block;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .undo-text-btn:hover { opacity: 1; }
 
         ::-webkit-scrollbar { display: none; }
     </style>
@@ -188,9 +202,7 @@
 
     <header id="main-header" class="header-glass fixed top-0 w-full py-4 px-8 z-50 flex justify-between items-center">
         <div class="flex items-center gap-4">
-            <button id="back-btn" onclick="goBack()" class="hidden opacity-30 hover:opacity-100 transition-opacity p-2 -ml-2 text-white">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </button>
+            <!-- ヘッダーの戻るボタンは削除 -->
             <div class="font-bold tracking-tighter text-xl uppercase">Type16</div>
         </div>
         <div id="counter" class="text-[10px] font-bold opacity-40 font-mono">0 / 18</div>
@@ -213,6 +225,7 @@
     </main>
 
     <script>
+        // 固定画像の設定
         const STATIC_IMAGE_PATH = "https://kyoryu1039.github.io/kotoba-gacha/images/result.png";
         
         const RANKING_DATA = [
@@ -308,9 +321,13 @@
                 const card = document.createElement('div');
                 card.id = `q-${i}`;
                 card.className = `question-card py-32 text-center ${i === 0 ? 'active' : 'inactive'}`;
+                // Undoボタンを質問文の下に追加
+                const undoBtn = i > 0 ? `<div onclick="goBack()" class="undo-text-btn">← Undo</div>` : '';
+                
                 card.innerHTML = `
-                    <h2 class="text-xl md:text-2xl font-bold mb-16 px-4 leading-relaxed">${q}</h2>
-                    <div class="flex items-center justify-center gap-4 md:gap-8 mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold mb-4 px-4 leading-relaxed">${q}</h2>
+                    ${undoBtn}
+                    <div class="flex items-center justify-center gap-4 md:gap-8 mb-6 mt-8">
                         <button onclick="ans(${i}, 1)" class="dot dot-agree w-12 h-12"></button>
                         <button onclick="ans(${i}, 2)" class="dot dot-agree w-9 h-9"></button>
                         <button onclick="ans(${i}, 3)" class="dot dot-agree w-6 h-6"></button>
@@ -339,7 +356,6 @@
             document.getElementById('counter').innerText = `${done} / ${QUESTIONS.length}`;
 
             currentIndex = idx;
-            document.getElementById('back-btn').classList.toggle('hidden', currentIndex === 0);
 
             if (idx < QUESTIONS.length - 1) {
                 setTimeout(() => {
@@ -362,7 +378,6 @@
                 prev.classList.remove('inactive');
                 prev.classList.add('active');
                 prev.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                if (currentIndex === 0) document.getElementById('back-btn').classList.add('hidden');
             }
         }
 
@@ -442,12 +457,10 @@
 
             const shareText = `【Type16】診断結果：${typeName} (${code})\n#Type16 #自己分析\n${window.location.href}`;
             
-            // 自分のタイプの割合を取得
             const myRankData = RANKING_DATA.find(r => r.code === code);
             const myRange = myRankData ? myRankData.range : "---";
             const myRank = myRankData ? myRankData.rank : "-";
 
-            // ランキング表のHTML生成
             const rankingTableHTML = `
                 <div class="border border-black border-opacity-10 rounded-lg overflow-hidden bg-white shadow-sm">
                     <div class="rank-table-header">Type16割合ランキング</div>
@@ -471,14 +484,14 @@
             `;
 
             const res = document.getElementById('result');
-            // Observation Messageを濃いグレー（bg-[#1a1c20]）に、文字を白系（text-gray-100）に修正
+            
             res.innerHTML = `
                 <div class="space-y-16">
                     <div class="flex flex-col items-center justify-center text-center">
-                        <div class="pixel-art-wrapper mb-2">
+                        <div class="pixel-art-wrapper mb-0">
                             <img src="${img}" alt="Result Character">
                         </div>
-                        <p class="text-2xl md:text-4xl font-bold opacity-50 tracking-[0.2em] font-mono leading-none mb-2">${code}</p>
+                        <p class="text-2xl md:text-4xl font-bold opacity-50 tracking-[0.2em] font-mono leading-none mb-2 mt-0">${code}</p>
                         <h2 class="heavy-name mb-0">${typeName}</h2>
                         <p class="text-[10px] font-bold tracking-[0.4em] opacity-40 uppercase font-mono mb-4">${enName}</p>
                         <div class="max-w-md mx-auto px-4">
@@ -489,8 +502,10 @@
 
                     <div class="space-y-12">
                         <div class="text-center">
-                             <span class="text-[9px] font-bold tracking-[0.2em] opacity-30 uppercase block mb-1">Type16割合ランキング</span>
-                             <p class="font-mono text-xs md:text-sm font-bold tracking-tight">世界：${myRange}（${myRank}／16位）　日本：（計測中）</p>
+                             <span class="text-[9px] font-bold tracking-[0.2em] opacity-30 uppercase block mb-2">Type16割合ランキング</span>
+                             <div class="inline-block bg-gray-100 rounded-md px-6 py-3">
+                                 <p class="font-mono text-xs md:text-sm font-bold tracking-tight">世界：${myRange}（${myRank}／16位）　日本：（計測中）</p>
+                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start py-6 border-t border-black border-opacity-10">
@@ -506,22 +521,22 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="border-t border-black pt-6">
-                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Specialty</span>
+                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Specialty / 得意領域</span>
                                 <p class="text-lg font-bold">${data.strength}</p>
                             </div>
                             <div class="border-t border-black pt-6">
-                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Structural Flaw</span>
+                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Structural Flaw / 構造的欠陥</span>
                                 <p class="text-sm opacity-60 leading-relaxed italic">${data.weak}</p>
                             </div>
                         </div>
 
                         <div class="border-t border-black pt-6">
-                            <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Distance From Others</span>
+                            <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Distance From Others / 他者との距離</span>
                             <p class="text-sm opacity-60 leading-relaxed">${data.dist}</p>
                         </div>
 
-                        <div class="bg-[#1a1c20] text-gray-100 p-10 md:p-14 rounded-[20px] text-center shadow-xl">
-                            <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Observation Message</span>
+                        <div class="bg-[#f3f4f6] text-black p-10 md:p-14 rounded-[20px] text-center shadow-sm">
+                            <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Observation Message / 観測所見</span>
                             <p class="serif-display text-xl md:text-2xl leading-snug">「${data.advice}」</p>
                         </div>
 
