@@ -32,7 +32,7 @@
         .question-card {
             transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .question-card.active { opacity: 1; filter: blur(0); }
+        .question-card.active { opacity: 1; filter: blur(0); pointer-events: auto; }
         .question-card.inactive { opacity: 0.05; filter: blur(5px); pointer-events: none; }
 
         .dot {
@@ -97,17 +97,22 @@
         @media (min-width: 768px) { .heavy-name { font-size: 4rem; } }
         
         .pixel-art-wrapper {
-            width: 160px;
-            height: 160px;
-            margin: 0 auto 0.5rem auto;
-            image-rendering: pixelated;
+            width: 256px;
+            height: 256px;
+            max-width: 100%;
+            margin: 0 auto 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
             background: transparent;
             position: relative;
         }
-        @media (min-width: 768px) { .pixel-art-wrapper { width: 220px; height: 220px; } }
+        @media (min-width: 768px) { 
+            .pixel-art-wrapper { 
+                width: 352px;
+                height: 352px;
+            } 
+        }
         
         .pixel-art-wrapper img {
             width: 100%;
@@ -139,6 +144,58 @@
             font-weight: 900;
         }
 
+        /* テーブルデザイン */
+        .rank-table-row {
+            display: grid;
+            grid-template-columns: 3rem 1fr 4rem;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.8rem;
+            transition: background-color 0.2s;
+        }
+        .rank-table-row:last-child { border-bottom: none; }
+        .rank-table-header {
+            background: #000;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 0.75rem 1rem;
+            border-radius: 8px 8px 0 0;
+        }
+        .rank-me {
+            background: #d4ff3f;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(212, 255, 63, 0.3);
+            border-radius: 4px;
+            margin: -1px -4px;
+            position: relative;
+            z-index: 10;
+            border: none;
+        }
+        
+        .undo-btn {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            letter-spacing: 0.1em;
+            margin-top: 2rem;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.5rem;
+            border-radius: 999px;
+            color: #e2e8f0;
+        }
+        .undo-btn:hover { 
+            opacity: 1; 
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -150,9 +207,6 @@
 
     <header id="main-header" class="header-glass fixed top-0 w-full py-4 px-8 z-50 flex justify-between items-center">
         <div class="flex items-center gap-4">
-            <button id="back-btn" onclick="goBack()" class="hidden opacity-30 hover:opacity-100 transition-opacity p-2 -ml-2 text-white">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </button>
             <div class="font-bold tracking-tighter text-xl uppercase">Type16</div>
         </div>
         <div id="counter" class="text-[10px] font-bold opacity-40 font-mono">0 / 18</div>
@@ -162,6 +216,12 @@
         <section id="welcome" class="min-h-screen flex flex-col items-center justify-center text-center">
             <h1 class="text-7xl md:text-9xl font-black mb-12 tracking-tighter uppercase">Type16</h1>
             <button onclick="start()" class="border border-lime-400 text-lime-400 px-12 py-4 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-lime-400 hover:text-black transition-all">Start</button>
+            
+            <div class="mt-12 text-xs font-light opacity-60 space-y-2">
+                <p>・理想の姿ではなく、ありのままを答えてください。</p>
+                <p>・深く考えすぎず、直感で選んでください。</p>
+                <p>・所要時間は約2分です。</p>
+            </div>
         </section>
 
         <section id="quiz" class="hidden pb-80 pt-40"></section>
@@ -169,8 +229,28 @@
     </main>
 
     <script>
-        const apiKey = "";
+        // 固定画像の設定
+        const STATIC_IMAGE_PATH = "https://kyoryu1039.github.io/kotoba-gacha/images/result.png";
         
+        const RANKING_DATA = [
+            { rank: 1, code: "APL-II", range: "11~14%" },
+            { rank: 2, code: "ZPL-II", range: "9~14%" },
+            { rank: 3, code: "APR-II", range: "9~13%" },
+            { rank: 4, code: "ZPR-I", range: "8~12%" },
+            { rank: 5, code: "AQL-II", range: "6~8%" },
+            { rank: 6, code: "ZQL-I", range: "5~9%" },
+            { rank: 7, code: "ZQL-II", range: "4~9%" },
+            { rank: 8, code: "ZQR-I", range: "4~6%" },
+            { rank: 9, code: "AQL-I", range: "4~5%" },
+            { rank: 10, code: "ZQR-II", range: "4~5%" },
+            { rank: 11, code: "AQR-I", range: "3~5%" },
+            { rank: 12, code: "AQR-II", range: "2~5%" },
+            { rank: 13, code: "APL-I", range: "2~5%" },
+            { rank: 14, code: "APR-I", range: "2~5%" },
+            { rank: 15, code: "ZPR-II", range: "2~4%" },
+            { rank: 16, code: "ZPL-I", range: "1~3%" }
+        ];
+
         const QUESTIONS = [
             "1. 犬よりも猫が好きだ", "2. 海よりも山が好きだ", "3. 中力粉よりも薄力粉が好きだ",
             "4. この頃涙もろくなったと思う", "5. 座右の銘なんてない", "6. 痛みには強い方だ",
@@ -192,22 +272,22 @@
         ];
 
         const TYPES_DB = {
-            "APL-I": { name: "当事者", en: "Protagonist", prompt: "A 2D pixel art game character sprite of a king wearing a small gold crown, centered, full body, white background, simple minimalist style" },
-            "APL-II": { name: "従事者", en: "Practitioner", prompt: "A 2D pixel art game character sprite of an engineer holding a wrench, centered, full body, white background, simple minimalist style" },
-            "APR-I": { name: "担当者", en: "Assignee", prompt: "A 2D pixel art game character sprite of a clerk holding a clipboard, centered, full body, white background, simple minimalist style" },
-            "APR-II": { name: "代行者", en: "Surrogate", prompt: "A 2D pixel art game character sprite of an actor wearing a theatrical mask, centered, full body, white background, simple minimalist style" },
-            "AQL-I": { name: "滞在者", en: "Dweller", prompt: "A 2D pixel art game character sprite of a person sitting in meditation, centered, full body, white background, simple minimalist style" },
-            "AQL-II": { name: "通過者", en: "Transient", prompt: "A 2D pixel art game character sprite of a traveler with a large backpack, centered, full body, white background, simple minimalist style" },
-            "AQR-I": { name: "待機者", en: "Standby", prompt: "A 2D pixel art game character sprite of a person standing still like a statue, centered, full body, white background, simple minimalist style" },
-            "AQR-II": { name: "入力者", en: "Inputter", prompt: "A 2D pixel art game character sprite of a person with glowing eyes, centered, full body, white background, simple minimalist style" },
-            "ZPL-I": { name: "関係者", en: "Associate", prompt: "A 2D pixel art game character sprite of a businessman with a briefcase, centered, full body, white background, simple minimalist style" },
-            "ZPL-II": { name: "同行者", en: "Companion", prompt: "A 2D pixel art game character sprite of a shadowy figure, centered, full body, white background, simple minimalist style" },
-            "ZPR-I": { name: "保持者", en: "Possessor", prompt: "A 2D pixel art game character sprite of a guard with a shield, centered, full body, white background, simple minimalist style" },
-            "ZPR-II": { name: "立会人", en: "Witness", prompt: "A 2D pixel art game character sprite of a judge in robes with a gavel, centered, full body, white background, simple minimalist style" },
-            "ZQL-I": { name: "閲覧者", en: "Viewer", prompt: "A 2D pixel art game character sprite of a researcher looking at a digital tablet, centered, full body, white background, simple minimalist style" },
-            "ZQL-II": { name: "目撃者", en: "Observer", prompt: "A 2D pixel art game character sprite of a person holding a vintage camera, centered, full body, white background, simple minimalist style" },
-            "ZQR-I": { name: "登録者", en: "Registrant", prompt: "A 2D pixel art game character sprite of a person with a barcode on their forehead, centered, full body, white background, simple minimalist style" },
-            "ZQR-II": { name: "申請者", en: "Applicant", prompt: "A 2D pixel art game character sprite of a person holding a long scroll of paper, centered, full body, white background, simple minimalist style" }
+            "APL-I": { name: "当事者", en: "Protagonist" },
+            "APL-II": { name: "従事者", en: "Practitioner" },
+            "APR-I": { name: "担当者", en: "Assignee" },
+            "APR-II": { name: "代行者", en: "Surrogate" },
+            "AQL-I": { name: "滞在者", en: "Dweller" },
+            "AQL-II": { name: "通過者", en: "Transient" },
+            "AQR-I": { name: "待機者", en: "Standby" },
+            "AQR-II": { name: "入力者", en: "Inputter" },
+            "ZPL-I": { name: "関係者", en: "Associate" },
+            "ZPL-II": { name: "同行者", en: "Companion" },
+            "ZPR-I": { name: "保持者", en: "Possessor" },
+            "ZPR-II": { name: "立会人", en: "Witness" },
+            "ZQL-I": { name: "閲覧者", en: "Viewer" },
+            "ZQL-II": { name: "目撃者", en: "Observer" },
+            "ZQR-I": { name: "登録者", en: "Registrant" },
+            "ZQR-II": { name: "申請者", en: "Applicant" }
         };
 
         const TEXTS_DB = {
@@ -226,26 +306,11 @@
             "ZQL-I": { phrase: "あなたは、世界に直接触れずに理解しようとする人です。", summary: "分析や批評を行うことで、あたかも世界を支配しているかのような錯覚に浸り、自分が挑戦して失敗するリスクから逃げ続けています。", strength: "圧倒的な分析眼 / 感情の非干渉", weak: "自分の人生さえも「他人事」のように眺めてしまい、実感を伴わない空虚感に苛まれます。他者の失敗を嘲笑うことで優越感を維持しますが、何に対しても本気になれず生涯を終えるリスクがあります。", dist: "交流を楽しみますが、魂の核は決して見せません。相手が踏み込もうとすると、高説を垂れるか、皮肉を言うことで巧妙に回避し、安全圏へと引きこもります。", advice: "一度くらい、大怪火を覚悟で舞台の上に飛び降りてください。そこから本当の人生が始まります。" },
             "ZQL-II": { phrase: "あなたは、一瞬の出来事に意味を見出す人です。", summary: "世界に意味を見出すとき、それは常に「自分にとって心地よい物語」に変換されています。他者の本物の苦悩さえも、感性を刺激する「素材」として消費します。共感は相手を救うためではなく、自分の内面世界を彩るためにあります。", strength: "豊かな感性と表現力 / 真実の抽出", weak: "現実の汚さに耐性がありません。理想化した相手が人間らしい欠点を見せた瞬間、あなたは「裏切られた」と感じ、その存在その物語から冷酷に抹殺します。", dist: "相手の深い部分を覗き込もうとしますが、自分自身は謎に包まれています。理解者ではなく「共鳴者」を求めますが、相手の実像ではなく、自分が投影した理想を愛しています。", advice: "物語を語るだけでなく、あなた自身がその物語の「結末」に責任を持つ覚悟を持ってください。" },
             "ZQR-I": { phrase: "あなたは、枠組みに属することで自分を定義する人です。", summary: "個としての意志を持つことに死の恐怖に近い不安を感じるため、集団のルールに同化します。罪悪感を薄め、大きな流れに身を任せる快楽に溺れている「平庸な共犯者」の状態です。", strength: "高い協調性と安定感 / 帰属性の強化", weak: "集団が狂気に走ったとき、あなたは最も残酷な加害者になります。自分の意志がないため、命令や空気に従っているという自覚すらなく、平気で他者を踏みにじることができるようになります。", dist: "「同じ側にいるかどうか」を重視します。所属を同じくする相手には極めて献身的ですが、外側の人間や、枠組みを批判する者には一切の慈悲を見せず冷淡に排除します。", advice: "あなたが所属している「枠」そのものが、時代遅れになっていないかを定期的に疑ってください。" },
-            "ZQR-II": { phrase: "あなたは、まだ許可を待っている人です。", summary: "自分で自分を認める勇気がありません。常に「上位者」に合格点をもらうことを求め、一生を「準備期間」として浪費します。新しい学びを渡り歩くのは、成長ではなく「厳しい現実」からの逃避です。", strength: "素直な受容性と学習力 / 変化への渇望", weak: "師や環境を次々と変えますが、それはあなたが成長したからではなく、単に自分の無能さを突きつけられる前に「もっといい場所」へ夢を見に逃げ込んでいるだけです。", dist: "自分を引き上げてくれる先駆者を熱狂的に求め、付き従います。しかし、現実的な責任を求められると、新たな「光」を求めて音もなく去っていきます。", advice: "門を叩くのをやめ、今いる場所で「自分の城」を建てるための石を一つ、置いてみてください。" }
+            "ZQR-II": { phrase: "あなたは、まだ許可を待っている人です。", summary: "自分で自分を認める勇気がありません。常に「上位者」に合格点をもらうことを求め、一生を「準備期間」として浪費します。新しい学びを渡り歩くのは、成長ではなく「厳しい現実」からの逃避です。", strength: "素直な受容性と学習力 / 変化への渇望", weak: "師や環境を次々と変えますが、それはあなたが成長したからではなく、単に自分の無能さを突きつけられる前に「もっといい場所」へ夢を見に逃げ込んでいるだけです。", dist: "自分を引き上げてくれる先駆者を熱狂的に求めますが、現実的な責任を求められると、新たな「光」を求めて音もなく去っていきます。", advice: "門を叩くのをやめ、今いる場所で「自分の城」を建てるための石を一つ、置いてみてください。" }
         };
 
         let currentAnswers = new Array(QUESTIONS.length).fill(null);
         let currentIndex = 0;
-
-        async function fetchPixelArt(promptText) {
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ instances: { prompt: promptText }, parameters: { sampleCount: 1 } })
-                });
-                const result = await response.json();
-                if (result.predictions && result.predictions[0] && result.predictions[0].bytesBase64Encoded) {
-                    return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
-                }
-                return null;
-            } catch (e) { return null; }
-        }
 
         function start() {
             document.getElementById('welcome').classList.add('hidden');
@@ -260,9 +325,14 @@
                 const card = document.createElement('div');
                 card.id = `q-${i}`;
                 card.className = `question-card py-32 text-center ${i === 0 ? 'active' : 'inactive'}`;
+                
+                // Undoボタン（選択肢の下に配置するために移動）
+                const undoBtn = i > 0 ? `<button onclick="goBack(${i})" class="undo-btn">← 戻る</button>` : '';
+                
                 card.innerHTML = `
-                    <h2 class="text-xl md:text-2xl font-bold mb-16 px-4 leading-relaxed">${q}</h2>
-                    <div class="flex items-center justify-center gap-4 md:gap-8 mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold mb-4 px-4 leading-relaxed">${q}</h2>
+                    
+                    <div class="flex items-center justify-center gap-4 md:gap-8 mb-6 mt-8">
                         <button onclick="ans(${i}, 1)" class="dot dot-agree w-12 h-12"></button>
                         <button onclick="ans(${i}, 2)" class="dot dot-agree w-9 h-9"></button>
                         <button onclick="ans(${i}, 3)" class="dot dot-agree w-6 h-6"></button>
@@ -275,6 +345,9 @@
                         <span class="text-lime-400">そう思う</span>
                         <span class="text-rose-500">そう思わない</span>
                     </div>
+                    
+                    <!-- Undoボタンをここに配置 -->
+                    ${undoBtn}
                 `;
                 container.appendChild(card);
             });
@@ -291,7 +364,6 @@
             document.getElementById('counter').innerText = `${done} / ${QUESTIONS.length}`;
 
             currentIndex = idx;
-            document.getElementById('back-btn').classList.toggle('hidden', currentIndex === 0);
 
             if (idx < QUESTIONS.length - 1) {
                 setTimeout(() => {
@@ -306,37 +378,36 @@
             }
         }
 
-        function goBack() {
-            if (currentIndex > 0) {
-                document.getElementById(`q-${currentIndex}`).classList.replace('active', 'inactive');
-                currentIndex--;
-                const prev = document.getElementById(`q-${currentIndex}`);
+        // 戻るボタンのロジック修正
+        function goBack(currentCardIndex) {
+            // currentCardIndex: 今表示されているカードのインデックス
+            if (currentCardIndex > 0) {
+                // 今のカードを隠す
+                document.getElementById(`q-${currentCardIndex}`).classList.replace('active', 'inactive');
+                
+                // 前のカードのインデックス
+                const prevIndex = currentCardIndex - 1;
+                currentIndex = prevIndex; // グローバルインデックスも戻す
+                
+                // 前のカードを表示
+                const prev = document.getElementById(`q-${prevIndex}`);
                 prev.classList.remove('inactive');
                 prev.classList.add('active');
                 prev.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                if (currentIndex === 0) document.getElementById('back-btn').classList.add('hidden');
             }
         }
 
-        /**
-         * 最適化された端寄せロジック (k=0.9)
-         * 1.4（過剰）と0.5（マイルドすぎ）の均衡点
-         */
         function pushToEdges(percent) {
             const x = percent / 100;
-            // 極端な寄せをやめ、0.9に調整
             const k = 0.9; 
             let y = 1 / (1 + Math.exp(-k * (x - 0.5) * 10));
-            
-            // 境界の正規化
             const minBound = 1 / (1 + Math.exp(-k * (-0.5) * 10));
             const maxBound = 1 / (1 + Math.exp(-k * (0.5) * 10));
             y = (y - minBound) / (maxBound - minBound);
-            
             return Math.round(y * 100);
         }
 
-        async function finish() {
+        function finish() {
             let scores = { AZ: 0, PQ: 0, LR: 0, "I/II": 0 };
             let counts = { AZ: 0, PQ: 0, LR: 0, "I/II": 0 };
 
@@ -373,8 +444,9 @@
             const data = TYPES_DB[code];
             const textData = TEXTS_DB[code];
 
-            const img = await fetchPixelArt(data.prompt);
-            showResult(data.name, data.en, textData, code, { az_p, pq_p, lr_p, i2_p }, img);
+            setTimeout(() => {
+                showResult(data.name, data.en, textData, code, { az_p, pq_p, lr_p, i2_p }, STATIC_IMAGE_PATH);
+            }, 1500);
         }
 
         function copyToClipboard(text, btn) {
@@ -400,20 +472,42 @@
             header.style.backgroundColor = 'transparent';
 
             const shareText = `【Type16】診断結果：${typeName} (${code})\n#Type16 #自己分析\n${window.location.href}`;
+            
+            const myRankData = RANKING_DATA.find(r => r.code === code);
+            const myRange = myRankData ? myRankData.range : "---";
+            const myRank = myRankData ? myRankData.rank : "-";
+
+            const rankingTableHTML = `
+                <div class="border border-black border-opacity-10 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <div class="rank-table-header">Type16割合ランキング</div>
+                    <div>
+                        ${RANKING_DATA.map(r => {
+                            const isMe = r.code === code;
+                            const typeInfo = TYPES_DB[r.code];
+                            return `
+                                <div class="rank-table-row ${isMe ? 'rank-me' : 'opacity-60'}">
+                                    <div class="font-mono font-bold text-center">${r.rank}</div>
+                                    <div class="flex flex-col md:flex-row md:gap-4 leading-tight">
+                                        <span class="font-mono font-bold ${isMe ? '' : 'text-xs md:text-sm'}">${r.code}</span>
+                                        <span class="text-[10px] md:text-xs tracking-tighter">${typeInfo.name}</span>
+                                    </div>
+                                    <div class="font-mono text-right font-bold">${r.range}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
 
             const res = document.getElementById('result');
+            
             res.innerHTML = `
                 <div class="space-y-16">
                     <div class="flex flex-col items-center justify-center text-center">
-                        <div class="pixel-art-wrapper mb-2">
-                            ${img ? `<img src="${img}">` : `
-                                <div class="loading-container">
-                                    <div class="loading-pixel"></div>
-                                    <span class="text-[8px] font-bold opacity-20 uppercase tracking-[0.2em]">Retrying Pixel Synthesis...</span>
-                                </div>
-                            `}
+                        <div class="pixel-art-wrapper mb-0">
+                            <img src="${img}" alt="Result Character">
                         </div>
-                        <p class="text-xl md:text-2xl font-light opacity-30 tracking-[0.3em] font-mono leading-none mb-1">${code}</p>
+                        <p class="text-2xl md:text-4xl font-bold opacity-50 tracking-[0.2em] font-mono leading-none mb-2 mt-0">${code}</p>
                         <h2 class="heavy-name mb-0">${typeName}</h2>
                         <p class="text-[10px] font-bold tracking-[0.4em] opacity-40 uppercase font-mono mb-4">${enName}</p>
                         <div class="max-w-md mx-auto px-4">
@@ -423,6 +517,13 @@
                     </div>
 
                     <div class="space-y-12">
+                        <div class="text-center">
+                             <span class="text-[9px] font-bold tracking-[0.2em] opacity-30 uppercase block mb-2">Type16割合ランキング</span>
+                             <div class="inline-block bg-gray-100 rounded-md px-6 py-3">
+                                 <p class="font-mono text-xs md:text-sm font-bold tracking-tight">世界：${myRange}（${myRank}／16位）　日本：（計測中）</p>
+                             </div>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start py-6 border-t border-black border-opacity-10">
                              <div class="space-y-6">
                                 ${renderStat("A", "Z", stats.az_p, "bar-az")}
@@ -436,23 +537,28 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="border-t border-black pt-6">
-                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Specialty</span>
-                                <p class="text-lg font-bold">${data.strength}</p>
+                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Specialty / 得意領域</span>
+                                <p class="text-sm opacity-60 leading-relaxed">${data.strength}</p>
                             </div>
+                            
                             <div class="border-t border-black pt-6">
-                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Structural Flaw</span>
-                                <p class="text-sm opacity-60 leading-relaxed italic">${data.weak}</p>
+                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Structural Flaw / 構造的欠陥</span>
+                                <p class="text-sm opacity-60 leading-relaxed">${data.weak}</p>
                             </div>
                         </div>
 
                         <div class="border-t border-black pt-6">
-                            <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Distance From Others</span>
+                            <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Distance From Others / 他者との距離</span>
                             <p class="text-sm opacity-60 leading-relaxed">${data.dist}</p>
                         </div>
 
-                        <div class="bg-black text-white p-8 md:p-16 rounded-[30px] text-center">
-                            <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Observation Message</span>
+                        <div class="bg-[#f3f4f6] text-black p-10 md:p-14 rounded-[20px] text-center shadow-sm">
+                            <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Message</span>
                             <p class="serif-display text-xl md:text-2xl leading-snug">「${data.advice}」</p>
+                        </div>
+
+                        <div class="pt-8 px-2 md:px-0">
+                            ${rankingTableHTML}
                         </div>
 
                         <div class="flex flex-col items-center gap-6 pt-4">
@@ -494,4 +600,3 @@
     </script>
 </body>
 </html>
-
