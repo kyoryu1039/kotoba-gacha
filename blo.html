@@ -1,51 +1,233 @@
-はい、承知いたしました。
-これは診断の根幹を揺るがす非常に重要な検証です。ご提示いただいた制約（軸とタイプ名は変更不可）と分析意図に基づき、**全16タイプを一つずつ検証し、論理的矛盾が生じているタイプと説明の組み合わせを特定、最適な形に再配置（入れ替え）**します。
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TYPE-16</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&family=Noto+Sans+JP:wght@100;300;900&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --accent: #d4ff3f;
+            --sub-accent: #ff3f5e;
+            --text: #e2e8f0;
+        }
 
-検証プロセス
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Space Grotesk', 'Noto Sans JP', sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.8s ease, color 0.8s ease;
+        }
 
-各タイプコードの「性格像」を再定義:
-前回の提案で再設計した内部ロジック（A/Z:行動, P/Q:基準, L/R:態度, I/II:安定性）に基づき、16タイプそれぞれの「あるべき性格像」を明確にします。
+        .header-glass {
+            background: rgba(5, 7, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 255, 63, 0.1);
+        }
 
-全16タイプの説明文を分析:
-既存の16種類の説明文（TEXTS_DB）を読み解き、その内容がどの「性格像」に最も合致するかを判断します。
+        .question-card {
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .question-card.active { opacity: 1; filter: blur(0); pointer-events: auto; }
+        .question-card.inactive { opacity: 0.05; filter: blur(5px); pointer-events: none; }
 
-比較と再マッピング:
-「性格像」と「説明文」を照らし合わせ、最も適合する組み合わせを決定します。これにより、元の組み合わせから変更すべきタイプを特定します。
+        .dot {
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 2px solid;
+            background: transparent;
+        }
+        .dot-agree { border-color: var(--accent); }
+        .dot-agree.active { background: var(--accent); box-shadow: 0 0 20px var(--accent); transform: scale(1.05); }
+        .dot-disagree { border-color: var(--sub-accent); }
+        .dot-disagree.active { background: var(--sub-accent); box-shadow: 0 0 20px var(--sub-accent); transform: scale(1.05); }
+        .dot-neutral { border-color: #475569; width: 20px; height: 20px; }
+        .dot-neutral.active { background: #475569; transform: scale(1.05); }
 
-全16タイプの検証結果
+        .progress-bar {
+            height: 2px;
+            background: rgba(212, 255, 63, 0.1);
+            position: fixed;
+            top: 0; left: 0; width: 100%; z-index: 100;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #fff;
+            transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
 
-以下に全タイプの検証結果と、変更が必要な箇所の理由をまとめました。
+        .result-view { background-color: #ffffff !important; color: #000 !important; }
+        .result-header-text { color: #000 !important; border-bottom-color: rgba(0,0,0,0.1) !important; }
+        
+        .stat-bar-container { 
+            height: 10px; 
+            background: #f0f0f0; 
+            border-radius: 5px;
+            position: relative; 
+            width: 100%;
+            overflow: hidden;
+        }
+        .center-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+        .stat-bar-fill { 
+            height: 100%; 
+            position: absolute; 
+            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            z-index: 1;
+        }
+        
+        .bar-az { background: #5e17eb; }
+        .bar-pq { background: #00d4ff; }
+        .bar-lr { background: #ff3f5e; }
+        .bar-i2 { background: #d4ff3f; }
+        
+        .heavy-name { font-weight: 900; font-size: 2.8rem; line-height: 1.1; letter-spacing: -0.05em; }
+        @media (min-width: 768px) { .heavy-name { font-size: 4rem; } }
+        
+        .pixel-art-wrapper {
+            width: 256px;
+            height: 256px;
+            max-width: 100%;
+            margin: 0 auto 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            position: relative;
+        }
+        @media (min-width: 768px) { 
+            .pixel-art-wrapper { 
+                width: 352px;
+                height: 352px;
+            } 
+        }
+        
+        .pixel-art-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            z-index: 10;
+        }
 
-タイプコード	新ロジックによる性格像	最適なタイプ名と説明	変更の有無と理由
-APL-I	能動・内的・論理・安定	当事者	**変更なし。**能動的(A)に自分の論理(L)と信念(P)に基づき、安定した(I)現実を創り出す姿が「当事者」の説明と完全に一致。
-APL-II	能動・内的・論理・敏感	従事者	**変更なし。**ルール(L)と完璧なプロセスに自己を埋没させる(A+P)ことで、精神の不安定さ(II)から逃避する姿が「従事者」の説明と一致。
-APR-I	能動・内的・情緒・安定	滞在者	**入れ替え。**外部を切り捨て(R)、自らの中に築いた価値体系(P)に安住する(I)姿。元の「代行者」より「滞在者」の説明が適合。
-APR-II	能動・内的・情緒・敏感	通過者	**入れ替え。**責任を負うこと(II)への恐怖(R)から、関係性が深まる前(P)に自ら去る(A)という行動が「通過者」の説明と完全に一致。
-AQL-I	能動・外的・論理・安定	担当者	**変更なし。**他者や状況(Q)を論理(L)に基づき管理(A)し、安定(I)させようとする姿が「担当者」の説明と一致。
-AQL-II	能動・外的・論理・敏感	入力者	**入れ替え。**外部(Q)からの刺激によってしか自分を定義できず(II)、あらゆる情報を取り込む(L)姿が「入力者」の説明と適合。
-AQR-I	能動・外的・情緒・安定	代行者	**入れ替え。**場の要請(Q)を優先し(R)、相手が望む虚像を能動的に差し出す(A)ことで安定を得る(I)姿が「代行者」に最も近い。
-AQR-II	能動・外的・情緒・敏感	申請者	**入れ替え。**上位者(Q)に許可を求め、常に準備期間として行動(A)するのは、不安定さ(II)の裏返し。「申請者」が最も適合。
-ZPL-I	受動・内的・論理・安定	閲覧者	**入れ替え。**直接触れず(Z)、自分の安全圏(P)から世界を分析(L)し、安定(I)を得る姿が「閲覧者」の説明と一致。
-ZPL-II	受動・内的・論理・敏感	目撃者	**入れ替え。**出来事を物語(L)として変換し、自分の内面世界(P)を彩るために消費する(Z)。感受性の高さ(II)が「目撃者」と一致。
-ZPR-I	受動・内的・情緒・安定	保持者	**入れ替え。**変化を「死」と捉え(R)、既知のルール(P)を反復(Z)することで安定(I)を得る姿が「保持者」の説明と完全に一致。
-ZPR-II	受動・内的・情緒・敏感	関係者	**入れ替え。**単独では不安定(II)で、誰かの影(P)に隠れる(Z)ことで安寧を得る。情緒的な(R)依存関係が「関係者」に適合。
-ZQL-I	受動・外的・論理・安定	立会人	**変更なし。**利害関係から一線を引き(L)、中立的な位置(Q)で事実を記録する(Z)安定した(I)姿が「立会人」の説明と一致。
-ZQL-II	受動・外的・論理・敏感	登録者	**入れ替え。**枠組み(Q)に属することで自分を定義する。集団が狂気に走ったとき(II)、思考停止(L)で加害者になる姿が「登録者」と適合。
-ZQR-I	受動・外的・情緒・安定	同行者	**入れ替え。**誰かの隣(Q)にいることで力を発揮し、献身的に(R)尽くす(Z)ことで安定(I)を得る姿が「同行者」の説明と一致。
-ZQR-II	受動・外的・情緒・敏感	待機者	**入れ替え。**場の空気(Q)が動くのを待ち(Z)、内面に不満(R)を溜め込むが、限界に達すると関係を遮断(II)する姿が「待機者」に適合。
+        .loading-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-結論として、12タイプの入れ替えが必要であると判断しました。
+        .loading-pixel {
+            width: 14px;
+            height: 14px;
+            background: #000;
+            animation: bounce 0.6s infinite alternate;
+        }
+        @keyframes bounce { from { transform: translateY(8px); } to { transform: translateY(-8px); } }
 
-【完成版】反映後のJavaScriptコード
+        .serif-display {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 900;
+        }
 
-上記の検証結果に基づき、TYPES_DBのタイプ名割り当てを全面的に修正しました。
-以下の<script>タグを、既存のHTMLファイルの<script>タグと丸ごと置き換えてください。これで診断ロジックがより正確になります。
+        /* テーブルデザイン */
+        .rank-table-row {
+            display: grid;
+            grid-template-columns: 3rem 1fr 4rem;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.8rem;
+            transition: background-color 0.2s;
+        }
+        .rank-table-row:last-child { border-bottom: none; }
+        .rank-table-header {
+            background: #000;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 0.75rem 1rem;
+            border-radius: 8px 8px 0 0;
+        }
+        .rank-me {
+            background: #d4ff3f;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(212, 255, 63, 0.3);
+            border-radius: 4px;
+            margin: -1px -4px;
+            position: relative;
+            z-index: 10;
+            border: none;
+        }
+        
+        .undo-btn {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            letter-spacing: 0.1em;
+            margin-top: 2rem;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.5rem;
+            border-radius: 999px;
+            color: #e2e8f0;
+        }
+        .undo-btn:hover { 
+            opacity: 1; 
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
 
-code
-JavaScript
-download
-content_copy
-expand_less
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+    </div>
+
+    <header id="main-header" class="header-glass fixed top-0 w-full py-4 px-8 z-50 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <div class="font-bold tracking-tighter text-xl uppercase">Type16</div>
+        </div>
+        <div id="counter" class="text-[10px] font-bold opacity-40 font-mono">0 / 18</div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6">
+        <section id="welcome" class="min-h-screen flex flex-col items-center justify-center text-center">
+            <h1 class="text-7xl md:text-9xl font-black mb-12 tracking-tighter uppercase">Type16</h1>
+            <button onclick="start()" class="border border-lime-400 text-lime-400 px-12 py-4 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-lime-400 hover:text-black transition-all">Start</button>
+            
+            <div class="mt-12 text-xs font-light opacity-60 space-y-2">
+                <p>・理想の姿ではなく、ありのままを答えてください。</p>
+                <p>・深く考えすぎず、直感で選んでください。</p>
+                <p>・所要時間は約2分です。</p>
+            </div>
+        </section>
+
+        <section id="quiz" class="hidden pb-80 pt-40"></section>
+        <section id="result" class="hidden pt-20 pb-20"></section>
+    </main>
+
 <script>
         // 固定画像の設定
         const STATIC_IMAGE_PATH = "https://kyoryu1039.github.io/kotoba-gacha/images/result.png";
@@ -366,3 +548,5 @@ expand_less
             `;
         }
     </script>
+</body>
+</html>
