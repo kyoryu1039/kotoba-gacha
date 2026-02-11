@@ -1,1145 +1,471 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KOTOBA-BATTLE | v30.00 Final Debug</title>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#020617">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TYPE-16</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&family=Noto+Sans+JP:wght@100;300;900&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --accent: #d4ff3f;
+            --sub-accent: #ff3f5e;
+            --text: #e2e8f0;
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Teko:wght@500;700&display=swap" rel="stylesheet">
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Space Grotesk', 'Noto Sans JP', sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.8s ease, color 0.8s ease;
+        }
 
-<style>
-:root{
-  --bg: #020617; --text: #f1f5f9;
-  --glass: rgba(15, 23, 42, 0.85);
-  --border-color: rgba(255, 255, 255, 0.15);
-  
-  --ally: #3b82f6; --enemy: #ef4444;
-  --hp: #10b981; --gauge: #eab308;
-  
-  --t-ジオ:#38bdf8; --t-アニマル:#4ade80; --t-フード:#ffaa2b; 
-  --t-コンセプト:#c084fc; --t-サイエンス:#22d3ee; --t-ヒストリー:#f472b6; --t-ヒューマン:#a3e635;
+        .header-glass {
+            background: rgba(5, 7, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 255, 63, 0.1);
+        }
 
-  /* レアリティ色 */
-  --glow-A: #ffd700; /* 金 */
-  --glow-B: #c0c0c0; /* 銀 */
-  --glow-C: #64748b; /* 鼠 */
-  --glow-D: #ffffff; /* 白 */
-  --glow-X: #d946ef; /* 紫 */
-}
+        .question-card {
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .question-card.active { opacity: 1; filter: blur(0); }
+        .question-card.inactive { opacity: 0.05; filter: blur(5px); pointer-events: none; }
 
-*{box-sizing:border-box;-webkit-text-size-adjust:100%}
-html,body{height:100%;margin:0;overflow:hidden}
-body{
-  background-color: var(--bg); color: var(--text);
-  font-family: 'Noto Sans JP', sans-serif; overflow-y: auto;
-  background-image: radial-gradient(circle at 50% 30%, #1e293b 0%, #020617 80%);
-}
+        .dot {
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 2px solid;
+            background: transparent;
+        }
+        .dot-agree { border-color: var(--accent); }
+        .dot-agree.active { background: var(--accent); box-shadow: 0 0 20px var(--accent); transform: scale(1.05); }
+        .dot-disagree { border-color: var(--sub-accent); }
+        .dot-disagree.active { background: var(--sub-accent); box-shadow: 0 0 20px var(--sub-accent); transform: scale(1.05); }
+        .dot-neutral { border-color: #475569; width: 20px; height: 20px; }
+        .dot-neutral.active { background: #475569; transform: scale(1.05); }
 
-/* 背景アニメーション */
-.bg-anim {
-  position: fixed; inset: 0; z-index: -1;
-  background: 
-    linear-gradient(transparent 95%, rgba(59, 130, 246, 0.1) 96%, transparent 100%),
-    linear-gradient(90deg, transparent 95%, rgba(59, 130, 246, 0.1) 96%, transparent 100%);
-  background-size: 40px 40px;
-  animation: gridMove 20s linear infinite;
-  perspective: 1000px; transform-style: preserve-3d;
-}
-@keyframes gridMove { from { transform: translateY(0); } to { transform: translateY(40px); } }
+        .progress-bar {
+            height: 2px;
+            background: rgba(212, 255, 63, 0.1);
+            position: fixed;
+            top: 0; left: 0; width: 100%; z-index: 100;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #fff;
+            transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
 
-.container{max-width:800px;margin:0 auto;padding:8px;padding-bottom:160px}
+        .result-view { background-color: #ffffff !important; color: #000 !important; }
+        .result-header-text { color: #000 !important; border-bottom-color: rgba(0,0,0,0.1) !important; }
+        
+        .stat-bar-container { 
+            height: 10px; 
+            background: #f0f0f0; 
+            border-radius: 5px;
+            position: relative; 
+            width: 100%;
+            overflow: hidden;
+        }
+        .center-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+        .stat-bar-fill { 
+            height: 100%; 
+            position: absolute; 
+            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            z-index: 1;
+        }
+        
+        .bar-az { background: #5e17eb; }
+        .bar-pq { background: #00d4ff; }
+        .bar-lr { background: #ff3f5e; }
+        .bar-i2 { background: #d4ff3f; }
+        
+        .heavy-name { font-weight: 900; font-size: 2.8rem; line-height: 1.1; letter-spacing: -0.05em; }
+        @media (min-width: 768px) { .heavy-name { font-size: 4rem; } }
+        
+        .pixel-art-wrapper {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 0.5rem auto;
+            /* 画像調整用スタイル */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            position: relative;
+        }
+        @media (min-width: 768px) { .pixel-art-wrapper { width: 220px; height: 220px; } }
+        
+        .pixel-art-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 画像全体を表示 */
+            z-index: 10;
+        }
 
-.card {
-  background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border-color);
-  border-radius: 12px; margin-bottom: 12px; backdrop-filter: blur(12px);
-}
-.card h2 {
-  margin:0; padding:10px 14px; font-size:14px; font-weight:800; color: #e2e8f0;
-  background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border-color);
-  display: flex; justify-content: space-between; align-items: center;
-}
-.card .body { padding: 12px; }
+        .loading-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-/* ボタン */
-.btn3d {
-  appearance: none; border: none; cursor: pointer;
-  font-family: 'Noto Sans JP', sans-serif; font-weight: 800; font-size: 14px; color: #fff;
-  padding: 10px 16px; border-radius: 8px; transition: .1s;
-  display: inline-flex; justify-content: center; align-items: center; gap: 6px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-}
-.btn3d:active:not([disabled]) { transform: translateY(2px); filter: brightness(0.9); }
-.btn3d:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
+        .loading-pixel {
+            width: 14px;
+            height: 14px;
+            background: #000;
+            animation: bounce 0.6s infinite alternate;
+        }
+        @keyframes bounce { from { transform: translateY(8px); } to { transform: translateY(-8px); } }
 
-.btn-primary { background: linear-gradient(to bottom, #3b82f6, #1d4ed8); box-shadow: 0 4px 0 #1e3a8a; }
-.btn-ghost { background: linear-gradient(to bottom, #475569, #1e293b); box-shadow: 0 4px 0 #0f172a; border: 1px solid rgba(255,255,255,0.1); }
-.btnTiny { padding: 4px 8px; font-size: 10px; border-radius: 4px; background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: #cbd5e1; cursor: pointer; }
+        .serif-display {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 900;
+        }
 
-/* 編成画面 */
-#setup { display: grid; gap: 12px; }
-#teamGrid { display: grid; gap: 8px; }
-@media(min-width:600px){ #teamGrid { grid-template-columns: 1fr 1fr; } }
-.slot { display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); }
-.pill { width: 20px; height: 20px; border-radius: 4px; background: #334155; color: #fff; font-weight: 800; font-size: 11px; display: grid; place-items: center; }
-.slot select { flex: 1; background: transparent; border: none; color: #fff; font-weight: 800; font-size: 13px; outline: none; }
-.slot select option { background: #0f172a; color: #fff; }
-
-#statsGrid { display: grid; gap: 10px; }
-@media(min-width:720px){ #statsGrid { grid-template-columns: 1fr 1fr; } }
-.statsCol { display: grid; gap: 8px; }
-.setupMini { border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; background: rgba(30, 41, 59, 0.6); display: flex; flex-direction: column; gap: 4px;}
-
-  /* 交代モーダルで選択中のカードの枠を強調 */
-.selCard {
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-}
-
-.selCard.selected {
-  border: 2px solid #facc15;                 /* 選択枠（お好みで色変更可） */
-  box-shadow: 0 0 0 2px rgba(0,0,0,0.7),
-              0 0 16px rgba(250, 204, 21, .8);
-  transform: translateY(-2px);               /* ちょっと浮かせる演出（不要なら削除） */
-}
-
-.barLine{display:flex;align-items:center;gap:6px;height:10px}
-.barBox{flex:1;height:5px;background:#060912;border-radius:3px;overflow:hidden}
-.barFill{height:100%;background:var(--hp);border-radius:3px}
-.val{font-size:10px;color:#9cb3de;width:28px;text-align:right;font-family:"Menlo",monospace}
-
-/* バトル画面 */
-.arena { display: grid; gap: 12px; transition: transform .1s; }
-.shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97) both}
-@keyframes shake{10%,90%{transform:translate(-2px,1px)}20%,80%{transform:translate(1px,-2px)}30%,50%,70%{transform:translate(-4px,2px)}40%,60%{transform:translate(4px,-2px)}}
-.vsrow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }
-.vsrow > div { min-width: 0; }
-
-/* === ユニットカード === */
-.unit {
-  position: relative; width: 100%; height: 100%; min-height: 280px;
-  border-radius: 14px;
-  padding: 3px; 
-  background: #334155;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-  display: flex; flex-direction: column; overflow: hidden;
-  transition: filter 0.3s;
-}
-
-/* ランク別 枠線設定 */
-/* S: 虹色 */
-.unit[data-rank="S"] { 
-  background: linear-gradient(60deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); 
-  background-size: 300% 300%; 
-  animation: rainbowBorder 3s linear infinite; 
-}
-/* ==== Aランク（回転しないキラキラ） ==== */
-.unit[data-rank="A"] {
-  position: relative;
-  border: 1px solid #ffd700;
-  overflow: hidden;
-}
-
-.unit[data-rank="A"]::after {
-  content: "";
-  position: absolute;
-  top: -150%;
-  left: -150%;
-  width: 300%;
-  height: 300%;
-  background: linear-gradient(
-     115deg,
-     transparent 40%,
-     rgba(255,255,255,0.35) 50%,
-     transparent 60%
-  );
-  animation: shineA 3.5s ease-in-out infinite;
-}
-
-@keyframes shineA {
-  0%   { transform: translate(0,0); }
-  100% { transform: translate(150%,150%); }
-}
-
-
-/* ==== Bランク（回転しないキラキラ・銀） ==== */
-.unit[data-rank="B"] {
-  position: relative;
-  border: 1px solid #e5e7eb; /* 明るい銀 */
-  overflow: hidden;
-}
-
-.unit[data-rank="B"]::after {
-  content: "";
-  position: absolute;
-  top: -150%;
-  left: -150%;
-  width: 300%;
-  height: 300%;
-  background: linear-gradient(
-    115deg,
-    transparent 40%,
-    rgba(255,255,255,0.25) 50%,
-    transparent 60%
-  );
-  animation: shineB 4.2s ease-in-out infinite;
-}
-
-@keyframes shineB {
-  0%   { transform: translate(0,0); }
-  100% { transform: translate(150%,150%); }
-}
-
-/* ★ Cランク（カード色と近い“濃いグレー枠” → Bとの差が明確） */
-.unit[data-rank="C"] {
-  background: #64748b;        /* 既存のカード色 */
-  border: 1px solid #475569;  /* Bより明確に暗い枠 → コントラスト差で差別化 */
-}
-
-/* ★ Dランク（白カード＋自然な薄めグレー枠） */
-.unit[data-rank="D"] {
-  background: #ffffff;
-  border: 1px solid #d1d5db;  /* B の銀より暗めで C とも区別できる */
-}
-
-/* ★ Xランク（紫＋控えめなダークパープル枠）*/
-.unit[data-rank="X"] {
-  background: #d946ef;
-  border: 1px solid #9333ea; /* 紫に馴染むが B より暗いので差がつく */
-}
-
-
-@keyframes rainbowBorder { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-
-/* カード本体 */
-.unitInner {
-  position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column;
-  background: linear-gradient(160deg, #1e293b, var(--typeColor), #0f172a);
-  border-radius: 11px; padding: 4px; overflow: hidden;
-}
-
-/* Sランク表面キラキラ */
-.unit[data-rank="S"]::after {
-  content: ""; position: absolute; inset: 0; z-index: 10; pointer-events: none;
-  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.4) 50%, transparent 55%);
-  background-size: 250% 250%; animation: shine 3.5s infinite linear; mix-blend-mode: overlay;
-}
-@keyframes shine{0%{background-position:200% 200%}100%{background-position:-50% -50%}}
-
-.unit.fall { animation: fallDown 0.8s forwards; filter: grayscale(1) brightness(0.4); }
-@keyframes fallDown { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(80px) rotate(20deg); opacity: 0; } }
-
-.cardHeader {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 4px 8px; background: rgba(0,0,0,0.5); border-radius: 8px 8px 0 0;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-.cardName {
-  font-weight: 900; font-size: 15px; color: #fff;
-  text-shadow: 0 2px 4px #000; white-space: nowrap;
-  flex: 1; text-align: center; display: block; height: 24px; line-height: 24px;
-}
-
-.artArea {
-  position: relative; width: 100%; aspect-ratio: 4/3;
-  margin: 0; border-radius: 0 0 8px 8px; overflow: hidden;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.1), rgba(0,0,0,0.6));
-  border: 1px solid rgba(255,255,255,0.1); border-top: none;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
-}
-.mainImg {
-  max-height: 95%; max-width: 95%; object-fit: contain;
-  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.7));
-  animation: breathe 4s ease-in-out infinite alternate;
-}
-@keyframes breathe { from { transform: scale(1); } to { transform: scale(1.04); } }
-.unit.hit .mainImg { animation: hit .4s ease; }
-@keyframes hit{10%,90%{transform:translate(-6px,0)}20%,80%{transform:translate(10px,0)}30%,50%,70%{transform:translate(-10px,0)}40%,60%{transform:translate(10px,0)}}
-
-.midSection { padding: 8px 6px; background: rgba(15, 23, 42, 0.6); margin-top: -4px; position: relative; z-index: 3; border-radius: 0 0 10px 10px; }
-.typeRow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.typeIcon { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: var(--typeColor); color: #0b0f1c; box-shadow: 0 2px 4px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.3); }
-.ownerBadge { font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 4px; background: #020617; border: 1px solid #334155; color: #94a3b8; letter-spacing: 0.05em; }
-
-.statusRow { display: flex; gap: 4px; min-height: 14px; margin-bottom: 4px; justify-content: flex-end; flex-wrap: wrap; }
-.stBadge { font-size: 9px; padding: 1px 4px; border-radius: 4px; background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
-
-.hpRow { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px; font-family: 'Teko'; }
-.hpLabel { font-size: 12px; color: #fff; font-weight: 700; line-height: 1; }
-.hpVal { font-size: 16px; color: #fff; font-weight: 600; line-height: 0.9; }
-
-.hpBarBg { width: 100%; height: 10px; background: #0f172a; border-radius: 5px; border: 1px solid #334155; overflow: hidden; }
-.hpBar { height: 100%; width: 100%; transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s; }
-.hpBar.high { background: #10b981; box-shadow: 0 0 8px #10b981; }
-.hpBar.mid { background: #eab308; box-shadow: 0 0 8px #eab308; }
-.hpBar.low { background: #ef4444; box-shadow: 0 0 8px #ef4444; animation: pulseHP 0.5s infinite alternate; }
-@keyframes pulseHP { from { opacity: 1; } to { opacity: 0.6; } }
-
-.bottomSection { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 6px; }
-.spRow { display: flex; gap: 4px; justify-content: center; }
-.pip { width: 16px; height: 8px; background: #451a03; border: 1px solid #78350f; border-radius: 2px; transition: .3s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.5); }
-.pip.on { background: linear-gradient(to bottom, var(--gauge), #d97706); border-color: #fcd34d; box-shadow: 0 0 8px var(--gauge); }
-
-.skillInfo { background: rgba(0,0,0,0.4); padding: 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); flex: 1; min-height: 50px; display:flex; flex-direction:column; justify-content:center; }
-.skillN { font-size: 11px; font-weight: 900; color: #fcd34d; margin-bottom: 2px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; }
-.skillD { font-size: 10px; line-height: 1.3; color: #cbd5e1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-.footer { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94a3b8; font-family: 'Teko'; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; }
-.btnStat { appearance: none; border: none; background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #60a5fa; border-radius: 4px; padding: 2px 6px; font-size: 9px; font-weight: 800; cursor: pointer; transition: .2s; }
-.btnStat:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
-
-/* 操作パッド */
-.padCard {
-  position: fixed; bottom: 0; left: 0; width: 100%; z-index: 50;
-  background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.8); padding: 10px 16px 20px;
-  backdrop-filter: blur(12px);
-}
-@media(min-width: 800px) { .padCard { position: relative; border-radius: 20px; margin-top: 16px; background: var(--glass); padding: 20px; } }
-
-.padHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; color: #94a3b8; font-family: 'Teko'; letter-spacing: 1px; }
-.timerVal { font-size: 24px; color: #fff; font-weight: 600; margin-left: 4px; }
-
-.reserveMini { display: flex; gap: 6px; }
-.resBox { display: flex; gap: 6px; align-items: center; }
-.resLabel { font-weight: 900; margin-right: 2px; font-family: 'Teko'; }
-.resIcon { 
-  width: 28px; height: 28px; border-radius: 4px; background: #1e293b; 
-  border: 2px solid; color: #fff; font-size: 10px; display: grid; place-items: center; 
-  cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.5); font-weight: 800;
-}
-.resIcon.dead { opacity: 0.3; filter: grayscale(1); cursor: default; border-color: #333 !important; }
-.resIcon.active { border-color: #fff !important; box-shadow: 0 0 6px #fff; transform: scale(1.1); z-index: 2; }
-
-.padInner { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; max-width: 600px; margin: 0 auto; }
-.rpsArea { display: flex; gap: 16px; justify-content: center; }
-.rps {
-  width: 64px; height: 64px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.15); cursor: pointer;
-  display: grid; place-items: center; position: relative; top: 0; transition: all .1s;
-  box-shadow: 0 8px 0 rgba(0,0,0,0.5), 0 12px 24px rgba(0,0,0,0.4);
-}
-.rps:active:not([disabled]) { top: 8px; box-shadow: none; }
-.rps.g { background: linear-gradient(145deg, #ef4444, #b91c1c); color: #fff; }
-.rps.c { background: linear-gradient(145deg, #3b82f6, #1d4ed8); color: #fff; }
-.rps.p { background: linear-gradient(145deg, #22c55e, #15803d); color: #fff; }
-.rps:disabled { filter: grayscale(1); opacity: 0.4; cursor: not-allowed; top: 8px; box-shadow: none; }
-.emo { font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
-
-.sideBtns { display: flex; flex-direction: column; gap: 8px; width: 120px; }
-.cmdBtn {
-  width: 100%; padding: 10px 0; border-radius: 8px; font-weight: 800; font-size: 13px;
-  border: none; cursor: pointer; color: #fff; position: relative; top: 0; transition: .1s;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-}
-.cmdBtn:active:not([disabled]) { top: 4px; box-shadow: none; }
-.cmdBtn:disabled { opacity: 0.5; top: 4px; box-shadow: none; cursor: not-allowed; filter: grayscale(1); }
-.btn-sp { background: linear-gradient(to bottom, #334155, #1e293b); color: #94a3b8; }
-
-@media(max-width:480px){
-  .padInner{grid-template-columns:1fr; gap:12px;}
-  .sideBtns{flex-direction:row; justify-content:center; width:auto;}
-  .sideBtns .cmdBtn{font-size:12px; padding:8px 10px;}
-  .rps{width:56px; height:56px;}
-}
-
-.btn-sp.ready { 
-  background: #f59e0b; color: #fff;
-  animation: flashReady 0.2s infinite alternate; 
-  border: 2px solid #fff;
-}
-@keyframes flashReady { from { background: #f59e0b; box-shadow: 0 0 5px #f59e0b; } to { background: #b91c1c; box-shadow: 0 0 20px #ef4444; } }
-.btn-sp.on { background: linear-gradient(to bottom, #ef4444, #b91c1c); color: #fff; box-shadow: 0 0 15px #ef4444; animation: pulse 1s infinite; }
-@keyframes pulse { 0% { opacity:1; } 50% { opacity:0.8; } 100% { opacity:1; } }
-.btn-switch { background: linear-gradient(to bottom, #8b5cf6, #6d28d9); }
-
-.logWrapper { border: 1px solid #334155; background: rgba(2, 6, 23, 0.8); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
-.logHeader { background: #1e293b; color: #94a3b8; font-size: 10px; padding: 2px 8px; font-weight: 700; font-family: 'Orbitron'; border-bottom: 1px solid #334155; }
-.logContainer { height: 80px; overflow-y: auto; padding: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 4px; }
-.logLine { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.logLine.highlight { color: #fbbf24; }
-.logLine.dmg { color: #fca5a5; }
-.logLine.heal { color: #6ee7b7; }
-
-/* トースト (2.0秒) */
-.floatingText {
-  position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
-  font-family: 'Teko', sans-serif; font-weight: 700; font-size: 48px;
-  color: #fff; letter-spacing: 1px; font-style: italic;
-  text-shadow: 3px 3px 0px rgba(0,0,0,1), 0 0 20px var(--glow-color, rgba(255,255,255,0.5));
-  pointer-events: none; z-index: 20; animation: popUp 2.0s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  white-space: nowrap;
-}
-.floatingText.dmg { color: #f43f5e; --glow-color: #f43f5e; }
-.floatingText.heal { color: #4ade80; --glow-color: #4ade80; }
-.floatingText.miss { color: #94a3b8; --glow-color: #94a3b8; font-size: 32px; }
-.floatingText.buff { color: #facc15; --glow-color: #facc15; font-size: 28px; }
-.floatingText.debuff { color: #c084fc; --glow-color: #c084fc; font-size: 28px; }
-.floatingText.adv { color: #10b981; font-size: 24px; border-color: #10b981; }
-.floatingText.dis { color: #f43f5e; font-size: 24px; border-color: #f43f5e; }
-@keyframes popUp { 
-  0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); } 
-  10% { opacity: 1; transform: translate(-50%, -30px) scale(1.2); } 
-  80% { opacity: 1; transform: translate(-50%, -30px) scale(1.2); }
-  100% { opacity: 0; transform: translate(-50%, -80px) scale(1); } 
-}
-
-#jankenOverlay,#cutIn,#switchModal,#infoModal,#rulesModal,#result{position:fixed;inset:0;z-index:100;pointer-events:none;display:none;align-items:center;justify-content:center}
-#switchModal,#infoModal,#rulesModal,#result{background:rgba(0,0,0,0.8);pointer-events:auto;backdrop-filter:blur(8px)}
-#jankenOverlay.active{display:flex;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)}
-#switchModal.show,#infoModal.show,#rulesModal.show,#result.show{display:flex}
-.jkWrap{display:flex;flex-direction:column;align-items:center;gap:24px}
-.jkHands{display:flex;gap:40px;align-items:center}
-.jkHand{font-size:80px;transition:transform .2s cubic-bezier(0.34,1.56,0.64,1);opacity:0;transform:scale(0)}
-.jkHand.show{opacity:1;transform:scale(1)}
-.jkHand.win{filter:drop-shadow(0 0 30px #fcd34d);transform:scale(1.3) rotate(-15deg);z-index:10}
-.jkHand.lose{filter:grayscale(1) brightness(0.4);opacity:0.5;transform:scale(0.8) rotate(15deg)}
-.jkResult{font-family:'Teko';font-size:80px;font-weight:700;color:#fff;text-shadow:0 8px 24px #000;opacity:0;transform:translateY(30px);transition:all .3s}
-.jkResult.show{opacity:1;transform:translateY(0)}
-#cutIn{background:linear-gradient(90deg,transparent,rgba(30,58,138,0.95) 20%,rgba(30,58,138,0.95) 80%,transparent);height:120px;border-top:2px solid #60a5fa;border-bottom:2px solid #60a5fa;flex-direction:column;transform:scaleY(0);transition:.2s}
-#cutIn.show{display:flex;transform:scaleY(1)}
-.cutInText{font-size:36px;font-weight:900;color:#fff;text-shadow:0 4px 12px #000;font-style:italic;letter-spacing:0.1em}
-.cutInSub{font-size:14px;color:#93c5fd;font-weight:700;margin-top:6px}
-.modalCard{width:min(500px,92vw);max-height:85vh;overflow-y:auto;background:#0f172a;border:1px solid #334155;border-radius:16px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.8);animation:popIn 0.3s}
-@keyframes popIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
-.modalHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid #334155;padding-bottom:10px}
-.modalTitle{margin:0;font-size:18px;font-weight:900;color:#fff;font-family:'Noto Sans JP'}
-</style>
+        ::-webkit-scrollbar { display: none; }
+    </style>
 </head>
 <body>
 
-<div class="bg-anim"></div>
-
-<div class="container" id="setup">
-  <section class="card">
-    <h2>TEAM SETUP <button class="btnTiny" id="btnRules">ルール</button></h2>
-    <div class="body">
-      <div id="teamGrid">
-        <div><div class="statsHead" style="color:#4da6ff;font-weight:900;margin-bottom:8px">YOU</div><div id="teamA"></div></div>
-        <div><div class="statsHead" style="color:#ff5c6c;font-weight:900;margin-bottom:8px">CPU</div><div id="teamB"></div></div>
-      </div>
-      <div style="display:flex; gap:12px; margin-top:24px">
-        <button id="btnRand" class="btn3d btn-ghost" style="flex:0 0 auto">ランダム</button>
-        <button id="btnStart" class="btn3d btn-primary" style="flex:1">BATTLE START</button>
-      </div>
+    <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
     </div>
-  </section>
-  <section class="card">
-    <h2>STATUS DETAIL</h2>
-    <div class="body">
-      <div id="statsGrid">
-        <div><div class="statsCol" id="statsA"></div></div>
-        <div><div class="statsCol" id="statsB"></div></div>
-      </div>
-    </div>
-  </section>
-</div>
 
-<div class="container" id="battle" style="display:none">
-  <div class="arena" id="arena">
-    <div class="vsrow">
-      <div id="leftWrap"></div>
-      <div id="rightWrap"></div>
-    </div>
-    
-    <div class="logWrapper">
-      <div class="logHeader">BATTLE LOG</div>
-      <div class="logContainer" id="battleLog"></div>
-    </div>
-    
-    <div style="height:180px"></div>
-  </div>
-  
-  <section class="padCard" id="pad">
-    <div class="padHead">
-      <div id="resA" class="resBox"><span class="resLabel" style="color:#4da6ff">YOU</span></div>
-      <div>TIME <span class="timerVal" id="countNum">15</span></div>
-      <div id="resB" class="resBox"><span class="resLabel" style="color:#ff5c6c">CPU</span></div>
-    </div>
-    <div class="padInner">
-      <div class="rpsArea">
-        <button class="rps g" id="btnG"><div class="emo">✊</div></button>
-        <button class="rps c" id="btnC"><div class="emo">✌️</div></button>
-        <button class="rps p" id="btnP"><div class="emo">🖐</div></button>
-      </div>
-      <div class="sideBtns">
-        <button class="cmdBtn btn-sp" id="btnSP" disabled>SP 必殺</button>
-        <button class="cmdBtn btn-switch" id="btnSwitch">交代</button>
-      </div>
-    </div>
-  </section>
-</div>
-
-<div id="jankenOverlay"><div class="jkWrap"><div class="jkResult" id="jkResult">WIN</div><div class="jkHands"><div class="jkHand" id="jkHandA">✊</div><div style="color:#fff;font-weight:900;font-size:40px;font-family:'Teko'">VS</div><div class="jkHand" id="jkHandB">✌️</div></div></div></div>
-<div id="cutIn"><div class="cutInText" id="cutInName">SKILL</div><div class="cutInSub" id="cutInUser">User</div></div>
-<div id="switchModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">メンバー交代</h3><button class="btnTiny" id="swCancel">閉じる</button></div><div id="switchGrid"></div><button id="swDo" class="btn3d btn-primary" style="width:100%;margin-top:24px" disabled>このキャラに交代</button></div></div>
-<div id="infoModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">詳細ステータス</h3><button class="btnTiny" id="infoClose">閉じる</button></div><div id="infoBody"></div></div></div>
-<div id="rulesModal"><div class="modalCard"><div class="modalHead"><h3 class="modalTitle">ルール説明</h3><button class="btnTiny" id="rulesClose">閉じる</button></div><ul style="padding-left:20px;line-height:2;color:#cbd7f0;font-size:14px;list-style-type:square"><li>3体の「言葉」でチームを組んで戦うターン制バトル。</li><li>じゃんけんに<strong>勝つと攻撃</strong>、<strong>負けると防御</strong>。</li><li><strong>タイプ相性</strong>が重要（有利1.5倍 / 不利0.67倍）。</li><li>攻撃・被弾でゲージが溜まり、MAX(6)で<strong>必殺技</strong>発動！</li><li>相手チームを全員倒せば勝利！</li></ul></div></div>
-<div id="result"><div class="modalCard" style="text-align:center;padding:48px;background:rgba(15,23,42,0.95)"><h1 id="resTitle" style="color:#fff;margin:0 0 24px;font-size:56px;font-family:'Teko';text-shadow:0 0 30px rgba(255,255,255,0.6)">WIN</h1><p style="color:#94a3b8;font-size:14px;font-family:'Teko';letter-spacing:0.1em">RETURNING TO SETUP...</p></div></div>
-
-<script>
-(()=>{
-'use strict';
-const $=id=>document.getElementById(id);
-const qs=(s,el=document)=>el.querySelector(s);
-const delay=ms=>new Promise(r=>setTimeout(r,ms));
-
-const IMG={"パラボラアンテナ":"parabola_antenna.png","ネスカフェアンバサダー":"nescafe_ambassador.png","にんじんしりしり":"ninjin_shirishiri.png","そぼろごはん":"soboro_gohan.png","ニシローランドゴリラ":"western_lowland_gorilla.png","毛むくじゃら":"kemukujara.png","九品仏":"kuhonbutsu.png","けんちん汁":"kenchin_jiru.png","カムチャッカ半島":"kamchatka_peninsula.png","タランチュラ":"tarantula.png","ハシビロコウ":"shoebill.png","バルサミコ酢":"balsamic_vinegar.png","ピロリ菌":"helicobacter_pylori.png","トリニダード・トバゴ":"trinidad_and_tobago.png","カラメル色素":"caramel_color.png","バビロン捕囚":"babylonian_captivity.png","鳥取砂丘":"tottori_sand_dunes.png","プラシーボ効果":"placebo_effect.png","渡来人":"torai_jin.png","さるびあ丸":"sarubia_maru.png","ペペロンチーノ":"peperoncino.png","ポリプロピレン":"polypropylene.png","サラエボ事件":"sarajevo_incident.png","クマンバチ":"kumabachi.png","県庁所在地":"prefectural_capital.png","照り焼きチキン":"teriyaki_chicken.png","ねるねるねるね":"nerunerunerune.png","スルメイカ":"surume_ika.png","本質":"essence.png","見える化":"mieruka.png","自分ごと化":"jibungotoka.png","解像度":"resolution.png","さるびあ丸":"sarubia_maru.png"};
-function preloadImgs(names){
-  const unique=[...new Set(names.map(n=>IMG[n]).filter(Boolean))];
-  unique.forEach(f=>{ const im=new Image(); im.src=`images/${f}`; });
-}
-
-function log(msg, type='normal'){
-  const c=$('battleLog');
-  if(!c) return;
-  const d=document.createElement('div');
-  let icon='';
-  if(type==='atk') icon='⚔️'; else if(type==='dmg') icon='💥'; else if(type==='heal') icon='💖'; else if(type==='sp') icon='✨'; else if(type==='miss') icon='💨';
-  d.className='logLine '+type; d.textContent=(icon?icon+' ':'')+msg; c.appendChild(d); c.scrollTop=c.scrollHeight;
-}
-
-function updateHPUI(role, val, max){
-  const bar = $(`hp-${role}`);
-  const num = $(`hpnum-${role}`);
-  if(bar) {
-    const pct = (val/max)*100;
-    bar.style.width = `${pct}%`;
-    bar.className = 'hpBar';
-    if(pct > 50) bar.classList.add('high');
-    else if(pct > 20) bar.classList.add('mid');
-    else bar.classList.add('low');
-  }
-  if(num) num.textContent = val;
-}
-
-function fitName(el) {
-  if(!el) return;
-  const len = el.textContent.length;
-  if(len > 10) el.style.fontSize = '11px';
-  else if(len > 7) el.style.fontSize = '13px';
-  else el.style.fontSize = '16px';
-}
-
-function showFloatingText(targetId, text, type){
-  const wrap=$(targetId); if(!wrap)return;
-  const el=document.createElement('div'); el.className='floatingText '+type; el.textContent=text;
-  wrap.appendChild(el); setTimeout(()=>el.remove(),2000);
-}
-
-async function showCutIn(skill, user){
-  $('cutInName').textContent=skill; $('cutInUser').textContent=user;
-  const el=$('cutIn'); el.classList.add('show');
-  await delay(1200); el.classList.remove('show'); await delay(200);
-}
-
-function shakeScreen(){
-  const a=$('arena'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake');
-}
-
-let inputLocked=false;
-function lockInputs(on){
-  inputLocked = on;
-  const p = $('pad');
-  if (p) p.style.opacity = on ? 0.6 : 1;
-  ['btnG','btnC','btnP','btnSwitch'].forEach(id=>{ const el = $(id); if(el) el.disabled = on; });
-  updateSPBtn();
-}
-
-function updateSPBtn(){
-  const btn=$('btnSP'); if(!btn)return;
-  const ready=state.A.sp>=6;
-  const canPress=!inputLocked && ready && !state.busy;
-  btn.disabled=!canPress;
-  if(state.spOn){
-    btn.innerHTML='<span>✨</span> 必殺 ON'; btn.className='cmdBtn btn-sp on';
-  } else {
-    if(ready && !inputLocked) {
-      btn.innerHTML='<span>✨</span> PUSH!'; btn.className='cmdBtn btn-sp ready';
-    } else {
-      btn.innerHTML='<span>SP</span> 必殺技'; btn.className='cmdBtn btn-sp';
-    }
-  }
-  if(ready && !state.spAnnA){ log('必殺ゲージMAX！', 'highlight'); state.spAnnA=true; }
-}
-
-async function playJankenAnim(myH, cpuH, res){
-  const map={G:'✊',C:'✌️',P:'🖐'};
-  const ov=$('jankenOverlay'), hA=$('jkHandA'), hB=$('jkHandB'), rs=$('jkResult');
-  ov.classList.add('active');
-  hA.className='jkHand'; hB.className='jkHand'; rs.className='jkResult';
-  hA.textContent=map[myH]; hB.textContent=map[cpuH];
-  await delay(50); hA.classList.add('show'); hB.classList.add('show');
-  await delay(400);
-  if(res>0){ rs.textContent='WIN!'; rs.style.color='#4effa5'; hA.classList.add('win'); hB.classList.add('lose'); }
-  else if(res<0){ rs.textContent='LOSE'; rs.style.color='#ff5c6c'; hA.classList.add('lose'); hB.classList.add('win'); }
-  else { rs.textContent='DRAW'; rs.style.color='#ffd900'; }
-  rs.classList.add('show');
-  await delay(800); ov.classList.remove('active');
-}
-
-const TYPES_RING=['ヒストリー','ジオ','コンセプト','サイエンス','アニマル','ヒューマン','フード'];
-const typeColor=t=>getComputedStyle(document.documentElement).getPropertyValue(`--t-${t}`)||'#7aa0ff';
-const typeMult=(atk,def)=>{const n=TYPES_RING.length,i=TYPES_RING.indexOf(atk),j=TYPES_RING.indexOf(def);if(i<0||j<0)return 1;const st=[(i+1)%n,(i+2)%n],wk=[(i-1+n)%n,(i-2+n)%n];if(st.includes(j))return 1.5;if(wk.includes(j))return 0.67;return 1;};
-const PRANK={S:170,A:165,B:160,C:150,D:145,X:150};
-const HP_BASE={S:560,A:540,B:520,C:500,D:480,X:500};
-
-const toKatakana=(s)=>(s||"").replace(/[ぁ-ん]/g,ch=>String.fromCharCode(ch.charCodeAt(0)+0x60));
-const visualLen = (s)=> (s||"").replace(/[・\s]/g,"").length;
-const reKanaH = /[ぁ-ゟ]/g, reKanaK = /[゠-ヿー]/g, reKanji = /[一-龥々〆ヵヶ]/g;
-function countClass(name){const H=(name.match(reKanaH)||[]).length,K=(name.match(reKanaK)||[]).length,J=(name.match(reKanji)||[]).length;return{H,K,J,total:H+K+J};}
-const reSmallK = /[ァィゥェォャュョヮㇰ-ㇿ]/g, reSokuon=/ッ/g, reVoiced=/[ガ-ポヴ]/g, rePlosiveEnd=/[ツックキチテトプピペポカタ]$/;
-function calcAttackDefense(name,yomiKatakana){
-  let atkP=17.5, defP=17.5;
-  const cls=countClass(name);
-  if(cls.J+cls.K===0){atkP+=12.5;defP+=12.5;}
-  else{const r=cls.K/(cls.J+cls.K);atkP+=25*r;defP+=25*(1-r);}
-  const Lph=yomiKatakana.length||1;
-  const d=(yomiKatakana.match(reVoiced)||[]).length/Lph;
-  const s=(yomiKatakana.match(reSokuon)||[]).length/Lph;
-  const m=(yomiKatakana.match(reSmallK)||[]).length/Lph;
-  const e=rePlosiveEnd.test(yomiKatakana)?1:0;
-  const s_raw=0.6*d+0.25*(s+m)+0.15*e, L=0.05, U=0.45;
-  const s_ph=Math.max(-1,Math.min(1,((s_raw-L)/(U-L))*2-1));
-  const atk_ph=20*(0.5+0.5*s_ph);
-  atkP+=atk_ph; defP+=20-atk_ph;
-  const T=visualLen(name);
-  const s_len=Math.max(-1,Math.min(1,(6-T)/6));
-  const atk_len=20*(0.5+0.5*s_len);
-  atkP+=atk_len; defP+=20-atk_len;
-  return {atkP,defP,T};
-}
-function calcEvasion(name,T,rank){const cls=countClass(name);const hiraRatio=cls.total?(cls.H/cls.total):0;const rankAdj=({S:-1,A:-0.5,B:0,C:0.5,D:1,X:0})[rank]??0;let eva=10+8*hiraRatio-0.5*(T-5)+rankAdj;eva=Math.round(eva*10)/10;return Math.max(5,Math.min(35,eva));}
-function makeWordObject([name,rank,type,yomiH]){const y=toKatakana(yomiH||name);const {atkP,defP,T}=calcAttackDefense(name,y);const ATK=Math.round(PRANK[rank]*(atkP/100));const DEF=Math.round(PRANK[rank]*(defP/100));const HP=Math.round(HP_BASE[rank]+20*(T-5));const EVA=calcEvasion(name,T,rank);return {name,rank,type,yomi:y,maxhp:HP,hp:HP,atk:ATK,def:DEF,eva:EVA,shield:0,eva60:0,atk13:0,lock:0,doom:0,selfHurt:0,stun:false,endure:false};}
-
-const SKILLS={
- "パラボラアンテナ":["妨害電波","威力2.2倍。相手の必殺ゲージを0にする。"],
- "ネスカフェアンバサダー":["一杯いかが","攻撃後、味方全員HP60回復。"],
- "にんじんしりしり":["なんくるないさー","威力1.6倍。次に受ける致命傷を1回だけHP1で耐える。"],
- "そぼろごはん":["そぼろ乱舞","3回連続攻撃（0.75→0.5→0.25倍）。"],
- "ニシローランドゴリラ":["マウンテンビート","威力1.5倍。次の2回、自分の攻撃1.3倍。"],
- "毛むくじゃら":["ムクジャララ","威力1.4倍。次の2回、回避率60%固定。"],
- "九品仏":["仏の顔も三度まで","威力1.6倍。次の2回、被ダメージ半減。"],
- "けんちん汁":["長寿の秘訣","威力1.2倍。自分HP150回復。"],
- "カムチャッカ半島":["言論統制","相手は4ターン交代不可。"],
- "タランチュラ":["言葉狩り","相手は次のターン行動不能。"],
- "ハシビロコウ":["言論統制","相手は4ターン交代不可。"],
- "バルサミコ酢":["言論統制","相手は4ターン交代不可。"],
- "ピロリ菌":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
- "トリニダード・トバゴ":["言葉狩り","相手は次のターン行動不能。"],
- "カラメル色素":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
- "バビロン捕囚":["言論統制","相手は4ターン交代不可。"],
- "鳥取砂丘":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
- "プラシーボ効果":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
- "渡来人":["文字化け","相手は3ターン後に戦闘不能。"],
- "さるびあ丸":["言葉狩り","相手は次のターン行動不能。"],
- "ペペロンチーノ":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
- "ポリプロピレン":["言論統制","相手は4ターン交代不可。"],
- "サラエボ事件":["言葉狩り","相手は次のターン行動不能。"],
- "クマンバチ":["言論統制","相手は4ターン交代不可。"],
- "県庁所在地":["文字化け","相手は3ターン後に戦闘不能。"],
- "照り焼きチキン":["言論統制","相手は4ターン交代不可。"],
- "ねるねるねるね":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
- "スルメイカ":["ゲシュタルト崩壊","相手に自傷効果（3T）。"],
- "本質":["鏡文字","相手の必殺をコピー（威力2倍）。"],
- "見える化":["鏡文字","相手の必殺をコピー（威力2倍）。"],
- "自分ごと化":["鏡文字","相手の必殺をコピー（威力2倍）。"],
- "解像度":["鏡文字","相手の必殺をコピー（威力2倍）。"]
-};
-const WORDS_BASE=[["パラボラアンテナ","S","サイエンス","ぱらぼらあんてな"],["ネスカフェアンバサダー","S","ヒューマン","ねすかふぇあんばさだー"],["にんじんしりしり","A","フード","にんじんしりしり"],["そぼろごはん","A","フード","そぼろごはん"],["ニシローランドゴリラ","A","アニマル","にしろーらんどごりら"],["毛むくじゃら","A","アニマル","けむくじゃら"],["九品仏","A","ジオ","くほんぶつ"],["けんちん汁","A","フード","けんちんじる"],["カムチャッカ半島","B","ジオ","かむちゃっかはんとう"],["タランチュラ","B","アニマル","たらんちゅら"],["ハシビロコウ","B","アニマル","はしびろこう"],["バルサミコ酢","B","フード","ばるさみこす"],["ピロリ菌","B","サイエンス","ぴろりきん"],["トリニダード・トバゴ","B","ジオ","とりにだーどとばご"],["カラメル色素","B","サイエンス","からめるしきそ"],["バビロン捕囚","C","ヒストリー","ばびろんほしゅう"],["鳥取砂丘","C","ジオ","とっとりさきゅう"],["プラシーボ効果","C","サイエンス","ぷらしーぼこうか"],["渡来人","C","ヒューマン","とらいじん"],["さるびあ丸","C","ジオ","さるびあまる"],["ペペロンチーノ","C","フード","ぺぺろんちーの"],["ポリプロピレン","C","サイエンス","ぽりぷろぴれん"],["サラエボ事件","C","ヒストリー","さらえぼじけん"],["クマンバチ","D","アニマル","くまんばち"],["県庁所在地","D","ジオ","けんちょうしょざいち"],["照り焼きチキン","D","フード","てりやきちきん"],["ねるねるねるね","D","フード","ねるねるねるね"],["スルメイカ","D","アニマル","するめいか"],["本質","X","コンセプト","ほんしつ"],["見える化","X","コンセプト","みえるか"],["自分ごと化","X","コンセプト","じぶんごとか"],["解像度","X","コンセプト","かいぞうど"]];
-const makeW=i=>makeWordObject(WORDS_BASE[i]);
-const state={A:{team:[],i:0,sp:0},B:{team:[],i:0,sp:0},remain:15,timer:null,spOn:false,busy:false,spAnnA:false,history:new Set()};
-
-const left =()=>state.A.team[state.A.i];
-const right =()=>state.B.team[state.B.i];
-
-function barRow(label,val,max){const pct=Math.min(100,(val/max)*100);return `<div class="barRow"><div class="barLabel">${label}</div><div class="barBox"><div class="barFill" style="width:${pct}%"></div></div><div class="barVal">${val}</div></div>`;}
-
-// ★setupMiniにtype色
-function miniCard(idx){const w=makeW(idx);return `<div class="setupMini" style="--typeC:${typeColor(w.type)}" data-type="${w.type}"><div class="head"><div>${w.name}</div><div style="color:var(--typeC)">${w.type}</div></div><div class="statGrid">${barRow('HP',w.maxhp,800)}${barRow('ATK',w.atk,120)}${barRow('DEF',w.def,120)}${barRow('EVA',w.eva,30)}</div></div>`;}
-function renderMini(side){const root=side==='A'?$('statsA'):$('statsB');root.innerHTML='';for(let i=0;i<3;i++){const idx=Number($(`${side}-${i}`).value)||0;root.innerHTML+=miniCard(idx);}}
-
-// ランダムユニーク
-function uniqueRandom(n, sourceLen){
-  const arr = []; const pool = Array.from({length: sourceLen}, (_, i) => i);
-  for(let i=0; i<n; i++){
-    const idx = Math.floor(Math.random() * pool.length);
-    arr.push(pool[idx]); pool.splice(idx, 1);
-  }
-  return arr;
-}
-function makeTeam(root,side){
-  root.innerHTML='';
-  for(let i=0;i<3;i++){
-    const div=document.createElement('div');div.className='slot';
-    const pill=document.createElement('span');pill.className='pill';pill.textContent='#'+(i+1);
-    const sel=document.createElement('select');sel.id=`${side}-${i}`;
-    WORDS_BASE.forEach((w,idx)=>{
-      const o=document.createElement('option');
-      o.value=idx;o.textContent=`${w[0]} [${w[1]}/${w[2]}]`;
-      sel.append(o);
-    });
-    sel.addEventListener('change',()=>{ renderMini(side); });
-    div.append(pill,sel);root.append(div);
-  }
-  const picks=uniqueRandom(3,WORDS_BASE.length);
-  picks.forEach((v,i)=>$(`${side}-${i}`).value=v);
-  renderMini(side);
-}
-
-// ランダムボタン
-function randomizeTeam(side){
-  const picks=uniqueRandom(3,WORDS_BASE.length);
-  for(let i=0;i<3;i++){
-    $(`${side}-${i}`).value = picks[i];
-  }
-  renderMini(side);
-}
-
-const collect=side=>[0,1,2].map(i=>{const idx=Number($(`${side}-${i}`).value)||0;return {...makeW(idx),side};});
-
-function startRound(){
-  state.remain=15; $('countNum').textContent=state.remain; clearInterval(state.timer);
-  state.busy=false; lockInputs(false); 
-  checkAffinity();
-  
-  setTimeout(()=>{
-    if(state.busy) return;
-    const cpu = right(); const player = left();
-    const m = typeMult(cpu.type, player.type);
-    if(m <= 0.7 && cpu.lock === 0 && cpu.hp > 0){
-      const reserves = [0,1,2].filter(i => i !== state.B.i && state.B.team[i].hp > 0);
-      const best = reserves.find(i => typeMult(state.B.team[i].type, player.type) >= 1.5);
-      if(best !== undefined && Math.random() < 0.7){ cpuSwitchAction(best); return; }
-    }
-  }, 1200);
-
-  state.timer=setInterval(()=>{if(state.busy)return; state.remain--; $('countNum').textContent=state.remain; if(state.remain<=0){pick(['G','C','P'][Math.floor(Math.random()*3)]);}},1000);
-}
-
-async function cpuSwitchAction(nextIdx){
-  state.busy = true; clearInterval(state.timer); lockInputs(true);
-  try {
-    log('CPUが交代を選択！', 'highlight'); await delay(1000);
-    state.B.i = nextIdx; state.B.sp = 0; renderSides();
-    log(`相手は ${right().name} に交代した！`, 'highlight'); await delay(1000);
-    log('相手の隙だ！攻撃のチャンス！', 'highlight');
-    const ended = await doTurn('ally');
-    if(!ended){
-      state.A.sp=Math.min(6,state.A.sp+1); state.B.sp=Math.min(6,state.B.sp+1);
-      startRound();
-    }
-  } catch(e){ console.error(e); startRound(); } finally { state.busy = false; lockInputs(false); }
-}
-
-function judge(a,b){if(a===b)return 0;if((a==='G'&&b==='C')||(a==='C'&&b==='P')||(a==='P'&&b==='G'))return 1;return -1;}
-
-function baseDamage(att, def){
-  let mult = typeMult(att.type, def.type);
-  let val = 100 * (1 + att.atk/100) / (1 + def.def/120) * mult;
-  return val * (Math.random() * 0.4 + 0.8);
-}
-
-function checkAffinity(){
-  const a = left(), b = right();
-  const pairKey = `${a.name}:${b.name}`;
-  const setBadge = (el, m) => {
-    if(!el) return; el.className = 'affTag';
-    if(m>=1.5) { el.textContent='▲ 有利'; el.className='affTag adv show'; }
-    else if(m<=0.7) { el.textContent='▼ 不利'; el.className='affTag dis show'; }
-    else { el.className='affTag even'; }
-  };
-  const m1 = typeMult(a.type, b.type);
-  setBadge(qs('#affA'), m1);
-  setBadge(qs('#affB'), typeMult(b.type, a.type));
-
-  if(!state.history.has(pairKey)){
-    state.history.add(pairKey);
-    if(m1 >= 1.5) { showFloatingText('leftWrap', '相性有利!', 'adv'); log(`【有利】${a.name}は${b.name}に強い！`,'heal'); }
-    else if(m1 <= 0.7) { showFloatingText('leftWrap', '相性不利...', 'dis'); log(`【不利】${a.name}は${b.name}に弱い...`,'dmg'); }
-  }
-}
-
-function renderCard(u,role,opp){
-  const sp=role==='ally'?state.A.sp:state.B.sp, tag=role==='ally'?'A':'B';
-  const owner=role==='ally'?'YOU':'CPU';
-  const img=IMG[u.name]?`<img src="images/${IMG[u.name]}" class="mainImg" onerror="this.style.display='none'">`:'<span style="font-size:40px">📦</span>';
-  const skill=(SKILLS[u.name]||['—','—']);
-  const pips=[...Array(6)].map((_,i)=>`<span class="pip ${i<sp?'on':''}"></span>`).join('');
-  let badges='';
-  if(u.lock>0) badges+=`<div class="stBadge">🔒交代不可</div>`;
-  if(u.doom>0) badges+=`<div class="stBadge">👾文字化け</div>`;
-  if(u.selfHurt>0) badges+=`<div class="stBadge">🌀崩壊</div>`;
-  
-  return `<div class="unit" style="--typeColor:${typeColor(u.type)}" data-rank="${u.rank}"><div class="unitInner">
-      <div class="cardHeader"><span class="ownerBadge ${role}">${owner}</span><span class="typeIcon">${u.type}</span></div>
-      <div class="cardName" id="nm-${role}">${u.name}</div>
-      <div class="artArea" id="art-${role}">
-        ${img}
-      </div>
-      
-      <div class="statsArea">
-         <div class="hpRow" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2px;font-family:'Teko'">
-            <span style="font-size:12px;color:#fff;font-weight:700;line-height:1">HP</span>
-            <div style="font-size:16px;color:#fff;font-weight:600;line-height:0.9">
-              <span id="hpnum-${role}">${u.hp}</span>
-              <span style="font-size:10px;color:#fff">/ ${u.maxhp}</span>
-            </div>
-         </div>
-         <div class="hpBarBg"><div class="hpBar" id="hp-${role}" style="width:${100*u.hp/u.maxhp}%"></div></div>
-         <div class="statusRow">${badges}</div>
-      </div>
-
-      <div class="bottomSection">
-        <div class="skillInfo">
-          <div class="skillN">技: ${skill[0]}</div>
-          <div class="skillD">${skill[1]}</div>
+    <header id="main-header" class="header-glass fixed top-0 w-full py-4 px-8 z-50 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <button id="back-btn" onclick="goBack()" class="hidden opacity-30 hover:opacity-100 transition-opacity p-2 -ml-2 text-white">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="font-bold tracking-tighter text-xl uppercase">Type16</div>
         </div>
-        <div class="spRow">${pips}</div>
-        <div class="footer">
-           <span class="typeBadge" style="color:#94a3b8;font-size:10px">ATK:${u.atk} DEF:${u.def} EVA:${u.eva}%</span>
-           <button class="btnStat" onclick="window._sh('${u.name}')">詳細</button>
-        </div>
-      </div>
-    </div></div>`;
-}
+        <div id="counter" class="text-[10px] font-bold opacity-40 font-mono">0 / 18</div>
+    </header>
 
-/* 控えエリアの表示 */
-function buildBoxes(){
-  const mk=(u,i,isActive)=>`<div class="resIcon ${u.hp<=0?'dead':''} ${isActive?'active':''}" onclick="window._sh('${u.name}')" style="border-color:${typeColor(u.type)}">${u.name.charAt(0)}</div>`;
-  
-  const rAreaA = $('resA');
-  if(rAreaA) {
-    rAreaA.innerHTML=`
-      <span class="resLabel" style="color:#4da6ff">YOU</span>
-      <div style="display:flex;gap:4px">
-        ${state.A.team.map((u,i)=>mk(u,i,i===state.A.i)).join('')}
-      </div>
-    `;
-  }
-  const rAreaB = $('resB');
-  if(rAreaB) {
-    rAreaB.innerHTML=`
-      <div style="display:flex;gap:4px">
-        ${state.B.team.map((u,i)=>mk(u,i,i===state.B.i)).join('')}
-      </div>
-      <span class="resLabel" style="color:#ff5c6c">CPU</span>
-    `;
-  }
-}
+    <main class="max-w-4xl mx-auto px-6">
+        <section id="welcome" class="min-h-screen flex flex-col items-center justify-center text-center">
+            <h1 class="text-7xl md:text-9xl font-black mb-12 tracking-tighter uppercase">Type16</h1>
+            <button onclick="start()" class="border border-lime-400 text-lime-400 px-12 py-4 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-lime-400 hover:text-black transition-all">Start</button>
+        </section>
 
-function renderSides(){
-  $('leftWrap').innerHTML=renderCard(state.A.team[state.A.i],'ally',state.B.team[state.B.i]);
-  $('rightWrap').innerHTML=renderCard(state.B.team[state.B.i],'enemy',state.A.team[state.A.i]);
-  fitName(qs('#nm-ally')); fitName(qs('#nm-enemy'));
-  buildBoxes(); updateSPBtn(); updateHPUI('ally',left().hp,left().maxhp); updateHPUI('enemy',right().hp,right().maxhp); checkAffinity();
-}
+        <section id="quiz" class="hidden pb-80 pt-40"></section>
+        <section id="result" class="hidden pt-20 pb-20"></section>
+    </main>
 
-window._sh=(n)=>{
-  const u=[...state.A.team,...state.B.team].find(x=>x.name===n); if(!u)return;
-  const skill = SKILLS[u.name]||['?','?'];
-  const html = `
-    <div style="text-align:center;margin-bottom:12px">
-      <h2 style="margin:0;color:${typeColor(u.type)};font-size:20px">${u.name}</h2>
-      <div style="font-size:12px;color:#ccc;margin-top:4px">[${u.rank}ランク / ${u.type}タイプ]</div>
-    </div>
-    <div class="setupMini" style="margin-bottom:12px;background:rgba(0,0,0,0.3)">
-      <div class="statGrid" style="gap:12px">
-        ${barRow('HP', u.hp, u.maxhp)} ${barRow('ATK', u.atk, 120)}
-        ${barRow('DEF', u.def, 120)} ${barRow('EVA', u.eva, 30)}
-      </div>
-    </div>
-    <div style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;border:1px solid #444">
-      <div style="font-weight:bold;color:#ffd900;margin-bottom:6px;font-size:14px">必殺技: ${skill[0]}</div>
-      <div style="font-size:12px;line-height:1.5;color:#ccc">${skill[1]}</div>
-    </div>
-  `;
-  $('infoBody').innerHTML=html; $('infoModal').classList.add('show');
-};
+    <script>
+        // 固定画像の設定（指定されたURL）
+        const STATIC_IMAGE_PATH = "https://kyoryu1039.github.io/kotoba-gacha/images/result.png";
+        
+        const QUESTIONS = [
+            "1. 犬よりも猫が好きだ", "2. 海よりも山が好きだ", "3. 中力粉よりも薄力粉が好きだ",
+            "4. この頃涙もろくなったと思う", "5. 座右の銘なんてない", "6. 痛みには強い方だ",
+            "7. もし急に尻尾が生えてきたら、友達に相談する前に医者に行くと思う", "8. 世の中を舐めている方だ",
+            "9. かゆいくらいなら痛いほうがマシだと思ったことがある", "10. 歯磨きよりも耳かきのほうが好きだ",
+            "11. 人に騙されるよりは人を騙して生きてきた", "12. カマキリを飼うなら名前はつけないと思う",
+            "13. チェーン店よりも個人経営の店が好きだ", "14. 恐ろしい夢をよく見る",
+            "15. コインを投げて表がでないと死ぬよと言われたら、ある程度は表を出せる自信がある", "16. うっすら嫌いな街がある",
+            "17. バナナがもっと高い果物だったら、もう少しありがたがって食べていたと思う", "18. 名人と呼ばれるよりは達人と呼ばれたい"
+        ];
 
-function spEffectPre(att,def,role,forcedName=null,mirrorMode=false){
-  let mult=1, multiSeq=null, skillTitle='通常攻撃', skillUser=att.name, notes=[];
-  const useName=forcedName??att.name;
-  const [title,desc]=(SKILLS[useName]||['—','—']);
-  skillTitle=title;
-  switch(useName){
-    case 'パラボラアンテナ': mult=2.2; break;
-    case 'ネスカフェアンバサダー': mult=1; notes.push('味方全員回復'); break;
-    case 'にんじんしりしり': mult=1.6; att.endure=true; showFloatingText(role==='ally'?'leftWrap':'rightWrap','根性','buff'); break;
-    case 'そぼろごはん': multiSeq=[0.75,0.5,0.25]; break;
-    case 'ニシローランドゴリラ': mult=1.5; att.atk13=3; showFloatingText(role==='ally'?'leftWrap':'rightWrap','ATK UP','buff'); break;
-    case '毛むくじゃら': mult=1.4; att.eva60=3; showFloatingText(role==='ally'?'leftWrap':'rightWrap','回避UP','buff'); break;
-    case '九品仏': mult=1.6; att.shield=2; showFloatingText(role==='ally'?'leftWrap':'rightWrap','軽減','buff'); break;
-    case 'けんちん汁': mult=1.2; notes.push('自己回復'); break;
-    case 'カムチャッカ半島': case 'ハシビロコウ': case 'バルサミコ酢': case 'バビロン捕囚': case 'ポリプロピレン': case 'クマンバチ': case '照り焼きチキン': def.lock=4; showFloatingText(role==='ally'?'rightWrap':'leftWrap','LOCKED','debuff'); break;
-    case 'タランチュラ': case 'トリニダード・トバゴ': case 'サラエボ事件': case 'さるびあ丸': def.stun=true; showFloatingText(role==='ally'?'rightWrap':'leftWrap','スタン','debuff'); break;
-    case 'ピロリ菌': case 'カラメル色素': case '鳥取砂丘': case 'プラシーボ効果': case 'ペペロンチーノ': case 'スルメイカ': case 'ねるねるねるね': def.selfHurt=3; showFloatingText(role==='ally'?'rightWrap':'leftWrap','崩壊','debuff'); break;
-    case '渡来人': case '県庁所在地': def.doom=3; showFloatingText(role==='ally'?'rightWrap':'leftWrap','文字化け','debuff'); break;
-    case '本質': case '見える化': case '自分ごと化': case '解像度':
-      if(!mirrorMode){ mult=2.0; skillTitle='鏡文字'; } break;
-  }
-  return {mult,multiSeq,skillTitle,skillUser,notes};
-}
-async function spEffectPost(att,def,role,usedName){
-  switch(usedName){
-    case 'パラボラアンテナ': if(role==='ally'){state.B.sp=0;}else{state.A.sp=0;} break;
-    case 'ネスカフェアンバサダー': {
-      const team = (role==='ally'?state.A.team:state.B.team);
-      team.forEach(u=>{ if(u.hp<u.maxhp){ u.hp=Math.min(u.maxhp,u.hp+60); } });
-      showFloatingText(role==='ally'?'leftWrap':'rightWrap','+60','heal');
-      renderSides(); 
-      break;
-    }
-    case 'けんちん汁': {
-      att.hp=Math.min(att.maxhp,att.hp+150); 
-      showFloatingText(role==='ally'?'leftWrap':'rightWrap','+150','heal');
-      renderSides(); 
-      break;
-    }
-  }
-}
+        const AXIS_MAP = [
+            { axis: 'AZ', sign: 1 }, { axis: 'PQ', sign: -1 }, { axis: 'LR', sign: 1 },
+            { axis: 'I/II', sign: -1 }, { axis: 'AZ', sign: -1 }, { axis: 'PQ', sign: 1 },
+            { axis: 'LR', sign: -1 }, { axis: 'I/II', sign: 1 }, { axis: 'AZ', sign: 1 },
+            { axis: 'PQ', sign: -1 }, { axis: 'LR', sign: 1 }, { axis: 'I/II', sign: 1 },
+            { axis: 'AZ', sign: -1 }, { axis: 'PQ', sign: -1 }, { axis: 'LR', sign: 1 }, { axis: 'I/II', sign: -1 },
+            { axis: 'AZ', sign: 1 }, { axis: 'PQ', sign: -1 }
+        ];
 
-async function startOfAction(side){
-  const me=side==='ally'?state.A.team[state.A.i]:state.B.team[state.B.i];
-  if(me.eva60>0)me.eva60--; if(me.atk13>0)me.atk13--; if(me.lock>0)me.lock--;
-  if(me.doom>0){
-    me.doom--;
-    if(me.doom<=0){
-      me.hp=0; renderSides();
-      qs(side==='ally'?'#leftWrap .unit':'#rightWrap .unit').classList.add('fall');
-      await delay(1000);
-      log(`${me.name}は文字化けで倒れた！`,'highlight');
-      const ended=await handleKO(side); return false===ended;
-    }
-  }
-  if(me.stun){
-    me.stun=false; renderSides();
-    log(`${me.name}は動けない！`,'highlight'); await delay(1000);
-    return false;
-  }
-  return true;
-}
+        const TYPES_DB = {
+            "APL-I": { name: "当事者", en: "Protagonist" },
+            "APL-II": { name: "従事者", en: "Practitioner" },
+            "APR-I": { name: "担当者", en: "Assignee" },
+            "APR-II": { name: "代行者", en: "Surrogate" },
+            "AQL-I": { name: "滞在者", en: "Dweller" },
+            "AQL-II": { name: "通過者", en: "Transient" },
+            "AQR-I": { name: "待機者", en: "Standby" },
+            "AQR-II": { name: "入力者", en: "Inputter" },
+            "ZPL-I": { name: "関係者", en: "Associate" },
+            "ZPL-II": { name: "同行者", en: "Companion" },
+            "ZPR-I": { name: "保持者", en: "Possessor" },
+            "ZPR-II": { name: "立会人", en: "Witness" },
+            "ZQL-I": { name: "閲覧者", en: "Viewer" },
+            "ZQL-II": { name: "目撃者", en: "Observer" },
+            "ZQR-I": { name: "登録者", en: "Registrant" },
+            "ZQR-II": { name: "申請者", en: "Applicant" }
+        };
 
-async function pick(h){
-  if(state.busy || inputLocked) return;
-  state.busy=true; clearInterval(state.timer); lockInputs(true);
-  try{
-    const cpu=['G','C','P'][Math.floor(Math.random()*3)];
-    const res=judge(h,cpu);
-    await playJankenAnim(h,cpu,res);
-    
-    let ko=false;
-    if(res>0){
-      if(await startOfAction('ally')) ko=await doTurn('ally');
-    } else if(res<0){
-      if(await startOfAction('enemy')) ko=await doTurn('enemy');
-    }
-    if(!ko){
-      state.A.sp=Math.min(6,state.A.sp+1); state.B.sp=Math.min(6,state.B.sp+1);
-      if(state.A.sp<6)state.spAnnA=false;
-      renderSides(); log('次のターン','normal'); await delay(600); startRound();
-    }
-  }catch(e){console.error(e); startRound();}
-}
+        const TEXTS_DB = {
+            "APL-I": { phrase: "あなたは、出来事の中心に立たずにはいられない人です。", summary: "世界を「自らが干渉し、形作るべき素材」として捉えています。自らが干渉できない事象は存在しないも同然であり、あなたの万能感は、周囲を自らの手足として書き換えることでしか維持されません。", strength: "絶対的決断力 / 現実変革力", weak: "「自分がいないと何も始まらない」という強迫観念が静寂を奪います。自律的に動く他者を「反逆」と捉え、無意識に支配下に置こうとするため、真の対等な関係の構築が困難です。", dist: "他者を「協力者」か「障害」として峻別します。他者の主体性を無意識に剥奪し、自分の物語の背景へと追い込むことで、自らの実存を証明しようとします。", advice: "たまには「介入しないこと」が、最も高度な制御になる場合があることを知ってください。" },
+            "APL-II": { phrase: "あなたは、決められた手順を実行することで世界と関わる人です。", summary: "人間が持つ「感情」という制御不能なバグを恐れ、ルールや技術に固執します。完璧な作業プロセスに自己を埋没させることで、傷つきやすい「生身の自分」を機能へと置換し、人間であることの不確実性から逃避しています。", strength: "驚異的な正確性 / 静かなる自律", weak: "予期せぬエラーは「世界の崩壊」として精神を直撃します。マニュアル外の事態に直面した際、解決策を探す前に、その不条理な現実に激しい殺意や絶望を抱きます。", dist: "深入りを避け、役割に基づいた適度な距離を保ちます。不完全な人間性よりも、そこに介在する「確実性」を愛しており、職分を全うできる相手にのみ敬意を払います。", advice: "不完全な「遊び」や「余白」の中にこそ、次のレベルへ進化するためのヒントが隠されています。" },
+            "APR-I": { phrase: "あなたは、状況に役割を割り当てることで安心する人です。", summary: "他者を配置し管理することに執着するのは、そうしなければ自分自身の所在が分からなくなるからです。他人の行動を予測可能な範囲に閉じ込めることで、世界から「驚威（恐怖）」を排除しようとしています。", strength: "構造的思考 / 状況の安定化", weak: "論理的整合性を盾に他者を断罪しますが、それは内面にある「弱さへの嫌悪」の裏返しです。管理できない「野生の感情」をぶつけられると、途端に脆弱な子供のように思考停止に陥ります。", dist: "誰に対しても公平かつ礼儀正しいですが、それは管理を容易にするためのポーズです。本心は、選ばれた人間にしか触れさせない厳格な門を持っています。", advice: "論理では説明できない「情念」を計算に含めることが、真の統率への近道となります。" },
+            "APR-II": { phrase: "あなたは、自分の意思よりも場の要請を優先する人です。", summary: "驚異的な適応力は、純粋な「拒絶への恐怖」から生じています。自分という実体を持てば誰かと衝突し、排除されるリスクがある。そのため、相手が望む虚像を差し出し続けることで生存を許される「鏡」となります。", strength: "超適応能力 / 摩擦の解消", weak: "独りになった瞬間に「自分は何者でもない」という強烈な虚無感に襲われます。他者の期待を裏切ることを死よりも恐れるため、搾取されている状況にさえ依存してしまいます。", dist: "相手に合わせて距離感を変幻自在に変えますが、本人は誰に対しても深入りしていないという、奇妙な孤独感を抱えています。", advice: "「誰の役にも立っていない時の自分」にこそ、真の価値があることを認めてください。" },
+            "AQL-I": { phrase: "あなたは、簡単には動かず、内側に留まり続ける人です。", summary: "外部世界を「不純で、理解に値しないもの」と切り捨て、自らの中に築き上げた完璧な価値体系だけを真実とします。あなたの探究は、未知を求めているのではなく、既知の自説を絶対化するためにあります。", strength: "驚異的な持続力 / 一貫した自己同一性", weak: "自身の聖域を侵す者に対し、対話ではなく「抹殺（完全な無視）」を選択します。独善的な正しさに安住するあまり、現実世界での適応能力が退化し、社会的な孤立を自ら加速させます。", dist: "表面的な交流を排し、魂の深い部分で共鳴できる「極少数の理解者」のみを求めます。それ以外に対しては、徹底した無関心を貫きます。", advice: "境界線の外側にある「無意味な変化」に触れることで、あなたの聖域はより強固なものになります。" },
+            "AQL-II": { phrase: "あなたは、一つの場所に意味を固定しない人です。", summary: "移動を続けるのは、自由を求めているからではありません。一つの場所に留まり、正体が露呈し、責任を負わされることを恐れているからです。関係性が深まる前に自ら壊すことで、振られる側の屈辱を回避しようとします。", strength: "高い俯瞰能力 / 執着からの解放", weak: "深まりを回避するため、何を手に入れても「自分のもの」になった感覚が得られない空虚感を抱えます。困難に直面すると、解決よりも「立ち去ること」を選び、蓄積のない人生を送り続けます。", dist: "風通しの良い関係を好みますが、定義されることを察知すると、音もなく距離を置きます。常に「出口」を確保していなければ呼吸ができません。", advice: "一度だけ「逃げられない責任」を背負ってみてください。それがあなたの真の自由を証明します。" },
+            "AQR-I": { phrase: "あなたは、動く前に空気が変わるのを待つ人です。", summary: "沈黙を守るのは、調和を愛しているからではなく、自分の言葉が場を乱し、自分に牙が向くのを防ぐためです。他者の意志に身を委ねることで、決断に伴う全責任から逃避している「消極的な支配」の状態にあります。", strength: "卓越した受容性 / 忍耐強いタイミング把握", weak: "内面には表に出せない膨大な毒素（不満）を溜め込んでいます。それが限界に達したとき、説明抜きにすべてを遮断し、周囲を当惑させることで、静かな復讐を果たします。", dist: "常に寄り添う形をとりますが、そこにはあなた自身の体温はありません。他者の感情を鏡のように反射するだけで、自分からは決して踏み込みません。", advice: "あなたの沈黙は、時に他者への「無言の強制」になります。時には不完全な言葉で介入を。" },
+            "AQR-II": { phrase: "あなたは、外から入ってくるものによって自分を形づくる人です。", summary: "あなたには自分と他人を分かつフィルターが存在しません。あらゆる情報を自分のこととして取り込むのは、自律的な自己が不在であり、外部からの刺激によってしか自分を定義できないことの裏返しです。", strength: "多層的な共感能力 / 膨大な情報ネットワーク", weak: "感情のオーバーロードにより、定期的かつ突発的に精神が崩壊します。他人の不幸を自分の罪のように感じて絶望しますが、それは単なる自己陶酔的な同情に過ぎないこともあります。", dist: "境界線が曖昧で、他人の問題を自分のこととして抱え込みすぎます。共感力の高さは、自己を他者の声で溢れかえらせることで空虚を埋める行為でもあります。", advice: "情報を取り込むだけでなく、あなた自身の核から生まれる「出力」を意識的に強化してください。" },
+            "ZPL-I": { phrase: "あなたは、個人よりも構造との距離で物事を判断する人です。", summary: "客観性を重視するのは、主観がもたらす「痛み」に耐えられないからです。事象を数値や法則に置き換えることで、生々しい現実から解毒しようとしています。無機質な構造の中にいる時だけが、最も安全だと感じています。", strength: "鉄の客観性 / 構造的メンテナンス力", weak: "他者の感情を「非論理的」と切り捨てますが、実はあなた自身が最も感情の取り扱いを知らない「未発達児」です。予期せぬ親愛を向けられると、バグを起こした機械のように拒絶反応を示します。", dist: "利害関係や役割に基づいた、効率的な交流を好みます。あなたが組織を支えるのは忠誠心からではなく、システムの論理性に従うことが自己保存に直結するからです。", advice: "「効率の悪い感情」の中にこそ、システムを駆動させる本当のエネルギーがあることを認めてください。" },
+            "ZPL-II": { phrase: "あなたは、誰かの隣にいることで力を発揮する人です。", summary: "単独では輝くことができず、誰かの影に隠れることでしか安寧を得られません。献身は相手のためではなく、その相手がいなくなった時に自分が無価値になることへの恐怖から生じています。「支える」という名目で相手の人生を侵食します。", strength: "高い献身性 / リズムの同期", weak: "依存先が弱さを見せた瞬間、冷酷に失望し、次の「強い光」を探し始めます。あなたの忠誠心は、相手の人間性ではなく、「強さ」という機能に対してのみ向けられています。", dist: "一歩引いた位置から見守りますが、それは依存先を逃さないための監視でもあります。不可欠な存在になろうと画策することで、自らのアイデンティティを確立しようとします。", advice: "時には相手を追い越し、あなた自身の行き先を提示することが、真の支援になることもあります。" },
+            "ZPR-I": { phrase: "あなたは、変えないことに価値を置く人です。", summary: "新しいものはすべて「正しくないもの」です。伝統を守るのは、変化を「死」と同義と捉えているからです。既知のルールを反復することで、世界が止まっているという幻想を維持し、自身の老いや衰退という現実から目を背けています。", strength: "圧倒的誠実さ / 細部への執着", weak: "自分の正しさを証明するために、他者の進化や成長を「逸脱」として非難します。あなたが守っているのはもはや中身のない殻であり、形骸化した正義で他者を縛り付けることに執着します。", dist: "同じ価値観を共有する「身内」を極めて大切にしますが、外来者に対しては強い警戒心を抱きます。変化を促す者を「秩序を乱す敵」として冷遇します。", advice: "伝統とは「灰を守ること」ではなく「火を繋ぐこと」です。形を変える勇気を持ってください。" },
+            "ZPR-II": { phrase: "あなたは、起きたことを起きたままに見る人です。", summary: "事実に固執するのは、そこに「意味」や「希望」を見出すことを諦めているからです。起きたことをただ記すことで、物事の背後にあるドラマや痛みを無効化し、すべてを「終わった事実」として処理しようとする、終わりの証明者です。", strength: "揺るぎない公平性 / 事実への忠実さ", weak: "絶望的な状況において、助けを出す代わりに「状況の正確な記録」を優先します。その冷徹さは、苦しんでいる当事者にとって、暴力よりも深い絶望を与える心理的な加害性となります。", dist: "利害関係から一線を引いた、中立的でドライな位置に身を置きます。事実を優先するあまり、個人の切実な感情を「正しくないもの」として切り捨て、残酷な結論を出すことがあります。", advice: "「事実」の背後にある「真実（理由）」に目を向けることで、あなたの言葉はより重みを増します。" },
+            "ZQL-I": { phrase: "あなたは、世界に直接触れずに理解しようとする人です。", summary: "分析や批評を行うことで、あたかも世界を支配しているかのような錯覚に浸り、自分が挑戦して失敗するリスクから逃げ続けています。", strength: "圧倒的な分析眼 / 感情の非干渉", weak: "自分の人生さえも「他人事」のように眺めてしまい、実感を伴わない空虚感に苛まれます。他者の失敗を嘲笑うことで優越感を維持しますが、何に対しても本気になれず生涯を終えるリスクがあります。", dist: "交流を楽しみますが、魂の核は決して見せません。相手が踏み込もうとすると、高説を垂れるか、皮肉を言うことで巧妙に回避し、安全圏へと引きこもります。", advice: "一度くらい、大怪火を覚悟で舞台の上に飛び降りてください。そこから本当の人生が始まります。" },
+            "ZQL-II": { phrase: "あなたは、一瞬の出来事に意味を見出す人です。", summary: "世界に意味を見出すとき、それは常に「自分にとって心地よい物語」に変換されています。他者の本物の苦悩さえも、感性を刺激する「素材」として消費します。共感は相手を救うためではなく、自分の内面世界を彩るためにあります。", strength: "豊かな感性と表現力 / 真実の抽出", weak: "現実の汚さに耐性がありません。理想化した相手が人間らしい欠点を見せた瞬間、あなたは「裏切られた」と感じ、その存在その物語から冷酷に抹殺します。", dist: "相手の深い部分を覗き込もうとしますが、自分自身は謎に包まれています。理解者ではなく「共鳴者」を求めますが、相手の実像ではなく、自分が投影した理想を愛しています。", advice: "物語を語るだけでなく、あなた自身がその物語の「結末」に責任を持つ覚悟を持ってください。" },
+            "ZQR-I": { phrase: "あなたは、枠組みに属することで自分を定義する人です。", summary: "個としての意志を持つことに死の恐怖に近い不安を感じるため、集団のルールに同化します。罪悪感を薄め、大きな流れに身を任せる快楽に溺れている「平庸な共犯者」の状態です。", strength: "高い協調性と安定感 / 帰属性の強化", weak: "集団が狂気に走ったとき、あなたは最も残酷な加害者になります。自分の意志がないため、命令や空気に従っているという自覚すらなく、平気で他者を踏みにじることができるようになります。", dist: "「同じ側にいるかどうか」を重視します。所属を同じくする相手には極めて献身的ですが、外側の人間や、枠組みを批判する者には一切の慈悲を見せず冷淡に排除します。", advice: "あなたが所属している「枠」そのものが、時代遅れになっていないかを定期的に疑ってください。" },
+            "ZQR-II": { phrase: "あなたは、まだ許可を待っている人です。", summary: "自分で自分を認める勇気がありません。常に「上位者」に合格点をもらうことを求め、一生を「準備期間」として浪費します。新しい学びを渡り歩くのは、成長ではなく「厳しい現実」からの逃避です。", strength: "素直な受容性と学習力 / 変化への渇望", weak: "師や環境を次々と変えますが、それはあなたが成長したからではなく、単に自分の無能さを突きつけられる前に「もっといい場所」へ夢を見に逃げ込んでいるだけです。", dist: "自分を引き上げてくれる先駆者を熱狂的に求め、付き従います。しかし、現実的な責任を求められると、新たな「光」を求めて音もなく去っていきます。", advice: "門を叩くのをやめ、今いる場所で「自分の城」を建てるための石を一つ、置いてみてください。" }
+        };
 
-async function doTurn(side){
-  const att=side==='ally'?state.A.team[state.A.i]:state.B.team[state.B.i];
-  let def=side==='ally'?state.B.team[state.B.i]:state.A.team[state.A.i];
-  const spUse=(side==='ally'&&state.spOn&&state.A.sp>=6)||(side==='enemy'&&state.B.sp>=6);
-  
-  let mult=1, multi=null, skillTitle='通常攻撃', usedName=att.name;
-  
-  if(spUse){
-    if(side==='ally'){ state.A.sp=0; state.spOn=false; state.spAnnA=false; } else { state.B.sp=0; }
-    
-    if(['本質','見える化','自分ごと化','解像度'].includes(att.name)){
-      const foe=(side==='ally'?state.B.team:state.A.team).filter(u=>u.rank!=='X'&&u.hp>0);
-      if(foe.length){
-        const pick=foe[Math.floor(Math.random()*foe.length)];
-        const pre=spEffectPre(att,def,side,pick.name,true);
-        mult=pre.mult*2.0; multi=pre.multiSeq?pre.multiSeq.map(x=>x*2.0):null;
-        skillTitle=pre.skillTitle; usedName=pick.name;
-        await showCutIn(skillTitle, att.name);
-        log(`鏡文字：${pick.name}をコピー！`,'sp');
-      }else{
-        mult=2.0; skillTitle='鏡文字'; await showCutIn(skillTitle, att.name);
-      }
-    } else {
-      const pre=spEffectPre(att,def,side);
-      mult=pre.mult; multi=pre.multiSeq; skillTitle=pre.skillTitle;
-      await showCutIn(skillTitle, att.name);
-      if(pre.notes) pre.notes.forEach(n=>log(n,'sp'));
-    }
-  } else {
-    log(`${att.name}の攻撃`,'atk'); await delay(400);
-  }
+        let currentAnswers = new Array(QUESTIONS.length).fill(null);
+        let currentIndex = 0;
 
-  const eva=def.eva60>0?60:def.eva;
-  if(!spUse && Math.random()<(eva/100)){
-    showFloatingText(side==='ally'?'rightWrap':'leftWrap', "MISS", "miss");
-    log('攻撃を回避した！','miss'); 
-    await delay(800);
-    return false;
-  }
+        function start() {
+            document.getElementById('welcome').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            renderQuestions();
+        }
 
-  let targetRole=side==='ally'?'enemy':'ally';
-  const dmgList=(Array.isArray(multi)?multi:[mult]);
-  
-  for(let i=0; i<dmgList.length; i++){
-    let m=dmgList[i];
-    let base = baseDamage(att,def) * m;
-    if(att.atk13>0) base *= 1.3;
-    if(def.shield>0){ base*=0.5; def.shield--; showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap','GUARD','buff'); }
-    
-    let damage = Math.max(1, Math.floor(base));
-    
-    def.hp=Math.max(0,def.hp-damage);
-    updateHPUI(targetRole, def.hp, def.maxhp);
+        function renderQuestions() {
+            const container = document.getElementById('quiz');
+            container.innerHTML = '';
+            QUESTIONS.forEach((q, i) => {
+                const card = document.createElement('div');
+                card.id = `q-${i}`;
+                card.className = `question-card py-32 text-center ${i === 0 ? 'active' : 'inactive'}`;
+                card.innerHTML = `
+                    <h2 class="text-xl md:text-2xl font-bold mb-16 px-4 leading-relaxed">${q}</h2>
+                    <div class="flex items-center justify-center gap-4 md:gap-8 mb-6">
+                        <button onclick="ans(${i}, 1)" class="dot dot-agree w-12 h-12"></button>
+                        <button onclick="ans(${i}, 2)" class="dot dot-agree w-9 h-9"></button>
+                        <button onclick="ans(${i}, 3)" class="dot dot-agree w-6 h-6"></button>
+                        <button onclick="ans(${i}, 4)" class="dot dot-neutral"></button>
+                        <button onclick="ans(${i}, 5)" class="dot dot-disagree w-6 h-6"></button>
+                        <button onclick="ans(${i}, 6)" class="dot dot-disagree w-9 h-9"></button>
+                        <button onclick="ans(${i}, 7)" class="dot dot-disagree w-12 h-12"></button>
+                    </div>
+                    <div class="flex justify-between max-w-[280px] mx-auto text-[10px] font-bold tracking-widest uppercase opacity-30">
+                        <span class="text-lime-400">そう思う</span>
+                        <span class="text-rose-500">そう思わない</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
 
-    qs(targetRole==='enemy'?'#rightWrap .unit':'#leftWrap .unit').classList.add('hit');
-    shakeScreen();
-    showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap', `-${damage}`, 'dmg');
-    
-    log(`${def.name}に ${damage} ダメージ`,'dmg');
-    await delay(1200); 
-    qs('.unit.hit')?.classList.remove('hit');
+        function ans(idx, val) {
+            currentAnswers[idx] = val;
+            const dots = document.querySelectorAll(`#q-${idx} .dot`);
+            dots.forEach(d => d.classList.remove('active'));
+            dots[val - 1].classList.add('active');
+            
+            const done = currentAnswers.filter(a => a !== null).length;
+            document.getElementById('progress-fill').style.width = (done / QUESTIONS.length * 100) + '%';
+            document.getElementById('counter').innerText = `${done} / ${QUESTIONS.length}`;
 
-    if(def.hp<=0 && def.endure){
-      def.endure=false; def.hp=1; 
-      updateHPUI(targetRole, 1, def.maxhp);
-      showFloatingText(targetRole==='enemy'?'rightWrap':'leftWrap', '根性', 'buff');
-      log('根性で耐えた！','highlight');
-    }
-    else if(def.hp<=0){
-      qs(targetRole==='enemy'?'#rightWrap .unit':'#leftWrap .unit').classList.add('fall');
-      await delay(1000);
-      log(`${def.name}は倒れた！`,'highlight');
-      const ended=await handleKO(targetRole==='enemy'?'enemy':'ally');
-      if(ended) return true;
-      if(i<dmgList.length-1){
-        def=(side==='ally'?state.B.team[state.B.i]:state.A.team[state.A.i]);
-      }
-    }
-  }
+            currentIndex = idx;
+            document.getElementById('back-btn').classList.toggle('hidden', currentIndex === 0);
 
-  if(att.selfHurt>0){
-    att.selfHurt--;
-    if(Math.random()<0.33){
-      log('ゲシュタルト崩壊！','dmg');
-      att.hp=Math.max(0,att.hp-100); 
-      const myRole=side==='ally'?'ally':'enemy';
-      updateHPUI(myRole, att.hp, att.maxhp);
-      showFloatingText(myRole==='ally'?'leftWrap':'rightWrap','-100','dmg');
-      if(att.hp<=0){
-        qs(myRole==='ally'?'#leftWrap .unit':'#rightWrap .unit').classList.add('fall');
-        await delay(1000);
-        log(`${att.name}は自滅した`,'highlight');
-        return await handleKO(side);
-      }
-    }
-  }
-  if(spUse) await spEffectPost(att,def,side,usedName);
-  return false;
-}
+            if (idx < QUESTIONS.length - 1) {
+                setTimeout(() => {
+                    document.getElementById(`q-${idx}`).classList.replace('active', 'inactive');
+                    const next = document.getElementById(`q-${idx + 1}`);
+                    next.classList.remove('inactive');
+                    next.classList.add('active');
+                    next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 400);
+            } else {
+                setTimeout(finish, 600);
+            }
+        }
 
-async function handleKO(side){
-  const team = side==='ally' ? state.A.team : state.B.team;
-  const survivors = team.map((u,i)=>({u,i})).filter(o=>o.u.hp>0);
-  if(survivors.length===0){
-    $('resTitle').textContent = side==='enemy' ? 'YOU WIN!' : 'YOU LOSE...';
-    $('result').classList.add('show'); await delay(3000); $('result').classList.remove('show');
-    $('battle').style.display='none'; $('setup').style.display='grid';
-    return true; 
-  }
-  if(side==='enemy'){
-    state.B.i = survivors[0].i; state.B.sp=0;
-    log(`相手は ${team[state.B.i].name} を繰り出した`, 'highlight');
-  } else {
-    state.A.i = survivors[0].i; state.A.sp=0; state.spOn=false;
-    log(`${team[state.A.i].name} に交代した`, 'highlight');
-  }
-  renderSides(); await delay(1000); startRound();
-  return true; 
-}
+        function goBack() {
+            if (currentIndex > 0) {
+                document.getElementById(`q-${currentIndex}`).classList.replace('active', 'inactive');
+                currentIndex--;
+                const prev = document.getElementById(`q-${currentIndex}`);
+                prev.classList.remove('inactive');
+                prev.classList.add('active');
+                prev.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (currentIndex === 0) document.getElementById('back-btn').classList.add('hidden');
+            }
+        }
 
-const swModal=$('switchModal'), swGrid=$('switchGrid'), swDo=$('swDo'); let swIdx=null;
-function openSwitch(){
-  if(left().lock>0){ log('言論統制により交代不可！', 'highlight'); showFloatingText('leftWrap','LOCKED','debuff'); return; }
-  swGrid.innerHTML=''; swIdx=null; swDo.disabled=true;
-  const idxs=[0,1,2].filter(i=>i!==state.A.i && state.A.team[i].hp>0);
-  if(!idxs.length){ log('交代できる控えがいません'); return; }
-  const enemy = right();
-  
-  idxs.forEach(i=>{
-    const u=state.A.team[i];
-    const skill = SKILLS[u.name]||['?','?'];
-    const m = typeMult(u.type, enemy.type);
-    let affText = 'ー 等倍'; let affClass = 'color:#8ba0c0';
-    if(m>=1.5){ affText='◎ 有利'; affClass='color:#4effa5'; }
-    if(m<=0.7){ affText='△ 不利'; affClass='color:#ff5c6c'; }
+        function pushToEdges(percent) {
+            const x = percent / 100;
+            const k = 0.9; 
+            let y = 1 / (1 + Math.exp(-k * (x - 0.5) * 10));
+            const minBound = 1 / (1 + Math.exp(-k * (-0.5) * 10));
+            const maxBound = 1 / (1 + Math.exp(-k * (0.5) * 10));
+            y = (y - minBound) / (maxBound - minBound);
+            return Math.round(y * 100);
+        }
 
-    const div=document.createElement('div'); div.className='setupMini selCard';
-    div.style.setProperty('--typeC',typeColor(u.type));
-    div.innerHTML=`
-      <div class="head"><div>${u.name}</div></div>
-      <div style="font-size:11px;font-weight:bold;${affClass};margin-bottom:4px">対 ${enemy.name}: ${affText}</div>
-      <div class="statGrid">
-        ${barRow('HP',u.hp,u.maxhp)} ${barRow('ATK',u.atk,120)}
-        ${barRow('DEF',u.def,120)} ${barRow('EVA',u.eva,30)}
-      </div>
-      <div style="font-size:10px;color:#ccc;margin-top:4px">必殺: ${skill[0]}</div>
-    `;
-    div.onclick=()=>{ document.querySelectorAll('.selCard').forEach(e=>e.classList.remove('selected')); div.classList.add('selected'); swIdx=i; swDo.disabled=false; };
-    swGrid.appendChild(div);
-  });
-  swModal.classList.add('show');
-}
+        function finish() {
+            let scores = { AZ: 0, PQ: 0, LR: 0, "I/II": 0 };
+            let counts = { AZ: 0, PQ: 0, LR: 0, "I/II": 0 };
 
-$('btnSwitch').onclick=()=>{ if(!inputLocked) openSwitch(); };
-$('swCancel').onclick=()=>swModal.classList.remove('show');
-swDo.onclick=async()=>{
-  if(swIdx===null)return;
-  swModal.classList.remove('show');
-  state.A.i=swIdx; state.A.sp=0; state.spOn=false;
-  renderSides(); log(`${state.A.team[swIdx].name} に交代！`, 'highlight');
-  
-  await delay(500); 
-  const ended = await doTurn('enemy');
-  if(!ended) {
-    state.A.sp=Math.min(6,state.A.sp+1); state.B.sp=Math.min(6,state.B.sp+1);
-    startRound();
-  }
-};
+            currentAnswers.forEach((v, i) => {
+                const m = AXIS_MAP[i];
+                if (v !== null) {
+                    const weight = (4 - v); 
+                    scores[m.axis] += weight * m.sign;
+                    counts[m.axis]++;
+                }
+            });
 
-const modals = ['switchModal','infoModal','rulesModal'];
-modals.forEach(id=>{ $(id).addEventListener('click', (e)=>{ if(e.target === $(id)) $(id).classList.remove('show'); }); });
+            document.getElementById('quiz').classList.add('hidden');
+            const res = document.getElementById('result');
+            res.classList.remove('hidden');
+            res.innerHTML = `<div class="min-h-[60vh] flex flex-col items-center justify-center">
+                <div class="loading-pixel mb-8"></div>
+                <p class="font-mono text-[10px] opacity-40 uppercase tracking-widest">Assessing Specimen...</p>
+            </div>`;
 
-document.addEventListener('DOMContentLoaded',()=>{
-  makeTeam($('teamA'),'A'); makeTeam($('teamB'),'B');
-  $('btnStart').onclick=async()=>{
-    state.A.team=collect('A'); state.B.team=collect('B'); state.A.i=0; state.B.i=0; state.A.sp=0; state.B.sp=0; state.spOn=false; state.spAnnA=false;
-    state.history=new Set();
-    $('battleLog').innerHTML=''; $('setup').style.display='none'; $('battle').style.display='block';
-    await preloadImgs([...state.A.team, ...state.B.team].map(u=>u.name));
-    renderSides(); 
-    log('バトル開始！', 'highlight'); 
-    checkAffinity();
-    await delay(800); startRound();
-  };
-  $('btnG').onclick=()=>pick('G'); $('btnC').onclick=()=>pick('C'); $('btnP').onclick=()=>pick('P');
-  $('btnSP').onclick=()=>{ if(!inputLocked && state.A.sp>=6){ state.spOn = !state.spOn; updateSPBtn(); }};
-  
-  $('btnRules').onclick=()=>$('rulesModal').classList.add('show');
-  $('rulesClose').onclick=()=>$('rulesModal').classList.remove('show');
-  $('infoClose').onclick=()=>$('infoModal').classList.remove('show');
-  // ランダムボタン
-  $('btnRand').onclick=()=>{ randomizeTeam('A'); randomizeTeam('B'); };
-});
-})();
-</script>
+            const calcPercent = (axis) => {
+                const maxScore = counts[axis] * 3;
+                if (maxScore === 0) return 50; 
+                const rawP = ((scores[axis] + maxScore) / (maxScore * 2)) * 100;
+                return pushToEdges(rawP);
+            };
+
+            const az_p = calcPercent('AZ');
+            const pq_p = calcPercent('PQ');
+            const lr_p = calcPercent('LR');
+            const i2_p = calcPercent('I/II');
+
+            const code = `${az_p >= 50 ? 'A' : 'Z'}${pq_p >= 50 ? 'P' : 'Q'}${lr_p >= 50 ? 'L' : 'R'}-${i2_p >= 50 ? 'I' : 'II'}`;
+            const data = TYPES_DB[code];
+            const textData = TEXTS_DB[code];
+
+            // 1.5秒待ってから、固定画像を使って結果を表示
+            setTimeout(() => {
+                showResult(data.name, data.en, textData, code, { az_p, pq_p, lr_p, i2_p }, STATIC_IMAGE_PATH);
+            }, 1500);
+        }
+
+        function copyToClipboard(text, btn) {
+            const originalText = btn.innerText;
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                btn.innerText = "COPIED!";
+                setTimeout(() => { btn.innerText = originalText; }, 2000);
+            } catch (err) {
+                console.error('Copy failed', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showResult(typeName, enName, data, code, stats, img) {
+            document.body.classList.add('result-view');
+            const header = document.getElementById('main-header');
+            header.classList.add('result-header-text');
+            header.style.backgroundColor = 'transparent';
+
+            const shareText = `【Type16】診断結果：${typeName} (${code})\n#Type16 #自己分析\n${window.location.href}`;
+
+            const res = document.getElementById('result');
+            res.innerHTML = `
+                <div class="space-y-16">
+                    <div class="flex flex-col items-center justify-center text-center">
+                        <div class="pixel-art-wrapper mb-2">
+                            <img src="${img}" alt="Result Character">
+                        </div>
+                        <p class="text-xl md:text-2xl font-light opacity-30 tracking-[0.3em] font-mono leading-none mb-1">${code}</p>
+                        <h2 class="heavy-name mb-0">${typeName}</h2>
+                        <p class="text-[10px] font-bold tracking-[0.4em] opacity-40 uppercase font-mono mb-4">${enName}</p>
+                        <div class="max-w-md mx-auto px-4">
+                           <h3 class="serif-display text-xl md:text-2xl leading-tight mb-2">「${data.phrase}」</h3>
+                           <p class="text-sm opacity-60 leading-relaxed font-light">${data.summary}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start py-6 border-t border-black border-opacity-10">
+                             <div class="space-y-6">
+                                ${renderStat("A", "Z", stats.az_p, "bar-az")}
+                                ${renderStat("P", "Q", stats.pq_p, "bar-pq")}
+                            </div>
+                            <div class="space-y-6">
+                                ${renderStat("L", "R", stats.lr_p, "bar-lr")}
+                                ${renderStat("I", "II", stats.i2_p, "bar-i2")}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="border-t border-black pt-6">
+                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Specialty</span>
+                                <p class="text-lg font-bold">${data.strength}</p>
+                            </div>
+                            <div class="border-t border-black pt-6">
+                                <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Structural Flaw</span>
+                                <p class="text-sm opacity-60 leading-relaxed italic">${data.weak}</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-black pt-6">
+                            <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Distance From Others</span>
+                            <p class="text-sm opacity-60 leading-relaxed">${data.dist}</p>
+                        </div>
+
+                        <div class="bg-black text-white p-8 md:p-16 rounded-[30px] text-center">
+                            <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Observation Message</span>
+                            <p class="serif-display text-xl md:text-2xl leading-snug">「${data.advice}」</p>
+                        </div>
+
+                        <div class="flex flex-col items-center gap-6 pt-4">
+                            <button onclick='copyToClipboard(\`${shareText}\`, this)' class="border border-black px-12 py-3 rounded-full font-bold uppercase tracking-[0.3em] text-[10px] hover:bg-black hover:text-white transition-all">Share Results (Copy)</button>
+                            <button onclick="location.reload()" class="text-[10px] font-bold tracking-[0.3em] opacity-30 hover:opacity-100 transition-opacity uppercase underline">Restart Dissection</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderStat(leftLabel, rightLabel, percent, colorClass) {
+            let leftOffset = 50;
+            let width = 0;
+            
+            if (percent >= 50) {
+                width = percent - 50;
+                leftOffset = 50 - width;
+            } else {
+                width = 50 - percent;
+                leftOffset = 50;
+            }
+
+            return `
+                <div class="space-y-2">
+                    <div class="flex justify-between items-end font-mono text-[9px] uppercase">
+                        <span class="font-bold ${percent >= 50 ? 'opacity-100' : 'opacity-20'}">${leftLabel}</span>
+                        <span class="font-bold opacity-30 text-[8px] tracking-widest">${percent}% / ${100-percent}%</span>
+                        <span class="font-bold ${percent < 50 ? 'opacity-100' : 'opacity-20'}">${rightLabel}</span>
+                    </div>
+                    <div class="stat-bar-container">
+                        <div class="center-line"></div>
+                        <div class="stat-bar-fill ${colorClass}" style="left: ${leftOffset}%; width: ${width}%;"></div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
 </body>
 </html>
