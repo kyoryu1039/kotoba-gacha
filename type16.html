@@ -615,22 +615,6 @@
             }, 1500);
         }
 
-        function copyToClipboard(text, btn) {
-            const originalText = btn.innerText;
-            const textarea = document.createElement("textarea");
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                btn.innerText = "COPIED!";
-                setTimeout(() => { btn.innerText = originalText; }, 2000);
-            } catch (err) {
-                console.error('Copy failed', err);
-            }
-            document.body.removeChild(textarea);
-        }
-        
         // 相性表示用HTML生成関数
         function renderCompatibility(code) {
             const comp = COMPATIBILITY[code];
@@ -660,8 +644,6 @@
             header.classList.add('result-header-text');
             header.style.backgroundColor = 'transparent';
 
-            const shareText = `【Type16】診断結果：${typeName} (${code})\n#Type16 #自己分析\n${window.location.href}`;
-            
             const myRankData = RANKING_DATA.find(r => r.code === code);
             const myRange = myRankData ? myRankData.range : "---";
             const myRank = myRankData ? myRankData.rank : "-";
@@ -706,6 +688,16 @@
                     </div>
 
                     <div class="space-y-12">
+                        <!-- シェアボタンエリア（ランキングの上に配置） -->
+                        <div class="flex flex-row justify-center gap-3 px-4 w-full max-w-lg mx-auto">
+                             <button onclick="shareToX('${typeName}', '${code}')" class="flex-1 bg-black text-white border border-black py-3 rounded-full font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-gray-900 transition-all flex items-center justify-center">
+                                <span>X / Post</span>
+                            </button>
+                            <button onclick="nativeShare('${typeName}', '${code}')" class="flex-1 bg-white text-black border border-black py-3 rounded-full font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-gray-50 transition-all flex items-center justify-center">
+                                <span>Share</span>
+                            </button>
+                        </div>
+
                         <div class="text-center">
                              <span class="text-[9px] font-bold tracking-[0.2em] opacity-30 uppercase block mb-2">Type16割合ランキング</span>
                              <div class="inline-block bg-gray-100 rounded-md px-6 py-3">
@@ -745,7 +737,6 @@
                             <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Message</span>
                             <p class="serif-display text-xl md:text-2xl leading-snug">「${data.advice}」</p>
                             
-                            <!-- 相性表示エリア -->
                             ${renderCompatibility(code)}
                         </div>
 
@@ -754,7 +745,7 @@
                         </div>
 
                         <div class="flex flex-col items-center gap-6 pt-4">
-                            <button onclick='copyToClipboard(\`${shareText}\`, this)' class="border border-black px-12 py-3 rounded-full font-bold uppercase tracking-[0.3em] text-[10px] hover:bg-black hover:text-white transition-all">Share Results (Copy)</button>
+                            <!-- リスタートボタン -->
                             <button onclick="location.reload()" class="text-[10px] font-bold tracking-[0.3em] opacity-30 hover:opacity-100 transition-opacity uppercase underline">Restart Dissection</button>
                         </div>
                     </div>
@@ -800,6 +791,32 @@
                     </div>
                 </div>
             `;
+        }
+
+        // X (Twitter) への直接投稿
+        function shareToX(typeName, code) {
+            const text = `【Type16】診断結果：${typeName} (${code})\n#Type16 #自己分析`;
+            const url = window.location.href; 
+            const intentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+            window.open(intentUrl, '_blank');
+        }
+
+        // スマホの純正共有メニューを開く
+        async function nativeShare(typeName, code) {
+            const text = `【Type16】診断結果：${typeName} (${code})\n#Type16`;
+            const url = window.location.href;
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'Type16', text: text, url: url });
+                } catch (err) {
+                    console.log('Share canceled');
+                }
+            } else {
+                navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
+                    alert("URLをコピーしました！");
+                });
+            }
         }
     </script>
 </body>
