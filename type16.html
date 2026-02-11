@@ -263,25 +263,43 @@
         ];
 
 const AXIS_MAP = [
-          { axis: 'PQ', sign: 1 },   // 1. 犬より猫 -> P(内的)
-          { axis: 'I/II', sign: 1 }, // 2. 海より山 -> I(安定)
-          { axis: 'LR', sign: 1 },   // 3. 薄力粉 -> L(論理)
-          { axis: 'LR', sign: -1 },  // 4. 涙もろい -> R(情緒)
-          { axis: 'PQ', sign: 1 },   // 5. 座右の銘なし -> P(内的)
-          { axis: 'I/II', sign: 1 }, // 6. 痛みに強い -> I(安定)
-          { axis: 'PQ', sign: -1 },  // 7. 尻尾→医者 -> Q(外的)
-          { axis: 'AZ', sign: 1 },   // 8. 世の中舐めてる -> A(能動)
-          { axis: 'AZ', sign: 1 },   // 9. かゆいより痛い -> A(能動)
-          { axis: 'AZ', sign: -1 },  // 10. 耳かき好き -> Z(受動)
-          { axis: 'LR', sign: -1 },  // 11. 人を騙してきた -> R(情緒)
-          { axis: 'LR', sign: 1 },   // 12. カマキリに名付けない -> L(論理)
-          { axis: 'PQ', sign: 1 },   // 13. 個人経営 -> P(内的)
-          { axis: 'I/II', sign: -1 },// 14. 恐ろしい夢 -> II(敏感)
-          { axis: 'AZ', sign: 1 },   // 15. コイン自信 -> A(能動)
-          { axis: 'LR', sign: -1 },  // 16. 嫌いな街 -> R(情緒)
-          { axis: 'PQ', sign: -1 },  // 17. バナナ高価 -> Q(外的)
-          { axis: 'AZ', sign: -1 }   // 18. 名人より達人 -> Z(受動)
-        ];
+  // 1. 犬より猫: P(内的)の基本、情緒(R)はやや抑制
+  { weights: [{ axis: 'PQ', sign: 1, value: 1.0 }, { axis: 'LR', sign: -1, value: 0.4 }] },
+  // 2. 海より山: I(安定)への好意、構造(L)への関心
+  { weights: [{ axis: 'I/II', sign: 1, value: 1.0 }, { axis: 'LR', sign: 1, value: 0.5 }] },
+  // 3. アジサイよりパンジー: L(秩序)と、外部的に整えられた美(Q)
+  { weights: [{ axis: 'LR', sign: 1, value: 0.8 }, { axis: 'PQ', sign: -1, value: 0.6 }] },
+  // 4. 涙もろい: R(情緒)の主軸、感受性(II)と生理的受動(Z)
+  { weights: [{ axis: 'LR', sign: -1, value: 1.2 }, { axis: 'I/II', sign: -1, value: 0.8 }, { axis: 'AZ', sign: -1, value: 0.5 }] },
+  // 5. 座右の銘なし: P(内的)自立、形式(L)への反抗、能動(A)的自由
+  { weights: [{ axis: 'PQ', sign: 1, value: 0.8 }, { axis: 'LR', sign: 1, value: -0.4 }, { axis: 'AZ', sign: 1, value: 0.6 }] },
+  // 6. 痛みに強い: I(安定)の強さ、精神的能動(A)
+  { weights: [{ axis: 'I/II', sign: 1, value: 1.2 }, { axis: 'AZ', sign: 1, value: 0.7 }] },
+  // 7. 尻尾→医者: Q(外的権威)依存、II(不安)、L(合理的対処)
+  { weights: [{ axis: 'PQ', sign: -1, value: 1.2 }, { axis: 'I/II', sign: -1, value: 0.7 }, { axis: 'LR', sign: 1, value: 0.5 }] },
+  // 8. 世の中を舐めている: A(能動)の肥大、P(内的)中心、R(情緒)のドライさ
+  { weights: [{ axis: 'AZ', sign: 1, value: 1.2 }, { axis: 'PQ', sign: 1, value: 0.5 }, { axis: 'LR', sign: -1, value: 0.4 }] },
+  // 9. かゆいより痛い: I(安定/制御)、A(能動)、L(明確さ)
+  { weights: [{ axis: 'I/II', sign: 1, value: 0.8 }, { axis: 'AZ', sign: 1, value: 0.6 }, { axis: 'LR', sign: 1, value: 0.4 }] },
+  // 10. 耳かき好き: Z(受動)の快楽、II(敏感)、Q(他者依存)
+  { weights: [{ axis: 'AZ', sign: -1, value: 1.2 }, { axis: 'I/II', sign: -1, value: 0.6 }, { axis: 'PQ', sign: -1, value: 0.4 }] },
+  // 11. 人を騙してきた: A(操作)、P(独自倫理)、R(共感乖離)
+  { weights: [{ axis: 'AZ', sign: 1, value: 1.0 }, { axis: 'PQ', sign: 1, value: 0.6 }, { axis: 'LR', sign: -1, value: 0.6 }] },
+  // 12. カマキリに名付けない: L(論理)の極致、I(安定)、P(擬人化拒否)
+  { weights: [{ axis: 'LR', sign: 1, value: 1.2 }, { axis: 'I/II', sign: 1, value: 0.7 }, { axis: 'PQ', sign: 1, value: 0.4 }] },
+  // 13. 個人経営が好き: P(こだわり)、R(人間味)、Z(画一的Qの回避)
+  { weights: [{ axis: 'PQ', sign: 1, value: 0.8 }, { axis: 'LR', sign: -1, value: 0.6 }, { axis: 'AZ', sign: 1, value: -0.3 }] },
+  // 14. 恐ろしい夢: II(敏感)特化、Z(制御不能)
+  { weights: [{ axis: 'I/II', sign: -1, value: 1.5 }, { axis: 'AZ', sign: -1, value: 0.6 }] },
+  // 15. コイン自信: I(不安なし)、A(運命制御)、P(自己肯定)
+  { weights: [{ axis: 'I/II', sign: 1, value: 1.0 }, { axis: 'AZ', sign: 1, value: 0.8 }, { axis: 'PQ', sign: 1, value: 0.4 }] },
+  // 16. 嫌いな街がある: R(情緒的拒絶)、P(内的テリトリー)、II(不快過敏)
+  { weights: [{ axis: 'LR', sign: -1, value: 0.8 }, { axis: 'PQ', sign: 1, value: 0.5 }, { axis: 'I/II', sign: -1, value: 0.4 }] },
+  // 17. バナナ高価なら: Q(外部価値)特化、Z(状況受容)
+  { weights: [{ axis: 'PQ', sign: -1, value: 1.5 }, { axis: 'AZ', sign: -1, value: 0.6 }] },
+  // 18. 名人より達人: P(自己研鑽)、L(本質)、Z(自然体の極致)
+  { weights: [{ axis: 'PQ', sign: 1, value: 1.0 }, { axis: 'LR', sign: 1, value: 0.6 }, { axis: 'AZ', sign: -1, value: 0.6 }] }
+];
         
 const TYPES_DB = {
     "APL-I": { name: "担当者", en: "The Officer" },
