@@ -570,18 +570,56 @@ const TYPES_DB = {
             return Math.round(y * 100);
         }
 
-        function finish() {
-            let scores = { AZ: 0, PQ: 0, LR: 0, "I/II": 0 };
-            let counts = { AZ: 0, PQ: 0, LR: 0, "I/II": 0 };
+       function finish() {
+    // 1. スコアとカウントを初期化
+    let scores = { AZ: 0, PQ: 0, LR: 0, "I/II": 0 };
+    let counts = { AZ: 0, PQ: 0, LR: 0, "I/II": 0 };
 
-            currentAnswers.forEach((v, i) => {
-                const m = AXIS_MAP[i];
-                if (v !== null) {
-                    const weight = (4 - v); 
-                    scores[m.axis] += weight * m.sign;
-                    counts[m.axis]++;
-                }
+    // 2. 回答をループ
+    currentAnswers.forEach((v, i) => {
+        const m = AXIS_MAP[i];
+        if (v !== null && m.weights) {
+            const answerWeight = (4 - v); // 1(強肯定)なら+3, 4(中立)なら0, 7(強否定)なら-3
+            
+            // 各設問に設定された複数の重みをループで加算
+            m.weights.forEach(w => {
+                scores[w.axis] += answerWeight * w.sign * w.value;
+                // カウントは影響度（value）に応じて加算し、正規化の精度を高める
+                counts[w.axis] += w.value;
             });
+        }
+    });
+
+    // --- 以下、ローディング演出と結果表示（ここは元のロジックを維持） ---
+    document.getElementById('quiz').classList.add('hidden');
+    const res = document.getElementById('result');
+    res.classList.remove('hidden');
+    res.innerHTML = `<div class="min-h-[60vh] flex flex-col items-center justify-center">
+        <div class="loading-pixel mb-8"></div>
+        <p class="font-mono text-[10px] opacity-40 uppercase tracking-widest">Assessing Specimen...</p>
+    </div>`;
+
+    const calcPercent = (axis) => {
+        const maxPossible = counts[axis] * 3; // 最大スコア（回答の最大振れ幅3 × 重みの合計）
+        if (maxPossible === 0) return 50; 
+        // スコアを0-100%に変換
+        const rawP = ((scores[axis] + maxPossible) / (maxPossible * 2)) * 100;
+        return pushToEdges(rawP);
+    };
+
+    const az_p = calcPercent('AZ');
+    const pq_p = calcPercent('PQ');
+    const lr_p = calcPercent('LR');
+    const i2_p = calcPercent('I/II');
+
+    const code = `${az_p >= 50 ? 'A' : 'Z'}${pq_p >= 50 ? 'P' : 'Q'}${lr_p >= 50 ? 'L' : 'R'}-${i2_p >= 50 ? 'I' : 'II'}`;
+    const data = TYPES_DB[code];
+    const textData = TEXTS_DB[code];
+
+    setTimeout(() => {
+        showResult(data.name, data.en, textData, code, { az_p, pq_p, lr_p, i2_p }, STATIC_IMAGE_PATH);
+    }, 1500);
+}
 
             document.getElementById('quiz').classList.add('hidden');
             const res = document.getElementById('result');
