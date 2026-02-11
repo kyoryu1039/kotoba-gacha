@@ -32,7 +32,7 @@
         .question-card {
             transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .question-card.active { opacity: 1; filter: blur(0); }
+        .question-card.active { opacity: 1; filter: blur(0); pointer-events: auto; }
         .question-card.inactive { opacity: 0.05; filter: blur(5px); pointer-events: none; }
 
         .dot {
@@ -96,12 +96,11 @@
         .heavy-name { font-weight: 900; font-size: 2.8rem; line-height: 1.1; letter-spacing: -0.05em; }
         @media (min-width: 768px) { .heavy-name { font-size: 4rem; } }
         
-        /* --- 修正箇所: 画像サイズを0.8倍に --- */
         .pixel-art-wrapper {
-            width: 256px;  /* 320 * 0.8 */
+            width: 256px;
             height: 256px;
             max-width: 100%;
-            margin: 0 auto 0 auto; /* 下マージンを0に */
+            margin: 0 auto 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -110,11 +109,10 @@
         }
         @media (min-width: 768px) { 
             .pixel-art-wrapper { 
-                width: 352px; /* 440 * 0.8 */
+                width: 352px;
                 height: 352px;
             } 
         }
-        /* -------------------------------------- */
         
         .pixel-art-wrapper img {
             width: 100%;
@@ -179,17 +177,24 @@
             border: none;
         }
         
-        .undo-text-btn {
-            font-size: 0.7rem;
-            opacity: 0.5;
+        .undo-btn {
+            font-size: 0.75rem;
+            opacity: 0.6;
             letter-spacing: 0.1em;
-            text-decoration: underline;
-            margin-bottom: 2rem;
+            margin-top: 2rem;
             display: inline-block;
             cursor: pointer;
-            transition: opacity 0.3s;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.5rem;
+            border-radius: 999px;
+            color: #e2e8f0;
         }
-        .undo-text-btn:hover { opacity: 1; }
+        .undo-btn:hover { 
+            opacity: 1; 
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
 
         ::-webkit-scrollbar { display: none; }
     </style>
@@ -202,7 +207,6 @@
 
     <header id="main-header" class="header-glass fixed top-0 w-full py-4 px-8 z-50 flex justify-between items-center">
         <div class="flex items-center gap-4">
-            <!-- ヘッダーの戻るボタンは削除 -->
             <div class="font-bold tracking-tighter text-xl uppercase">Type16</div>
         </div>
         <div id="counter" class="text-[10px] font-bold opacity-40 font-mono">0 / 18</div>
@@ -302,7 +306,7 @@
             "ZQL-I": { phrase: "あなたは、世界に直接触れずに理解しようとする人です。", summary: "分析や批評を行うことで、あたかも世界を支配しているかのような錯覚に浸り、自分が挑戦して失敗するリスクから逃げ続けています。", strength: "圧倒的な分析眼 / 感情の非干渉", weak: "自分の人生さえも「他人事」のように眺めてしまい、実感を伴わない空虚感に苛まれます。他者の失敗を嘲笑うことで優越感を維持しますが、何に対しても本気になれず生涯を終えるリスクがあります。", dist: "交流を楽しみますが、魂の核は決して見せません。相手が踏み込もうとすると、高説を垂れるか、皮肉を言うことで巧妙に回避し、安全圏へと引きこもります。", advice: "一度くらい、大怪火を覚悟で舞台の上に飛び降りてください。そこから本当の人生が始まります。" },
             "ZQL-II": { phrase: "あなたは、一瞬の出来事に意味を見出す人です。", summary: "世界に意味を見出すとき、それは常に「自分にとって心地よい物語」に変換されています。他者の本物の苦悩さえも、感性を刺激する「素材」として消費します。共感は相手を救うためではなく、自分の内面世界を彩るためにあります。", strength: "豊かな感性と表現力 / 真実の抽出", weak: "現実の汚さに耐性がありません。理想化した相手が人間らしい欠点を見せた瞬間、あなたは「裏切られた」と感じ、その存在その物語から冷酷に抹殺します。", dist: "相手の深い部分を覗き込もうとしますが、自分自身は謎に包まれています。理解者ではなく「共鳴者」を求めますが、相手の実像ではなく、自分が投影した理想を愛しています。", advice: "物語を語るだけでなく、あなた自身がその物語の「結末」に責任を持つ覚悟を持ってください。" },
             "ZQR-I": { phrase: "あなたは、枠組みに属することで自分を定義する人です。", summary: "個としての意志を持つことに死の恐怖に近い不安を感じるため、集団のルールに同化します。罪悪感を薄め、大きな流れに身を任せる快楽に溺れている「平庸な共犯者」の状態です。", strength: "高い協調性と安定感 / 帰属性の強化", weak: "集団が狂気に走ったとき、あなたは最も残酷な加害者になります。自分の意志がないため、命令や空気に従っているという自覚すらなく、平気で他者を踏みにじることができるようになります。", dist: "「同じ側にいるかどうか」を重視します。所属を同じくする相手には極めて献身的ですが、外側の人間や、枠組みを批判する者には一切の慈悲を見せず冷淡に排除します。", advice: "あなたが所属している「枠」そのものが、時代遅れになっていないかを定期的に疑ってください。" },
-            "ZQR-II": { phrase: "あなたは、まだ許可を待っている人です。", summary: "自分で自分を認める勇気がありません。常に「上位者」に合格点をもらうことを求め、一生を「準備期間」として浪費します。新しい学びを渡り歩くのは、成長ではなく「厳しい現実」からの逃避です。", strength: "素直な受容性と学習力 / 変化への渇望", weak: "師や環境を次々と変えますが、それはあなたが成長したからではなく、単に自分の無能さを突きつけられる前に「もっといい場所」へ夢を見に逃げ込んでいるだけです。", dist: "自分を引き上げてくれる先駆者を熱狂的に求め、付き従います。しかし、現実的な責任を求められると、新たな「光」を求めて音もなく去っていきます。", advice: "門を叩くのをやめ、今いる場所で「自分の城」を建てるための石を一つ、置いてみてください。" }
+            "ZQR-II": { phrase: "あなたは、まだ許可を待っている人です。", summary: "自分で自分を認める勇気がありません。常に「上位者」に合格点をもらうことを求め、一生を「準備期間」として浪費します。新しい学びを渡り歩くのは、成長ではなく「厳しい現実」からの逃避です。", strength: "素直な受容性と学習力 / 変化への渇望", weak: "師や環境を次々と変えますが、それはあなたが成長したからではなく、単に自分の無能さを突きつけられる前に「もっといい場所」へ夢を見に逃げ込んでいるだけです。", dist: "自分を引き上げてくれる先駆者を熱狂的に求めますが、現実的な責任を求められると、新たな「光」を求めて音もなく去っていきます。", advice: "門を叩くのをやめ、今いる場所で「自分の城」を建てるための石を一つ、置いてみてください。" }
         };
 
         let currentAnswers = new Array(QUESTIONS.length).fill(null);
@@ -321,12 +325,13 @@
                 const card = document.createElement('div');
                 card.id = `q-${i}`;
                 card.className = `question-card py-32 text-center ${i === 0 ? 'active' : 'inactive'}`;
-                // Undoボタンを質問文の下に追加
-                const undoBtn = i > 0 ? `<div onclick="goBack()" class="undo-text-btn">← Undo</div>` : '';
+                
+                // Undoボタン（選択肢の下に配置するために移動）
+                const undoBtn = i > 0 ? `<button onclick="goBack(${i})" class="undo-btn">← 戻る</button>` : '';
                 
                 card.innerHTML = `
                     <h2 class="text-xl md:text-2xl font-bold mb-4 px-4 leading-relaxed">${q}</h2>
-                    ${undoBtn}
+                    
                     <div class="flex items-center justify-center gap-4 md:gap-8 mb-6 mt-8">
                         <button onclick="ans(${i}, 1)" class="dot dot-agree w-12 h-12"></button>
                         <button onclick="ans(${i}, 2)" class="dot dot-agree w-9 h-9"></button>
@@ -340,6 +345,9 @@
                         <span class="text-lime-400">そう思う</span>
                         <span class="text-rose-500">そう思わない</span>
                     </div>
+                    
+                    <!-- Undoボタンをここに配置 -->
+                    ${undoBtn}
                 `;
                 container.appendChild(card);
             });
@@ -370,11 +378,19 @@
             }
         }
 
-        function goBack() {
-            if (currentIndex > 0) {
-                document.getElementById(`q-${currentIndex}`).classList.replace('active', 'inactive');
-                currentIndex--;
-                const prev = document.getElementById(`q-${currentIndex}`);
+        // 戻るボタンのロジック修正
+        function goBack(currentCardIndex) {
+            // currentCardIndex: 今表示されているカードのインデックス
+            if (currentCardIndex > 0) {
+                // 今のカードを隠す
+                document.getElementById(`q-${currentCardIndex}`).classList.replace('active', 'inactive');
+                
+                // 前のカードのインデックス
+                const prevIndex = currentCardIndex - 1;
+                currentIndex = prevIndex; // グローバルインデックスも戻す
+                
+                // 前のカードを表示
+                const prev = document.getElementById(`q-${prevIndex}`);
                 prev.classList.remove('inactive');
                 prev.classList.add('active');
                 prev.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -524,9 +540,10 @@
                                 <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Specialty / 得意領域</span>
                                 <p class="text-lg font-bold">${data.strength}</p>
                             </div>
+                            <!-- 変更箇所：スタイル統一 (text-lg font-bold) -->
                             <div class="border-t border-black pt-6">
                                 <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Structural Flaw / 構造的欠陥</span>
-                                <p class="text-sm opacity-60 leading-relaxed italic">${data.weak}</p>
+                                <p class="text-lg font-bold">${data.weak}</p>
                             </div>
                         </div>
 
@@ -535,8 +552,9 @@
                             <p class="text-sm opacity-60 leading-relaxed">${data.dist}</p>
                         </div>
 
+                        <!-- 変更箇所：Observation Message -> Message -->
                         <div class="bg-[#f3f4f6] text-black p-10 md:p-14 rounded-[20px] text-center shadow-sm">
-                            <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Observation Message / 観測所見</span>
+                            <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Message</span>
                             <p class="serif-display text-xl md:text-2xl leading-snug">「${data.advice}」</p>
                         </div>
 
