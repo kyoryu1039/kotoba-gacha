@@ -301,6 +301,26 @@
             "ZQR-I": { name: "同行者", en: "The Companion" },
             "ZQR-II": { name: "通過者", en: "The Passerby" }
         };
+
+        // 相性データ
+        const COMPATIBILITY = {
+            "APL-I": { good: ["APR-II","AQL-II"], bad: ["ZPL-II","AQR-I"] },
+            "APL-II": { good: ["AQL-II","AQR-II"], bad: ["AQR-I","ZPL-I"] },
+            "APR-I": { good: ["ZPR-I","APL-I"], bad: ["AQL-II","ZPL-II"] },
+            "APR-II": { good: ["APL-I","AQR-II"], bad: ["ZQR-I","ZPL-I"] },
+            "AQL-I": { good: ["APR-II","APL-II"], bad: ["ZQR-II","ZPL-I"] },
+            "AQL-II": { good: ["APL-II","APR-II"], bad: ["APR-I","AQR-I"] },
+            "AQR-I": { good: ["ZPL-I","APL-I"], bad: ["AQL-II","APR-II"] },
+            "AQR-II": { good: ["APL-II","APR-II"], bad: ["ZPR-II","ZQR-I"] },
+            "ZPL-I": { good: ["APL-I","ZQR-I"], bad: ["APR-II","AQL-II"] },
+            "ZPL-II": { good: ["APL-II","AQR-II"], bad: ["APL-I","APR-I"] },
+            "ZPR-I": { good: ["APR-I","ZQR-I"], bad: ["AQL-II","AQR-II"] },
+            "ZPR-II": { good: ["APL-II","ZQL-II"], bad: ["APR-I","AQR-I"] },
+            "ZQL-I": { good: ["ZQR-I","APL-I"], bad: ["AQL-II","APR-II"] },
+            "ZQL-II": { good: ["AQL-II","APL-II"], bad: ["APR-I","ZPR-II"] },
+            "ZQR-I": { good: ["ZPL-I","APR-I"], bad: ["AQL-II","AQR-II"] },
+            "ZQR-II": { good: ["APL-II","ZPL-II"], bad: ["AQL-I","ZPR-I"] }
+        };
         
         const TEXTS_DB = {
             "APL-I": {
@@ -341,7 +361,7 @@
             },
             "AQL-I": {
                 name: "当事者",
-                phrase: "あなたは、自らの意志で現実を書き換えていく、天性の才能の持ち主です。",
+                phrase: "あなたは、自らの意志で現実を書き換えていく、天性の開拓者です。",
                 summary: "「世界は変えられる」という信念を持ち、周囲を巻き込んで理想を形にする力があります。そのカリスマ性は強力ですが、独走するあまり周囲の主体性を奪い、自らが作り上げた物語に従属させてしまうことがあります。",
                 strength: "絶対的な決断力 / 現実を打破する変革エネルギー",
                 weak: "「自分がいないと始まらない」という万能感は、裏を返せば孤独への恐怖です。他者の自律的な動きをコントロールしようとする衝動が、対等な絆の構築を阻むことがあります。",
@@ -350,7 +370,7 @@
             },
             "AQL-II": {
                 name: "登録者",
-                phrase: "あなたは、集団のアイデンティティを支え、秩序を安定させる人です。",
+                phrase: "あなたは、集団のアイデンティティを支え、秩序を安定させる守護者です。",
                 summary: "組織や枠組みに献身し、ルールを守ることで社会の調和を維持します。しかし、集団との同化が強すぎるあまり、自分自身の個としての声を見失い、組織の論理に盲従してしまうリスクを抱えています。",
                 strength: "高い協調性と安定感 / 集団を結束させる忠誠心",
                 weak: "「正しさ」を枠組みに依存するため、集団が誤った方向に進む際、その片棒を担ぐ共犯者になりかねません。自分の頭で考え、NOと言う勇気が試されます。",
@@ -377,7 +397,7 @@
             },
             "ZPL-I": {
                 name: "保持者",
-                phrase: "あなたは、時代を超えて受け継がれるべき価値を守り抜く人です。",
+                phrase: "あなたは、時代を超えて受け継がれるべき価値を守り抜く、歴史の継承者です。",
                 summary: "伝統や積み上げられた経験を重んじ、細部に至るまで誠実に向き合います。しかし、変化を「崩壊」と捉える恐怖心が、あなたの柔軟性を奪い、古い形式を維持することそのものが目的化してしまうことがあります。",
                 strength: "圧倒的な誠実さ / 永続性を守る意志",
                 weak: "自身の正しさを守るために、新しい変化を「逸脱」として断罪しがちです。形骸化したルールで他者を縛ることで、生命力を損なわせていないか注意が必要です。",
@@ -395,7 +415,7 @@
             },
             "ZPR-I": {
                 name: "関係者",
-                phrase: "あなたは、複雑な事象を構造的に捉え、普遍的な法則を見出す人です。",
+                phrase: "あなたは、複雑な事象を構造的に捉え、普遍的な法則を見出す哲学者です。",
                 summary: "感情の波に飲まれず、客観的な視点で物事をメンテナンスすることができます。しかし、その客観性は「感情による痛み」を回避するための防壁でもあり、生々しい人間関係の熱量から逃げてしまうことがあります。",
                 strength: "不動の客観性 / 論理的なシステム構築力",
                 weak: "他者の感情を「非効率」として切り捨てますが、それは自分自身の未分化な感情への恐怖の裏返しです。親密さを求められると、理論で武装して逃避する傾向があります。",
@@ -610,6 +630,29 @@
             }
             document.body.removeChild(textarea);
         }
+        
+        // 相性表示用HTML生成関数
+        function renderCompatibility(code) {
+            const comp = COMPATIBILITY[code];
+            if (!comp) return '';
+            
+            return `
+                <div class="mt-8 pt-8 border-t border-black border-opacity-10 grid grid-cols-2 gap-4 text-left">
+                    <div>
+                        <span class="text-[9px] font-bold tracking-widest uppercase opacity-40 mb-2 block">相性◎</span>
+                        <ul class="space-y-1">
+                            ${comp.good.map(t => `<li class="text-xs font-bold font-mono"><span class="text-lime-600 mr-2">●</span>${t} <span class="opacity-40 text-[10px] ml-1 font-sans font-normal">${TYPES_DB[t].name}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                    <div>
+                        <span class="text-[9px] font-bold tracking-widest uppercase opacity-40 mb-2 block">相性△</span>
+                        <ul class="space-y-1">
+                            ${comp.bad.map(t => `<li class="text-xs font-bold font-mono"><span class="text-rose-500 mr-2">●</span>${t} <span class="opacity-40 text-[10px] ml-1 font-sans font-normal">${TYPES_DB[t].name}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
 
         function showResult(typeName, enName, data, code, stats, img) {
             document.body.classList.add('result-view');
@@ -701,6 +744,9 @@
                         <div class="bg-[#f3f4f6] text-black p-10 md:p-14 rounded-[20px] text-center shadow-sm">
                             <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Message</span>
                             <p class="serif-display text-xl md:text-2xl leading-snug">「${data.advice}」</p>
+                            
+                            <!-- 相性表示エリア -->
+                            ${renderCompatibility(code)}
                         </div>
 
                         <div class="pt-8 px-2 md:px-0">
@@ -725,15 +771,9 @@
             const barWidth = Math.abs(50 - percent);
 
             if (percent > 50) {
-                // 左側のラベルが優勢（例: Aが80%）
-                // 中央（50%）から左に向かって伸びる
-                // left: 50% - 幅, width: 幅
                 const leftPosition = 50 - barWidth;
                 barStyle = `left: ${leftPosition}%; width: ${barWidth}%;`;
             } else if (percent < 50) {
-                // 右側のラベルが優勢（例: Zが80% -> percentは20%）
-                // 中央（50%）から右に向かって伸びる
-                // left: 50%, width: 幅
                 barStyle = `left: 50%; width: ${barWidth}%;`;
             }
 
