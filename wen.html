@@ -538,12 +538,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="border-t border-black pt-6">
                                 <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Specialty / 得意領域</span>
-                                <p class="text-lg font-bold">${data.strength}</p>
+                                <p class="text-sm opacity-60 leading-relaxed">${data.strength}</p>
                             </div>
-                            <!-- 変更箇所：スタイル統一 (text-lg font-bold) -->
+                            
                             <div class="border-t border-black pt-6">
                                 <span class="text-[8px] font-bold tracking-[0.4em] opacity-30 block mb-3 uppercase">Structural Flaw / 構造的欠陥</span>
-                                <p class="text-lg font-bold">${data.weak}</p>
+                                <p class="text-sm opacity-60 leading-relaxed">${data.weak}</p>
                             </div>
                         </div>
 
@@ -552,7 +552,6 @@
                             <p class="text-sm opacity-60 leading-relaxed">${data.dist}</p>
                         </div>
 
-                        <!-- 変更箇所：Observation Message -> Message -->
                         <div class="bg-[#f3f4f6] text-black p-10 md:p-14 rounded-[20px] text-center shadow-sm">
                             <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Message</span>
                             <p class="serif-display text-xl md:text-2xl leading-snug">「${data.advice}」</p>
