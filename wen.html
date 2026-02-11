@@ -1,3 +1,23 @@
+ご要望を反映し、以下の3点を修正しました。
+
+割合表示の変更: グラフの上に「Type16割合ランキング」として「世界：●~●%（●／16位）　日本：（計測中）」と表示しました。
+
+Observation Messageのデザイン: 真っ黒（#000）から「濃いグレー（#1a1c20）」に変更し、文字を白系に戻しました。背景色の存在感を残しつつ、コントラストを少し和らげています。
+
+ランキング表のデザイン刷新:
+
+「Population Distribution」を「Type16割合ランキング」に変更。
+
+表のデザインをサイトの世界観（モノスペース・未来的）に合わせてリファインしました。
+
+自分のランクの行をサイトのアクセントカラー（ライムグリーン）で強調し、一目で分かるようにしました。
+
+code
+Html
+play_circle
+download
+content_copy
+expand_less
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -96,13 +116,11 @@
         .heavy-name { font-weight: 900; font-size: 2.8rem; line-height: 1.1; letter-spacing: -0.05em; }
         @media (min-width: 768px) { .heavy-name { font-size: 4rem; } }
         
-        /* --- 修正箇所: 画像サイズを2倍に変更 --- */
         .pixel-art-wrapper {
-            width: 320px;      /* 160px -> 320px */
-            height: 320px;     /* 160px -> 320px */
-            max-width: 100%;   /* 画面幅が狭い場合のはみ出し防止 */
-            margin: 0 auto 1.5rem auto; /* 余白を少し広げる */
-            
+            width: 320px;
+            height: 320px;
+            max-width: 100%;
+            margin: 0 auto 0.25rem auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -111,16 +129,15 @@
         }
         @media (min-width: 768px) { 
             .pixel-art-wrapper { 
-                width: 440px;  /* 220px -> 440px */
-                height: 440px; /* 220px -> 440px */
+                width: 440px;
+                height: 440px;
             } 
         }
-        /* -------------------------------------- */
         
         .pixel-art-wrapper img {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* 画像全体を表示 */
+            object-fit: contain;
             z-index: 10;
         }
 
@@ -147,6 +164,39 @@
             font-weight: 900;
         }
 
+        /* テーブルデザイン用 */
+        .rank-table-row {
+            display: grid;
+            grid-template-columns: 3rem 1fr 4rem;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.8rem;
+            transition: background-color 0.2s;
+        }
+        .rank-table-row:last-child { border-bottom: none; }
+        .rank-table-header {
+            background: #000;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 0.75rem 1rem;
+            border-radius: 8px 8px 0 0;
+        }
+        .rank-me {
+            background: #d4ff3f;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(212, 255, 63, 0.3);
+            border-radius: 4px;
+            margin: -1px -4px; /* 少しはみ出させる */
+            position: relative;
+            z-index: 10;
+            border: none;
+        }
+
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -170,6 +220,12 @@
         <section id="welcome" class="min-h-screen flex flex-col items-center justify-center text-center">
             <h1 class="text-7xl md:text-9xl font-black mb-12 tracking-tighter uppercase">Type16</h1>
             <button onclick="start()" class="border border-lime-400 text-lime-400 px-12 py-4 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-lime-400 hover:text-black transition-all">Start</button>
+            
+            <div class="mt-12 text-xs font-light opacity-60 space-y-2">
+                <p>・理想の姿ではなく、ありのままを答えてください。</p>
+                <p>・深く考えすぎず、直感で選んでください。</p>
+                <p>・所要時間は約2分です。</p>
+            </div>
         </section>
 
         <section id="quiz" class="hidden pb-80 pt-40"></section>
@@ -177,9 +233,27 @@
     </main>
 
     <script>
-        // 固定画像の設定（指定されたURL）
         const STATIC_IMAGE_PATH = "https://kyoryu1039.github.io/kotoba-gacha/images/result.png";
         
+        const RANKING_DATA = [
+            { rank: 1, code: "APL-II", range: "11~14%" },
+            { rank: 2, code: "ZPL-II", range: "9~14%" },
+            { rank: 3, code: "APR-II", range: "9~13%" },
+            { rank: 4, code: "ZPR-I", range: "8~12%" },
+            { rank: 5, code: "AQL-II", range: "6~8%" },
+            { rank: 6, code: "ZQL-I", range: "5~9%" },
+            { rank: 7, code: "ZQL-II", range: "4~9%" },
+            { rank: 8, code: "ZQR-I", range: "4~6%" },
+            { rank: 9, code: "AQL-I", range: "4~5%" },
+            { rank: 10, code: "ZQR-II", range: "4~5%" },
+            { rank: 11, code: "AQR-I", range: "3~5%" },
+            { rank: 12, code: "AQR-II", range: "2~5%" },
+            { rank: 13, code: "APL-I", range: "2~5%" },
+            { rank: 14, code: "APR-I", range: "2~5%" },
+            { rank: 15, code: "ZPR-II", range: "2~4%" },
+            { rank: 16, code: "ZPL-I", range: "1~3%" }
+        ];
+
         const QUESTIONS = [
             "1. 犬よりも猫が好きだ", "2. 海よりも山が好きだ", "3. 中力粉よりも薄力粉が好きだ",
             "4. この頃涙もろくなったと思う", "5. 座右の銘なんてない", "6. 痛みには強い方だ",
@@ -359,7 +433,6 @@
             const data = TYPES_DB[code];
             const textData = TEXTS_DB[code];
 
-            // 1.5秒待ってから、固定画像を使って結果を表示
             setTimeout(() => {
                 showResult(data.name, data.en, textData, code, { az_p, pq_p, lr_p, i2_p }, STATIC_IMAGE_PATH);
             }, 1500);
@@ -388,17 +461,44 @@
             header.style.backgroundColor = 'transparent';
 
             const shareText = `【Type16】診断結果：${typeName} (${code})\n#Type16 #自己分析\n${window.location.href}`;
+            
+            // 自分のタイプの割合を取得
+            const myRankData = RANKING_DATA.find(r => r.code === code);
+            const myRange = myRankData ? myRankData.range : "---";
+            const myRank = myRankData ? myRankData.rank : "-";
+
+            // ランキング表のHTML生成
+            const rankingTableHTML = `
+                <div class="border border-black border-opacity-10 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <div class="rank-table-header">Type16割合ランキング</div>
+                    <div>
+                        ${RANKING_DATA.map(r => {
+                            const isMe = r.code === code;
+                            const typeInfo = TYPES_DB[r.code];
+                            return `
+                                <div class="rank-table-row ${isMe ? 'rank-me' : 'opacity-60'}">
+                                    <div class="font-mono font-bold text-center">${r.rank}</div>
+                                    <div class="flex flex-col md:flex-row md:gap-4 leading-tight">
+                                        <span class="font-mono font-bold ${isMe ? '' : 'text-xs md:text-sm'}">${r.code}</span>
+                                        <span class="text-[10px] md:text-xs tracking-tighter">${typeInfo.name}</span>
+                                    </div>
+                                    <div class="font-mono text-right font-bold">${r.range}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
 
             const res = document.getElementById('result');
-            // --- 修正箇所: 文字を目立たせる ---
-            // <p class="text-4xl md:text-6xl font-black text-black tracking-widest font-mono leading-none mb-4">${code}</p> に変更
+            // Observation Messageを濃いグレー（bg-[#1a1c20]）に、文字を白系（text-gray-100）に修正
             res.innerHTML = `
                 <div class="space-y-16">
                     <div class="flex flex-col items-center justify-center text-center">
                         <div class="pixel-art-wrapper mb-2">
                             <img src="${img}" alt="Result Character">
                         </div>
-                        <p class="text-4xl md:text-6xl font-black text-black tracking-widest font-mono leading-none mb-4">${code}</p>
+                        <p class="text-2xl md:text-4xl font-bold opacity-50 tracking-[0.2em] font-mono leading-none mb-2">${code}</p>
                         <h2 class="heavy-name mb-0">${typeName}</h2>
                         <p class="text-[10px] font-bold tracking-[0.4em] opacity-40 uppercase font-mono mb-4">${enName}</p>
                         <div class="max-w-md mx-auto px-4">
@@ -408,6 +508,11 @@
                     </div>
 
                     <div class="space-y-12">
+                        <div class="text-center">
+                             <span class="text-[9px] font-bold tracking-[0.2em] opacity-30 uppercase block mb-1">Type16割合ランキング</span>
+                             <p class="font-mono text-xs md:text-sm font-bold tracking-tight">世界：${myRange}（${myRank}／16位）　日本：（計測中）</p>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start py-6 border-t border-black border-opacity-10">
                              <div class="space-y-6">
                                 ${renderStat("A", "Z", stats.az_p, "bar-az")}
@@ -435,9 +540,13 @@
                             <p class="text-sm opacity-60 leading-relaxed">${data.dist}</p>
                         </div>
 
-                        <div class="bg-black text-white p-8 md:p-16 rounded-[30px] text-center">
+                        <div class="bg-[#1a1c20] text-gray-100 p-10 md:p-14 rounded-[20px] text-center shadow-xl">
                             <span class="text-[8px] font-bold tracking-[0.5em] opacity-50 block mb-6 uppercase">Observation Message</span>
                             <p class="serif-display text-xl md:text-2xl leading-snug">「${data.advice}」</p>
+                        </div>
+
+                        <div class="pt-8 px-2 md:px-0">
+                            ${rankingTableHTML}
                         </div>
 
                         <div class="flex flex-col items-center gap-6 pt-4">
