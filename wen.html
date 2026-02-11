@@ -96,18 +96,26 @@
         .heavy-name { font-weight: 900; font-size: 2.8rem; line-height: 1.1; letter-spacing: -0.05em; }
         @media (min-width: 768px) { .heavy-name { font-size: 4rem; } }
         
+        /* --- 修正箇所: 画像サイズを2倍に変更 --- */
         .pixel-art-wrapper {
-            width: 160px;
-            height: 160px;
-            margin: 0 auto 0.5rem auto;
-            /* 画像調整用スタイル */
+            width: 320px;      /* 160px -> 320px */
+            height: 320px;     /* 160px -> 320px */
+            max-width: 100%;   /* 画面幅が狭い場合のはみ出し防止 */
+            margin: 0 auto 1.5rem auto; /* 余白を少し広げる */
+            
             display: flex;
             align-items: center;
             justify-content: center;
             background: transparent;
             position: relative;
         }
-        @media (min-width: 768px) { .pixel-art-wrapper { width: 220px; height: 220px; } }
+        @media (min-width: 768px) { 
+            .pixel-art-wrapper { 
+                width: 440px;  /* 220px -> 440px */
+                height: 440px; /* 220px -> 440px */
+            } 
+        }
+        /* -------------------------------------- */
         
         .pixel-art-wrapper img {
             width: 100%;
@@ -382,13 +390,15 @@
             const shareText = `【Type16】診断結果：${typeName} (${code})\n#Type16 #自己分析\n${window.location.href}`;
 
             const res = document.getElementById('result');
+            // --- 修正箇所: 文字を目立たせる ---
+            // <p class="text-4xl md:text-6xl font-black text-black tracking-widest font-mono leading-none mb-4">${code}</p> に変更
             res.innerHTML = `
                 <div class="space-y-16">
                     <div class="flex flex-col items-center justify-center text-center">
                         <div class="pixel-art-wrapper mb-2">
                             <img src="${img}" alt="Result Character">
                         </div>
-                        <p class="text-xl md:text-2xl font-light opacity-30 tracking-[0.3em] font-mono leading-none mb-1">${code}</p>
+                        <p class="text-4xl md:text-6xl font-black text-black tracking-widest font-mono leading-none mb-4">${code}</p>
                         <h2 class="heavy-name mb-0">${typeName}</h2>
                         <p class="text-[10px] font-bold tracking-[0.4em] opacity-40 uppercase font-mono mb-4">${enName}</p>
                         <div class="max-w-md mx-auto px-4">
