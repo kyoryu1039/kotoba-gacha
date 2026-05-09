@@ -2635,7 +2635,11 @@
       } catch (e) { console.error(e); closeOverlay(); }
     }
 
-    function closeOverlay() { overlay.classList.remove('active'); sfxTap(); }
+    function closeOverlay() {
+      overlay.classList.remove('active');
+      sfxTap();
+      if (typeof window.advanceTrivia === 'function') window.advanceTrivia();
+    }
     function confetti() {
       const colors = ['#ffd700', '#63ead9', '#ff4d4d'];
       for (let i = 0; i < 30; i++) {
@@ -3279,7 +3283,9 @@
       "【ロックなもの】粉ミルク缶には「母乳が最良」という旨を記載する義務がある。（タバコのパッケージと同様に、それでも売らねばならないという工業製品としての宿命）",
       "【ロックなもの】スーパーの広告で、豚のキャラクターの語尾が「○○だポー！」だった。（食用の自覚がある）",
       "【ロックなもの】ねづっちにお題を振られ、「切実に」とまさかの形容動詞を繰り出してフリーズさせた滝沢カレン",
-      "【ロックなもの】バナナとワニを組み合わせたら、ア行が連続で8回も続いてしまった「熱川バナナワニ園」"
+      "【ロックなもの】バナナとワニを組み合わせたら、ア行が連続で8回も続いてしまった「熱川バナナワニ園」",
+      "【ことばガチャ】排出率はランクごとに定められており、最高位のSランクは2%の確率で出現する。",
+      "【ことばガチャ】コンプリート報酬として、各ランクのキャラクターを全種類集めるごとに、限定BGMが解放される。"
     ];
 
     const triviaContainer = document.getElementById('gachaTriviaContainer');
@@ -3307,13 +3313,17 @@
       showTrivia(0);
 
       triviaContainer.addEventListener('click', () => {
+        if (typeof window.advanceTrivia === 'function') window.advanceTrivia();
+      });
+
+      window.advanceTrivia = () => {
         itemDiv.style.opacity = '0';
         setTimeout(() => {
           triviaIndex = (triviaIndex + 1) % shuffled.length;
           showTrivia(triviaIndex);
           itemDiv.style.opacity = '1';
         }, 200);
-      });
+      };
     }
   </script>
 </body>
