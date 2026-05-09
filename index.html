@@ -1846,10 +1846,22 @@
     }
 
     /* Gacha Trivia Styling */
-    .gacha-trivia {
+    .gacha-trivia-container {
       width: 90%;
       max-width: 340px;
       margin: 24px auto 40px;
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none; /* Firefox */
+      -webkit-overflow-scrolling: touch;
+      cursor: pointer;
+    }
+    .gacha-trivia-container::-webkit-scrollbar { display: none; /* Safari and Chrome */ }
+
+    .gacha-trivia {
+      flex: 0 0 100%;
+      scroll-snap-align: center;
       padding: 16px 20px;
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -1871,6 +1883,16 @@
       letter-spacing: 2px;
       margin-bottom: 8px;
       opacity: 0.8;
+    }
+
+    .gacha-trivia::after {
+      content: "タップで次へ ❯";
+      display: block;
+      text-align: right;
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.2);
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -1907,8 +1929,7 @@
         </button>
       </div>
 
-      <div class="gacha-trivia">
-        「『ネコロジア』監督の三馬が初めて入社したヴァイオアニメーションは、スポーツの反則に特化したアニメ制作会社であった。」
+      <div class="gacha-trivia-container" id="gachaTriviaContainer">
       </div>
     </section>
 
@@ -3250,6 +3271,48 @@
     /* === nav indicator initial render deps === */
     renderCollection();
     renderBGMList();
+
+    /* === Trivia Logic === */
+    const TRIVIA_LIST = [
+      "【ことばバトル】パラボラアンテナの必殺技「妨害電波」は威力2.2倍。相手の必殺ゲージを0にする。",
+      "【苗字バトル】『無限回廊』モードでは、指定された人数の誤差25%以内の高精度な回答を出すと、減少したライフが回復する。",
+      "【TYPE-16】最も多いタイプは「閲覧者（APL-Ⅱ）、最もレアなタイプは「保持者（ZPL-Ⅰ）である。",
+      "【ネコロジア】監督の三馬は若手時代、制作会社の都合からスポーツ反則アニメばかりを担当させられていた。（初めて携わった作品は『フットフォルト！』）",
+      "【カリウム太郎】アスベス子とモリブデン兄さんの間には、墓場まで持っていく秘密があるとか。",
+      "【NWA】キャラ名は料理の残りかすでなければならないという縛りが思った以上にキツく、キャラ数が一向に増えない。",
+      "【没ネタ】客が暗証番号を入力する一瞬の隙に視線を走らせる『クレカ盗み見店員ゲーム』は、作ったらつまらなかったので没になった。",
+      "【没ネタ】議席配分法の不条理を笑い飛ばす政治風刺ギャグアニメ『どんとこいドントくん』は、タイトルで出オチなので没になった。",
+      "【没ネタ】やる気のない三輪車たちが世界を救わないアニメ『アパセティック三輪車』は、ストーリーが思いつかなそうなので没になった。",
+      "【ロックなもの】占い師が占い師の将来を占うリアリティショー、ベジタリアンの大食い大会。保守的な風土の農地で一人ルッコラやクレソンなどの西洋野菜ばかり作る老人。",
+      "【ロックなもの】粉ミルク缶には「母乳が最良」という旨を記載する義務がある。（タバコのパッケージと同様に、それでも売らねばならないという工業製品としての宿命）",
+      "【ロックなもの】スーパーの広告で、豚のキャラクターの語尾が「○○だポー！」だった。（食用の自覚がある）",
+      "【ロックなもの】ねづっちにお題を振られ、「切実に」とまさかの形容動詞を繰り出してフリーズさせた滝沢カレン",
+      "【ロックなもの】バナナとワニを組み合わせたら、ア行が連続で8回も続いてしまった「熱川バナナワニ園」"
+    ];
+
+    const triviaContainer = document.getElementById('gachaTriviaContainer');
+    if (triviaContainer) {
+      // Shuffle the list
+      const shuffled = [...TRIVIA_LIST].sort(() => Math.random() - 0.5);
+      
+      shuffled.forEach(text => {
+        const div = document.createElement('div');
+        div.className = 'gacha-trivia';
+        div.innerText = text;
+        triviaContainer.appendChild(div);
+      });
+
+      // Tap to scroll to next
+      triviaContainer.addEventListener('click', () => {
+        const scrollAmt = triviaContainer.clientWidth;
+        // Check if we are near the end
+        if (triviaContainer.scrollLeft + scrollAmt >= triviaContainer.scrollWidth - 10) {
+          triviaContainer.scrollTo({ left: 0, behavior: 'smooth' }); // Loop back
+        } else {
+          triviaContainer.scrollBy({ left: scrollAmt, behavior: 'smooth' });
+        }
+      });
+    }
   </script>
 </body>
 
