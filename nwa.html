@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NWA No Waste Athletes -Naniwa World Alchemy-</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a0806">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0a0806;
+  --panel: #151008;
+  --gold: #d4af37;
+  --gold-light: #f0d060;
+  --gold-dark: #8b6914;
+  --text: #e8dcc8;
+  --muted: #8a7e6d;
+  --red: #c0392b;
+  --blue-steel: #5a7ea8;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* === Background texture === */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 800px 400px at 50% 0%, rgba(212,175,55,0.08), transparent),
+    radial-gradient(ellipse 600px 600px at 80% 100%, rgba(90,126,168,0.06), transparent),
+    var(--bg);
+}
+
+/* === Hero === */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 20px 40px;
+  text-align: center;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(10,8,6,0.6) 70%, var(--bg) 100%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  position: relative; z-index: 2;
+  display: inline-block;
+  padding: 6px 18px;
+  border: 1px solid var(--gold-dark);
+  color: var(--gold);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 4px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  position: relative; z-index: 2;
+  font-family: "Cinzel", serif;
+  font-size: clamp(28px, 6vw, 56px);
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #fff;
+  text-shadow: 0 4px 30px rgba(212,175,55,0.3);
+  margin-bottom: 8px;
+}
+
+.hero-subtitle {
+  position: relative; z-index: 2;
+  font-family: "Cinzel", serif;
+  font-size: clamp(14px, 2.5vw, 22px);
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 32px;
+  font-weight: 600;
+}
+
+.hero-tagline {
+  position: relative; z-index: 2;
+  font-size: clamp(13px, 2vw, 16px);
+  color: var(--muted);
+  margin-bottom: 48px;
+  line-height: 1.9;
+}
+
+/* === Cards showcase (Hero) === */
+.cards-fan {
+  position: relative; z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 40px;
+  perspective: 1200px;
+}
+
+.card-slot {
+  width: clamp(120px, 22vw, 220px);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), z-index 0s;
+  cursor: pointer;
+  position: relative;
+}
+.card-slot:nth-child(1) { transform: rotate(-8deg) translateY(10px); z-index: 1; }
+.card-slot:nth-child(2) { transform: rotate(-3deg) translateY(-5px); z-index: 2; margin-left: -30px; }
+.card-slot:nth-child(3) { transform: rotate(3deg) translateY(-5px); z-index: 2; margin-left: -30px; }
+.card-slot:nth-child(4) { transform: rotate(8deg) translateY(10px); z-index: 1; margin-left: -30px; }
+
+.card-slot:hover {
+  transform: translateY(-20px) scale(1.08) rotate(0deg) !important;
+  z-index: 10 !important;
+}
+
+.card-slot img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.7), 0 0 15px rgba(212,175,55,0.15);
+  transition: box-shadow 0.4s;
+}
+.card-slot:hover img {
+  box-shadow: 0 16px 50px rgba(0,0,0,0.9), 0 0 40px rgba(212,175,55,0.35);
+}
+
+/* === Section common === */
+.section {
+  padding: clamp(50px, 8vw, 100px) 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--gold-dark);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: clamp(20px, 4vw, 32px);
+  font-weight: 900;
+  margin-bottom: 32px;
+  line-height: 1.4;
+}
+
+/* Gold accent line */
+.section-title::after {
+  content: "";
+  display: block;
+  width: 60px; height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  margin-top: 16px;
+}
+
+/* === Concept === */
+.concept-text {
+  font-size: clamp(14px, 2vw, 17px);
+  color: var(--text);
+  line-height: 2;
+  max-width: 700px;
+}
+
+.concept-text em {
+  font-style: normal;
+  color: var(--gold-light);
+  font-weight: 700;
+}
+
+.concept-quote {
+  margin-top: 40px;
+  padding: 24px 28px;
+  border-left: 3px solid var(--gold-dark);
+  background: rgba(212,175,55,0.04);
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+  line-height: 1.6;
+}
+
+/* === Characters === */
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 24px;
+}
+
+.char-card {
+  background: linear-gradient(145deg, rgba(21,16,8,0.95), rgba(30,22,10,0.9));
+  border: 1px solid rgba(212,175,55,0.15);
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.char-card:hover {
+  border-color: rgba(212,175,55,0.4);
+  transform: translateY(-4px);
+}
+
+.char-card-img {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+.char-card-body {
+  padding: 20px;
+}
+
+.char-name {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 2px;
+}
+.char-name-en {
+  font-family: "Cinzel", serif;
+  font-size: 11px;
+  color: var(--gold-dark);
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.char-meta {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.char-tag {
+  font-size: 10px;
+  padding: 3px 10px;
+  border: 1px solid var(--gold-dark);
+  border-radius: 2px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.char-role {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.char-role strong {
+  color: var(--text);
+}
+
+.char-quote {
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.char-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(212,175,55,0.1);
+}
+.char-stat {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.char-stat span {
+  color: var(--gold-light);
+}
+
+/* === Menu === */
+.menu-showcase {
+  width: 100%;
+  margin: 32px auto 0;
+  border: 2px solid var(--gold-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.menu-showcase img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* === Footer === */
+.footer {
+  text-align: center;
+  padding: 60px 20px;
+  border-top: 1px solid rgba(212,175,55,0.1);
+}
+
+.footer-status {
+  display: inline-block;
+  padding: 10px 24px;
+  border: 1px solid var(--red);
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+  animation: blink 2.5s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.footer-text {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.8;
+}
+
+.btn-back {
+  display: inline-block;
+  padding: 12px 36px;
+  background: transparent;
+  border: 1px solid var(--gold-dark);
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-size: 13px;
+  transition: 0.3s;
+}
+.btn-back:hover {
+  background: rgba(212,175,55,0.08);
+  border-color: var(--gold);
+}
+
+/* === Divider === */
+.divider {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+}
+
+/* === Responsive === */
+@media (max-width: 600px) {
+  .cards-fan { gap: 0; }
+  .card-slot { width: clamp(80px, 22vw, 140px); }
+  .card-slot:nth-child(2),
+  .card-slot:nth-child(3),
+  .card-slot:nth-child(4) { margin-left: -20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <div class="hero-badge">PROJECT TEASER</div>
+  <h1 class="hero-title">NWA</h1>
+  <div class="hero-subtitle">No Waste Athletes -Naniwa World Alchemy-</div>
+  <div class="hero-tagline">
+    プロスポーツ選手が給食調理員として<br>
+    全校生徒分の給食を完成させる──<br>
+    究極の調理シミュレーション
+  </div>
+
+  <div class="cards-fan">
+    <div class="card-slot"><img src="images/nwa-card-acq.jpg" alt="アク・トットレ"></div>
+    <div class="card-slot"><img src="images/nwa-card-okoge.jpg" alt="オコゲ・トレヘン"></div>
+    <div class="card-slot"><img src="images/nwa-card-madadel.jpg" alt="マダデル・デ・ガラシ"></div>
+    <div class="card-slot"><img src="images/nwa-card-nizhir.jpg" alt="ニジル・ステルナヤ"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== CONCEPT ==================== -->
+<section class="section">
+  <div class="section-label">CONCEPT</div>
+  <h2 class="section-title">残りカスは、ごちそうになる。</h2>
+  <div class="concept-text">
+    アクを取り、出汁を活かし、煮汁は再利用して、最後は香ばしく残す。<br>
+    <em>すべての料理に「再利用」と「工夫」が詰まっている。</em><br><br>
+    残りカスなんて言わせない──おいしさのバトンを、つなぎきりました。<br><br>
+    4人のプロアスリートが、それぞれの競技スキルを駆使して挑む、<br>
+    前代未聞の給食シミュレーション。
+  </div>
+  <div class="concept-quote">
+    「捨てるな、最後まで使い切れ。」
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== CHARACTERS ==================== -->
+<section class="section">
+  <div class="section-label">CHARACTERS</div>
+  <h2 class="section-title">給食調理員 4人の紹介</h2>
+
+  <div class="char-grid">
+
+    <!-- アク・トットレ -->
+    <div class="char-card">
+      <img class="char-card-img" src="images/nwa-card-acq.jpg" alt="アク・トットレ">
+      <div class="char-card-body">
+        <div class="char-name">アク・トットレ</div>
+        <div class="char-name-en">Acq Tottoré</div>
+        <div class="char-meta">
+          <span class="char-tag">フランス</span>
+          <span class="char-tag">フェンシング</span>
+        </div>
+        <div class="char-role">
+          <strong>担当：すまし汁</strong><br>
+          アクを徹底的に取り切り、雑味ゼロの澄んだ出汁に。<br>
+          剣先には手応えのない空振りのみを残す翻弄型ディフェンス。
+        </div>
+        <div class="char-quote">「一生アクでも取っとれ。」</div>
+        <div class="char-stats">
+          <div class="char-stat">ATK <span>1500</span></div>
+          <div class="char-stat">DEF <span>2200</span></div>
+          <div class="char-stat">★★★★★</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- オコゲ・トレヘン -->
+    <div class="char-card">
+      <img class="char-card-img" src="images/nwa-card-okoge.jpg" alt="オコゲ・トレヘン">
+      <div class="char-card-body">
+        <div class="char-name">オコゲ・トレヘン</div>
+        <div class="char-name-en">Okoge Torehen</div>
+        <div class="char-meta">
+          <span class="char-tag">ドイツ</span>
+          <span class="char-tag">サッカー（DF）</span>
+        </div>
+        <div class="char-role">
+          <strong>担当：おこげごはん</strong><br>
+          鍋底にしっかり焼き付けた香ばしいおこげ。<br>
+          一度食らいついたら最後、物理的にも精神的にも決して離れない。
+        </div>
+        <div class="char-quote">「ぜんぜん取れへん。」</div>
+        <div class="char-stats">
+          <div class="char-stat">ATK <span>1800</span></div>
+          <div class="char-stat">DEF <span>2500</span></div>
+          <div class="char-stat">★★★★★</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- マダデル・デ・ガラシ -->
+    <div class="char-card">
+      <img class="char-card-img" src="images/nwa-card-madadel.jpg" alt="マダデル・デ・ガラシ">
+      <div class="char-card-body">
+        <div class="char-name">マダデル・デ・ガラシ</div>
+        <div class="char-name-en">Madadel de Garashi</div>
+        <div class="char-meta">
+          <span class="char-tag">スペイン</span>
+          <span class="char-tag">テニス</span>
+        </div>
+        <div class="char-role">
+          <strong>担当：きんぴらごぼう</strong><br>
+          昆布とかつお節の出汁を取った後の素材も活かして、旨みを逃さない。<br>
+          限界を超えてからが本番、驚異の粘り腰。
+        </div>
+        <div class="char-quote">「まだ出る、まだ出るんです。」</div>
+        <div class="char-stats">
+          <div class="char-stat">ATK <span>2000</span></div>
+          <div class="char-stat">DEF <span>1800</span></div>
+          <div class="char-stat">★★★★★</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ニジル・ステルナヤ -->
+    <div class="char-card">
+      <img class="char-card-img" src="images/nwa-card-nizhir.jpg" alt="ニジル・ステルナヤ">
+      <div class="char-card-body">
+        <div class="char-name">ニジル・ステルナヤ</div>
+        <div class="char-name-en">Nizhir Sternaya</div>
+        <div class="char-meta">
+          <span class="char-tag">ロシア</span>
+          <span class="char-tag">フィギュアスケート</span>
+        </div>
+        <div class="char-role">
+          <strong>担当：肉じゃが</strong><br>
+          すまし汁の煮汁を再利用した、一滴も無駄にしない優しい味わい。<br>
+          一瞬の隙も、一滴の無駄もない濃密な演技。
+        </div>
+        <div class="char-quote">「一滴たりとも捨てるなや。」</div>
+        <div class="char-stats">
+          <div class="char-stat">ATK <span>1600</span></div>
+          <div class="char-stat">DEF <span>2400</span></div>
+          <div class="char-stat">★★★★★</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== MENU ==================== -->
+<section class="section">
+  <div class="section-label">TODAY'S MENU</div>
+  <h2 class="section-title">本日の給食献立</h2>
+  <div class="concept-text" style="margin-bottom: 24px;">
+    すべての料理に「再利用」と「工夫」が詰まっている。<br>
+    アクは取って、出汁は活かして、煮汁は再利用して、最後は香ばしく残す。
+  </div>
+  <div class="menu-showcase">
+    <img src="images/nwa-menu.jpg" alt="本日の給食献立 ～捨てるな、最後まで使い切れ。～">
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <div class="footer-status">IN DEVELOPMENT</div>
+  <div class="footer-text">
+    20XX年 リリース予定……？<br>
+    現在、究極の調理シミュレーションシステムを構築中。
+  </div>
+  <a href="index.html" class="btn-back">ARCADEへ戻る</a>
+</footer>
+
+</body>
+</html>
