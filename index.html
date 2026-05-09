@@ -1850,18 +1850,12 @@
       width: 90%;
       max-width: 340px;
       margin: 24px auto 40px;
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none; /* Firefox */
-      -webkit-overflow-scrolling: touch;
+      position: relative;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
-    .gacha-trivia-container::-webkit-scrollbar { display: none; /* Safari and Chrome */ }
 
-    .gacha-trivia {
-      flex: 0 0 100%;
-      scroll-snap-align: center;
+    .gacha-trivia-item {
       padding: 16px 20px;
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -1870,29 +1864,17 @@
       line-height: 1.8;
       color: var(--muted);
       text-align: left;
-      position: relative;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: opacity 0.3s ease;
     }
 
-    .gacha-trivia::before {
-      content: "TIPS / 豆知識";
-      display: block;
+    .gacha-trivia-label {
       font-size: 9px;
       font-weight: 900;
       color: var(--aqua);
       letter-spacing: 2px;
       margin-bottom: 8px;
       opacity: 0.8;
-    }
-
-    .gacha-trivia::after {
-      content: "タップで次へ ❯";
-      display: block;
-      text-align: right;
-      font-size: 9px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.2);
-      margin-top: 8px;
     }
   </style>
 </head>
@@ -3275,11 +3257,21 @@
     /* === Trivia Logic === */
     const TRIVIA_LIST = [
       "【ことばバトル】パラボラアンテナの必殺技「妨害電波」は威力2.2倍。相手の必殺ゲージを0にする。",
+      "【ことばバトル】にんじんしりしりの必殺技「なんくるないさー」は威力1.6倍。次に受ける致命傷を1回だけHP1で耐える「根性」を付与する。",
+      "【ことばバトル】キャラクターにはヒストリー／フード／ジオなどの計7つのタイプがあり、相性が有利な相手には1.5倍のダメージを与えることができる。",
+      "【ことばバトル】3対3のチーム戦。じゃんけんに勝つと攻撃、負けると防御。HPが0になると交代し、全員倒せば勝利となる。",
       "【苗字バトル】『無限回廊』モードでは、指定された人数の誤差25%以内の高精度な回答を出すと、減少したライフが回復する。",
+      "【苗字バトル】『無限回廊』モードでは、『呪い』によって「田・山・川」などの頻出漢字が徐々に封じられていき、国内の苗字の多くが使用不可となる。",
       "【TYPE-16】最も多いタイプは「閲覧者（APL-Ⅱ）、最もレアなタイプは「保持者（ZPL-Ⅰ）である。",
+      "【TYPE-16】精度を高めるためには、理想の姿ではなく「ありのままの自分」として直感で答えることが推奨されている。",
       "【ネコロジア】監督の三馬は若手時代、制作会社の都合からスポーツ反則アニメばかりを担当させられていた。（初めて携わった作品は『フットフォルト！』）",
+      "【ネコロジア】特設ページのギャラリーでは劇中に登場する猫たちの貴重なスナップ写真が公開されている。",
       "【カリウム太郎】アスベス子とモリブデン兄さんの間には、墓場まで持っていく秘密があるとか。",
+      "【カリウム太郎】クエンさんは掃除に対して異常な執念を持っており、ニコチン爺ややベンゼン婆やを「掃除対象」として執拗に追い回している。",
+      "【カリウム太郎】ビリリビン総長は不健康派の圧倒的リーダーであり、血気盛んなカドミウム先輩を従えている。",
+      "【カリウム太郎】セルロース博士は愛娘のワセリンちゃんを溺愛しているが、彼女が憧れているカロテン姉さんとは、なにかと対立してしまう。",
       "【NWA】キャラ名は料理の残りかすでなければならないという縛りが思った以上にキツく、キャラ数が一向に増えない。",
+      "【NWA】フェンシング代表のアク・トットレ選手（フランス）が作ったすまし汁の余りは、フィギュアスケート代表のニジル・ステルナヤ選手（ロシア）により再利用される。",
       "【没ネタ】客が暗証番号を入力する一瞬の隙に視線を走らせる『クレカ盗み見店員ゲーム』は、作ったらつまらなかったので没になった。",
       "【没ネタ】議席配分法の不条理を笑い飛ばす政治風刺ギャグアニメ『どんとこいドントくん』は、タイトルで出オチなので没になった。",
       "【没ネタ】やる気のない三輪車たちが世界を救わないアニメ『アパセティック三輪車』は、ストーリーが思いつかなそうなので没になった。",
@@ -3292,25 +3284,35 @@
 
     const triviaContainer = document.getElementById('gachaTriviaContainer');
     if (triviaContainer) {
-      // Shuffle the list
       const shuffled = [...TRIVIA_LIST].sort(() => Math.random() - 0.5);
-      
-      shuffled.forEach(text => {
-        const div = document.createElement('div');
-        div.className = 'gacha-trivia';
-        div.innerText = text;
-        triviaContainer.appendChild(div);
-      });
+      let triviaIndex = 0;
 
-      // Tap to scroll to next
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'gacha-trivia-item';
+
+      const labelDiv = document.createElement('div');
+      labelDiv.className = 'gacha-trivia-label';
+      labelDiv.textContent = '一言メモ';
+
+      const textDiv = document.createElement('div');
+      textDiv.className = 'gacha-trivia-text';
+
+      itemDiv.appendChild(labelDiv);
+      itemDiv.appendChild(textDiv);
+      triviaContainer.appendChild(itemDiv);
+
+      function showTrivia(idx) {
+        textDiv.textContent = shuffled[idx];
+      }
+      showTrivia(0);
+
       triviaContainer.addEventListener('click', () => {
-        const scrollAmt = triviaContainer.clientWidth;
-        // Check if we are near the end
-        if (triviaContainer.scrollLeft + scrollAmt >= triviaContainer.scrollWidth - 10) {
-          triviaContainer.scrollTo({ left: 0, behavior: 'smooth' }); // Loop back
-        } else {
-          triviaContainer.scrollBy({ left: scrollAmt, behavior: 'smooth' });
-        }
+        itemDiv.style.opacity = '0';
+        setTimeout(() => {
+          triviaIndex = (triviaIndex + 1) % shuffled.length;
+          showTrivia(triviaIndex);
+          itemDiv.style.opacity = '1';
+        }, 200);
       });
     }
   </script>
