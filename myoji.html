@@ -4055,8 +4055,18 @@
 3876位	岡谷	およそ3,000人
 3877位	野﨑	およそ3,000人
 3878位	茅根	およそ3,000人
-3879位	丸川	およそ3,000人
-3880位	藤松	およそ3,000人
+3879位                    }
+                };
+                parseData();
+            }, []);
+
+            // Save state effect
+            useEffect(() => {
+                const saveData = { players, globalHistory, minRecord, highScore };
+                localStorage.setItem('myoji_save_data', JSON.stringify(saveData));
+            }, [players, globalHistory, minRecord, highScore]);
+
+            // Audio Functions
 3881位	押尾	およそ3,000人
 3882位	扇谷	およそ3,000人
 3883位	光武	およそ3,000人
@@ -5572,16 +5582,34 @@
             const [gameMode, setGameMode] = useState('ENDLESS'); 
             const [username, setUsername] = useState('Player 1');
             
-            const [players, setPlayers] = useState([
-                { id: 1, name: 'Player 1', strikes: 0, wins: 0, isOut: false, bestScore: 999999 },
-                { id: 2, name: 'Player 2', strikes: 0, wins: 0, isOut: false, bestScore: 999999 },
-            ]);
+            const [players, setPlayers] = useState(() => {
+                const saved = localStorage.getItem('myoji_save_data');
+                if (saved) {
+                    try { return JSON.parse(saved).players || [{ id: 1, name: 'Player 1', strikes: 0, wins: 0, isOut: false, bestScore: 999999 }, { id: 2, name: 'Player 2', strikes: 0, wins: 0, isOut: false, bestScore: 999999 }]; } catch(e){}
+                }
+                return [
+                    { id: 1, name: 'Player 1', strikes: 0, wins: 0, isOut: false, bestScore: 999999 },
+                    { id: 2, name: 'Player 2', strikes: 0, wins: 0, isOut: false, bestScore: 999999 },
+                ];
+            });
             const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
             const [currentRound, setCurrentRound] = useState(1);
             const [inputName, setInputName] = useState('');
             const [searchUrl, setSearchUrl] = useState('');
-            const [globalHistory, setGlobalHistory] = useState([]);
-            const [minRecord, setMinRecord] = useState({ holder: null, count: 999999, name: '' });
+            const [globalHistory, setGlobalHistory] = useState(() => {
+                const saved = localStorage.getItem('myoji_save_data');
+                if (saved) {
+                    try { return JSON.parse(saved).globalHistory || []; } catch(e){}
+                }
+                return [];
+            });
+            const [minRecord, setMinRecord] = useState(() => {
+                const saved = localStorage.getItem('myoji_save_data');
+                if (saved) {
+                    try { return JSON.parse(saved).minRecord || { holder: null, count: 999999, name: '' }; } catch(e){}
+                }
+                return { holder: null, count: 999999, name: '' };
+            });
             const [surnameDB, setSurnameDB] = useState({});
             const [isLoadingDB, setIsLoadingDB] = useState(true);
             const [isSearching, setIsSearching] = useState(false); // ローカルDB検索中の演出用
@@ -5596,7 +5624,13 @@
             const [endlessLife, setEndlessLife] = useState(3);
             const [endlessFloor, setEndlessFloor] = useState(1);
             const [endlessResult, setEndlessResult] = useState(null);
-            const [highScore, setHighScore] = useState(0);
+            const [highScore, setHighScore] = useState(() => {
+                const saved = localStorage.getItem('myoji_save_data');
+                if (saved) {
+                    try { return JSON.parse(saved).highScore || 0; } catch(e){}
+                }
+                return 0;
+            });
             const [isNewRecord, setIsNewRecord] = useState(false);
             const [showToast, setShowToast] = useState(null); // { message, type }
             const [showStairAnim, setShowStairAnim] = useState(false);
@@ -6153,6 +6187,12 @@
                                 <span className="relative z-10 flex items-center justify-center gap-3 text-lg tracking-[0.2em]">
                                 遊戯開始
                                 </span>
+                            </button>
+                            <a href="index.html" className="w-full block text-center text-stone-500 hover:text-stone-300 text-xs py-2 mt-2 transition-colors border border-transparent hover:border-stone-700 rounded-sm">
+                                ARCADEに戻る
+                            </a>
+                            <button onClick={() => { if(confirm('これまでの全記録と検索履歴をリセットしますか？')) { localStorage.removeItem('myoji_save_data'); window.location.reload(); } }} className="w-full text-center text-stone-600 hover:text-rose-500 text-[10px] mt-2 transition-colors underline">
+                                データをリセットする
                             </button>
                         </div>
                     </div>
