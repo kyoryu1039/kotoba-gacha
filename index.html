@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>ことばコレクションガチャ Ultimate v31</title>
+  <title>ことばガチャ</title>
   <meta name="theme-color" content="#0b0f1c">
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -192,9 +192,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 280px;
+      min-height: 240px;
       position: relative;
-      padding-top: 20px;
+      padding-top: 0;
     }
 
     .core-orb {
@@ -248,8 +248,8 @@
       display: flex;
       justify-content: center;
       gap: 16px;
-      margin-top: 24px;
-      padding-bottom: 20px;
+      margin-top: 8px;
+      padding-bottom: 0;
     }
 
     .btn-summon {
@@ -1090,8 +1090,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 22px 12px 18px;
+      justify-content: flex-start;
+      padding: 0 0 16px 0;
       border-radius: 14px;
       background: rgba(20, 27, 46, 0.85);
       backdrop-filter: blur(10px);
@@ -1100,7 +1100,7 @@
       color: var(--ink);
       transition: transform 0.15s, border-color 0.3s, box-shadow 0.3s;
       cursor: pointer;
-      gap: 6px;
+      gap: 0;
       text-align: center;
       user-select: none;
       -webkit-user-select: none;
@@ -1148,22 +1148,53 @@
       box-shadow: 0 0 30px rgba(143, 177, 255, 0.2), inset 0 0 20px rgba(143, 177, 255, 0.05);
     }
 
-    .arcade-card-icon {
-      font-size: 30px;
-      margin-bottom: 2px;
-      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+    .arcade-card-visual {
+      width: 100%;
+      height: 100px;
+      position: relative;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 12px;
+    }
+
+    .arcade-card-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .arcade-card-visual svg {
+      width: 32px;
+      height: 32px;
+      color: var(--ink);
+      opacity: 0.7;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+    }
+
+    .arcade-card:active .arcade-card-visual img {
+      transform: scale(1.1);
     }
 
     .arcade-card-title {
       font-size: 13px;
       font-weight: 900;
       letter-spacing: 0.5px;
+      padding: 0 10px;
+      margin-bottom: 4px;
+      color: #fff;
     }
 
     .arcade-card-desc {
       font-size: 9px;
       color: var(--muted);
-      line-height: 1.5;
+      line-height: 1.4;
+      padding: 0 12px;
+      opacity: 0.8;
     }
 
     /* === Common UI === */
@@ -1849,7 +1880,7 @@
     .gacha-trivia-container {
       width: 90%;
       max-width: 340px;
-      margin: 24px auto 40px;
+      margin: 8px auto 0;
       position: relative;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -1876,6 +1907,58 @@
       margin-bottom: 8px;
       opacity: 0.8;
     }
+
+    /* === Welcome Screen === */
+    #welcome-overlay {
+      position: fixed; inset: 0; z-index: 10001;
+      background: rgba(11, 15, 28, 0.98);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 40px 20px;
+      transition: opacity 0.6s ease;
+    }
+    #welcome-overlay.hidden { opacity: 0; pointer-events: none; }
+    .welcome-title { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: 2px; text-shadow: 0 0 20px rgba(99, 234, 217, 0.3); }
+    .welcome-orb {
+      width: 100px; height: 100px; border-radius: 50%; margin: 32px 0;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), var(--aqua) 20%, transparent 60%);
+      box-shadow: 0 0 50px rgba(99, 234, 217, 0.4); animation: pulseCharge 2s infinite;
+    }
+    .welcome-msg { font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 40px; }
+    .welcome-msg strong { color: var(--aqua); font-weight: 700; }
+    .btn-welcome {
+      background: transparent; border: 2px solid var(--aqua); color: var(--aqua);
+      padding: 14px 48px; border-radius: 4px; font-size: 16px; font-weight: 900;
+      letter-spacing: 4px; cursor: pointer; transition: all 0.3s;
+    }
+    .btn-welcome:active { background: var(--aqua); color: var(--bg); transform: scale(0.95); }
+
+    /* === Empty State === */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 60px 20px; gap: 16px;
+    }
+    .empty-state-icon { font-size: 48px; opacity: 0.3; }
+    .empty-state-msg { font-size: 14px; color: var(--muted); line-height: 1.8; }
+    .empty-state-btn {
+      background: transparent; border: 1px solid var(--aqua); color: var(--aqua);
+      padding: 10px 32px; border-radius: 20px; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: 0.2s; margin-top: 8px;
+    }
+    .empty-state-btn:active { background: rgba(99, 234, 217, 0.1); transform: scale(0.95); }
+
+    /* === Pickup Card === */
+    .pickup-card {
+      width: 90%; max-width: 340px; margin: 0 auto;
+      padding: 14px 20px; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255, 215, 0, 0.15); border-radius: 12px;
+      text-align: left; display: none;
+    }
+    .pickup-card.visible { display: flex; gap: 14px; align-items: center; }
+    .pickup-thumb { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+    .pickup-body { flex: 1; min-width: 0; }
+    .pickup-label { font-size: 9px; font-weight: 900; color: var(--gold); letter-spacing: 2px; margin-bottom: 4px; opacity: 0.8; }
+    .pickup-word { font-size: 15px; font-weight: 900; color: var(--ink); margin-bottom: 2px; }
+    .pickup-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
   </style>
 </head>
 
@@ -1886,9 +1969,15 @@
   <div class="white-flash"></div>
   <div class="bg-ambient"></div>
 
+  <div id="welcome-overlay">
+    <div class="welcome-title">ことばガチャ</div>
+    <div class="welcome-orb"></div>
+    <div class="welcome-msg">ボタンを<strong>長押し</strong>して<br>言葉を召喚しよう！</div>
+    <button class="btn-welcome" id="btn-welcome-start">はじめる →</button>
+  </div>
+
   <header>
-    <div class="title">ことばコレクションガチャ</div>
-    <div class="ver">Ultimate</div>
+    <div class="title">ことばガチャ</div>
   </header>
 
   <div id="app">
@@ -1909,6 +1998,15 @@
           <div class="btn-label">5 pulls</div>
           <div class="btn-sub">HOLD TO CHARGE</div>
         </button>
+      </div>
+
+      <div class="pickup-card" id="pickupCard">
+        <img class="pickup-thumb" id="pickupThumb" src="" alt="">
+        <div class="pickup-body">
+          <div class="pickup-label">本日のピックアップ</div>
+          <div class="pickup-word" id="pickupWord"></div>
+          <div class="pickup-desc" id="pickupDesc"></div>
+        </div>
       </div>
 
       <div class="gacha-trivia-container" id="gachaTriviaContainer">
@@ -1947,127 +2045,78 @@
         </div>
 
         <div class="arcade-category">
-          <div class="arcade-cat-label" style="color:var(--aqua); display:flex; align-items:center; gap:6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path>
-              <path d="M13 19l6-6"></path>
-              <path d="M16 16l4 4"></path>
-              <path d="M19 21l2-2"></path>
-              <path d="M8.5 6.5L4 11"></path>
-              <path d="M9 4l-2 2"></path>
-            </svg>
-            BATTLE
+          <div class="arcade-cat-label" style="color:var(--aqua); display:flex; align-items:baseline; gap:8px;">
+            <span style="font-size:16px; font-weight:900;">あそぶ</span>
+            <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">PLAY</span>
           </div>
           <div class="arcade-grid">
             <a class="arcade-card battle" href="kotobattle.html" target="_blank" rel="noopener">
-              <div class="arcade-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="22" y1="12" x2="18" y2="12"></line>
-                  <line x1="6" y1="12" x2="2" y2="12"></line>
-                  <line x1="12" y1="6" x2="12" y2="2"></line>
-                  <line x1="12" y1="22" x2="12" y2="18"></line>
-                </svg></div>
+              <div class="arcade-card-visual">
+                <img src="https://raw.githubusercontent.com/kyoryu1039/kotoba-gacha/main/images/parabola_antenna.png" alt="" style="object-fit: contain; padding: 12px;">
+              </div>
               <div class="arcade-card-title">ことばバトル</div>
-              <div class="arcade-card-desc">集めた言葉でCPUと対戦</div>
+              <div class="arcade-card-desc">集めた言葉でCPUと対戦する、コマンドバトルRPG</div>
             </a>
             <a class="arcade-card battle" href="myoji.html" target="_blank" rel="noopener">
-              <div class="arcade-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <circle cx="12" cy="11" r="3"></circle>
-                  <path d="M17 18a5 5 0 0 0-10 0"></path>
-                </svg></div>
+              <div class="arcade-card-visual">
+                <img src="images/myoji.png" alt="" style="object-fit: contain; padding: 6px;">
+              </div>
               <div class="arcade-card-title">苗字バトル</div>
-              <div class="arcade-card-desc">日本の苗字で頂点を目指せ</div>
+              <div class="arcade-card-desc">全国の苗字がランクイン。自分の苗字で頂点を目指せ</div>
             </a>
           </div>
         </div>
 
         <div class="arcade-category">
-          <div class="arcade-cat-label" style="color:var(--gold); display:flex; align-items:center; gap:6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-              <line x1="6" y1="6" x2="6.01" y2="6"></line>
-              <line x1="6" y1="18" x2="6.01" y2="18"></line>
-            </svg>
-            SYSTEM
+          <div class="arcade-cat-label" style="color:var(--gold); display:flex; align-items:baseline; gap:8px;">
+            <span style="font-size:16px; font-weight:900;">しらべる</span>
+            <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">ANALYZE</span>
           </div>
           <div class="arcade-grid">
             <a class="arcade-card system" href="type16.html" target="_blank" rel="noopener">
-              <div class="arcade-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg></div>
+              <div class="arcade-card-visual">
+                <img src="images/result.png" alt="" style="object-position: top;">
+              </div>
               <div class="arcade-card-title">TYPE-16</div>
-              <div class="arcade-card-desc">18問の自己分析プログラム</div>
+              <div class="arcade-card-desc">18の質問に答える、16タイプの性格診断</div>
             </a>
             <div class="arcade-card system" onclick="CaptchaGame.open()">
-              <div class="arcade-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-                  <rect x="9" y="9" width="6" height="6"></rect>
-                  <line x1="9" y1="1" x2="9" y2="4"></line>
-                  <line x1="15" y1="1" x2="15" y2="4"></line>
-                  <line x1="9" y1="20" x2="9" y2="23"></line>
-                  <line x1="15" y1="20" x2="15" y2="23"></line>
-                  <line x1="20" y1="9" x2="23" y2="9"></line>
-                  <line x1="20" y1="14" x2="23" y2="14"></line>
-                  <line x1="1" y1="9" x2="4" y2="9"></line>
-                  <line x1="1" y1="14" x2="4" y2="14"></line>
-                </svg></div>
+              <div class="arcade-card-visual">
+                <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="" style="object-fit: contain; width: 50px; height: 50px; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));">
+                <div style="position:absolute; bottom:5px; right:8px; font-size:8px; opacity:0.3; color:#fff;">reCAPTCHA</div>
+              </div>
               <div class="arcade-card-title">人間証明テスト</div>
-              <div class="arcade-card-desc">リズムで人間性を証明せよ</div>
+              <div class="arcade-card-desc">リズムに合わせて、あなたが人間であることを証明せよ</div>
             </div>
           </div>
         </div>
 
         <div class="arcade-category">
-          <div class="arcade-cat-label" style="color:var(--blue); display:flex; align-items:center; gap:6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-              stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="23 7 16 12 23 17 23 7"></polygon>
-              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-            </svg>
-            THEATER
+          <div class="arcade-cat-label" style="color:var(--blue); display:flex; align-items:baseline; gap:8px;">
+            <span style="font-size:16px; font-weight:900;">よむ</span>
+            <span style="font-size:10px; opacity:0.5; letter-spacing:1px;">STORY</span>
           </div>
           <div class="arcade-grid">
             <a class="arcade-card theater" href="nekologia.html" target="_blank" rel="noopener">
-              <div class="arcade-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg></div>
+              <div class="arcade-card-visual">
+                <img src="images/necologia_banner.jpg" alt="" style="object-fit: contain; background: #000;">
+              </div>
               <div class="arcade-card-title">ネコロジア</div>
-              <div class="arcade-card-desc">とある猫の物語</div>
+              <div class="arcade-card-desc">全体主義国家に迷い込んだ、青年と一匹の猫の物語</div>
             </a>
             <a class="arcade-card theater" href="ktaro.html" target="_blank" rel="noopener">
-              <div class="arcade-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M10 2v7.31"></path>
-                  <path d="M14 9.3V1.99"></path>
-                  <path d="M8.5 2h7"></path>
-                  <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
-                  <line x1="5.52" y1="16" x2="18.48" y2="16"></line>
-                </svg></div>
+              <div class="arcade-card-visual">
+                <img src="images/k_bannar.jpg" alt="" style="object-position: top;">
+              </div>
               <div class="arcade-card-title">カリウム太郎</div>
-              <div class="arcade-card-desc">化学反応コメディ公式サイト</div>
+              <div class="arcade-card-desc">笑いと科学が混ざり合う、ハイテンションな化学反応コメディ</div>
             </a>
             <a class="arcade-card theater" href="nwa.html" target="_blank" rel="noopener">
-              <div class="arcade-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z">
-                  </path>
-                  <line x1="6" y1="17" x2="18" y2="17"></line>
-                </svg></div>
+              <div class="arcade-card-visual">
+                <img src="images/nwa-menu.jpg" alt="" style="object-fit: cover; object-position: center;">
+              </div>
               <div class="arcade-card-title">NWA</div>
-              <div class="arcade-card-desc">No Waste Athletes</div>
+              <div class="arcade-card-desc">残りカスをごちそうに。ストイックな給食調理員たちの物語</div>
             </a>
           </div>
         </div>
@@ -2140,7 +2189,8 @@
     </button>
     <button class="nav-btn" onclick="switchTab('cpu', 1)" id="tabCpu">
       <span class="icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <line x1="6" y1="12" x2="10" y2="12"></line>
           <line x1="8" y1="10" x2="8" y2="14"></line>
           <line x1="15" y1="13" x2="15.01" y2="13"></line>
@@ -2674,6 +2724,17 @@
     function renderCollection() {
       const cont = document.getElementById('coll-container'); cont.innerHTML = "";
       let allTotal = 0, allHave = 0;
+
+      /* Empty State */
+      if (seen.size === 0) {
+        document.getElementById('coll-total-val').textContent = '0 / 0';
+        cont.innerHTML = `<div class="empty-state">
+          <div class="empty-state-icon">📖</div>
+          <div class="empty-state-msg">まだ何も集めていません。<br>ガチャを回して、最初の1体を召喚しよう！</div>
+          <button class="empty-state-btn" onclick="switchTab('gacha', 0)">ガチャへ →</button>
+        </div>`;
+        return;
+      }
 
       tiers.forEach(t => {
         let tTotal = 0, tHave = 0;
@@ -3279,7 +3340,7 @@
       "【没ネタ】客が暗証番号を入力する一瞬の隙に視線を走らせる『クレカ盗み見店員ゲーム』は、作ったらつまらなかったので没になった。",
       "【没ネタ】議席配分法の不条理を笑い飛ばす政治風刺ギャグアニメ『どんとこいドントくん』は、タイトルで出オチなので没になった。",
       "【没ネタ】やる気のない三輪車たちが世界を救わないアニメ『アパセティック三輪車』は、ストーリーが思いつかなそうなので没になった。",
-      "【ロックなもの】占い師が占い師の将来を占うリアリティショーや、ベジタリアンの大食い大会。保守的な風土の農地で一人ルッコラやクレソンなどの西洋野菜ばかり作る老人。",
+      "【ロックなもの】占い師が占い師の将来を占うリアリティショー、ベジタリアンの大食い大会。保守的な風土の農地で一人ルッコラやクレソンなどの西洋野菜ばかり作る老人。",
       "【ロックなもの】粉ミルク缶には「母乳が最良」という旨を記載する義務がある。（タバコのパッケージと同様に、それでも売らねばならないという工業製品としての宿命）",
       "【ロックなもの】ねづっちにお題を振られ、「切実に」とまさかの形容動詞を繰り出してフリーズさせた滝沢カレン",
       "【ロックなもの】バナナとワニを組み合わせたら、ア行が連続で8回も続いてしまった「熱川バナナワニ園」",
@@ -3324,6 +3385,70 @@
         }, 200);
       };
     }
+
+    /* === Welcome Screen === */
+    (function() {
+      const WELCOME_KEY = 'kotoba_onboarding_done';
+      const overlay = document.getElementById('welcome-overlay');
+      if (!overlay) return;
+      if (localStorage.getItem(WELCOME_KEY)) {
+        overlay.style.display = 'none';
+        return;
+      }
+      document.getElementById('btn-welcome-start').addEventListener('click', () => {
+        overlay.classList.add('hidden');
+        localStorage.setItem(WELCOME_KEY, '1');
+        setTimeout(() => { overlay.style.display = 'none'; }, 700);
+      });
+    })();
+
+    /* === Today's Pickup === */
+    (function() {
+      const card = document.getElementById('pickupCard');
+      const wordEl = document.getElementById('pickupWord');
+      const descEl = document.getElementById('pickupDesc');
+      const thumbEl = document.getElementById('pickupThumb');
+      if (!card || seen.size === 0) return;
+
+      const seenArr = [...seen];
+      /* Date-based pseudo-random to show same word all day */
+      const today = new Date();
+      const daySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+      const idx = daySeed % seenArr.length;
+      const word = seenArr[idx];
+
+      wordEl.textContent = word;
+      descEl.textContent = exp[word] || '';
+      if (wordImages[word]) {
+        thumbEl.src = IMAGE_BASE_URL + wordImages[word];
+        thumbEl.style.display = '';
+      } else {
+        thumbEl.style.display = 'none';
+      }
+      card.classList.add('visible');
+    })();
+
+    /* Re-render pickup after gacha roll */
+    const _origCloseOverlay = closeOverlay;
+    closeOverlay = function() {
+      _origCloseOverlay();
+      /* Refresh pickup */
+      const card = document.getElementById('pickupCard');
+      const wordEl = document.getElementById('pickupWord');
+      const descEl = document.getElementById('pickupDesc');
+      const thumbEl = document.getElementById('pickupThumb');
+      if (!card || seen.size === 0) return;
+      const seenArr = [...seen];
+      const today = new Date();
+      const daySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+      const idx = daySeed % seenArr.length;
+      const word = seenArr[idx];
+      wordEl.textContent = word;
+      descEl.textContent = exp[word] || '';
+      if (wordImages[word]) { thumbEl.src = IMAGE_BASE_URL + wordImages[word]; thumbEl.style.display = ''; }
+      else { thumbEl.style.display = 'none'; }
+      card.classList.add('visible');
+    };
   </script>
 </body>
 
