@@ -3,406 +3,548 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ネコロジア｜特設ページ</title>
- <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0b0f1c">
+<title>NWA No Waste Athletes -Naniwa World Alchemy-</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a0806">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
 
 <style>
- :root{
-  --ink:#fdf6e3; --muted:#9ab0d4; --accent:#71ffd8; --bg:#070c18;
-  --neon:#00ffd0; --neon2:#83aaff;
-}
-html,body{height:100%}
-
-/* 1) bodyは単色＋疑似要素の土台に */
-body{
-  margin:0;
-  color:var(--ink);
-  font-family: ui-sans-serif,system-ui,"Hiragino Kaku Gothic ProN","Meiryo",sans-serif;
-  background:#070c18;           /* ← 単色にする */
-  position: relative;           /* ← 疑似要素のために追加 */
+:root {
+  --bg: #0a0806;
+  --panel: #151008;
+  --gold: #d4af37;
+  --gold-light: #f0d060;
+  --gold-dark: #8b6914;
+  --text: #e8dcc8;
+  --muted: #8a7e6d;
+  --red: #c0392b;
+  --blue-steel: #5a7ea8;
 }
 
-/* 2) 固定の背景レイヤー（スクロールしても動かない） */
-body::before{
-  content:"";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* === Background texture === */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
-    radial-gradient(1200px 600px at 70% -10%, rgba(8,40,60,.35), transparent 60%),
-    linear-gradient(180deg,#01001F,#070c18 40%,#040811);
+    radial-gradient(ellipse 800px 400px at 50% 0%, rgba(212,175,55,0.08), transparent),
+    radial-gradient(ellipse 600px 600px at 80% 100%, rgba(90,126,168,0.06), transparent),
+    var(--bg);
 }
 
-.wrap{max-width:880px; margin:0 auto; padding:28px 16px 64px}
-header{display:flex; align-items:center; justify-content:center}
-.logo-img{display:block; max-width:100%; height:auto; margin:20px auto}
-
- /* ===== 監督紹介 ===== */
-.director {
-  max-width: 880px;
-  margin: 28px auto 44px;
-  padding: 0 16px 40px;
-  background: transparent; /* 段差防止のため背景は透明 */
+/* === Hero === */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 20px 40px;
+  text-align: center;
+  overflow: hidden;
 }
-.director::after {
+.hero::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(10,8,6,0.6) 70%, var(--bg) 100%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  position: relative; z-index: 2;
+  display: inline-block;
+  padding: 6px 18px;
+  border: 1px solid var(--gold-dark);
+  color: var(--gold);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 4px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  position: relative; z-index: 2;
+  font-family: "Cinzel", serif;
+  font-size: clamp(28px, 6vw, 56px);
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #fff;
+  text-shadow: 0 4px 30px rgba(212,175,55,0.3);
+  margin-bottom: 8px;
+}
+
+.hero-subtitle {
+  position: relative; z-index: 2;
+  font-family: "Cinzel", serif;
+  font-size: clamp(14px, 2.5vw, 22px);
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 32px;
+  font-weight: 600;
+}
+
+.hero-tagline {
+  position: relative; z-index: 2;
+  font-size: clamp(13px, 2vw, 16px);
+  color: var(--muted);
+  margin-bottom: 48px;
+  line-height: 1.9;
+}
+
+/* === Cards showcase (Hero) === */
+.cards-fan {
+  position: relative; z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 40px;
+  perspective: 1200px;
+}
+
+.card-slot {
+  width: clamp(120px, 22vw, 220px);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), z-index 0s;
+  cursor: pointer;
+  position: relative;
+}
+.card-slot:nth-child(1) { transform: rotate(-8deg) translateY(10px); z-index: 1; }
+.card-slot:nth-child(2) { transform: rotate(-3deg) translateY(-5px); z-index: 2; margin-left: -30px; }
+.card-slot:nth-child(3) { transform: rotate(3deg) translateY(-5px); z-index: 2; margin-left: -30px; }
+.card-slot:nth-child(4) { transform: rotate(8deg) translateY(10px); z-index: 1; margin-left: -30px; }
+
+.card-slot:hover {
+  transform: translateY(-20px) scale(1.08) rotate(0deg) !important;
+  z-index: 10 !important;
+}
+
+.card-slot img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.7), 0 0 15px rgba(212,175,55,0.15);
+  transition: box-shadow 0.4s;
+}
+.card-slot:hover img {
+  box-shadow: 0 16px 50px rgba(0,0,0,0.9), 0 0 40px rgba(212,175,55,0.35);
+}
+
+/* === Section common === */
+.section {
+  padding: clamp(50px, 8vw, 100px) 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 10px;
+  letter-spacing: 5px;
+  color: var(--gold-dark);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: clamp(20px, 4vw, 32px);
+  font-weight: 900;
+  margin-bottom: 32px;
+  line-height: 1.4;
+}
+
+/* Gold accent line */
+.section-title::after {
   content: "";
   display: block;
-  clear: both; /* 回り込み解除で高さを確保 */
+  width: 60px; height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  margin-top: 16px;
 }
 
-.director-title {
+/* === Concept === */
+.concept-text {
+  font-size: clamp(14px, 2vw, 17px);
+  color: var(--text);
+  line-height: 2;
+  max-width: 700px;
+}
+
+.concept-text em {
+  font-style: normal;
+  color: var(--gold-light);
+  font-weight: 700;
+}
+
+.concept-quote {
+  margin-top: 40px;
+  padding: 24px 28px;
+  border-left: 3px solid var(--gold-dark);
+  background: rgba(212,175,55,0.04);
+  font-size: clamp(16px, 2.5vw, 22px);
   font-weight: 900;
-  letter-spacing: .08em;
-  font-size: clamp(18px, 3.6vw, 24px);
-  color: #cfe7ff;
-  margin: 0 0 10px;
-  text-shadow: 0 0 12px rgba(143, 177, 255, .25);
-  border-left: 4px solid #63ead9;
-  padding-left: 10px;
+  color: #fff;
+  letter-spacing: 1px;
+  line-height: 1.6;
 }
 
-.dir-photo {
-  float: left;
-  width: min(220px, 40%);
-  aspect-ratio: 3/4;
-  object-fit: cover;
+/* === Characters === */
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 24px;
+}
+
+.char-card {
+  background: linear-gradient(145deg, rgba(21,16,8,0.95), rgba(30,22,10,0.9));
+  border: 1px solid rgba(212,175,55,0.15);
   border-radius: 12px;
-  margin: 4px 16px 8px 0;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, .28);
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.char-card:hover {
+  border-color: rgba(212,175,55,0.4);
+  transform: translateY(-4px);
 }
 
-.director h2 {
-  margin: 0 0 8px;
-  font-size: clamp(18px, 3.4vw, 22px);
-  letter-spacing: .04em;
+.char-card-img {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  object-position: top;
+  display: block;
 }
 
-.director p {
-  margin: .5em 0;
-  line-height: 1.75;
-  color: #dbe3ff;
+.char-card-body {
+  padding: 20px;
 }
 
-.director p.last {
-  margin-top: .8em;
-  border-top: 1px solid #1d2a55;
-  padding-top: .8em;
+.char-name {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 2px;
+}
+.char-name-en {
+  font-family: "Cinzel", serif;
+  font-size: 11px;
+  color: var(--gold-dark);
+  letter-spacing: 1px;
+  margin-bottom: 12px;
 }
 
-@media (max-width: 680px) {
-  .dir-photo {
-    float: none;
-    display: block;
-    margin: 0 auto 12px;
-    width: min(64vw, 320px);
-  }
+.char-meta {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.char-tag {
+  font-size: 10px;
+  padding: 3px 10px;
+  border: 1px solid var(--gold-dark);
+  border-radius: 2px;
+  color: var(--gold);
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 
-  /* ===== ヒーロー（字幕表示） ===== */
-  .stage{
-    position:relative;
-    min-height:60vh;
-    background:#0b1122 center/contain no-repeat; /* 画像はJSで当てる */
-    background-size:auto 100%;
-    box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 0 120px rgba(0,0,0,.45);
-    border-radius:12px;
-    overflow:hidden;
-  }
-  .veil{
-    position:absolute; inset:0;
-    background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.65));
-    pointer-events:none; /* ← クリックを邪魔しない */
-  }
-  .cat{
-    position:absolute; left:24px; bottom:18px; width:min(24vw,120px); aspect-ratio:1;
-    background: radial-gradient(circle at 60% 40%, #111 0 52%, transparent 53%),
-                radial-gradient(circle at 40% 40%, #111 0 52%, transparent 53%),
-                radial-gradient(60% 18% at 50% 72%, #111 0 49%, transparent 50%);
-    filter: drop-shadow(0 0 10px rgba(0,0,0,.6));
-    mask: radial-gradient(60% 60% at 50% 55%, #000 70%, transparent 71%);
-    border-radius:50%;
-  }
-  .controls{
-    position:absolute; left:16px; bottom:16px; z-index:5;
-    display:flex; gap:8px;
-  }
-  .btn{
-    border:1px solid #2a3b6e; background:#0a1430; color:var(--ink);
-    padding:10px 14px; border-radius:12px; font-weight:800; letter-spacing:.08em; cursor:pointer;
-  }
-  .btn:disabled{opacity:.6; cursor:not-allowed}
+.char-role {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.char-role strong {
+  color: var(--text);
+}
 
-  /* ===== 字幕 ===== */
-  .subs{
-    position:absolute; left:50%; bottom:25%;
-    transform:translateX(-50%);
-    width:min(92vw,900px);
-    padding:10px 14px; text-align:center; pointer-events:none;
-    z-index:4;
-  }
-  .subs-line{
-    display:inline-block;
-    font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
-    font-weight:700; font-size:clamp(18px,2.6vw,28px);
-    line-height:1.35; letter-spacing:.02em;
-    color:#f5f2e6; /* クリーム寄りの白 */
-    text-shadow:
-      -1px -1px 0 #000,  1px -1px 0 #000,
-      -1px  1px 0 #000,  1px  1px 0 #000,
-       0    0   8px rgba(0,0,0,.35);
-    min-height:2.4em;
-  }
-  .subs-audio{
-    position:absolute; right:6px; bottom:-6px; transform:translateY(100%);
-    pointer-events:auto; border:none; border-radius:10px;
-    padding:4px 8px; font-size:14px; cursor:pointer;
-    color:#061627; background:linear-gradient(180deg,#71ffd8,#55e3c4);
-    box-shadow:0 2px 10px rgba(0,0,0,.3);
-  }
-  .subs-audio[aria-pressed="false"]{ filter:grayscale(1) brightness(.75); }
+.char-quote {
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.5;
+}
 
-  .hr{height:1px; background:linear-gradient(90deg,transparent,#2b3f6e,transparent); margin:20px 0}
+.char-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(212,175,55,0.1);
+}
+.char-stat {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.char-stat span {
+  color: var(--gold-light);
+}
 
-  /* ===== 猫ギャラリー ===== */
-  .cat-grid{
-    display:grid; gap:12px;
-    grid-template-columns: repeat(2, 1fr);
-  }
-  @media (min-width:640px){ .cat-grid{ grid-template-columns: repeat(3, 1fr);} }
-  @media (min-width:980px){ .cat-grid{ grid-template-columns: repeat(4, 1fr);} }
+/* === Menu === */
+.menu-showcase {
+  width: 100%;
+  margin: 32px auto 0;
+  border: 2px solid var(--gold-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.menu-showcase img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
 
-  .cat-card{
-    position:relative; overflow:hidden; border-radius:12px;
-    background:#0b1329; border:1px solid #233059;
-    box-shadow: 0 12px 28px rgba(0,0,0,.22) inset;
-  }
-  .cat-card img{
-    display:block; width:100%;
-    height:180px; object-fit:cover; object-position:center;
-    filter:saturate(1.03) contrast(1.02);
-  }
-  .cat-card.is-gif img{ height:220px; }
-  @media (max-width:480px){
-    .cat-card img{ height:160px; }
-    .cat-card.is-gif img{ height:180px; }
-  }
-  .cat-badge {
-    position:absolute; top:8px; right:8px;
-    padding:2px 6px; font-size:12px; font-weight:800;
-    border-radius:6px; letter-spacing:.04em;
-    color:#061627; background:linear-gradient(180deg,#71ffd8,#56e3c5);
-    box-shadow:0 2px 10px rgba(0,0,0,.25);
-  }
-  .cat-meta{
-    display:flex; justify-content:space-between; align-items:center; gap:8px;
-    padding:8px 10px; font-size:13px; color:var(--muted);
-  }
-  .cat-actions a{
-    text-decoration:none; border:1px solid #2a3b6e; border-radius:8px; padding:4px 8px; color:var(--ink);
-  }
+/* === Footer === */
+.footer {
+  text-align: center;
+  padding: 60px 20px;
+  border-top: 1px solid rgba(212,175,55,0.1);
+}
+
+.footer-status {
+  display: inline-block;
+  padding: 10px 24px;
+  border: 1px solid var(--red);
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+  animation: blink 2.5s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.footer-text {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.8;
+}
+
+.btn-back {
+  display: inline-block;
+  padding: 12px 36px;
+  background: transparent;
+  border: 1px solid var(--gold-dark);
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-size: 13px;
+  transition: 0.3s;
+}
+.btn-back:hover {
+  background: rgba(212,175,55,0.08);
+  border-color: var(--gold);
+}
+
+/* === Divider === */
+.divider {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+}
+
+/* === Responsive === */
+@media (max-width: 600px) {
+  .cards-fan { gap: 0; }
+  .card-slot { width: clamp(80px, 22vw, 140px); }
+  .card-slot:nth-child(2),
+  .card-slot:nth-child(3),
+  .card-slot:nth-child(4) { margin-left: -20px; }
+}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <img src="images/logo_necologia.jpg" alt="FictitiousTV オリジナルアニメ ネコロジア" class="logo-img">
-    </header>
 
-    <section class="stage" aria-label="あらすじ・シネマティック表示">
-      <div class="veil"></div>
-      <div class="cat" aria-hidden="true"></div>
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <div class="hero-badge">PROJECT TEASER</div>
+  <h1 class="hero-title">NWA</h1>
+  <div class="hero-subtitle">No Waste Athletes -Naniwa World Alchemy-</div>
+  <div class="hero-tagline">
+    プロスポーツ選手が給食調理員として<br>
+    全校生徒分の給食を完成させる──<br>
+    究極の調理シミュレーション
+  </div>
 
-      <div class="controls">
-        <button class="btn" id="playBtn">▶ はじめる</button>
-        <button class="btn" id="replayBtn">⟲ もう一度</button>
-      </div>
-
-      <!-- 字幕 -->
-      <div class="subs" id="subs">
-        <div class="subs-line" id="subsText"></div>
-     
-      </div>
-    </section>
-
-
-<div class="hr"></div>
-<!-- 監督紹介 -->
-<section class="director" id="director">
-  <h1 class="director-title">監督紹介</h1>
-  <img class="dir-photo" src="images/director_mima.jpg" alt="三馬 智宏（みま ともひろ）">
-  <h2>三馬 智宏（みま ともひろ）</h2>
-  <p>1973年、アメリカ・オハイオ州生まれ。茅張芸術大学商業デザイン学部を卒業後、ヴァイオアニメーションに入社。</p>
-  <p>『フットフォルト！』（98年）、『Double Dribbler』（00年）では動画、『オフサイドフラッグはお好き？』（01年）で初めて原画を担当。</p>
-  <p>2004年にはスタジオアペタイに籍を移し、人気アニメのスピンオフ映画『劇場版 Gottani Girls Neo』（07年）で初監督に抜擢。以降は『剣道部ならこれを食えっ！』（11年）、『今日もボルシチで乾杯―沖縄編―』（17年）などヒット作を連発。主題歌「金魚鉢」でも知られる『生産者の顔が見えなくて、夏』（21年）は、アニメーション映画史上96番目となる31億円の興行収入を記録した。</p>
-  <p>トレードマークは現場に必ず着てくるアロハシャツ。現在は妻、高校生の娘、2匹の気まぐれな猫と暮らしている。</p>
+  <div class="cards-fan">
+    <div class="card-slot"><img src="images/nwa-card-acq.jpg" alt="アク・トットレ"></div>
+    <div class="card-slot"><img src="images/nwa-card-okoge.jpg" alt="オコゲ・トレヘン"></div>
+    <div class="card-slot"><img src="images/nwa-card-madadel.jpg" alt="マダデル・デ・ガラシ"></div>
+    <div class="card-slot"><img src="images/nwa-card-nizhir.jpg" alt="ニジル・ステルナヤ"></div>
+  </div>
 </section>
 
-<div class="hr"></div>
-<!-- グッズ（そのまま） -->
-<section class="wrap goods" style="padding:40px 16px; text-align:center;">
-  <h2 style="font-size:clamp(20px,4vw,28px); margin-bottom:16px; color:#f5f0e8;">
-    ネコロジア公式グッズ
-  </h2>
-  <img src="images/plush.jpg" alt="ネコロジアぬいぐるみ" style="max-width:300px; width:100%; height:auto; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
-  <p style="margin-top:12px; font-size:14px; color:#9ab0d4;">
-    ただいま準備中です。販売開始をお楽しみに！
-  </p>
+<div class="divider"></div>
+
+<!-- ==================== CONCEPT ==================== -->
+<section class="section">
+  <div class="section-label">CONCEPT</div>
+  <h2 class="section-title">残りカスは、ごちそうになる。</h2>
+  <div class="concept-text">
+    アクを取り、出汁を活かし、煮汁は再利用して、最後は香ばしく残す。<br>
+    <em>すべての料理に「再利用」と「工夫」が詰まっている。</em><br><br>
+    残りカスなんて言わせない──おいしさのバトンを、つなぎきりました。<br><br>
+    4人のプロアスリートが、それぞれの競技スキルを駆使して挑む、<br>
+    前代未聞の給食シミュレーション。
+  </div>
+  <div class="concept-quote">
+    「捨てるな、最後まで使い切れ。」
+  </div>
 </section>
 
-    <div class="hr"></div>
+<div class="divider"></div>
 
-    <!-- 猫フォト・ギャラリー -->
-    <section class="wrap" id="cats">
-      <h2 style="margin:0 0 10px; letter-spacing:.06em;">猫フォト・ギャラリー</h2>
-      <p style="margin:0 0 16px; color:#9ab0d4">カード下の「DL」で保存できます。</p>
-      <div class="cat-grid" id="catGrid" aria-live="polite"></div>
-    </section>
+<!-- ==================== CHARACTERS ==================== -->
+<section class="section">
+  <div class="section-label">CHARACTERS</div>
+  <h2 class="section-title">給食調理員 4人の紹介</h2>
 
-    <div style="text-align:center; padding:20px 0 60px;">
-      <a href="index.html" style="display:inline-block; border:1px solid #2a3b6e; background:#0a1430; color:var(--ink); padding:10px 24px; border-radius:12px; font-weight:800; letter-spacing:.08em; text-decoration:none;">ARCADEに戻る</a>
+  <div class="char-grid">
+
+    <!-- アク・トットレ -->
+    <div class="char-card">
+      <img class="char-card-img" src="images/nwa-card-acq.jpg" alt="アク・トットレ">
+      <div class="char-card-body">
+        <div class="char-name">アク・トットレ</div>
+        <div class="char-name-en">Acq Tottoré</div>
+        <div class="char-meta">
+          <span class="char-tag">フランス</span>
+          <span class="char-tag">フェンシング</span>
+        </div>
+        <div class="char-role">
+          <strong>担当：すまし汁</strong><br>
+          アクを徹底的に取り切り、雑味ゼロの澄んだ出汁に。<br>
+          剣先には手応えのない空振りのみを残す翻弄型ディフェンス。
+        </div>
+        <div class="char-quote">「一生アクでも取っとれ。」</div>
+        <div class="char-stats">
+          <div class="char-stat">ATK <span>1500</span></div>
+          <div class="char-stat">DEF <span>2200</span></div>
+          <div class="char-stat">★★★★★</div>
+        </div>
+      </div>
     </div>
 
-  <!-- BGM -->
-  <audio id="bgm" preload="auto" loop src="AUDIO_SRC"></audio>
+    <!-- オコゲ・トレヘン -->
+    <div class="char-card">
+      <img class="char-card-img" src="images/nwa-card-okoge.jpg" alt="オコゲ・トレヘン">
+      <div class="char-card-body">
+        <div class="char-name">オコゲ・トレヘン</div>
+        <div class="char-name-en">Okoge Torehen</div>
+        <div class="char-meta">
+          <span class="char-tag">ドイツ</span>
+          <span class="char-tag">サッカー（DF）</span>
+        </div>
+        <div class="char-role">
+          <strong>担当：おこげごはん</strong><br>
+          鍋底にしっかり焼き付けた香ばしいおこげ。<br>
+          一度食らいついたら最後、物理的にも精神的にも決して離れない。
+        </div>
+        <div class="char-quote">「ぜんぜん取れへん。」</div>
+        <div class="char-stats">
+          <div class="char-stat">ATK <span>1800</span></div>
+          <div class="char-stat">DEF <span>2500</span></div>
+          <div class="char-stat">★★★★★</div>
+        </div>
+      </div>
+    </div>
 
-<script>
-/* ============ 設定 ============ */
-const AUDIO_SRC = 'audio/Nekologia.mp3';    // ← BGMファイルの相対パス
-const BG_IMAGE  = 'images/city_neon.jpg';   // ← 背景画像の相対パス
+    <!-- マダデル・デ・ガラシ -->
+    <div class="char-card">
+      <img class="char-card-img" src="images/nwa-card-madadel.jpg" alt="マダデル・デ・ガラシ">
+      <div class="char-card-body">
+        <div class="char-name">マダデル・デ・ガラシ</div>
+        <div class="char-name-en">Madadel de Garashi</div>
+        <div class="char-meta">
+          <span class="char-tag">スペイン</span>
+          <span class="char-tag">テニス</span>
+        </div>
+        <div class="char-role">
+          <strong>担当：きんぴらごぼう</strong><br>
+          昆布とかつお節の出汁を取った後の素材も活かして、旨みを逃さない。<br>
+          限界を超えてからが本番、驚異の粘り腰。
+        </div>
+        <div class="char-quote">「まだ出る、まだ出るんです。」</div>
+        <div class="char-stats">
+          <div class="char-stat">ATK <span>2000</span></div>
+          <div class="char-stat">DEF <span>1800</span></div>
+          <div class="char-stat">★★★★★</div>
+        </div>
+      </div>
+    </div>
 
-/* 反映 */
-document.getElementById('bgm').src = AUDIO_SRC;
-document.querySelector('.stage').style.backgroundImage =
-  `linear-gradient(transparent,transparent), url('${BG_IMAGE}')`;
+    <!-- ニジル・ステルナヤ -->
+    <div class="char-card">
+      <img class="char-card-img" src="images/nwa-card-nizhir.jpg" alt="ニジル・ステルナヤ">
+      <div class="char-card-body">
+        <div class="char-name">ニジル・ステルナヤ</div>
+        <div class="char-name-en">Nizhir Sternaya</div>
+        <div class="char-meta">
+          <span class="char-tag">ロシア</span>
+          <span class="char-tag">フィギュアスケート</span>
+        </div>
+        <div class="char-role">
+          <strong>担当：肉じゃが</strong><br>
+          すまし汁の煮汁を再利用した、一滴も無駄にしない優しい味わい。<br>
+          一瞬の隙も、一滴の無駄もない濃密な演技。
+        </div>
+        <div class="char-quote">「一滴たりとも一滴てるなや。」</div>
+        <div class="char-stats">
+          <div class="char-stat">ATK <span>1600</span></div>
+          <div class="char-stat">DEF <span>2400</span></div>
+          <div class="char-stat">★★★★★</div>
+        </div>
+      </div>
+    </div>
 
-/* ============ 猫ギャラリー ============ */
-const CAT_IMAGES = [
-  'cats/loop01.gif',
-  'cats/loop02.gif',
-  'cats/cat01.jpg',
-  'cats/cat02.jpg',
-  'cats/cat03.jpg',
-  'cats/cat04.jpg',
-  'cats/cat05.jpg',
-  'cats/cat06.JPG',
-  'cats/cat07.jpg',
-  'cats/cat08.jpg',
-  'cats/cat09.jpg',
-  'cats/cat10.jpg',
-];
-const grid = document.getElementById('catGrid');
-function fileNameFromPath(p){ return p.split('/').pop(); }
-function isGif(path){ return /\.gif$/i.test(path); }
-function renderCats(){
-  if(!grid) return;
-  grid.innerHTML = '';
-  CAT_IMAGES.forEach((src, i)=>{
-    const gif = isGif(src);
-    const card = document.createElement('div');
-    card.className = 'cat-card' + (gif ? ' is-gif' : '');
-    const img = document.createElement('img');
-    img.loading = 'lazy'; img.decoding = 'async';
-    img.src = src; img.alt = (gif ? 'GIF' : '画像') + ' 猫 ' + (i+1);
-    card.appendChild(img);
-    if(gif){
-      const badge = document.createElement('span');
-      badge.className = 'cat-badge'; badge.textContent = 'GIF';
-      card.appendChild(badge);
-    }
-    const meta = document.createElement('div');
-    meta.className = 'cat-meta';
-    const name = document.createElement('span');
-    name.textContent = fileNameFromPath(src);
-    const actions = document.createElement('div');
-    actions.className = 'cat-actions';
-    const a = document.createElement('a');
-    a.href = src; a.download = fileNameFromPath(src); a.textContent = 'DL';
-    actions.appendChild(a);
-    meta.appendChild(name); meta.appendChild(actions);
-    card.appendChild(meta);
-    grid.appendChild(card);
-  });
-}
-renderCats();
+  </div>
+</section>
 
-/* ============ 効果音（柔らかい音） ============ */
-let audioCtx = null;
-let soundOn = true;
-function playClick(){
-  if(!soundOn) return;
-  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  const t = audioCtx.currentTime;
-  osc.type = 'sine';
-  osc.frequency.value = 420;
-  gain.gain.setValueAtTime(0.02, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-  osc.connect(gain); gain.connect(audioCtx.destination);
-  osc.start(t); osc.stop(t + 0.12);
-}
+<div class="divider"></div>
 
-/* ============ 字幕タイプ表示 ============ */
-const subsEl = document.getElementById('subsText');
-function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
-async function typeLine(text, cps=26){
-  subsEl.textContent = '';
-  const delay = 1000 / cps;
-  for (const ch of text){
-    subsEl.textContent += ch;
-    if(!/[\s　、。・，．…]/.test(ch)) playClick();
-    await wait(delay);
-  }
-}
-let subPlaying = false;
-async function playSubtitles(lines, cps=26, hold=900){
-  if(subPlaying) return;
-  subPlaying = true;
-  for(const line of lines){
-    await typeLine(line, cps);
-    await wait(hold);
-  }
-  subPlaying = false;
-}
+<!-- ==================== MENU ==================== -->
+<section class="section">
+  <div class="section-label">TODAY'S MENU</div>
+  <h2 class="section-title">本日の給食献立</h2>
+  <div class="concept-text" style="margin-bottom: 24px;">
+    すべての料理に「再利用」と「工夫」が詰まっている。<br>
+    アクは取って、出汁は活かして、煮汁は再利用して、最後は香ばしく残す。
+  </div>
+  <div class="menu-showcase">
+    <img src="images/nwa-menu.jpg" alt="本日の給食献立 ～捨てるな、最後まで使い切れ。～">
+  </div>
+</section>
 
-/* ============ ボタン：BGM＋字幕起動 ============ */
-const playBtn   = document.getElementById('playBtn');
-const replayBtn = document.getElementById('replayBtn');
-const bgm       = document.getElementById('bgm');
+<div class="divider"></div>
 
-const SUB_LINES = [
-  '22世紀。大戦の傷跡が残る辺境都市で、',
-  '記憶を失った戦争孤児の青年は、',
-  '名前を持たずに生きる一匹の猫と出会う。',
-  '失われた記憶と、与えられなかった呼び名を求めて、',
-  '旅立ったふたりは、ある出来事をきっかけに、',
-  '名前がなければ存在すら許されず、',
-  '見つかり次第ネコ型ロボットに“抹消”される、',
-  '超監視型全体主義国家『ネコロジア』へと迷い込む。',
-  '名もなき青年と猫に、',
-  'この世界が“誰か”としての明日を',
-  '許してくれる未来は訪れるのだろうか。'
-];
-
-playBtn?.addEventListener('click', async ()=>{
-  try { bgm.currentTime = 0; await bgm.play(); } catch(e){}
-  playSubtitles(SUB_LINES, 5, 900);
-});
-replayBtn?.addEventListener('click', async ()=>{
-  try { bgm.currentTime = 0; await bgm.play(); } catch(e){}
-  playSubtitles(SUB_LINES, 5, 900);
-});
-</script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(console.error);
-    });
-  }
-</script>
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <div class="footer-status">IN DEVELOPMENT</div>
+  <div class="footer-text">
+    20XX年 リリース予定……？<br>
+    現在、究極の調理シミュレーションシステムを構築中。
+  </div>
+  <a href="index.html" class="btn-back">ARCADEへ戻る</a>
+</footer>
 
 </body>
 </html>
